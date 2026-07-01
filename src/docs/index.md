@@ -32,7 +32,7 @@ Speed requires safety — we can only iterate fast when changes are cheap to und
 
 - The **why** lives in the [Vision](Vision/index.md).
 - The **how** lives in the [Ways of Working](Ways-of-Working/index.md) and the [Coding Standards](Coding-Standards/index.md).
-- The **what** — the products that make the vision real — lives across the [Ecosystem](Ecosystem/index.md).
+- The **what** — the products that make the vision real — lives across the [Initiatives](Initiatives/index.md).
 
 This separation is deliberate. The vision is stable; the products that express it come and go. Keep the principles in one place, reference them from many, and the whole system stays coherent as it grows.
 
@@ -45,10 +45,10 @@ Each area below carries its own index. Start here, read the descriptions, and fo
 | Section | Description |
 | --- | --- |
 | [Vision](Vision/index.md) | The mission and the philosophy of easy, fast, and safe. |
+| [Initiatives](Initiatives/index.md) | The products that make the vision real — PSModule, AzActions, TFActions, and the tools built along the way. |
 | [Ways of Working](Ways-of-Working/index.md) | How work happens across the ecosystem — for humans and agents alike. |
 | [Coding Standards](Coding-Standards/index.md) | The shared baseline every repository inherits, and the per-language standards that build on it. |
 | [Capabilities](Capabilities/index.md) | The capabilities the ecosystem builds, each documented by a spec (why and what) and a design (how and what). |
-| [Ecosystem](Ecosystem/index.md) | Where the vision comes to life across organizations and repositories. |
 
 <!-- INDEX:END -->
 
@@ -56,7 +56,7 @@ Each area below carries its own index. Start here, read the descriptions, and fo
 
 This site explains the vision. The vision becomes real in the organizations and repositories that adopt it — each one a concrete answer to "what would this look like if it were easy, fast, and safe?"
 
-See the [Ecosystem](Ecosystem/index.md) for where the principles on this site are put into practice.
+See the [Initiatives](Initiatives/index.md) for where the principles on this site are put into practice.
 
 ## Built for humans and agents
 

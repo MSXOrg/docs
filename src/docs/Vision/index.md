@@ -7,7 +7,7 @@ description: The mission and the philosophy of easy, fast, and safe.
 
 MSX exists to make great software delivery the **default** — easy, fast, and safe — for every developer and every agent.
 
-This page is the **why**. It is the most stable thing on this site: products, languages, and tools change, but the reason they exist does not. Everything else — the [Ways of Working](../Ways-of-Working/index.md), the [Coding Standards](../Coding-Standards/index.md), and the [Ecosystem](../Ecosystem/index.md) — flows from here.
+This page is the **why**. It is the most stable thing on this site: products, languages, and tools change, but the reason they exist does not. Everything else — the [Ways of Working](../Ways-of-Working/index.md), the [Coding Standards](../Coding-Standards/index.md), and the [Initiatives](../Initiatives/index.md) — flows from here.
 
 ## Start with Why
 
@@ -15,7 +15,7 @@ Work at every level is grounded in three concentric questions — the [Golden Ci
 
 - **Why** — what change in the world are we trying to make? *Make the right thing the easy thing, so good software ships fast and safely.*
 - **How** — what approach makes that change happen? *Everything as code, context before code, deterministic automation first, AI where judgment is needed, humans in the loop.*
-- **What** — what concrete thing are we delivering right now? *The frameworks, actions, modules, and tools in the [Ecosystem](../Ecosystem/index.md).*
+- **What** — what concrete thing are we delivering right now? *The frameworks, actions, modules, and tools in the [Initiatives](../Initiatives/index.md).*
 
 The Why is constant. The How is the way of working. The What is replaceable.
 
@@ -54,7 +54,7 @@ The vision is inherited, not copied. It is written once, here, and referenced ev
 Vision (this site)            the why — stable, evergreen
 └── Ways of Working           the how — workflow, principles, conventions
     └── Coding Standards      the how, applied to code
-        └── Ecosystem         the what — organizations and repositories
+        └── Initiatives       the what — the products
             └── Repositories  each README is the local source of truth
                 └── Agents    read the same docs as context before acting
 ```
@@ -63,8 +63,8 @@ Each layer references the one above instead of restating it. A repository's READ
 
 ## Where it comes to life
 
-A vision that stays on a page is just words. This one is meant to be *demonstrated*. Each organization and repository in the [Ecosystem](../Ecosystem/index.md) is a concrete answer to one question:
+A vision that stays on a page is just words. This one is meant to be *demonstrated*. Each initiative in the [Initiatives](../Initiatives/index.md) is a concrete answer to one question:
 
 > What would this look like if it were easy, fast, and safe?
 
-Go see the answers in the [Ecosystem](../Ecosystem/index.md).
+Go see the answers in the [Initiatives](../Initiatives/index.md).

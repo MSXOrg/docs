@@ -16,6 +16,13 @@ extra_javascript = [
 watch = ["includes"]
 nav = [
   {"Vision" = "Vision/index.md"},
+  {"Initiatives" = [
+    "Initiatives/index.md",
+    {"PSModule" = "Initiatives/PSModule.md"},
+    {"AzActions" = "Initiatives/AzActions.md"},
+    {"TFActions" = "Initiatives/TFActions.md"},
+    {"VS Code Extensions" = "Initiatives/VS-Code-Extensions.md"},
+  ]},
   {"Ways of Working" = [
     "Ways-of-Working/index.md",
     {"Workflow" = "Ways-of-Working/Workflow.md"},
@@ -70,7 +77,6 @@ nav = [
       {"Design" = "Capabilities/downstream-release-propagation/design.md"},
     ]},
   ]},
-  {"Ecosystem" = "Ecosystem/index.md"},
 ]
 
 [project.theme]
