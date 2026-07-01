@@ -29,6 +29,7 @@ The baseline pages apply to all code and come first; the per-language standards 
 | [Markdown](Markdown.md) | GitHub Flavored Markdown authoring rules enforced by the shared markdownlint configuration. |
 | [PowerShell](PowerShell.md) | Advanced functions, comment-based help, and error handling for cross-platform PowerShell. |
 | [Terraform](Terraform.md) | Stack layout, version pinning, state and secrets, and the fmt/validate/tflint toolchain. |
+| [TypeScript](TypeScript.md) | ES modules, strict-mode typing, pinned dependencies, and the Prettier/ESLint/Vitest toolchain for Node tooling and VS Code extensions. |
 
 <!-- INDEX:END -->
 

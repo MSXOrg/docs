@@ -58,6 +58,7 @@ nav = [
     {"Markdown" = "Coding-Standards/Markdown.md"},
     {"PowerShell" = "Coding-Standards/PowerShell.md"},
     {"Terraform" = "Coding-Standards/Terraform.md"},
+    {"TypeScript" = "Coding-Standards/TypeScript.md"},
   ]},
   {"Capabilities" = [
     "Capabilities/index.md",
