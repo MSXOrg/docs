@@ -86,7 +86,7 @@ jobs:
 
       - name: Verify documentation indexes
         shell: pwsh
-        run: ./.github/scripts/generate-indexes.ps1 -Check
+        run: ./.github/scripts/Update-DocumentationIndex.ps1 -Check
 
       - name: Install Zensical
         run: pip install -r requirements.txt

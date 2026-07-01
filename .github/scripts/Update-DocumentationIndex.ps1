@@ -2,7 +2,7 @@
 #Requires -Version 7.0
 <#
 .SYNOPSIS
-    Generate the index tables in each section's index.md from page front matter.
+    Update each section index.md with a table generated from page front matter.
 
 .DESCRIPTION
     Every documentation page declares 'title' and 'description' in YAML front
@@ -17,10 +17,21 @@
     parser, so the navigation order is derived by reading the ordered "*.md"
     path strings from the nav array in zensical.toml - the only place .md paths
     appear in that file.
+
+.EXAMPLE
+    ./Update-DocumentationIndex.ps1
+    Updates every section index.md in place from the current front matter.
+
+.EXAMPLE
+    ./Update-DocumentationIndex.ps1 -Check
+    Verifies the indexes are current without writing; exits non-zero on drift.
+    This is the mode the CI build job runs.
 #>
 [CmdletBinding()]
 param(
-    [switch]$Check
+    # Verify the indexes are up to date without writing; exit non-zero on drift.
+    [Parameter()]
+    [switch] $Check
 )
 
 Set-StrictMode -Version Latest
@@ -79,9 +90,9 @@ function Get-IndexTable {
     param([string]$IndexPath, [hashtable]$Order)
     $dir = Split-Path -Parent $IndexPath
     $subdirs = @(Get-ChildItem -LiteralPath $dir -Directory |
-        Where-Object { Test-Path (Join-Path $_.FullName 'index.md') } | Sort-Object Name)
+            Where-Object { Test-Path (Join-Path $_.FullName 'index.md') } | Sort-Object Name)
     $files = @(Get-ChildItem -LiteralPath $dir -File -Filter *.md |
-        Where-Object { $_.Name -ne 'index.md' } | Sort-Object Name)
+            Where-Object { $_.Name -ne 'index.md' } | Sort-Object Name)
 
     $rows = [System.Collections.Generic.List[object]]::new()
     foreach ($child in $subdirs) {
@@ -138,7 +149,7 @@ if ($stale.Count -eq 0) { exit 0 }
 if ($Check) {
     Write-Output 'Documentation index tables are out of date:'
     $stale | ForEach-Object { Write-Output "  - $_" }
-    Write-Output 'Run: pwsh .github/scripts/generate-indexes.ps1'
+    Write-Output 'Run: pwsh .github/scripts/Update-DocumentationIndex.ps1'
     exit 1
 }
 Write-Output 'Updated index tables:'
