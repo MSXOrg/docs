@@ -5,7 +5,7 @@ description: The GitHub + PowerShell framework — reusable modules and the acti
 
 # PSModule
 
-**[PSModule](https://github.com/PSModule)** makes it *easy* to build, test, and ship PowerShell on GitHub — the fullest expression of the vision, end to end.
+**[PSModule](https://github.com/PSModule)** makes it *easy* to build, test, and ship PowerShell on GitHub — the fullest expression of the vision, end-to-end.
 
 It is two things at once:
 

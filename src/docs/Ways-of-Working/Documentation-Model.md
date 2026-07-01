@@ -1,6 +1,6 @@
 ---
 title: Documentation Model
-description: How every capability is documented — a spec for the why and a design for the how, co-located, concise, and kept evergreen for humans and agents alike.
+description: How every capability is documented — a spec for the why and a design for the how, colocated, concise, and kept evergreen for humans and agents alike.
 ---
 
 # Documentation Model

@@ -16,7 +16,7 @@ This section documents the principles, processes, and norms that every contribut
 | Page | Description |
 | --- | --- |
 | [Workflow](Workflow.md) | How work flows from idea to delivery and back again. |
-| [Documentation Model](Documentation-Model.md) | How every capability is documented — a spec for the why and a design for the how, co-located, concise, and kept evergreen for humans and agents alike. |
+| [Documentation Model](Documentation-Model.md) | How every capability is documented — a spec for the why and a design for the how, colocated, concise, and kept evergreen for humans and agents alike. |
 | [Agentic Development](Agentic-Development.md) | How ways of working, standards, and documentation are authored once and consumed by both humans and agents. |
 | [Principles](Principles.md) | The foundational beliefs and product mindset behind every decision. |
 | [Engineering Taste](Engineering-Taste.md) | The judgment that takes over when the standards run out. |
