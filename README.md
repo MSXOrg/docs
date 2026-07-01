@@ -7,9 +7,11 @@ Published with [Zensical](https://zensical.org) to GitHub Pages: **[msxorg.githu
 ## What's inside
 
 - **Vision** — the *why*: the mission and the philosophy of easy, fast, and safe.
+- **Initiatives** — the *what*: the products that make the vision real, from PSModule to reusable Actions and VS Code extensions.
 - **Ways of Working** — the *how*: workflow, principles, issue/PR/commit conventions, review etiquette, and more.
 - **Coding Standards** — language-agnostic standards for naming, layout, documentation, testing, and security.
-- **Ecosystem** — the *what*: where the vision comes to life across organizations and repositories.
+- **Capabilities** — the reusable specs and designs for what the ecosystem builds.
+- **Dictionary** — the shared vocabulary every reader and agent uses.
 
 The vision is written once, here, and referenced everywhere. Products change; the principles they express stay put.
 
