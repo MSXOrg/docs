@@ -74,7 +74,8 @@ jobs:
           python-version: 3.x
 
       - name: Verify documentation indexes
-        run: python .github/scripts/generate-indexes.py --check
+        shell: pwsh
+        run: ./.github/scripts/generate-indexes.ps1 -Check
 
       - name: Install Zensical
         run: pip install zensical

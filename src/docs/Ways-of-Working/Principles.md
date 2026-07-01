@@ -164,6 +164,12 @@ The point is not ceremony; it is that nothing irreversible happens automatically
 - **Interface Segregation.** Don't make consumers depend on things they don't use.
 - **Dependency Inversion.** Depend on abstractions, not concretions.
 
+### Extensible by default
+
+Extend by adding, not by modifying what already works — the Open/Closed principle, applied beyond code to how the whole system grows. Ways of working and standards are the **stable core**; the tools that act on them — coding agents, runtimes, integrations — are **pluggable adapters** that slot in. Adding or swapping a tool means writing new pointers, not rewriting process knowledge.
+
+The system stays pluggable: the docs do not change when a new agent runtime is added — only a new integration layer is written. See the [Agentic Development](Agentic-Development.md) specification for how this plays out in practice.
+
 ### DRY — with judgment
 
 Don't Repeat Yourself, but **don't extract too early**. Wait until the same non-trivial logic appears in three or more places, or until the duplication is clearly load-bearing. Premature abstraction is more expensive than duplication.

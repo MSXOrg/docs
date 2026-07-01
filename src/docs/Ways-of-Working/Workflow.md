@@ -81,13 +81,14 @@ The goal is **shared understanding** — everyone (humans and agents) agrees on 
 
 Turn the refined understanding into actionable work:
 
+- **Gap analysis** — diff the [evergreen specification](Documentation-Model.md#evergreen-and-evolutionary) for the affected capability against the current implementation. The gap is the work.
 - **Decisions** — what approach will we take? What trade-offs are we making? Document them in the issue.
 - **Decomposition** — if the work is large, break it into sub-issues. Each sub-issue should be deliverable in a single pull request.
 - **Checklist** — for a single task, list the concrete steps in the issue body.
 
 The plan is the contract. It drives implementation.
 
-See [Issue Format § Sections 2–3](Issue-Format.md), [Issue Hierarchy](Issue-Hierarchy.md).
+See [Documentation Model](Documentation-Model.md), [Issue Format § Sections 2–3](Issue-Format.md), [Issue Hierarchy](Issue-Hierarchy.md).
 
 ### Build
 

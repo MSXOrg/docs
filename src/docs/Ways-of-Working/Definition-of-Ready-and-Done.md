@@ -28,7 +28,8 @@ An item is done when:
 - The change is merged through a reviewed pull request.
 - It conforms to the [Coding Standards](../Coding-Standards/index.md); linters and checks are green.
 - Tests cover the behavior and pass.
-- Documentation — README, in-code help, and this site — is updated in the same change.
+- The [evergreen specification](Documentation-Model.md#evergreen-and-evolutionary) for the affected capability describes the new behaviour — the spec leads, the code matches it.
+- Documentation is updated in the same change — both owning-team docs (README, in-code help, and this site) and user-facing documentation.
 - It is released or deployed, where that applies.
 - No known regressions remain, and the issue is closed.
 

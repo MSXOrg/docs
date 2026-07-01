@@ -30,6 +30,17 @@ The best comment is the one you didn't need to write because the code said it al
 
 Comments explain intent, trade-offs, workarounds, and the reasons behind non-obvious choices. They are where you record *why this and not the obvious alternative*.
 
+## Keep comments concise
+
+Once a comment carries the why, it is done. A short phrase beats a paragraph, and a paragraph beats a screenful — over-explaining buries the one line that matters and rots as the code moves on.
+
+- **One line where one line works.** State the reason and stop. If the explanation keeps growing, it belongs in the design, an ADR, or the issue — link to it instead of inlining an essay.
+- **Don't narrate the code.** Skip step-by-step commentary, banner headers, and comments that just echo the next statement.
+- **Trust the reader.** Explain the non-obvious, not the ordinary — assume competence with the language and the codebase.
+
+- **Too expressive:** a five-line block walking through each step of a retry loop.
+- **Enough:** `// retry: the gateway 503s for a few seconds after a cold start`
+
 ## Public surfaces are documented
 
 Every public function, command, module, or API carries documentation at its boundary — in the language's native format (comment-based help, docstrings, doc comments) so tooling can surface it. A consumer should never have to read the implementation to learn how to call it.

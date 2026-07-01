@@ -46,7 +46,8 @@ Each area below carries its own index. Start here, read the descriptions, and fo
 | --- | --- |
 | [Vision](Vision/index.md) | The mission and the philosophy of easy, fast, and safe. |
 | [Ways of Working](Ways-of-Working/index.md) | How work happens across the ecosystem — for humans and agents alike. |
-| [Coding Standards](Coding-Standards/index.md) | Language-agnostic standards every repository in the ecosystem inherits. |
+| [Coding Standards](Coding-Standards/index.md) | The shared baseline every repository inherits, and the per-language standards that build on it. |
+| [Capabilities](Capabilities/index.md) | The capabilities the ecosystem builds, each documented by a spec (why and what) and a design (how and what). |
 | [Ecosystem](Ecosystem/index.md) | Where the vision comes to life across organizations and repositories. |
 
 <!-- INDEX:END -->
