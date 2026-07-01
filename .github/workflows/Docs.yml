@@ -2,24 +2,16 @@ name: Docs
 
 on:
   workflow_dispatch:
+  # No paths filter on purpose: this is the only workflow, so every push and pull
+  # request must run it to lint and build the full documented surface — including
+  # root files such as README.md, .github/dependabot.yml, and .prettierrc.json. A
+  # paths allow-list would silently skip CI for changes outside it.
   push:
     branches:
       - main
-    paths:
-      - src/**
-      - .github/scripts/**
-      - .github/linters/**
-      - .github/workflows/Docs.yml
-      - requirements.txt
   pull_request:
     branches:
       - main
-    paths:
-      - src/**
-      - .github/scripts/**
-      - .github/linters/**
-      - .github/workflows/Docs.yml
-      - requirements.txt
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
