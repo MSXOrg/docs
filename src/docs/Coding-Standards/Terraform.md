@@ -5,7 +5,7 @@ description: Stack layout, version pinning, state and secrets, and the fmt/valid
 
 # Terraform
 
-How Terraform is written across the ecosystem. Terraform is the tool for provisioning cloud infrastructure as code. Infrastructure changes go through the same review and approval gates as application code — see [Decision before change](../Ways-of-Working/Principles.md#decision-before-change).
+How Terraform is written across the ecosystem. Terraform is the tool for provisioning cloud infrastructure as code. Infrastructure changes go through the same review and approval gates as application code — see [Decision before change](../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).
 
 This standard builds on the [language-agnostic baseline](index.md); where the two overlap, the baseline rules apply and the conventions below add the Terraform specifics.
 

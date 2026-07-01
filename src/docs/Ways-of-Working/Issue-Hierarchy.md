@@ -102,7 +102,7 @@ Text-level conventions on child issues:
 | Section 2 (Decisions)    | Implementation decisions      | Decomposition rationale + interface decisions between children       | Decomposition rationale + which PBIs and why                         |
 | Section 3 (Plan)         | Checkbox task list            | Linked list of child issues (Tasks and/or sub-PBIs)                  | Linked list of child PBIs                                            |
 
-For Epics, Section 1 should explicitly contain the **Golden Circle framing**: Why, How, What. See [Principles → Golden Circle](Principles.md#start-with-why-the-golden-circle).
+For Epics, Section 1 should explicitly contain the **Golden Circle framing**: Why, How, What. See [Principles → Golden Circle](Principles/Purpose-and-Direction.md#start-with-why-the-golden-circle).
 
 ## Why three levels and not more
 

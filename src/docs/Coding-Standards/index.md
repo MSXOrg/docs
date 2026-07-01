@@ -5,7 +5,7 @@ description: The shared baseline every repository inherits, and the per-language
 
 # Coding Standards
 
-Standards for code written anywhere in the MSX ecosystem, in two tiers. The **baseline** encodes the [Principles](../Ways-of-Working/Principles.md) at the level of day-to-day code — how it is named, laid out, documented, tested, and secured — and applies in every language. The **per-language standards** add the idioms of one language or tool on top, and never contradict the baseline.
+Standards for code written anywhere in the MSX ecosystem, in two tiers. The **baseline** encodes the [Principles](../Ways-of-Working/Principles/index.md) at the level of day-to-day code — how it is named, laid out, documented, tested, and secured — and applies in every language. The **per-language standards** add the idioms of one language or tool on top, and never contradict the baseline.
 
 These standards are prescriptive: a change is expected to follow them, and the relevant linter or formatter is the enforcement mechanism wherever one exists.
 

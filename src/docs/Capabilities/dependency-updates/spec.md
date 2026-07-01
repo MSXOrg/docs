@@ -16,12 +16,12 @@ through the same gate as any change — never a side channel that bypasses revie
 
 ### Principles
 
-This capability rests on the [Principles](../../Ways-of-Working/Principles.md):
+This capability rests on the [Principles](../../Ways-of-Working/Principles/index.md):
 
-- **[Everything as Code](../../Ways-of-Working/Principles.md#everything-as-code).** What is checked and how often is version-controlled configuration, not a manual audit.
-- **[Decision before change](../../Ways-of-Working/Principles.md#decision-before-change).** Every update is a pull request; its review gate approves the bump and the release it produces.
-- **[Least-privilege](../../Ways-of-Working/Principles.md#least-privilege).** The updater and any auto-merge automation carry only the permissions they need.
-- **[Extensible by default](../../Ways-of-Working/Principles.md#extensible-by-default).** Adding a package ecosystem is a configuration entry, not new machinery.
+- **[Everything as Code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).** What is checked and how often is version-controlled configuration, not a manual audit.
+- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** Every update is a pull request; its review gate approves the bump and the release it produces.
+- **[Least-privilege](../../Ways-of-Working/Principles/Purpose-and-Direction.md#least-privilege).** The updater and any auto-merge automation carry only the permissions they need.
+- **[Extensible by default](../../Ways-of-Working/Principles/Software-Design.md#extensible-by-default).** Adding a package ecosystem is a configuration entry, not new machinery.
 
 ## Scope
 

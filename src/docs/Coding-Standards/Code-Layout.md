@@ -15,7 +15,7 @@ Formatting is a solved problem — hand it to a tool. Every repository runs a fo
 - **The formatter config lives in the repository**, in version control, so humans and agents apply the same rules.
 - This frees review attention for what actually matters: correctness, design, and clarity.
 
-See [Shift Left → pre-commit hooks](../Ways-of-Working/Principles.md#shift-left) for where these gates run.
+See [Shift Left → pre-commit hooks](../Ways-of-Working/Principles/Engineering-Practices.md#pre-commit-hooks) for where these gates run.
 
 ## Functions and units
 

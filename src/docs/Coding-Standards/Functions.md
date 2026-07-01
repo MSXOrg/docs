@@ -22,7 +22,7 @@ Functions are the unit of intent. A good function does one thing, says what it d
 
 ## Validate at the boundary
 
-- Reject bad input where it enters, before it travels deep into the call stack. A clear failure at the edge beats a baffling one three layers down. This is [shift left](../Ways-of-Working/Principles.md#shift-left) applied to a single function.
+- Reject bad input where it enters, before it travels deep into the call stack. A clear failure at the edge beats a baffling one three layers down. This is [shift left](../Ways-of-Working/Principles/Engineering-Practices.md#shift-left) applied to a single function.
 - Inside a validated boundary, trust the data. At the edge, trust nothing.
 
 ## Flow reads top to bottom

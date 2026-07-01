@@ -15,11 +15,11 @@ release CLI, a hand-edited version file, or a tagging convention.
 
 ### Principles
 
-This capability rests on the [Principles](../../Ways-of-Working/Principles.md):
+This capability rests on the [Principles](../../Ways-of-Working/Principles/index.md):
 
-- **[Everything as Code](../../Ways-of-Working/Principles.md#everything-as-code).** The release process and version decision are version-controlled, never a GUI action or manual tag.
-- **[Decision before change](../../Ways-of-Working/Principles.md#decision-before-change).** The pull request is the decision point; its review gate approves the code *and* the release, and the bump label records the versioning decision explicitly.
-- **[Extensible by default](../../Ways-of-Working/Principles.md#extensible-by-default).** The rules are technology-agnostic at the core, with defined extension points per artifact type. A new artifact type supplies a convention and a publish step, not a new process.
+- **[Everything as Code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).** The release process and version decision are version-controlled, never a GUI action or manual tag.
+- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** The pull request is the decision point; its review gate approves the code *and* the release, and the bump label records the versioning decision explicitly.
+- **[Extensible by default](../../Ways-of-Working/Principles/Software-Design.md#extensible-by-default).** The rules are technology-agnostic at the core, with defined extension points per artifact type. A new artifact type supplies a convention and a publish step, not a new process.
 
 ## Scope
 

@@ -20,7 +20,7 @@ MSX uses a lightweight OKR-based framework to connect strategic direction to day
 - **Objectives** are qualitative, aspirational, and outside-in. They describe a state of the world we want to see.
 - **Key Results** are measurements that confirm the Objective is being met. They drive incentive in the right direction without prescribing the path.
 
-A good OKR is one that anyone — contributor, user, or agent — can read and immediately have ideas about how to contribute. See [Principles](Principles.md) for the full rationale.
+A good OKR is one that anyone — contributor, user, or agent — can read and immediately have ideas about how to contribute. See [Principles](Principles/index.md) for the full rationale.
 
 ## Current OKRs
 

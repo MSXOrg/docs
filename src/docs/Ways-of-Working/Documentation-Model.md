@@ -45,7 +45,7 @@ Capabilities/
 
 A reader opens one folder and has the whole picture — the requirement and the
 implementation, one click apart. This is [Documentation lives close to the thing
-it documents](Principles.md#documentation-lives-close-to-the-thing-it-documents)
+it documents](Principles/Engineering-Practices.md#documentation-lives-close-to-the-thing-it-documents)
 applied to the spec–design pair; where a design maps to a repository, the same
 two documents live with the code.
 
@@ -109,7 +109,7 @@ history records what changed; the document records only what is true now.
 Before a spec or design change is accepted it passes a quick rubric — is every
 requirement testable, are criteria measurable and implementation-free, is it
 present-tense and free of status? — applied in the reviewer's head and the PR
-([4-eyes](Principles.md#4-eyes-or-n-eyes-principle)), leaving no artifact behind.
+([4-eyes](Principles/AI-First-Development.md#4-eyes-or-n-eyes-principle)), leaving no artifact behind.
 
 ## Concise by default
 
@@ -119,7 +119,7 @@ being long.
 - **Short and scannable.** Lead with the point. Prefer a table or a list to a
   paragraph. If a reader must scroll to find the rule, it is too long.
 - **One fact, one place.** State a thing once and link to it; never duplicate
-  ([DRY](Principles.md#dry-with-judgment)). Duplication is how docs begin to
+  ([DRY](Principles/Software-Design.md#dry-with-judgment)). Duplication is how docs begin to
   disagree with themselves.
 - **Delete, don't stub.** A section that does not apply is removed, not marked
   "N/A". Empty scaffolding hides the real content.

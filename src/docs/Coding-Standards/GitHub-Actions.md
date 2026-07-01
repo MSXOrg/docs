@@ -162,7 +162,7 @@ checkers all see an opaque string, not code. Pull it out.
   files.
 
 Extracting a script out of a workflow string is an instance of the
-[Code in code files](../Ways-of-Working/Principles.md#code-in-code-files)
+[Code in code files](../Ways-of-Working/Principles/Engineering-Practices.md#code-in-code-files)
 principle: code earns linters, security scanning, and IDE support only once it
 lives in a file of its own language.
 

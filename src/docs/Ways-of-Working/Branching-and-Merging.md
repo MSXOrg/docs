@@ -16,7 +16,7 @@ How changes move from a working branch into a protected branch. The model is sma
 ## Pull requests only
 
 - Protected branches are never pushed to directly. Every change arrives through a pull request — even a one-line fix.
-- A pull request is green before review begins. Automated checks run first, so reviewers spend their attention on judgment rather than on catching what CI catches. This is [shift left](Principles.md#shift-left).
+- A pull request is green before review begins. Automated checks run first, so reviewers spend their attention on judgment rather than on catching what CI catches. This is [shift left](Principles/Engineering-Practices.md#shift-left).
 - Keep pull requests small and focused: one deliverable, reviewable in a single pass.
 
 ## Merge models

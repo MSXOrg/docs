@@ -16,7 +16,7 @@ Every identity — human, agent, or workflow — gets only the permissions it ne
 - Agents are scoped to the actions they are authorized to take. An agent that reviews code cannot merge it.
 - Expanding a scope is a deliberate, reviewed decision — never a default or a shortcut.
 
-The goal is to limit blast radius: if any one identity is compromised, the damage is contained. See [Principles → Least-privilege](../Ways-of-Working/Principles.md#least-privilege).
+The goal is to limit blast radius: if any one identity is compromised, the damage is contained. See [Principles → Least-privilege](../Ways-of-Working/Principles/Purpose-and-Direction.md#least-privilege).
 
 ## Secrets stay secret
 

@@ -151,4 +151,4 @@ Detail increases as work moves from Later toward Now.
 - A product backlog item lives between **Now / Logical** and **Next / Detailed**.
 - An epic spans **Now → Next → Later** at **Conceptual / Logical** fidelity.
 
-This workflow follows the [Human–agent coexistence](Principles.md#human-agent-coexistence) principle — it is designed for humans first, with agents joining the same process rather than running a parallel one.
+This workflow follows the [Human–agent coexistence](Principles/AI-First-Development.md#human-agent-coexistence) principle — it is designed for humans first, with agents joining the same process rather than running a parallel one.

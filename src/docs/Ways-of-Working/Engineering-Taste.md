@@ -30,7 +30,7 @@ Standards cover the common cases. When they run out, judgment takes over. These 
 ## Weigh reversibility
 
 - Reversible decisions are cheap — make them quickly and move on.
-- Irreversible or expensive-to-undo decisions deserve more care: a second perspective and a written rationale. See [Principles → make change easy](Principles.md#make-change-easy-then-make-the-easy-change).
+- Irreversible or expensive-to-undo decisions deserve more care: a second perspective and a written rationale. See [Principles → make change easy](Principles/Software-Design.md#make-change-easy-then-make-the-easy-change).
 
 ## When still unsure
 

@@ -17,12 +17,12 @@ that applies the update — and the changes it implies — for a human to review
 
 ### Principles
 
-This capability rests on the [Principles](../../Ways-of-Working/Principles.md):
+This capability rests on the [Principles](../../Ways-of-Working/Principles/index.md):
 
-- **[Everything as Code](../../Ways-of-Working/Principles.md#everything-as-code).** Propagation is a workflow in the producer, not a checklist or a calendar reminder.
-- **[AI-first development](../../Ways-of-Working/Principles.md#ai-first-development).** The automation creates context and delegates the change to an agent, which opens the PR; a human reviews and merges.
-- **[Least-privilege](../../Ways-of-Working/Principles.md#least-privilege).** The notification uses a narrowly scoped cross-repo token, never a broad standing credential.
-- **[Written once, referenced everywhere](../../Ways-of-Working/Principles.md#dry-with-judgment).** Dependents are declared in one place in the producer; adding one is a one-line change.
+- **[Everything as Code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).** Propagation is a workflow in the producer, not a checklist or a calendar reminder.
+- **[AI-first development](../../Ways-of-Working/Principles/AI-First-Development.md).** The automation creates context and delegates the change to an agent, which opens the PR; a human reviews and merges.
+- **[Least-privilege](../../Ways-of-Working/Principles/Purpose-and-Direction.md#least-privilege).** The notification uses a narrowly scoped cross-repo token, never a broad standing credential.
+- **[Written once, referenced everywhere](../../Ways-of-Working/Principles/Software-Design.md#dry-with-judgment).** Dependents are declared in one place in the producer; adding one is a one-line change.
 
 ## Applicability
 

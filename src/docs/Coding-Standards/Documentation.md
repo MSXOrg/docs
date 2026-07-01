@@ -59,4 +59,4 @@ Assume the reader — human or agent — is seeing this for the first time. Use 
 
 ## Documentation is for agents too
 
-Agents read documentation as context before they act. A stale or missing doc does not just confuse a human — it makes an agent build the wrong thing. Keeping documentation ahead of code is what makes [context-first development](../Ways-of-Working/Principles.md#context-first-development) work at scale.
+Agents read documentation as context before they act. A stale or missing doc does not just confuse a human — it makes an agent build the wrong thing. Keeping documentation ahead of code is what makes [context-first development](../Ways-of-Working/Principles/AI-First-Development.md#context-first-development) work at scale.

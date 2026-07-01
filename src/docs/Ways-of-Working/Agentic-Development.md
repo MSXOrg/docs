@@ -15,12 +15,12 @@ The specification fixes the direction of the dependency. The docs are the **stab
 
 ## Principles
 
-This spec rests on the [Principles](Principles.md). Four apply directly:
+This spec rests on the [Principles](Principles/index.md). Four apply directly:
 
-- **Written once, referenced everywhere.** A standard, a process, or a convention is defined in exactly one place and linked from everywhere else. Agent config, repository docs, and tool integrations point to that definition — they never duplicate it. This is [DRY](Principles.md#dry-with-judgment) applied to process knowledge.
-- **[Documentation lives close to the thing it documents](Principles.md#documentation-lives-close-to-the-thing-it-documents).** Repo-specific context lives in the repository; cross-cutting guidance lives in the org-level docs and is referenced by its canonical URL. An agent always reads the repository's own context first.
-- **[AI-first development](Principles.md#ai-first-development).** Humans create context — in issues, docs, and decisions — and agents act on it. Because agents are trained to read documentation, keeping standards in documentation form serves both audiences with a single artifact; no separate "agent manual" exists.
-- **[Extensible by default](Principles.md#extensible-by-default).** Ways of working and standards are the stable core. Coding agents are adapters that plug in. The system is pluggable: the docs do not change when a new runtime is added — only a new integration layer is written.
+- **Written once, referenced everywhere.** A standard, a process, or a convention is defined in exactly one place and linked from everywhere else. Agent config, repository docs, and tool integrations point to that definition — they never duplicate it. This is [DRY](Principles/Software-Design.md#dry-with-judgment) applied to process knowledge.
+- **[Documentation lives close to the thing it documents](Principles/Engineering-Practices.md#documentation-lives-close-to-the-thing-it-documents).** Repo-specific context lives in the repository; cross-cutting guidance lives in the org-level docs and is referenced by its canonical URL. An agent always reads the repository's own context first.
+- **[AI-first development](Principles/AI-First-Development.md).** Humans create context — in issues, docs, and decisions — and agents act on it. Because agents are trained to read documentation, keeping standards in documentation form serves both audiences with a single artifact; no separate "agent manual" exists.
+- **[Extensible by default](Principles/Software-Design.md#extensible-by-default).** Ways of working and standards are the stable core. Coding agents are adapters that plug in. The system is pluggable: the docs do not change when a new runtime is added — only a new integration layer is written.
 
 ## Architecture
 
@@ -52,7 +52,7 @@ This split follows [Repository Segmentation](Repository-Segmentation.md) and [RE
 
 ## How an agent runtime plugs in
 
-Agent context is delivered through three layers, in priority order — the same three layers the [Principles](Principles.md#human-agent-coexistence) describe:
+Agent context is delivered through three layers, in priority order — the same three layers the [Principles](Principles/AI-First-Development.md#human-agent-coexistence) describe:
 
 1. **Documentation.** The primary source. The published docs, READMEs, and issue bodies are written for humans and read natively by agents.
 2. **Central agent configuration.** Organization-wide agent files in a `.github-private` repository. These are thin orchestrators built mostly from references to the docs — they define roles, boundaries, and procedural steps, never standards or conventions.
@@ -78,6 +78,6 @@ Process knowledge is never added to a distributed config file. If an agent needs
 ## Where this connects
 
 - [Documentation Model](Documentation-Model.md) — the discipline this specification follows.
-- [Principles](Principles.md) — the beliefs this specification rests on, including the three-layer agent context model.
+- [Principles](Principles/index.md) — the beliefs this specification rests on, including the three-layer agent context model.
 - [README-Driven Context](Readme-Driven-Context.md) — why the repository's own context comes first.
 - [Coding Standards](../Coding-Standards/index.md) — the cross-cutting standards agents pick up in the central layer.

@@ -13,7 +13,7 @@ Define the test when you define the behavior. Writing the test first forces you 
 
 For logic with branches, edge cases, or anything involving money, time, or security — red-green-refactor is the default. For trivial glue code, judgment applies; dogma does not.
 
-See [Test-Driven Development](../Ways-of-Working/Principles.md#test-driven-development).
+See [Test-Driven Development](../Ways-of-Working/Principles/Engineering-Practices.md#test-driven-development).
 
 ## Testable locally
 
@@ -49,4 +49,4 @@ A bug that reached production is a missing test. The fix is incomplete until a t
 
 ## Tests run in CI
 
-Every pull request runs the suite before a human review begins. Validation that depends on a reviewer remembering to check is validation that eventually fails. Automate it once; it protects every PR after. See [Shift Left](../Ways-of-Working/Principles.md#shift-left).
+Every pull request runs the suite before a human review begins. Validation that depends on a reviewer remembering to check is validation that eventually fails. Automate it once; it protects every PR after. See [Shift Left](../Ways-of-Working/Principles/Engineering-Practices.md#shift-left).
