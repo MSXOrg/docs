@@ -15,7 +15,7 @@ If something is only in your head:
 
 **Write it down.** Issues, decisions, plans, READMEs. Writing is how knowledge becomes shared and how agents can help.
 
-## Everything as Code
+## Everything as code
 
 Everything — workflows, configuration, infrastructure, processes, agent definitions, even the docs you are reading — lives in source control. This is the bedrock of human-agent interaction. An agent can read code, change code, propose code. It cannot read what's only in someone's memory.
 
@@ -47,7 +47,7 @@ Documentation describes the system as it **is**, in the present tense — not th
 
 This governs this site, every README, and every specification — and it is why a pull request description states what the change *contributes*, not the steps taken to produce it.
 
-## Test-Driven Development
+## Test-driven development
 
 Define the tests when you define the behavior. Update them when behavior changes. Tests are the executable specification.
 
