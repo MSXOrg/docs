@@ -248,7 +248,7 @@ appears.
 - **Lift the script out of `action.yml` into a separate file** so tooling can
   see it. The action's `run:` step then invokes that file rather than inlining
   its contents. A script file is subject to its language's coding standard and
-  linter — for example the [PowerShell](PowerShell.md) standard — exactly as if
+  linter — for example the [PowerShell](PowerShell/index.md) standard — exactly as if
   it lived in application code.
 - **One script file lives at the root of the action folder.** When the action
   grows to several source files, **collect them under a `src/` folder** so the

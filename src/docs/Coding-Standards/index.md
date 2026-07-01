@@ -27,7 +27,7 @@ The baseline pages apply to all code and come first; the per-language standards 
 | [Security](Security.md) | Least privilege, secret hygiene, and the OWASP baseline. |
 | [GitHub Actions](GitHub-Actions.md) | Workflow authoring — SHA pinning, least-privilege permissions, OIDC, secrets handling, and script extraction. |
 | [Markdown](Markdown.md) | GitHub Flavored Markdown authoring rules enforced by the shared markdownlint configuration. |
-| [PowerShell](PowerShell.md) | Advanced functions, comment-based help, and error handling for cross-platform PowerShell. |
+| [PowerShell](PowerShell/index.md) | Cross-platform PowerShell 7 — the conventions shared by every script, function, and class, with per-construct standards below. |
 | [Terraform](Terraform.md) | Stack layout, version pinning, state and secrets, and the fmt/validate/tflint toolchain. |
 | [TypeScript](TypeScript.md) | ES modules, strict-mode typing, pinned dependencies, and the Prettier/ESLint/Vitest toolchain for Node tooling and VS Code extensions. |
 

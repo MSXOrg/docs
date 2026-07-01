@@ -21,6 +21,10 @@ A **release branch** is any branch configured as a release target, each with a
   on every merge; `main` (stable) receives `dev`. Merging `dev → main` computes
   the stable version from the **latest stable release** plus the merge PR's bump
   label — the prerelease counter does not carry over.
+- **One production authority.** At most one branch is `release-type: stable`;
+  every other release branch is `prerelease`. The single stable branch
+  (typically `main`) owns the production version — a prerelease branch can never
+  cut a stable release.
 - **Bundled releases.** A **staging branch** collects feature PRs; merging it to
   a release branch produces **exactly one** release for all bundled changes.
 
@@ -89,6 +93,27 @@ handed to [Downstream Release Propagation](../downstream-release-propagation/des
    workflow, and module artifacts the tag itself **is** the artifact.
 3. A GitHub Release whose name is the version, carrying the note and the
    immutable reference (digest, package version, or the tag).
+
+## Serialised releases
+
+Release runs for the same ref are **serialised** and **queue rather than
+cancel** — an in-flight release is never aborted mid-write, since it may be
+part-way through creating a tag or pushing an artifact. The shared workflow
+declares a concurrency group keyed by workflow and ref, with
+`cancel-in-progress` disabled:
+
+```yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+```
+
+Serialisation is provided once by the reusable workflow so every repository
+inherits it; the mechanism is the
+[GitHub Actions standard](../../Coding-Standards/GitHub-Actions.md#concurrency).
+The single-stable-branch rule above is what keeps the production version under
+one authority — the stable branch is the only ref that ever cuts a production
+release, and its runs are serialised like any other.
 
 ## Configuration surface
 
