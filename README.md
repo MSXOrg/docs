@@ -64,7 +64,7 @@ src/
 The site is built with [Zensical](https://zensical.org), a Python static-site generator.
 
 ```bash
-pip install zensical
+pip install -r requirements.txt
 cd src
 zensical serve    # live preview at http://localhost:8000
 zensical build    # output to src/site

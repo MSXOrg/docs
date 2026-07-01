@@ -23,8 +23,11 @@ concurrency:
   # so a Pages deploy is never cancelled mid-publish.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
-permissions:
-  contents: read
+# Default-deny floor for this multi-job workflow: each job below grants only the
+# scopes its steps need, so a job that omits its own permissions block (including
+# one added later) inherits nothing and fails closed. See the GitHub Actions
+# coding standard, "Grant least-privilege permissions".
+permissions: {}
 
 jobs:
   lint:
