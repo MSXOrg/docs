@@ -64,12 +64,22 @@ function Read-FrontMatter {
 
 function Get-NavOrder {
     $text = [System.IO.File]::ReadAllText($Config)
-    $open = $text.IndexOf('[', $text.IndexOf('nav'))
+    # Target the 'nav = [' key precisely (multiline, at the start of a line) so we
+    # never match other keys or values that merely contain 'nav', such as the
+    # 'navigation.*' theme features later in the file.
+    $match = [regex]::Match($text, '(?m)^\s*nav\s*=\s*\[')
+    if (-not $match.Success) {
+        throw "Could not find a 'nav = [' array in $Config."
+    }
+    $open = $match.Index + $match.Length - 1
     $depth = 0
     $end = -1
     for ($p = $open; $p -lt $text.Length; $p++) {
         if ($text[$p] -eq '[') { $depth++ }
         elseif ($text[$p] -eq ']') { $depth--; if ($depth -eq 0) { $end = $p; break } }
+    }
+    if ($end -lt 0) {
+        throw "The 'nav' array in $Config is missing a closing ']'."
     }
     $navText = $text.Substring($open, $end - $open + 1)
     $order = @{}
