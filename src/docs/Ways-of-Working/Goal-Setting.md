@@ -5,7 +5,7 @@ description: Mission, OKRs, and initiatives — strategy connected to delivery.
 
 # Goal-Setting Framework
 
-MSX uses a lightweight OKR-based framework to connect strategic direction to day-to-day work. The hierarchy runs from the organisation's reason to exist down to individual deliverables tracked in GitHub issues.
+MSX uses a lightweight OKR-based framework to connect strategic direction to day-to-day work. The hierarchy runs from the organization's reason to exist down to individual deliverables tracked in GitHub issues.
 
 ## Layers
 
