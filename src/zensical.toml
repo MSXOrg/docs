@@ -26,6 +26,7 @@ nav = [
   {"Ways of Working" = [
     "Ways-of-Working/index.md",
     {"Workflow" = "Ways-of-Working/Workflow.md"},
+    {"Contribution Workflow" = "Ways-of-Working/Contribution-Workflow.md"},
     {"Documentation Model" = "Ways-of-Working/Documentation-Model.md"},
     {"Agentic Development" = "Ways-of-Working/Agentic-Development.md"},
     {"Principles" = [

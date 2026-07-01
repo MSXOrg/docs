@@ -16,6 +16,7 @@ This section documents the principles, processes, and norms that every contribut
 | Page | Description |
 | --- | --- |
 | [Workflow](Workflow.md) | How work flows from idea to delivery and back again. |
+| [Contribution Workflow](Contribution-Workflow.md) | How a change travels from a branch to a review-ready pull request — draft first, the Copilot review loop, then people. |
 | [Documentation Model](Documentation-Model.md) | How every capability is documented — a spec for the why and a design for the how, colocated, concise, and kept evergreen for humans and agents alike. |
 | [Agentic Development](Agentic-Development.md) | How ways of working, standards, and documentation are authored once and consumed by both humans and agents. |
 | [Principles](Principles/index.md) | The foundational beliefs and product mindset behind every decision. |
