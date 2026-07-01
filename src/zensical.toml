@@ -92,6 +92,7 @@ nav = [
       {"Design" = "Capabilities/downstream-release-propagation/design.md"},
     ]},
   ]},
+  {"Dictionary" = "Dictionary/index.md"},
 ]
 
 [project.theme]

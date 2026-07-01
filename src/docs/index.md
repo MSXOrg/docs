@@ -49,6 +49,7 @@ Each area below carries its own index. Start here, read the descriptions, and fo
 | [Ways of Working](Ways-of-Working/index.md) | How work happens across the ecosystem — for humans and agents alike. |
 | [Coding Standards](Coding-Standards/index.md) | The shared baseline every repository inherits, and the per-language standards that build on it. |
 | [Capabilities](Capabilities/index.md) | The capabilities the ecosystem builds, each documented by a spec (why and what) and a design (how and what). |
+| [Dictionary](Dictionary/index.md) | Shared vocabulary for the MSX ecosystem — the terms a reader or agent meets across these docs. |
 
 <!-- INDEX:END -->
 
