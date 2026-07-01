@@ -33,13 +33,13 @@ The docs are built for recursive navigation — a reader, or an agent, starts at
   <!-- INDEX:END -->
   ```
 
-- **The tables are generated from front matter.** `.github/scripts/generate-indexes.py` reads each page's `title` and `description`, orders them to match the navigation in `src/zensical.toml`, and fills every index in place. Run it after adding or renaming a page:
+- **The tables are generated from front matter.** `.github/scripts/generate-indexes.ps1` reads each page's `title` and `description`, orders them to match the navigation in `src/zensical.toml`, and fills every index in place. Run it after adding or renaming a page:
 
-  ```bash
-  python .github/scripts/generate-indexes.py
+  ```pwsh
+  pwsh .github/scripts/generate-indexes.ps1
   ```
 
-  CI runs the same script with `--check` and fails if an index is out of date.
+  CI runs the same script with `-Check` and fails if an index is out of date.
 
 The result is self-describing documentation: start at `src/docs/index.md`, read the descriptions, follow the link into a section, then into a page — repeating until you reach the document that fits the task.
 
