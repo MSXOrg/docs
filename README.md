@@ -19,7 +19,7 @@ The vision is written once, here, and referenced everywhere. Products change; th
 
 The docs are built for recursive navigation — a reader, or an agent, starts at the top index and drills down until it reaches the right page.
 
-- **Every page carries front matter.** Each `.md` file declares a `title` (matching its H1) and a one-line `description`:
+- **Every page carries front matter.** Each `.md` file declares a `title` — the label used in navigation and the generated indexes — and a one-line `description`:
 
   ```yaml
   ---
