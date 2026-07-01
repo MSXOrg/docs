@@ -37,7 +37,7 @@ Pull requests in the MSX ecosystem double as **release notes**. The description 
 | Type        | Icon | Label       | Description                                           |
 | ----------- | ---- | ----------- | ----------------------------------------------------- |
 | Major       | 🌟   | `Major`     | Breaking changes that affect compatibility            |
-| Minor       | 🚀   | `Minor`     | New features or enhancements                          |
+| Feature     | 🚀   | `Minor`     | New features or enhancements                          |
 | Patch       | 🩹   | `Patch`     | Small fixes or improvements                           |
 | Fix         | 🪲   | `Patch`     | Bugfixes (Patch-level release impact)                 |
 | Docs        | 📖   | `NoRelease` | Documentation changes only                            |

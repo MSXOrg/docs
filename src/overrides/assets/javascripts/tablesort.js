@@ -12,5 +12,17 @@ document$.subscribe(function () {
       }
     }
     new Tablesort(table);
+
+    // Tablesort makes header cells focusable (tabindex=0) and sorts on click,
+    // but does not handle keyboard activation. Let Enter/Space sort too, so the
+    // sortable headers are usable without a mouse.
+    table.querySelectorAll("th").forEach(function (header) {
+      header.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          header.click();
+        }
+      });
+    });
   });
 });
