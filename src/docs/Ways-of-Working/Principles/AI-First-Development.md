@@ -71,7 +71,7 @@ This means:
 
 This is what makes agentic development work at scale. Agents read context. If the context is stale or missing, the agent builds the wrong thing. Keeping context ahead of code is how we stay in control.
 
-See [README-Driven Context](Readme-Driven-Context.md).
+See [README-Driven Context](../Readme-Driven-Context.md).
 
 ## Context as a product
 
@@ -82,7 +82,7 @@ The work of keeping context **right, evergreen, and declarative** runs alongside
 
 Both run continuously. Each iteration of software delivery produces context that needs maintenance; each iteration of context maintenance unblocks the next round of software work.
 
-See [Workflow](Workflow.md) for how these connect in practice.
+See [Workflow](../Workflow.md) for how these connect in practice.
 
 ## 4-eyes (or N-eyes) principle
 

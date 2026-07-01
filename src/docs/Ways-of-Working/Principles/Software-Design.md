@@ -17,7 +17,7 @@ description: SOLID, extensibility, DRY with judgment, and making change easy bef
 
 Extend by adding, not by modifying what already works — the Open/Closed principle, applied beyond code to how the whole system grows. Ways of working and standards are the **stable core**; the tools that act on them — coding agents, runtimes, integrations — are **pluggable adapters** that slot in. Adding or swapping a tool means writing new pointers, not rewriting process knowledge.
 
-The system stays pluggable: the docs do not change when a new agent runtime is added — only a new integration layer is written. See the [Agentic Development](Agentic-Development.md) specification for how this plays out in practice.
+The system stays pluggable: the docs do not change when a new agent runtime is added — only a new integration layer is written. See the [Agentic Development](../Agentic-Development.md) specification for how this plays out in practice.
 
 ## DRY — with judgment
 
