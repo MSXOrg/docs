@@ -138,17 +138,21 @@ try {
             Write-Verbose "Copilot is already processing a review (requested $lastRequestedAt) - waiting for it."
             # Anchor just before the pending request so its review counts.
             $since = ([datetimeoffset] $lastRequestedAt).AddSeconds(-1)
-        } else {
+        } elseif ($PSCmdlet.ShouldProcess("$Repository#$PullRequest", 'Request a Copilot review')) {
             Write-Verbose "No Copilot review in progress - requesting one on $Repository#$PullRequest ..."
-            if ($PSCmdlet.ShouldProcess("$Repository#$PullRequest", 'Request a Copilot review')) {
-                $null = gh pr edit $PullRequest --repo $Repository --add-reviewer '@copilot' 2>&1
-                if ($LASTEXITCODE -ne 0) {
-                    throw "Failed to request a Copilot review (gh exited $LASTEXITCODE)."
-                }
-                Write-Verbose 'Requested a Copilot review.'
+            $null = gh pr edit $PullRequest --repo $Repository --add-reviewer '@copilot' 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to request a Copilot review (gh exited $LASTEXITCODE)."
             }
+            Write-Verbose 'Requested a Copilot review.'
             # Anchor after the request so only a review from this round counts.
             $since = [datetimeoffset]::UtcNow
+        } else {
+            # -WhatIf: no request was made, so fall back to poll-only semantics
+            # (as with -SkipRequest) rather than waiting for a review that will
+            # never arrive. Look back over the window so an in-flight review counts.
+            Write-Verbose 'WhatIf - no review requested; polling for an existing or in-flight review.'
+            $since = [datetimeoffset]::UtcNow.AddMinutes(-$TimeoutMinutes)
         }
     }
 

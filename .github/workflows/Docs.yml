@@ -82,7 +82,7 @@ jobs:
         run: ./.github/scripts/generate-indexes.ps1 -Check
 
       - name: Install Zensical
-        run: pip install zensical
+        run: pip install -r requirements.txt
 
       - name: Build Zensical project
         run: zensical build --clean

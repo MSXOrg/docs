@@ -14,3 +14,13 @@ updates:
       interval: weekly
     cooldown:
       default-days: 7
+
+  - package-ecosystem: pip # Build toolchain pinned in requirements.txt
+    directory: /
+    labels:
+      - dependencies
+      - python
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
