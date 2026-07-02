@@ -258,6 +258,23 @@ appears.
   `main.<ext>` sits at the action root for a single-file action, or under `src/`
   as the entry point alongside the other modules.
 
+## Toolchain
+
+Two linters enforce this standard in CI, and their configuration is derived from
+it — the rules above are the source of truth:
+
+- **[actionlint](https://github.com/rhysd/actionlint)** checks workflow
+  correctness: expression syntax, job and step wiring, runner labels, and the
+  shell of every `run:` step through shellcheck.
+- **[zizmor](https://docs.zizmor.sh/)** audits workflow security, flagging the
+  failures this standard exists to prevent: unpinned actions, excessive
+  `permissions`, template injection from untrusted input, `secrets: inherit`,
+  and persisted credentials.
+
+Both run through [super-linter](https://github.com/super-linter/super-linter) on
+every push and pull request, so a workflow that breaks this standard fails the
+build.
+
 ```text
 # Single-file action — main.<ext> at the action root
 .github/actions/link-check/

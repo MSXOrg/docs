@@ -112,8 +112,8 @@ function Get-IndexTable {
         $rows.Add([pscustomobject]@{
                 Order = if ($Order.ContainsKey($key)) { $Order[$key] } else { 10000 }
                 Title = if ($meta.ContainsKey('title')) { $meta['title'] } else { $child.Name }
-                Link  = "$($child.Name)/index.md"
-                Desc  = if ($meta.ContainsKey('description')) { $meta['description'] } else { '' }
+                Link = "$($child.Name)/index.md"
+                Desc = if ($meta.ContainsKey('description')) { $meta['description'] } else { '' }
             })
     }
     foreach ($child in $files) {
@@ -122,8 +122,8 @@ function Get-IndexTable {
         $rows.Add([pscustomobject]@{
                 Order = if ($Order.ContainsKey($key)) { $Order[$key] } else { 10000 }
                 Title = if ($meta.ContainsKey('title')) { $meta['title'] } else { [System.IO.Path]::GetFileNameWithoutExtension($child.Name) }
-                Link  = $child.Name
-                Desc  = if ($meta.ContainsKey('description')) { $meta['description'] } else { '' }
+                Link = $child.Name
+                Desc = if ($meta.ContainsKey('description')) { $meta['description'] } else { '' }
             })
     }
 

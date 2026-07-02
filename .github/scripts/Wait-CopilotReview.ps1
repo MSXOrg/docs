@@ -132,7 +132,7 @@ try {
             Select-Object -Last 1
 
         $processing = $lastRequestedAt -and
-            ((-not $lastReviewedAt) -or ([datetimeoffset] $lastRequestedAt -gt $lastReviewedAt))
+        ((-not $lastReviewedAt) -or ([datetimeoffset] $lastRequestedAt -gt $lastReviewedAt))
 
         if ($processing) {
             Write-Verbose "Copilot is already processing a review (requested $lastRequestedAt) - waiting for it."
@@ -219,13 +219,13 @@ try {
     }
 
     [pscustomobject]@{
-        Repository      = $Repository
-        PullRequest     = $PullRequest
-        ReviewState     = $review.state
-        SubmittedAt     = $review.submittedAt
+        Repository = $Repository
+        PullRequest = $PullRequest
+        ReviewState = $review.state
+        SubmittedAt = $review.submittedAt
         NewCommentCount = $newComments.Count
-        NewComments     = $newComments
-        Blessed         = $blessed
+        NewComments = $newComments
+        Blessed = $blessed
     }
 
     if ($blessed) {
