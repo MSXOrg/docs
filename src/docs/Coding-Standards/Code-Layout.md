@@ -9,10 +9,11 @@ How code is structured on the page and across files. Layout is not cosmetic — 
 
 ## Formatting is automated
 
-Formatting is a solved problem — hand it to a tool. Every repository runs a formatter and a linter, and they run in the editor, on commit, and in CI.
+The standard owns the formatting rules; the tooling enforces them automatically — in the editor, on commit, and in CI. A repository's formatter and linter configuration is **derived from these standards**, so the machine applies what is written here rather than defining it.
 
-- **Do not argue about formatting in review.** If the formatter accepts it, it is correct. Disagreements are settled by changing the formatter config, in its own PR.
-- **The formatter config lives in the repository**, in version control, so humans and agents apply the same rules.
+- **Do not argue about formatting in review.** The standard has already decided; if the formatter accepts it, it matches the standard.
+- **Change a rule by changing the standard, not the config.** Adjust it here first, in its own PR; the derived tool config follows.
+- **The config lives in the repository**, in version control and traceable to this standard, so humans and agents apply the same rules.
 - This frees review attention for what actually matters: correctness, design, and clarity.
 
 See [Shift Left → pre-commit hooks](../Ways-of-Working/Principles/Engineering-Practices.md#pre-commit-hooks) for where these gates run.

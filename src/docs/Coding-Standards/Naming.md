@@ -42,5 +42,5 @@ Name length should track scope. A loop index living for three lines can be `i`. 
 
 - Encoding type into the name (`strName`, `arrUsers`) — the type system already knows.
 - Numbered suffixes (`user1`, `user2`, `dataNew`) — they signal a missing concept.
-- Negated booleans (`isNotReady`) — double negatives read badly in conditionals.
+- Negated booleans (`isNotReady`, `notReady`) — a negative name forces a double negative at every use, and a value turns it into a riddle: does `notReady = false` mean it *is* ready? Name the positive (`isReady`) and negate at the point of use.
 - Names that lie — a `getUser` that also writes to a cache is a name that lies. Rename or split.
