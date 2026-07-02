@@ -30,6 +30,17 @@ These hold for all PowerShell, whatever the construct:
 - **Set `$ErrorActionPreference = 'Stop'`** at the top of every script and module so errors are terminating, not silently swallowed.
 - **Emit objects, not formatted text.** Return rich objects and let the caller format; reserve `Write-Host` for genuine console UX, and use `Write-Verbose` / `Write-Information` for progress narration.
 
+## Idioms and pitfalls
+
+Beyond the basics, these language-specific habits keep PowerShell correct and fast:
+
+- **Single-quote strings unless you need expansion.** Use `'literal'` by default; reserve `"...$var..."` for interpolation or escape sequences, and here-strings (`@'...'@`, `@"..."@`) for multi-line text — literal-versus-interpolated intent then stays obvious.
+- **Splat calls that carry many parameters.** Build a `@{}` of parameters and splat it (`Get-Thing @params`) instead of a long line of `-Param value` pairs or backtick continuations; it reads better and diffs cleanly.
+- **Put `$null` on the left of a comparison** — `$null -eq $x`, never `$x -eq $null`. Against a collection the right-hand form *filters* rather than tests. Use `-contains` / `-in` for membership, never `-eq`.
+- **Suppress unwanted output with `$null = ...`** (or `[void]` for method calls), not `| Out-Null` — the pipeline form is markedly slower on hot paths.
+- **Build collections with a typed list, not `+=` in a loop.** `$a += $x` reallocates the whole array every iteration; use `[System.Collections.Generic.List[T]]` with `.Add()`, and prefer a cmdlet's `-Filter` over piping to `Where-Object` on large sets.
+- **Keep secrets out of source, and never `Invoke-Expression` untrusted input.** Take secrets as `[securestring]` or through `Get-Credential`, and guard state-changing commands with `ShouldProcess` (see [Functions](Functions.md)); the wider rules live in the [Security](../Security.md) baseline.
+
 ## Toolchain
 
 The toolchain is the enforcement mechanism, and it runs in CI:
