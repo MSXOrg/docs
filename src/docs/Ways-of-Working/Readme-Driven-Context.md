@@ -12,7 +12,7 @@ The README is the **evergreen context document** for every repository in the MSX
 - **The README is the front door.** Anyone — human or agent — encountering the repository for the first time should understand the purpose, scope, and current capabilities from the README without reading source code.
 - **The README is evergreen.** It is a living document that always reflects the current state of the repository. When functionality is added, changed, or removed, the README is updated in the same unit of work.
 - **Documentation is not optional.** A feature that is not documented in the README is effectively invisible. Updating the README is part of completing the work, not a follow-up task.
-- **The README is authoritative.** If the README and the code disagree, the README is out of date and must be corrected — but it remains the intended source of truth.
+- **The README is authoritative, but not automatically right.** It is the intended source of truth, yet a README can be wrong just as code can. When the README and the code disagree, [diagnose which is wrong](Principles/Engineering-Practices.md#intent-is-the-source-of-truth) — correct the README if the intent drifted, or fix the code if it diverged — so the two converge.
 
 ## What belongs in the README
 

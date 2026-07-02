@@ -47,6 +47,12 @@ Documentation describes the system as it **is**, in the present tense — not th
 
 This governs this site, every README, and every specification — and it is why a pull request description states what the change *contributes*, not the steps taken to produce it.
 
+## Intent is the source of truth
+
+The documented intent that lives in the default branch — the specs, the docs, the issue descriptions — is the source of truth for what the system is meant to be. The implementation is a *representation* of that intent: the running code is what the system currently is, not necessarily what it should be.
+
+Either can be wrong. The intent may be mistaken, stale, or unclear; the implementation may have drifted from a correct intent. So when the two disagree, do not assume which is at fault — **diagnose it**: is the intent wrong (fix the doc, spec, or issue), or is the implementation wrong (fix the code)? Update whichever is wrong so the two converge again. A mismatch is a signal to reconcile, not a reason to silently trust the code or blindly rewrite the doc.
+
 ## Test-driven development
 
 Define the tests when you define the behavior. Update them when behavior changes. Tests are the executable specification.
