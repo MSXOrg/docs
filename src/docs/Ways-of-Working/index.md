@@ -18,6 +18,8 @@ This section documents the principles, processes, and norms that every contribut
 | [Workflow](Workflow.md) | How work flows from idea to delivery and back again. |
 | [Contribution Workflow](Contribution-Workflow.md) | How a change travels from a branch to a review-ready pull request — draft first, the Copilot review loop, then people. |
 | [Documentation Model](Documentation-Model.md) | How every capability is documented — a spec for the why and a design for the how, colocated, concise, and kept evergreen for humans and agents alike. |
+| [Spec-Driven Development](Spec-Driven-Development.md) | The specification is the source of truth — the spec (why and what), its design (how), and how a change moves from need to shipped. |
+| [Evolutionary Development](Evolutionary-Development.md) | Grow software as bets under selection — variation, feedback, and survival of the fittest, run as one tight loop. |
 | [Agentic Development](Agentic-Development.md) | How ways of working, standards, and documentation are authored once and consumed by both humans and agents. |
 | [Principles](Principles/index.md) | The foundational beliefs and product mindset behind every decision. |
 | [Engineering Taste](Engineering-Taste.md) | The judgment that takes over when the standards run out. |

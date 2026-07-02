@@ -28,6 +28,8 @@ nav = [
     {"Workflow" = "Ways-of-Working/Workflow.md"},
     {"Contribution Workflow" = "Ways-of-Working/Contribution-Workflow.md"},
     {"Documentation Model" = "Ways-of-Working/Documentation-Model.md"},
+    {"Spec-Driven Development" = "Ways-of-Working/Spec-Driven-Development.md"},
+    {"Evolutionary Development" = "Ways-of-Working/Evolutionary-Development.md"},
     {"Agentic Development" = "Ways-of-Working/Agentic-Development.md"},
     {"Principles" = [
       "Ways-of-Working/Principles/index.md",
