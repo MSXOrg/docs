@@ -121,7 +121,7 @@ Splitting the spec from the design is what lets the spec stay stable across refa
 ## Authoring conventions
 
 - **Write intended state.** Present tense, definitive, one fact stated once, as with all [evergreen documentation](Principles/Engineering-Practices.md#evergreen-documentation). No task lists, status, or history in the spec — those live in issues and PRs.
-- **Let git carry the record.** Created and updated dates, revision numbers, authorship, and the change log are the repository's history, not fields in the document. Restating them in the body duplicates git and drifts out of date; the commits and the pull requests that reference the spec hold how it got here.
+- **Let git carry the record.** Created and updated dates, revision numbers, authorship, and the changelog are the repository's history, not fields in the document. Restating them in the body duplicates git and drifts out of date; the commits and the pull requests that reference the spec hold how it got here.
 - **Ownership is by location, not a byline.** The team that owns the code owns its spec ([docs live close to the code](../Coding-Standards/Documentation.md#the-hierarchy-of-documentation)); accountability lives in `CODEOWNERS`, not a per-document owner field that goes stale.
 - **Mark unknowns, do not guess.** Where the need is unclear, leave an explicit `[NEEDS CLARIFICATION: the specific question]` marker rather than a plausible assumption. All markers are resolved and removed before the spec is accepted.
 - **Self-review against a checklist.** Before review, confirm the spec is complete: no clarification markers remain, every requirement is testable, and the success criteria are measurable — a checklist is a unit test for the English.

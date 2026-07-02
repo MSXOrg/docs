@@ -85,7 +85,7 @@ The **acceptance criteria** couple the two loops. Written once as Given / When /
 
 ## Signals: the shapes of intent
 
-A turn does not only begin when someone asks for a feature. It begins with a **signal** — a pressure from the environment that the current design no longer fits — and every signal is **intent in a particular shape**. Naming the shapes keeps us honest that a bug fix, a performance guard, and a new capability are the same kind of work: a bet, framed from a signal, judged by selection.
+A turn does not only begin when someone asks for a feature. It begins with a **signal** — a pressure from the environment that the current design no longer fits — and every signal is **intent in a particular shape**. Naming the shapes keeps us honest that a bugfix, a performance guard, and a new capability are the same kind of work: a bet, framed from a signal, judged by selection.
 
 - **Need.** A request for functionality or capability the product does not have yet — a user, a stakeholder, or a dependent system pulling it forward. Intent stated outright: *make it do this.*
 - **Defect.** Proof that behavior and intent already disagree — a fault found in test or reported from production. An acceptance criterion that should hold does not, so the bet is to make it hold again.
