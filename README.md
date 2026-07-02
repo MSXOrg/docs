@@ -43,14 +43,20 @@ The docs are built for recursive navigation — a reader, or an agent, starts at
 
   CI runs the same script with `-Check` and fails if an index is out of date.
 
+- **Links are validated.** `.github/scripts/Test-DocumentationLink.ps1` checks that every relative link and heading anchor across the docs resolves. It runs in CI on every pull request and on every push to `main`, alongside linting. Run it locally before opening a PR:
+
+  ```pwsh
+  pwsh .github/scripts/Test-DocumentationLink.ps1
+  ```
+
 The result is self-describing documentation: start at `src/docs/index.md`, read the descriptions, follow the link into a section, then into a page — repeating until you reach the document that fits the task.
 
 ## Repository layout
 
 ```text
 .github/
-  workflows/Docs.yml   # lint, build, and publish to GitHub Pages
-  scripts/             # documentation tooling (index generation)
+  workflows/Docs.yml   # lint, validate links, build, and publish to GitHub Pages
+  scripts/             # documentation tooling (index generation, link validation)
   linters/             # shared linter configuration
 src/
   zensical.toml        # site configuration
