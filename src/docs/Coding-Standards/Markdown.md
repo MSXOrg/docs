@@ -54,3 +54,12 @@ These rules are disabled or widened so they do not flag valid documentation — 
 - **Surround headings, lists, and fenced blocks with a blank line** for readability, even though the linter no longer enforces it.
 - **Prefer relative links** within a repository; use the canonical published URL for cross-repository references.
 - **Tag every code fence with a language** (` ```bash `, ` ```yaml `) so it is highlighted and converts cleanly when published.
+
+## PowerShell code samples
+
+Documentation is full of PowerShell, so present it the way the [PowerShell standard](PowerShell/index.md) writes it:
+
+- **Label the fence `powershell`**, and put command output in a separate block labelled `Output`, so it is neither highlighted as code nor mistaken for input.
+- **Use full cmdlet and parameter names**, and avoid positional parameters, so a reader can copy the sample and run it.
+- **Avoid backtick line-continuation.** Break a long call with splatting, or at PowerShell's natural points — after a pipe, an opening parenthesis, or a brace.
+- **Leave out the prompt string** (`PS>`) unless the sample is specifically about interactive, prompt-changing behaviour.

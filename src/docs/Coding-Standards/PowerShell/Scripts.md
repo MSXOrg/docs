@@ -48,3 +48,8 @@ $ErrorActionPreference = 'Stop'
 - **Name scripts `Verb-Noun.ps1`** to match the function convention.
 - **No side effects on load.** A script runs top to bottom when invoked; it should not do work merely by being dot-sourced.
 - **Return objects**, so the script composes in a pipeline like any other command.
+
+## Paths
+
+- **Do not depend on the current directory.** Avoid relative paths and `~` — the meaning of `~` depends on the current PowerShell provider — and build paths from `$PSScriptRoot` with `Join-Path`.
+- **Pass full paths to .NET and native calls.** .NET methods and external executables read `[System.Environment]::CurrentDirectory`, which PowerShell does not keep in step with `$PWD`, so a relative path resolves against the wrong place. Resolve to a full path first.
