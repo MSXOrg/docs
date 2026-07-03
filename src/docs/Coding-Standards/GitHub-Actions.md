@@ -352,13 +352,22 @@ incident.
   the verbose dumps (raw responses, full payloads) off it, and prefer the native
   `::debug::` command, which the runner renders only in debug mode. A normal run
   then stays readable while a debug re-run reveals everything.
+- **Escape dynamic data in workflow commands.** A command such as `::notice::` or
+  `::debug::` is a single line, so a value carrying `%`, a carriage return, or a
+  newline must be encoded (`%25`, `%0D`, `%0A`) or it corrupts the command — the
+  same class of risk as
+  [expanding untrusted input inline](#never-expand-untrusted-input-inline). Dump a
+  raw, multi-line payload inside a collapsed `::group::` as plain output, which
+  needs no escaping, instead of through a command.
 
 ```yaml
 - name: Publish
   shell: bash
   env:
     SPACE: ${{ inputs.space }}
+    STATUS: ${{ steps.api.outputs.status }}
     RESPONSE: ${{ steps.api.outputs.body }}
+    COUNT: ${{ steps.api.outputs.page-count }}
   run: |
     echo "::group::Resolved configuration"
     echo "space   = ${SPACE}"
@@ -367,7 +376,10 @@ incident.
 
     # Deep trace only when the job was re-run with debug logging enabled.
     if [ "${RUNNER_DEBUG:-}" = "1" ]; then
-      echo "::debug::raw API response: ${RESPONSE}"
+      echo "::debug::api status=${STATUS}, ${#RESPONSE} byte response"
+      echo "::group::Raw API response"
+      echo "${RESPONSE}"          # multi-line payload — plain output, no escaping
+      echo "::endgroup::"
     fi
 
     # Headline stays outside the group — visible without expanding anything.
