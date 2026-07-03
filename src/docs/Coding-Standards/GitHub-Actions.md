@@ -1,6 +1,6 @@
 ---
 title: GitHub Actions
-description: Workflow authoring — SHA pinning, least-privilege permissions, OIDC, secrets handling, and script extraction.
+description: Workflow authoring — SHA pinning, least-privilege permissions, OIDC, secrets handling, script extraction, and diagnostic logging.
 ---
 
 # GitHub Actions
@@ -322,3 +322,148 @@ concurrency:
   than a silent one.
 - **Give every job and every non-trivial step a `name:`.** Named steps make the
   Actions UI and logs readable and make failures easy to locate.
+
+## Build in logging and diagnostics
+
+An action is a black box until it fails, and the difference between a
+five-minute fix and an afternoon of blind re-runs is whether the action already
+told you what it did, what it decided, and why. Build that in from the start —
+diagnosis is a feature of the action, not something bolted on after the first
+incident.
+
+### Log verbosely, but keep the detail collapsed
+
+- **Emit enough detail to reconstruct a run without repeating it** — the
+  resolved inputs, the decision taken at each branch of logic, every external
+  call and its status, and the counts behind any total. An action that prints
+  only `done` forces the next reader to re-run it with extra `echo`s just to
+  learn what happened.
+- **Wrap that detail in `::group::` / `::endgroup::` blocks so the log is
+  collapsed by default.** The reader expands only the group they need, and the
+  top level stays a short, scannable narrative. Group by phase
+  (`::group::Resolving inputs`, `::group::Publishing 42 pages`), not per line.
+- **Show the headline outside the groups.** The one or two lines that answer
+  "what happened?" — the counts, the decision, the resulting URL — sit at the
+  top level, visible without expanding anything. Native `::notice::` and
+  `::warning::` annotations suit this well: they surface on the run summary page,
+  not only buried in the log.
+- **Gate the deepest tracing behind the runner's debug flag.** When a maintainer
+  re-runs a job with debug logging enabled, the runner sets `RUNNER_DEBUG=1`; key
+  the verbose dumps (raw responses, full payloads) off it, and prefer the native
+  `::debug::` command, which the runner renders only in debug mode. A normal run
+  then stays readable while a debug re-run reveals everything.
+
+```yaml
+- name: Publish
+  shell: bash
+  env:
+    SPACE: ${{ inputs.space }}
+    RESPONSE: ${{ steps.api.outputs.body }}
+  run: |
+    echo "::group::Resolved configuration"
+    echo "space   = ${SPACE}"
+    echo "dry-run = ${DRY_RUN:-false}"
+    echo "::endgroup::"
+
+    # Deep trace only when the job was re-run with debug logging enabled.
+    if [ "${RUNNER_DEBUG:-}" = "1" ]; then
+      echo "::debug::raw API response: ${RESPONSE}"
+    fi
+
+    # Headline stays outside the group — visible without expanding anything.
+    echo "::notice::Published ${COUNT} page(s) to ${SPACE}"
+```
+
+### Write a receipt to the step summary
+
+- **Emit a human-readable receipt to `$GITHUB_STEP_SUMMARY`.** The grouped log
+  is the *trace*; the step summary is the *result* — a short Markdown table or
+  list of what the run did (created / updated / skipped counts, the target,
+  links to what it produced). It renders on the run's summary page, so the
+  outcome is visible without opening a single log group.
+- **Keep the summary a receipt, not a second copy of the log.** Put the headline
+  numbers there, formatted for a person, with links; leave the blow-by-blow in
+  the collapsed groups.
+- **Surface the same facts as outputs.** Anything worth writing to the summary —
+  a URL, a count, a pass/fail verdict — is also worth declaring as an `output`
+  (see [Generalize the action](#generalize-the-action-drive-behaviour-through-inputs-and-outputs)),
+  so a calling workflow acts on a value instead of scraping the summary.
+
+```bash
+{
+  echo "## Documentation publish"
+  echo ""
+  echo "| Result  | Count |"
+  echo "| ------- | ----- |"
+  echo "| Created | ${CREATED} |"
+  echo "| Updated | ${UPDATED} |"
+  echo "| Skipped | ${SKIPPED} |"
+  echo ""
+  echo "[View the published site](${SITE_URL})"
+} >> "$GITHUB_STEP_SUMMARY"
+```
+
+### Report back on the triggering PR or issue
+
+The step summary is only seen by someone who opens the run. When the outcome
+matters to a person mid-flow — a PR author, an issue reporter — surface the
+receipt where they already are. **Which channel is right depends on the event
+that triggered the run**, so make reporting conditional on the trigger rather
+than assuming one exists.
+
+- **`pull_request` → a pull-request comment.** Post the receipt to the PR so the
+  author sees it in the timeline.
+- **`issues` / `issue_comment` → an issue comment.** Reply on the issue that
+  started the run.
+- **`push` / `schedule` / `workflow_dispatch` → the step summary, plus a tracking
+  issue for a finding worth chasing.** There is no PR or issue in context, so the
+  summary is the receipt; a scheduled job that detects a problem can open or
+  update an issue.
+- **Upsert one comment; never post a fresh one per run.** Write a hidden marker
+  (an HTML comment such as `<!-- publish-receipt -->`) into the body, find the
+  existing comment by that marker, and edit it in place — so a PR pushed ten
+  times carries one current receipt, not ten stale ones.
+- **Grant the write scope only on the job that comments.** A PR comment needs
+  `pull-requests: write`, an issue comment needs `issues: write`; the rest of the
+  workflow stays read-only. Keep untrusted input out of the comment body (see
+  [Never expand untrusted input inline](#never-expand-untrusted-input-inline)),
+  and treat `pull_request_target` with particular care — it runs with a writable
+  token in the context of untrusted pull-request code.
+
+```yaml
+report:
+  name: Report
+  # Only this job can write to the PR; every other job stays read-only.
+  permissions:
+    pull-requests: write
+  if: github.event_name == 'pull_request'
+  runs-on: ubuntu-24.04
+  steps:
+    - uses: ./.github/actions/publish-receipt   # upserts one marked comment
+```
+
+### Gate merges with a named status check
+
+- **If a run's result should block merge, it must surface as a named status
+  check** that branch protection can require. A run that only writes to the log
+  or a comment cannot hold a pull request; a required check can.
+- **Keep the check name stable.** Branch protection matches checks by name, so
+  renaming the job or workflow silently drops the gate. Pick a clear, permanent
+  name and treat it as a contract — renaming it later removes the gate without a
+  trace, so the rename and the branch-protection update must land together.
+- **Fail the check for real problems; do not annotate and exit 0.** A gating
+  action must exit non-zero when it finds a blocking issue — the annotations and
+  the red summary are for humans, the exit code is what the merge gate reads.
+  Reserve `::warning::` and `::notice::` for advisory findings that should *not*
+  hold the pull request.
+
+```yaml
+jobs:
+  publishable:
+    name: Publishable          # the exact string branch protection requires
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: ./.github/actions/validate-publishable   # exits 1 on a blocker
+```
