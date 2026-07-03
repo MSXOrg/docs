@@ -1,0 +1,197 @@
+# Zensical configuration
+# https://zensical.org/docs/setup/basics/
+
+[project]
+site_name = "MSX / Docs"
+site_url = "https://msxorg.github.io/docs/"
+docs_dir = "docs"
+repo_name = "MSXOrg/docs"
+repo_url = "https://github.com/MSXOrg/docs"
+edit_uri = "edit/main/src/docs/"
+copyright = "Copyright &copy; 2024 - 2026 Marius Storhaug"
+extra_javascript = [
+  "assets/javascripts/tablesort.min.js",
+  "assets/javascripts/tablesort.js",
+]
+watch = ["includes"]
+nav = [
+  {"Vision" = "Vision/index.md"},
+  {"Initiatives" = [
+    "Initiatives/index.md",
+    {"PSModule" = "Initiatives/PSModule.md"},
+    {"AzActions" = "Initiatives/AzActions.md"},
+    {"TFActions" = "Initiatives/TFActions.md"},
+    {"VS Code Extensions" = "Initiatives/VS-Code-Extensions.md"},
+  ]},
+  {"Ways of Working" = [
+    "Ways-of-Working/index.md",
+    {"Workflow" = "Ways-of-Working/Workflow.md"},
+    {"Contribution Workflow" = "Ways-of-Working/Contribution-Workflow.md"},
+    {"Documentation Model" = "Ways-of-Working/Documentation-Model.md"},
+    {"Spec-Driven Development" = "Ways-of-Working/Spec-Driven-Development.md"},
+    {"Evolutionary Development" = "Ways-of-Working/Evolutionary-Development.md"},
+    {"Agentic Development" = "Ways-of-Working/Agentic-Development.md"},
+    {"Principles" = [
+      "Ways-of-Working/Principles/index.md",
+      {"Purpose and Direction" = "Ways-of-Working/Principles/Purpose-and-Direction.md"},
+      {"AI-First Development" = "Ways-of-Working/Principles/AI-First-Development.md"},
+      {"Software Design" = "Ways-of-Working/Principles/Software-Design.md"},
+      {"Engineering Practices" = "Ways-of-Working/Principles/Engineering-Practices.md"},
+      {"Planning and Delivery" = "Ways-of-Working/Principles/Planning-and-Delivery.md"},
+      {"References" = "Ways-of-Working/Principles/References.md"},
+    ]},
+    {"Engineering Taste" = "Ways-of-Working/Engineering-Taste.md"},
+    {"Goal-Setting Framework" = "Ways-of-Working/Goal-Setting.md"},
+    {"Definition of Ready and Done" = "Ways-of-Working/Definition-of-Ready-and-Done.md"},
+    {"Issue Format" = "Ways-of-Working/Issue-Format.md"},
+    {"Issue Hierarchy" = "Ways-of-Working/Issue-Hierarchy.md"},
+    {"PR Format" = "Ways-of-Working/PR-Format.md"},
+    {"Commit Conventions" = "Ways-of-Working/Commit-Conventions.md"},
+    {"Branching and Merging" = "Ways-of-Working/Branching-and-Merging.md"},
+    {"Review Etiquette" = "Ways-of-Working/Review-Etiquette.md"},
+    {"Repository Segmentation" = "Ways-of-Working/Repository-Segmentation.md"},
+    {"README-Driven Context" = "Ways-of-Working/Readme-Driven-Context.md"},
+    {"Git Worktrees" = "Ways-of-Working/Git-Worktrees.md"},
+    {"Continuous Practices" = "Ways-of-Working/Continuous-Practices.md"},
+    {"DevOps Reference" = "Ways-of-Working/DevOps-Reference.md"},
+  ]},
+  {"Coding Standards" = [
+    "Coding-Standards/index.md",
+    {"Naming" = "Coding-Standards/Naming.md"},
+    {"Code Layout" = "Coding-Standards/Code-Layout.md"},
+    {"Functions" = "Coding-Standards/Functions.md"},
+    {"Error Handling" = "Coding-Standards/Error-Handling.md"},
+    {"Documentation" = "Coding-Standards/Documentation.md"},
+    {"Testing" = "Coding-Standards/Testing.md"},
+    {"Performance" = "Coding-Standards/Performance.md"},
+    {"Security" = "Coding-Standards/Security.md"},
+    {"GitHub Actions" = "Coding-Standards/GitHub-Actions.md"},
+    {"Markdown" = "Coding-Standards/Markdown.md"},
+    {"PowerShell" = [
+      "Coding-Standards/PowerShell/index.md",
+      {"Functions" = "Coding-Standards/PowerShell/Functions.md"},
+      {"Classes" = "Coding-Standards/PowerShell/Classes.md"},
+      {"Scripts" = "Coding-Standards/PowerShell/Scripts.md"},
+    ]},
+    {"Terraform" = "Coding-Standards/Terraform.md"},
+    {"TypeScript" = "Coding-Standards/TypeScript.md"},
+  ]},
+  {"Capabilities" = [
+    "Capabilities/index.md",
+    {"Release Management" = [
+      "Capabilities/release-management/index.md",
+      {"Spec" = "Capabilities/release-management/spec.md"},
+      {"Design" = "Capabilities/release-management/design.md"},
+    ]},
+    {"Dependency Updates" = [
+      "Capabilities/dependency-updates/index.md",
+      {"Spec" = "Capabilities/dependency-updates/spec.md"},
+      {"Design" = "Capabilities/dependency-updates/design.md"},
+    ]},
+    {"Downstream Release Propagation" = [
+      "Capabilities/downstream-release-propagation/index.md",
+      {"Spec" = "Capabilities/downstream-release-propagation/spec.md"},
+      {"Design" = "Capabilities/downstream-release-propagation/design.md"},
+    ]},
+  ]},
+  {"Dictionary" = "Dictionary/index.md"},
+]
+
+[project.theme]
+language = "en"
+custom_dir = "overrides"
+font.text = "Mona Sans"
+font.code = "Source Code Pro"
+features = [
+  "announce.dismiss",
+  "content.action.edit",
+  "content.action.view",
+  "content.code.annotate",
+  "content.code.copy",
+  "content.tooltips",
+  "navigation.footer",
+  "navigation.indexes",
+  "navigation.instant",
+  "navigation.instant.prefetch",
+  "navigation.instant.preview",
+  "navigation.instant.progress",
+  "navigation.tabs",
+  "navigation.top",
+  "navigation.tracking",
+  "search.highlight",
+  "search.share",
+  "search.suggest",
+  "toc.follow",
+]
+
+[project.theme.icon]
+repo = "material/github"
+link = "material/link-variant"
+
+# Palette toggle for automatic mode
+[[project.theme.palette]]
+media = "(prefers-color-scheme)"
+toggle.icon = "material/link"
+toggle.name = "Switch to dark mode"
+
+# Palette toggle for dark mode
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+primary = "black"
+accent = "light blue"
+toggle.icon = "material/toggle-switch-off-outline"
+toggle.name = "Switch to light mode"
+
+# Palette toggle for light mode
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+primary = "black"
+accent = "light blue"
+toggle.icon = "material/toggle-switch"
+toggle.name = "Switch to system preference"
+
+[project.plugins.meta]
+
+[project.plugins.search]
+
+[project.markdown_extensions.toc]
+permalink = "#"
+
+[project.markdown_extensions.attr_list]
+
+[project.markdown_extensions.abbr]
+
+[project.markdown_extensions.admonition]
+
+[project.markdown_extensions.def_list]
+
+[project.markdown_extensions.footnotes]
+
+[project.markdown_extensions.md_in_html]
+
+[project.markdown_extensions.tables]
+
+[project.markdown_extensions.pymdownx.details]
+
+[project.markdown_extensions.pymdownx.superfences]
+custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+]
+
+[project.markdown_extensions.pymdownx.tasklist]
+custom_checkbox = true
+
+[project.markdown_extensions.pymdownx.snippets]
+auto_append = ["includes/abbreviations.md", "includes/links.md"]
+
+[[project.extra.social]]
+icon = "fontawesome/brands/github"
+link = "https://github.com/MSXOrg"
+name = "MSX on GitHub"
+
+[[project.extra.social]]
+icon = "fontawesome/brands/github"
+link = "https://github.com/MariusStorhaug"
+name = "Marius Storhaug on GitHub"

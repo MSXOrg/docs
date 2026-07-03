@@ -1,0 +1,50 @@
+---
+title: Scripts
+description: Structure for standalone .ps1 scripts — requirements, parameters, help, and keeping the script thin.
+---
+
+# Scripts
+
+A script (`.ps1`) is an entry point, not a home for logic. Keep scripts **thin**: parse input, call functions, report results. Anything reusable belongs in a function in a module.
+
+## Section structure
+
+A script file is laid out top to bottom in this order:
+
+1. **`#Requires`** statements — PowerShell version and module dependencies with minimum versions.
+2. **Comment-based help** — `.SYNOPSIS`, `.DESCRIPTION`, and at least one `.EXAMPLE`.
+3. **`[CmdletBinding()]` + `param()`** — typed and validated, mandatory first; add `SupportsShouldProcess` when the script changes state.
+4. **`$ErrorActionPreference = 'Stop'`**.
+5. **Body** — the thin orchestration.
+
+```powershell
+#Requires -Version 7.0
+#Requires -Modules Pester
+
+<#
+    .SYNOPSIS
+    Rotate the automation secret and sync it to the target store.
+
+    .DESCRIPTION
+    Remove the current secret, create a replacement, and update the store that consumes it.
+
+    .EXAMPLE
+    ./Rotate-Secret.ps1 -ValidityDays 365
+#>
+[CmdletBinding(SupportsShouldProcess)]
+param(
+    # How long the new secret stays valid, in days.
+    [Parameter()]
+    [int] $ValidityDays = 180
+)
+
+$ErrorActionPreference = 'Stop'
+
+# thin orchestration: call the functions that do the real work
+```
+
+## Rules
+
+- **Name scripts `Verb-Noun.ps1`** to match the function convention.
+- **No side effects on load.** A script runs top to bottom when invoked; it should not do work merely by being dot-sourced.
+- **Return objects**, so the script composes in a pipeline like any other command.

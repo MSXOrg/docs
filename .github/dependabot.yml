@@ -1,0 +1,42 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+version: 2
+updates:
+  - package-ecosystem: github-actions # See documentation for possible values
+    directory: / # Location of package manifests
+    labels:
+      - dependencies
+      - github-actions
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      # Bundle low-risk minor and patch bumps into one PR; majors arrive alone
+      # so they can be reviewed by hand.
+      actions-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
+
+  - package-ecosystem: pip # Build toolchain pinned in requirements.txt
+    directory: /
+    labels:
+      - dependencies
+      - python
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      python-minor-and-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch

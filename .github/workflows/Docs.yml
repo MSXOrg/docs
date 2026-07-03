@@ -1,0 +1,128 @@
+name: Docs
+
+on:
+  workflow_dispatch:
+  # No paths filter on purpose: this is the only workflow, so every push and pull
+  # request must run it to lint and build the full documented surface — including
+  # root files such as README.md, .github/dependabot.yml, and .prettierrc.json. A
+  # paths allow-list would silently skip CI for changes outside it.
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  # Cancel superseded PR runs for fast iteration, but let main-branch runs finish
+  # so a Pages deploy is never cancelled mid-publish.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Default-deny floor for this multi-job workflow: each job below grants only the
+# scopes its steps need, so a job that omits its own permissions block (including
+# one added later) inherits nothing and fails closed. See the GitHub Actions
+# coding standard, "Grant least-privilege permissions".
+permissions: {}
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: read # super-linter: read packages
+      statuses: write # super-linter: report status checks
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Lint code base
+        uses: super-linter/super-linter@9e863354e3ff62e0727d37183162c4a88873df41 # v8.6.0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          # Vendored/minified third-party assets are not our code — don't lint them.
+          FILTER_REGEX_EXCLUDE: '.*\.min\.(js|css)$'
+          VALIDATE_BIOME_LINT: false
+          VALIDATE_BIOME_FORMAT: false
+          VALIDATE_JSCPD: false
+          VALIDATE_JSON_PRETTIER: false
+          VALIDATE_MARKDOWN_PRETTIER: false
+          VALIDATE_YAML_PRETTIER: false
+          VALIDATE_HTML_PRETTIER: false
+          # Python: lint with ruff, mypy, and isort; disable the formatters (version-coupled and mutually conflicting)
+          VALIDATE_PYTHON_BLACK: false
+          VALIDATE_PYTHON_FLAKE8: false
+          VALIDATE_PYTHON_PYLINT: false
+          VALIDATE_PYTHON_PYINK: false
+          VALIDATE_PYTHON_RUFF_FORMAT: false
+
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: 3.x
+
+      - name: Verify documentation indexes
+        shell: pwsh
+        run: ./.github/scripts/Update-DocumentationIndex.ps1 -Check
+
+      - name: Install Zensical
+        run: pip install -r requirements.txt
+
+      - name: Build Zensical project
+        run: zensical build --clean
+        working-directory: src
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: src/site
+
+  links:
+    name: Links
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Validate documentation links
+        shell: pwsh
+        run: ./.github/scripts/Test-DocumentationLink.ps1
+
+  publish:
+    name: Publish
+    needs: [build, lint, links]
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      pages: write # deploy to GitHub Pages
+      id-token: write # OIDC token for actions/deploy-pages
+    steps:
+      - name: Configure pages
+        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+        id: deployment
