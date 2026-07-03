@@ -347,11 +347,13 @@ incident.
   top level, visible without expanding anything. Native `::notice::` and
   `::warning::` annotations suit this well: they surface on the run summary page,
   not only buried in the log.
-- **Gate the deepest tracing behind the runner's debug flag.** When a maintainer
-  re-runs a job with debug logging enabled, the runner sets `RUNNER_DEBUG=1`; key
-  the verbose dumps (raw responses, full payloads) off it, and prefer the native
-  `::debug::` command, which the runner renders only in debug mode. A normal run
-  then stays readable while a debug re-run reveals everything.
+- **Gate the deepest tracing behind the runner's debug flag.** Enabling debug
+  logging — by setting the `ACTIONS_STEP_DEBUG` variable or using the *Re-run
+  with debug logging* option — surfaces inside a step as `RUNNER_DEBUG=1` (and the
+  `runner.debug` context); key the verbose dumps (raw responses, full payloads)
+  off it, and prefer the native `::debug::` command, which the runner renders only
+  when debug logging is on. A normal run then stays readable while a debug re-run
+  reveals everything.
 - **Escape dynamic data in workflow commands.** A command such as `::notice::` or
   `::debug::` is a single line, so a value carrying `%`, a carriage return, or a
   newline must be encoded (`%25`, `%0D`, `%0A`) or it corrupts the command — the
