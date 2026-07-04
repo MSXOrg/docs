@@ -333,11 +333,11 @@ way until someone wants it.
 
 ### Log the whole story by default, collapsed into groups
 
-- **Log the inputs as resolved, the decisions taken, each external call and its
-  status, and the outputs produced — on every run, not only under a debug flag.**
-  These are exactly the details you need when something breaks; emitting them
-  only when debug logging is enabled means the run that actually failed tells you
-  nothing, and has to be reproduced before it can be diagnosed.
+- **Log the resolved inputs, the decisions taken, each external call and its
+  status, and the outputs produced — on every run.** These are the details a
+  failure is diagnosed from, so the first run to fail carries enough to diagnose
+  it. Log a secret's presence, never its value; secret inputs stay masked (see
+  [Distinguish `vars` from `secrets`](#distinguish-vars-from-secrets)).
 - **Wrap each phase in a `::group::` / `::endgroup::` block.** Grouping keeps the
   detail present but collapsed — there in plain sight, one expand away — so the
   top level reads as a short list of phases while the depth sits a click beneath
@@ -353,10 +353,11 @@ way until someone wants it.
   shell: bash
   env:
     SPACE: ${{ inputs.space }}
+    DRY_RUN: ${{ inputs.dry-run }}
   run: |
     echo "::group::Resolve inputs"
     echo "space   = ${SPACE}"
-    echo "dry-run = ${DRY_RUN:-false}"
+    echo "dry-run = ${DRY_RUN}"
     echo "::endgroup::"
 
     echo "::group::Publish"
@@ -368,8 +369,8 @@ way until someone wants it.
 
 - **Use `::notice::`, `::warning::`, or `::error::` for the few lines a reader
   must not miss** — above all the final result: what was created, or the
-  pass/fail verdict. Annotations render on the run summary and inline in the
-  diff, above the collapsed log, so the headline is visible without expanding a
+  pass/fail verdict. Annotations render on the run summary and in the Checks
+  view, above the collapsed log, so the headline is visible without expanding a
   single group.
 - **Annotate the outcome, not the progress.** Step-by-step narration belongs in
   the grouped log; if every other line is a `::notice::`, the one callout that
@@ -382,10 +383,11 @@ way until someone wants it.
   `Write-GitHubNotice` / `Write-GitHubError`).
 
 ```bash
-# On success — the one line that answers "what happened?"
+# Integer counts are safe to interpolate. Escape free-form text (names, messages)
+# with %25 / %0D / %0A first, or emit it through a helper such as Write-GitHubNotice.
 echo "::notice title=Published::created ${CREATED}, updated ${UPDATED}"
 
-# On a blocking failure — annotate, then exit non-zero (see the status check below).
+# A blocking failure: annotate, then exit non-zero (see the status check below).
 echo "::error title=Publish failed::${FAILED} page(s) rejected"
 ```
 
@@ -455,15 +457,18 @@ than assuming one exists.
   token in the context of untrusted pull-request code.
 
 ```yaml
-report:
-  name: Report
-  # Only this job can write to the PR; every other job stays read-only.
-  permissions:
-    pull-requests: write
-  if: github.event_name == 'pull_request'
-  runs-on: ubuntu-24.04
-  steps:
-    - uses: ./.github/actions/publish-summary   # upserts one marked comment
+jobs:
+  report:
+    name: Report
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    # Only this job can write to the PR; every other job stays read-only.
+    permissions:
+      pull-requests: write
+    steps:
+      # A local action runs from the checked-out repo, so check out first.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: ./.github/actions/publish-summary   # upserts one marked comment
 ```
 
 ### Gate merges with a named status check
@@ -489,5 +494,7 @@ jobs:
     permissions:
       contents: read
     steps:
+      # A local action runs from the checked-out repo, so check out first.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: ./.github/actions/validate-publishable   # exits 1 on a blocker
 ```
