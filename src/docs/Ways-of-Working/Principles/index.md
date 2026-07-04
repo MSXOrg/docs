@@ -15,7 +15,7 @@ Principles are grouped by theme; each theme is its own page so an agent can load
 | --- | --- |
 | [Purpose and direction](Purpose-and-Direction.md) | Why we build, who we build for, and the least-privilege stance under every decision. |
 | [AI-first development](AI-First-Development.md) | Agents as first-class participants, determinism before intelligence, and how humans and agents share the work. |
-| [Software design](Software-Design.md) | SOLID, extensibility, DRY with judgment, and making change easy before making the change. |
+| [Software design](Software-Design.md) | SOLID, extensibility, smart defaults with local overrides, DRY with judgment, and making change easy before making the change. |
 | [Engineering practices](Engineering-Practices.md) | Write it down, everything as code, evergreen docs, test-driven development, and shift-left quality. |
 | [Planning and delivery](Planning-and-Delivery.md) | Roadmapping, lean delivery, and the loops that keep iteration fast. |
 | [References](References.md) | The literature behind these principles. |
