@@ -325,87 +325,93 @@ concurrency:
 
 ## Build in logging and diagnostics
 
-An action is a black box until it fails, and the difference between a
-five-minute fix and an afternoon of blind re-runs is whether the action already
-told you what it did, what it decided, and why. Build that in from the start —
-diagnosis is a feature of the action, not something bolted on after the first
-incident.
+An action is a black box until it fails. Make every run explain itself — what it
+read, what it decided, and what it produced — *by default*, so a failure is
+diagnosed from the log you already have rather than from a second run with extra
+logging switched on. The craft is keeping all that detail present but out of the
+way until someone wants it.
 
-### Log verbosely, but keep the detail collapsed
+### Log the whole story by default, collapsed into groups
 
-- **Emit enough detail to reconstruct a run without repeating it** — the
-  resolved inputs, the decision taken at each branch of logic, every external
-  call and its status, and the counts behind any total. An action that prints
-  only `done` forces the next reader to re-run it with extra `echo`s just to
-  learn what happened.
-- **Wrap that detail in `::group::` / `::endgroup::` blocks so the log is
-  collapsed by default.** The reader expands only the group they need, and the
-  top level stays a short, scannable narrative. Group by phase
-  (`::group::Resolving inputs`, `::group::Publishing 42 pages`), not per line.
-- **Show the headline outside the groups.** The one or two lines that answer
-  "what happened?" — the counts, the decision, the resulting URL — sit at the
-  top level, visible without expanding anything. Native `::notice::` and
-  `::warning::` annotations suit this well: they surface on the run summary page,
-  not only buried in the log.
-- **Gate the deepest tracing behind the runner's debug flag.** Enabling debug
-  logging — by setting the `ACTIONS_STEP_DEBUG` variable or using the *Re-run
-  with debug logging* option — surfaces inside a step as `RUNNER_DEBUG=1` (and the
-  `runner.debug` context); key the verbose dumps (raw responses, full payloads)
-  off it, and prefer the native `::debug::` command, which the runner renders only
-  when debug logging is on. A normal run then stays readable while a debug re-run
-  reveals everything.
-- **Escape dynamic data in workflow commands.** A command such as `::notice::` or
-  `::debug::` is a single line, so a value carrying `%`, a carriage return, or a
-  newline must be encoded (`%25`, `%0D`, `%0A`) or it corrupts the command — the
-  same class of risk as
-  [expanding untrusted input inline](#never-expand-untrusted-input-inline). Dump a
-  raw, multi-line payload inside a collapsed `::group::` as plain output, which
-  needs no escaping, instead of through a command.
+- **Log the inputs as resolved, the decisions taken, each external call and its
+  status, and the outputs produced — on every run, not only under a debug flag.**
+  These are exactly the details you need when something breaks; emitting them
+  only when debug logging is enabled means the run that actually failed tells you
+  nothing, and has to be reproduced before it can be diagnosed.
+- **Wrap each phase in a `::group::` / `::endgroup::` block.** Grouping keeps the
+  detail present but collapsed — there in plain sight, one expand away — so the
+  top level reads as a short list of phases while the depth sits a click beneath
+  each. Group by phase (`Resolve inputs`, `Publish 42 pages`), one group per
+  phase, not one per line.
+- **Wrap the group markers in a helper so the script stays declarative.**
+  Emitting the raw `::group::` / `::endgroup::` lines by hand is noisy; a small
+  wrapper that takes a title and a block keeps the intent visible. A PowerShell
+  action gets this from the PSModule `GitHub` module — `LogGroup 'phase' { ... }`.
 
 ```yaml
 - name: Publish
   shell: bash
   env:
     SPACE: ${{ inputs.space }}
-    STATUS: ${{ steps.api.outputs.status }}
-    RESPONSE: ${{ steps.api.outputs.body }}
-    COUNT: ${{ steps.api.outputs.page-count }}
   run: |
-    echo "::group::Resolved configuration"
+    echo "::group::Resolve inputs"
     echo "space   = ${SPACE}"
     echo "dry-run = ${DRY_RUN:-false}"
     echo "::endgroup::"
 
-    # Deep trace only when the job was re-run with debug logging enabled.
-    if [ "${RUNNER_DEBUG:-}" = "1" ]; then
-      echo "::debug::api status=${STATUS}, ${#RESPONSE} byte response"
-      echo "::group::Raw API response"
-      echo "${RESPONSE}"          # multi-line payload — plain output, no escaping
-      echo "::endgroup::"
-    fi
-
-    # Headline stays outside the group — visible without expanding anything.
-    echo "::notice::Published ${COUNT} page(s) to ${SPACE}"
+    echo "::group::Publish"
+    # ...every step of the actual work, logged here as it happens...
+    echo "::endgroup::"
 ```
 
-### Write a receipt to the step summary
+### Call out the result with an annotation
 
-- **Emit a human-readable receipt to `$GITHUB_STEP_SUMMARY`.** The grouped log
-  is the *trace*; the step summary is the *result* — a short Markdown table or
-  list of what the run did (created / updated / skipped counts, the target,
-  links to what it produced). It renders on the run's summary page, so the
-  outcome is visible without opening a single log group.
-- **Keep the summary a receipt, not a second copy of the log.** Put the headline
-  numbers there, formatted for a person, with links; leave the blow-by-blow in
-  the collapsed groups.
-- **Surface the same facts as outputs.** Anything worth writing to the summary —
-  a URL, a count, a pass/fail verdict — is also worth declaring as an `output`
-  (see [Generalize the action](#generalize-the-action-drive-behaviour-through-inputs-and-outputs)),
+- **Use `::notice::`, `::warning::`, or `::error::` for the few lines a reader
+  must not miss** — above all the final result: what was created, or the
+  pass/fail verdict. Annotations render on the run summary and inline in the
+  diff, above the collapsed log, so the headline is visible without expanding a
+  single group.
+- **Annotate the outcome, not the progress.** Step-by-step narration belongs in
+  the grouped log; if every other line is a `::notice::`, the one callout that
+  matters is lost. Aim to end a run on a single clear annotation.
+- **Escape dynamic data in an annotation.** A workflow command is a single line,
+  so a value carrying `%`, a carriage return, or a newline must be encoded
+  (`%25`, `%0D`, `%0A`) or it corrupts the command — the same class of risk as
+  [expanding untrusted input inline](#never-expand-untrusted-input-inline). A
+  helper that emits the command handles this for you (PowerShell:
+  `Write-GitHubNotice` / `Write-GitHubError`).
+
+```bash
+# On success — the one line that answers "what happened?"
+echo "::notice title=Published::created ${CREATED}, updated ${UPDATED}"
+
+# On a blocking failure — annotate, then exit non-zero (see the status check below).
+echo "::error title=Publish failed::${FAILED} page(s) rejected"
+```
+
+### Report the bigger picture in a step summary
+
+- **When the result is more than a line — a table, per-item counts, a report —
+  write it to `$GITHUB_STEP_SUMMARY` as GitHub-flavored Markdown.** The step
+  summary renders on the run's summary page, so the outcome is legible without
+  opening the log at all.
+- **Keep the summary uncluttered by default.** Show the headline — the table or
+  the verdict — in the open, and tuck long or secondary detail inside
+  `<details><summary>...</summary>` blocks that stay closed until the reader
+  opens them. A summary that spills everything inline is as hard to scan as an
+  ungrouped log.
+- **Compose the Markdown with a helper rather than building strings** where you
+  can. A PowerShell action assembles the summary with the PSModule `Markdown`
+  module — `Heading`, `Table`, `Details { ... }` — and writes it with the
+  `GitHub` module's `Set-GitHubStepSummary`.
+- **Surface the same facts as outputs.** A URL, a count, or a verdict worth
+  putting in the summary is also worth an `output` (see
+  [Generalize the action](#generalize-the-action-drive-behaviour-through-inputs-and-outputs)),
   so a calling workflow acts on a value instead of scraping the summary.
 
 ```bash
 {
-  echo "## Documentation publish"
+  echo "## ✅ Documentation publish"
   echo ""
   echo "| Result  | Count |"
   echo "| ------- | ----- |"
@@ -413,7 +419,11 @@ incident.
   echo "| Updated | ${UPDATED} |"
   echo "| Skipped | ${SKIPPED} |"
   echo ""
-  echo "[View the published site](${SITE_URL})"
+  echo "<details><summary>Pages created (${CREATED})</summary>"
+  echo ""
+  echo "${CREATED_LIST}"   # one entry per line — kept closed until opened
+  echo ""
+  echo "</details>"
 } >> "$GITHUB_STEP_SUMMARY"
 ```
 
@@ -421,22 +431,22 @@ incident.
 
 The step summary is only seen by someone who opens the run. When the outcome
 matters to a person mid-flow — a PR author, an issue reporter — surface the
-receipt where they already are. **Which channel is right depends on the event
+result where they already are. **Which channel is right depends on the event
 that triggered the run**, so make reporting conditional on the trigger rather
 than assuming one exists.
 
-- **`pull_request` → a pull-request comment.** Post the receipt to the PR so the
+- **`pull_request` → a pull-request comment.** Post the summary to the PR so the
   author sees it in the timeline.
 - **`issues` / `issue_comment` → an issue comment.** Reply on the issue that
   started the run.
 - **`push` / `schedule` / `workflow_dispatch` → the step summary, plus a tracking
   issue for a finding worth chasing.** There is no PR or issue in context, so the
-  summary is the receipt; a scheduled job that detects a problem can open or
-  update an issue.
+  step summary stands on its own; a scheduled job that detects a problem can open
+  or update an issue.
 - **Upsert one comment; never post a fresh one per run.** Write a hidden marker
-  (an HTML comment such as `<!-- publish-receipt -->`) into the body, find the
+  (an HTML comment such as `<!-- publish-summary -->`) into the body, find the
   existing comment by that marker, and edit it in place — so a PR pushed ten
-  times carries one current receipt, not ten stale ones.
+  times carries one current comment, not ten stale ones.
 - **Grant the write scope only on the job that comments.** A PR comment needs
   `pull-requests: write`, an issue comment needs `issues: write`; the rest of the
   workflow stays read-only. Keep untrusted input out of the comment body (see
@@ -453,7 +463,7 @@ report:
   if: github.event_name == 'pull_request'
   runs-on: ubuntu-24.04
   steps:
-    - uses: ./.github/actions/publish-receipt   # upserts one marked comment
+    - uses: ./.github/actions/publish-summary   # upserts one marked comment
 ```
 
 ### Gate merges with a named status check
