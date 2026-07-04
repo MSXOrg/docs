@@ -39,7 +39,7 @@ This shape is chosen for manageability over the life of a system, and it earns t
 
 Make the wide default easy to set and the local override easy to make. When the two disagree, the more specific one wins — predictably, by its position in the hierarchy, never by special-casing.
 
-This is [Easy and Safe](../../index.md) expressed as design: doing the right thing takes no effort because it is the default, and deviating is deliberate and contained because it is a local override. [Least-privilege](Purpose-and-Direction.md) and [secure by default](../../Coding-Standards/Security.md) are this principle applied to permissions and security; the way [the vision cascades](../../Vision/index.md) is its shape applied to knowledge.
+This is [Easy and Safe](../../index.md) expressed as design: doing the right thing takes no effort because it is the default, and deviating is deliberate and contained because it is a local override. [Least-privilege](Purpose-and-Direction.md#least-privilege) and [secure by default](../../Coding-Standards/Security.md#secure-by-default) are this principle applied to permissions and security; the way [the vision cascades](../../Vision/index.md#how-the-vision-cascades) is its shape applied to knowledge.
 
 ## DRY — with judgment
 
