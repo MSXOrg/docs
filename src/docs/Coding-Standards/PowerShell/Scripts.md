@@ -52,4 +52,4 @@ $ErrorActionPreference = 'Stop'
 ## Paths
 
 - **Do not depend on the current directory.** Avoid relative paths and `~` — the meaning of `~` depends on the current PowerShell provider — and build paths from `$PSScriptRoot` with `Join-Path`.
-- **Pass full paths to .NET and native calls.** .NET methods and external executables read `[System.Environment]::CurrentDirectory`, which PowerShell does not keep in step with `$PWD`, so a relative path resolves against the wrong place. Resolve to a full path first.
+- **Pass full paths to .NET and native calls.** .NET methods and external executables resolve relative paths against `[System.Environment]::CurrentDirectory`, which PowerShell does not keep reliably in step with `$PWD` — it can lag `Set-Location`, and diverges in non-FileSystem providers (`Registry`, `Cert:`). Resolve to a full path first.

@@ -66,7 +66,7 @@ function Get-UserData {
 ## Errors and output
 
 - **`throw` for terminating errors**; `Write-Error` only where the caller is expected to handle a non-terminating one.
-- **Call cmdlets you mean to trap with `-ErrorAction Stop`** so they raise terminating, catchable errors, and set `$ErrorActionPreference = 'Stop'` around native commands, restoring it afterward.
+- **Call cmdlets you mean to trap with `-ErrorAction Stop`** so they raise terminating, catchable errors. Native commands report failure through `$LASTEXITCODE`, not the error stream, so check it and `throw` yourself — or set `$PSNativeCommandUseErrorActionPreference = $true` on PowerShell 7.4+ so their non-zero exits honour `$ErrorActionPreference` too.
 - **Put the whole transaction in the `try` block** rather than setting success flags to gate later code, and do not lean on `$?` — it reports only whether the last command considered itself successful, with no detail.
 - **In a `catch`, copy `$_` into your own variable first**, before later commands overwrite it. The baseline rules — fail fast, never swallow — live in [Error Handling](../Error-Handling.md).
 

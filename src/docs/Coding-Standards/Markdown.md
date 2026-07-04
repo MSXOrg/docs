@@ -59,7 +59,7 @@ These rules are disabled or widened so they do not flag valid documentation — 
 
 Documentation is full of PowerShell, so present it the way the [PowerShell standard](PowerShell/index.md) writes it:
 
-- **Label the fence `powershell`**, and put command output in a separate block labelled `Output`, so it is neither highlighted as code nor mistaken for input.
+- **Label the fence `powershell`**, and put command output in a separate block labelled `Output`, so it is neither syntax-highlighted as a command nor mistaken for input.
 - **Use full cmdlet and parameter names**, and avoid positional parameters, so a reader can copy the sample and run it.
 - **Avoid backtick line-continuation.** Break a long call with splatting, or at PowerShell's natural points — after a pipe, an opening parenthesis, or a brace.
 - **Leave out the prompt string** (`PS>`) unless the sample is specifically about interactive, prompt-changing behaviour.
