@@ -437,7 +437,7 @@ result where they already are. **Which channel is right depends on the event
 that triggered the run**, so make reporting conditional on the trigger rather
 than assuming one exists.
 
-- **`pull_request` → a pull-request comment.** Post the summary to the PR so the
+- **`pull_request` → a pull request comment.** Post the summary to the PR so the
   author sees it in the timeline.
 - **`issues` / `issue_comment` → an issue comment.** Reply on the issue that
   started the run.
@@ -454,7 +454,7 @@ than assuming one exists.
   workflow stays read-only. Keep untrusted input out of the comment body (see
   [Never expand untrusted input inline](#never-expand-untrusted-input-inline)),
   and treat `pull_request_target` with particular care — it runs with a writable
-  token in the context of untrusted pull-request code.
+  token in the context of untrusted pull request code.
 
 ```yaml
 jobs:
