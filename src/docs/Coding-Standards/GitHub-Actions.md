@@ -145,14 +145,16 @@ as script.
 
 ```yaml
 # Correct — value arrives as an environment variable, not inlined into the shell
-- name: Echo the PR title
+- name: Print the PR title
+  shell: pwsh
   env:
     TITLE: ${{ github.event.pull_request.title }}
-  run: echo "$TITLE"
+  run: Write-Host $env:TITLE
 
-# Avoid — attacker-controlled title is executed as shell
-- name: Echo the PR title
-  run: echo "${{ github.event.pull_request.title }}"
+# Avoid — attacker-controlled title is spliced into the script and executed
+- name: Print the PR title
+  shell: pwsh
+  run: Write-Host "${{ github.event.pull_request.title }}"
 ```
 
 ## Structure work into jobs and steps
