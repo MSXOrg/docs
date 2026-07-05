@@ -60,7 +60,7 @@ Beyond the basics, these language-specific habits keep PowerShell correct and fa
 - **Match text with the operator built for it.** Use `-like` for wildcard patterns and `-match` for regular expressions instead of hand-rolled string surgery; both default to case-insensitive, so add the `-c` prefix (`-clike`, `-cmatch`, `-ceq`) when a comparison must be case-sensitive.
 - **Suppress unwanted output with `$null = ...`** (or `[void]` for method calls), not `| Out-Null` — the pipeline form is markedly slower on hot paths.
 - **Build collections with a typed list, not `+=` in a loop.** `$a += $x` reallocates the whole array every iteration; use `[System.Collections.Generic.List[T]]` with `.Add()`, and prefer a cmdlet's `-Filter` over piping to `Where-Object` on large sets.
-- **Make a genuine constant read-only.** For a value that must not change once set, declare it with `Set-Variable -Name Pi -Value 3.14159 -Option ReadOnly` (or `-Option Constant`), so an accidental reassignment fails loudly instead of quietly winning.
+- **Guard a value that must not change.** Declare it with `Set-Variable -Name Pi -Value 3.14159 -Option ReadOnly` — or `-Option Constant` for one that can never be reassigned or removed — so an accidental write fails loudly instead of quietly winning.
 - **Keep secrets out of source, and never `Invoke-Expression` untrusted input.** Accept credentials as a `[PSCredential]` parameter with the `[Credential()]` attribute rather than calling `Get-Credential` inside a reusable function, so a caller can pass one they already hold, and take other sensitive values as `[securestring]`. Guard state-changing commands with `ShouldProcess` (see [Functions](Functions.md)); the wider rules live in the [Security](../Security.md) baseline.
 
 ## Toolchain
