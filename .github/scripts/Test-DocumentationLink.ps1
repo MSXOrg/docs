@@ -106,8 +106,8 @@ function Test-LinkTarget {
         return
     }
     if ($path.StartsWith('/')) { return } # absolute site path - not resolvable here
-    $resolved = [System.IO.Path]::GetFullPath((Join-Path $File.DirectoryName $path))
-    if (-not (Test-Path -LiteralPath $resolved)) {
+    $resolved = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($File.DirectoryName, $path))
+    if (-not ([System.IO.File]::Exists($resolved) -or [System.IO.Directory]::Exists($resolved))) {
         $Broken.Add("${Rel}:${LineNo}: '$Target' - target does not exist")
         return
     }
