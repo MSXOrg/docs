@@ -59,7 +59,7 @@ The altitude test: push detail *down* into the design, and push scope *up* into 
 
 ## Requirements
 
-Requirements are testable statements of what must be true — never how it is built. Write them with the [BCP 14](https://www.rfc-editor.org/info/bcp14) keywords — **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, **MAY** — in uppercase, where they carry their normative meaning ([RFC 2119](https://www.rfc-editor.org/rfc/rfc2119), [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174)).
+Requirements are testable statements of what must be true — never how it is built. Write them with the [BCP 14](https://www.rfc-editor.org/info/bcp14) keywords — **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, **MAY**, and the rest of the set — in uppercase, where they carry their normative meaning ([RFC 2119](https://www.rfc-editor.org/rfc/rfc2119), [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174)).
 
 **Functional** requirements describe what the capability does, as observable behavior. **Non-functional** requirements are the quality attributes the capability must hold — performance, security, reliability, availability, compliance, observability, and cost — each stated as a measurable condition with a threshold; a non-functional requirement without a number is an opinion. For platform and infrastructure work these are often the point of the change rather than an afterthought — latency, redaction, retention, and blast radius decide whether the thing is fit to run.
 
