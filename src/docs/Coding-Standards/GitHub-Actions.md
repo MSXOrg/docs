@@ -384,6 +384,12 @@ way until someone wants it.
   failure is diagnosed from, so the first run to fail carries enough to diagnose
   it. Log a secret's presence, never its value; secret inputs stay masked (see
   [Distinguish `vars` from `secrets`](#distinguish-vars-from-secrets)).
+- **Force an untrusted value onto a single line before logging it.** The runner
+  parses every line of stdout, so a value you do not control that carries a
+  newline followed by `::...` can smuggle in a workflow command. Strip or encode
+  `\r` / `\n` (or emit the value through a helper) so a logged input cannot break
+  out into a command — the same untrusted-input rule as
+  [Never expand untrusted input inline](#never-expand-untrusted-input-inline).
 - **Wrap each phase in a `::group::` / `::endgroup::` block.** Grouping keeps the
   detail present but collapsed — there in plain sight, one expand away — so the
   top level reads as a short list of phases while the depth sits a click beneath
