@@ -317,6 +317,7 @@ permissions: {}
 jobs:
   # An action — a step-level capability, composed inside a job.
   docs:
+    name: Publish docs
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -328,6 +329,7 @@ jobs:
 
   # A reusable workflow — a whole multi-job process, called as a job.
   ci:
+    name: CI
     uses: org/reusable-workflows/.github/workflows/build.yml@<sha> # vX.Y.Z
     permissions:
       contents: read
