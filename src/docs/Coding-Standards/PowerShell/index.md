@@ -68,7 +68,7 @@ Beyond the basics, these language-specific habits keep PowerShell correct and fa
 Cmdlets and the pipeline are for orchestration and glue; reach for the .NET base class library to do the real work when performance or precise behaviour matters — a .NET call is faster than a cmdlet pipeline and its contract is exact.
 
 - **Call .NET on hot paths.** `[System.IO.File]::ReadAllText($path)` over `Get-Content -Raw`, `[System.Text.StringBuilder]` for heavy string building, and `[System.IO.File]::Exists($path)` / `[System.IO.Directory]::Exists($path)` over `Test-Path` when a plain filesystem check is all you need — the typed-list and `$null =` idioms above are the same instinct.
-- **Use .NET for exact parsing and paths.** `[int]::TryParse(...)`, `[datetime]::ParseExact(...)`, and `[System.IO.Path]::Combine(...)` / `GetFullPath(...)` where operator or cmdlet behaviour is looser than you need; pass full paths to .NET calls (see [Scripts](Scripts.md)).
+- **Use .NET for exact parsing and paths.** `[int]::TryParse(...)`, `[datetime]::ParseExact(...)`, and `[System.IO.Path]::Combine(...)` / `[System.IO.Path]::GetFullPath(...)` where operator or cmdlet behaviour is looser than you need; pass full paths to .NET calls (see [Scripts](Scripts.md)).
 - **Keep cmdlets where clarity wins.** Do not rewrite readable, one-time glue in .NET to save microseconds that do not matter — reach for .NET where the work is hot or the behaviour must be exact.
 
 ## Toolchain
