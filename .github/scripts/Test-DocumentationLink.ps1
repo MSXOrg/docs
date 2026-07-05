@@ -14,7 +14,8 @@
     - A heading anchor ('target.md#section', or a same-page '#section') must match
       a heading in the target file. Slugs are computed the same way the site's
       Markdown processor does, including the '_1', '_2' suffixes for duplicate
-      headings.
+      headings; an explicit attr_list id ('## Heading { #id }') is recognised as
+      the heading's anchor.
 
     External links (http, https, mailto, tel), absolute paths, links inside fenced
     code blocks, and links inside inline code spans are ignored on purpose.
@@ -49,7 +50,10 @@ function ConvertTo-Slug {
 function Get-HeadingSlug {
     param([string]$Path)
     # The anchor slugs a page exposes, matching the duplicate-slug suffixing
-    # ('_1', '_2', ...) the Markdown processor applies to repeated headings.
+    # ('_1', '_2', ...) the Markdown processor applies to repeated headings. A
+    # heading may also carry an explicit attr_list id ('## Heading { #id }'),
+    # which the site renderer uses as the anchor verbatim, overriding the text
+    # slug; recognise those so links to '#id' validate.
     $slugs = [System.Collections.Generic.List[string]]::new()
     $seen = @{}
     $inFence = $false
@@ -57,7 +61,14 @@ function Get-HeadingSlug {
         if ($line -match '^\s*```') { $inFence = -not $inFence; continue }
         if ($inFence) { continue }
         if ($line -match '^#{1,6}\s+(.+?)\s*$') {
-            $base = ConvertTo-Slug $matches[1]
+            $text = $matches[1]
+            # An explicit attr_list id ('{ #id }' or '{: #id ... }') wins over
+            # the text slug, exactly as python-markdown's attr_list assigns it.
+            if ($text -match '\{\s*:?\s*#([-\w]+)[^}]*\}\s*$') {
+                $slugs.Add($matches[1])
+                continue
+            }
+            $base = ConvertTo-Slug $text
             if (-not $base) { continue }
             if ($seen.ContainsKey($base)) { $seen[$base]++; $slugs.Add("${base}_$($seen[$base])") }
             else { $seen[$base] = 0; $slugs.Add($base) }
