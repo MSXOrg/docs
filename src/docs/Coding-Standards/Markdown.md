@@ -53,7 +53,10 @@ These rules are disabled or widened so they do not flag valid documentation — 
 - **Use sentence-style headings.**
 - **Surround headings, lists, and fenced blocks with a blank line** for readability, even though the linter no longer enforces it.
 - **Prefer relative links** within a repository; use the canonical published URL for cross-repository references.
+- **Give a repeated or long link a reference-style definition** (`[text][ref]`, with `[ref]: url` listed below) so the prose stays readable and one edit updates every use.
 - **Tag every code fence with a language** (` ```bash `, ` ```yaml `) so it is highlighted and converts cleanly when published.
+- **Wrap code, commands, filenames, and identifiers in backticks** rather than bold or italic, so they read as code and do not lean on the emphasis the linter now allows freely.
+- **Give every image descriptive alt text** — `![what the image shows](diagram.png)` — so it serves screen readers and still says something when the image fails to load; use a relative path for images kept in the repository.
 
 ## PowerShell code samples
 
