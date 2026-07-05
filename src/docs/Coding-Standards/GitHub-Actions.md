@@ -28,11 +28,15 @@ them to point at different code. A full commit SHA is **immutable**.
 
 ```yaml
 # Correct — immutable SHA; comment carries the readable version
-- uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-- uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+- name: Check out the repository
+  uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+- name: Set up Node
+  uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
 
 # Avoid — mutable tag; the referenced code can change under us
-- uses: actions/checkout@v6
+- name: Check out the repository
+  uses: actions/checkout@v6
 ```
 
 Internal actions follow the same rule.
@@ -122,7 +126,9 @@ jobs:
     uses: org/reusable-workflows/.github/workflows/build.yml@<sha> # vX.Y.Z
     secrets:
       PROPAGATION_TOKEN: ${{ secrets.PROPAGATION_TOKEN }}
+```
 
+```yaml
 # Avoid — forwards every secret; the call site no longer documents what's used
 jobs:
   call:
@@ -139,12 +145,216 @@ as script.
 
 ```yaml
 # Correct — value arrives as an environment variable, not inlined into the shell
-- env:
+- name: Print the PR title
+  shell: pwsh
+  env:
     TITLE: ${{ github.event.pull_request.title }}
-  run: echo "$TITLE"
+  run: Write-Host $env:TITLE
 
-# Avoid — attacker-controlled title is executed as shell
-- run: echo "${{ github.event.pull_request.title }}"
+# Avoid — attacker-controlled title is spliced into the script and executed
+- name: Print the PR title
+  shell: pwsh
+  run: Write-Host "${{ github.event.pull_request.title }}"
+```
+
+## Structure work into jobs and steps
+
+A workflow is a set of **jobs**, and each job is a sequence of **steps**. The two
+are not interchangeable: steps in a job share one runner — the same filesystem
+and environment, running in order by default — while every job gets a **fresh
+runner** and runs in parallel with its siblings unless told to wait. Reach for a
+step by default; add a job only when a step cannot give you what you need.
+
+- **Default to steps within one job.** Work that is sequential and shares state —
+  check out, build, then test what you just built — belongs in a single job as
+  ordered steps. They share the workspace, so each step sees the files the last
+  one produced without copying anything, and the job reads top to bottom as one
+  story.
+- **Add a job to run independent work on its own runner.** Two pieces of
+  work with no data dependency between them — a lint pass and a security scan —
+  finish sooner as two jobs on two runners than as serial steps on one, each
+  isolated with its own environment and permissions. Steps within a single job
+  can now run concurrently too, but that is newer and shares one runner (see
+  [Parallel steps are new and not yet a default](#parallel-steps-are-new-and-not-yet-a-default)).
+  Add ordering with `needs:` only where a real dependency exists.
+- **Add a job to draw a permission boundary.** The job is the unit that
+  `permissions:` scopes (see
+  [Grant least-privilege permissions](#grant-least-privilege-permissions)). When
+  one slice of the work needs a wider scope — a step that comments on the pull
+  request needs `pull-requests: write` — isolate it in its own job so the rest of
+  the workflow stays read-only instead of raising the floor for everything.
+- **Add a job for a different runner or a deployment environment.** A job pins
+  its own `runs-on:` and can target an `environment:` with its own protection
+  rules, approvals, and secrets. Work that must run on a different image, or
+  behind a manual deploy gate, is a separate job.
+- **Add a job when the result must gate merge.** Branch protection requires
+  status checks by job name (see
+  [Gate merges with a named status check](#gate-merges-with-a-named-status-check)),
+  so a result that blocks a pull request is its own job.
+- **Add a job to call a reusable workflow.** A reusable workflow is invoked as a
+  job-level `uses:`, never as a step (see
+  [Choose an action or a reusable workflow](#choose-an-action-or-a-reusable-workflow)).
+
+Weigh these against what a job costs. A new job is a fresh runner: it checks out
+again, warms its own caches, and shares no filesystem with its siblings — data
+crosses a job boundary only through `outputs` or an uploaded artifact. So
+splitting sequential, state-sharing work across jobs buys nothing and adds
+handoff overhead; parallelism across separate runners, an isolated permission
+scope, a distinct environment, and merge gating are what earn a new job.
+
+```yaml
+permissions: {}
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      # Sequential, state-sharing work belongs in one job as ordered steps.
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Build
+        shell: pwsh
+        run: ./build.ps1     # writes artifacts into the workspace
+
+      - name: Test
+        shell: pwsh
+        run: ./test.ps1      # reads them from the same workspace — no handoff
+
+  report:
+    name: Report
+    needs: build             # runs only after build succeeds
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write   # a wider scope, isolated to this one job
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Publish the summary comment
+        uses: ./.github/actions/publish-summary
+```
+
+### Parallel steps are new and not yet a default
+
+Every step in a job historically ran in sequence — each starting only once the
+last finished — and that sequential model is what the rest of this section
+assumes. GitHub has since added **concurrent steps** within a single job, through
+new workflow keywords:
+
+- `background: true` starts a step asynchronously and continues straight to the
+  next step.
+- `wait` / `wait-all` block until one, several, or all prior background steps
+  finish.
+- `cancel` stops a background step once it is no longer needed — for instance a
+  service started only for the steps that run alongside it.
+- `parallel` runs a group of steps concurrently and then waits for them: the
+  convenience form of "start these together, then carry on".
+
+This covers patterns that used to force a second job or a shell backgrounding
+hack (`&`): independent work run at once on one runner, a background service that
+later steps use and then shut down, or non-blocking work — uploading telemetry
+while packaging continues — overlapping the steps after it. Because the steps
+share the runner, they also share its filesystem, which a separate job does not.
+
+Adopt it deliberately:
+
+- **Prefer a separate job for ordinary parallelism.** When independent work does
+  not need a shared workspace, two jobs stay the clearer, better-isolated choice —
+  separate runners, permissions, and logs. Reach for concurrent steps only when
+  the work genuinely benefits from one shared runner.
+- **Confirm the toolchain supports the keywords first.** The feature is recent,
+  so the pinned [`actionlint` / `zizmor`](#toolchain) versions and the runner
+  image in use may not yet validate or run the new keywords; verify before
+  relying on it. Expect interleaved concurrent steps to be harder
+  to follow, so keep the [grouped-logging discipline](#build-in-logging-and-diagnostics).
+
+Until it has settled in the ecosystem, treat concurrent steps as a tool for the
+few cases that need a shared runner, and let a separate job remain the default
+answer to "these should run in parallel". See the
+[workflow syntax reference](https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions)
+for exact usage.
+
+## Choose an action or a reusable workflow
+
+Both an **action** and a **reusable workflow** package automation for reuse, but
+at different granularities, and they plug in at different levels. Match the unit
+to the thing being reused.
+
+- **An action is a reusable unit of *steps*.** It plugs into a job as a step
+  (`uses:` at step level), runs on the caller's runner inside the caller's job —
+  sharing that job's filesystem and environment — and does **one well-defined
+  thing** through an `inputs` / `outputs` interface. Several actions compose
+  within a single job. This is the smaller unit and the common case;
+  [Extract non-trivial `run:` scripts into an action](#extract-non-trivial-run-scripts-into-an-action)
+  is entirely about authoring one.
+- **A reusable workflow is a reusable unit of *jobs*.** It is called as a
+  job-level `uses:` (`org/repo/.github/workflows/build.yml@<sha>`) and brings its
+  own jobs, runners, `permissions`, and `secrets` contract — a whole pipeline,
+  not a single task. Use it to standardize a **multi-job process** several callers
+  should run the same way: a shared build-test-publish flow, a common release
+  pipeline.
+
+Reach for the smallest unit that fits:
+
+- **Choose an action** to package a **step-level capability** — one task used
+  inside a job (`link-check`, `publish-docs`, `start-cloud-agent`). It composes
+  with the steps around it and hands results back as outputs.
+- **Choose a reusable workflow** to package an **end-to-end, multi-job process** —
+  its own job graph, `needs:` ordering, per-job permissions, and environment
+  gates — that several repositories should run identically. When the thing worth
+  sharing is the *whole pipeline* rather than one step of it, the workflow is the
+  unit that carries the jobs with it.
+- **Do not wrap a single task in a reusable workflow.** A workflow drags a job
+  and a runner behind it; if the reused logic is one step's worth, an action is
+  lighter, composes with the surrounding steps, and returns outputs to the
+  calling step directly. Equally, do not force a multi-job pipeline into one
+  action — an action cannot span jobs or set per-job permissions.
+
+Both follow the same lifecycle: **start as a local action or workflow**,
+referenced by path (`./.github/...`) so it runs at the checked-out commit, and
+**promote it to a standalone repository only once a second consumer appears**
+(see [Start local; promote when it is reused](#start-local-promote-when-it-is-reused)).
+Once standalone — like any third-party dependency — it is **consumed by full
+commit SHA** (see
+[Pin every action to a full commit SHA](#pin-every-action-to-a-full-commit-sha)).
+A reusable workflow additionally takes its secrets **explicitly by name, never
+`secrets: inherit`** (see
+[Distinguish `vars` from `secrets`](#distinguish-vars-from-secrets)).
+
+```yaml
+permissions: {}
+
+jobs:
+  # An action — a step-level capability, composed inside a job.
+  docs:
+    name: Publish docs
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Publish the docs
+        uses: ./.github/actions/publish-docs     # one task; returns outputs
+        with:
+          space: ENG
+
+  # A reusable workflow — a whole multi-job process, called as a job.
+  ci:
+    name: CI
+    uses: org/reusable-workflows/.github/workflows/build.yml@<sha> # vX.Y.Z
+    permissions:
+      contents: read
+      id-token: write
+    secrets:
+      PROPAGATION_TOKEN: ${{ secrets.PROPAGATION_TOKEN }}  # explicit, by name
 ```
 
 ## Default to PowerShell as the glue language
@@ -361,13 +571,27 @@ concurrency:
   cancel-in-progress: false
 ```
 
-## Pin the runner and name everything
+## Pin the runner, name everything, and space it out
 
 - **Pin `runs-on` to a specific runner image** (`ubuntu-24.04`) rather than
   `ubuntu-latest`, so a runner upgrade is a deliberate, reviewable change rather
   than a silent one.
-- **Give every job and every non-trivial step a `name:`.** Named steps make the
-  Actions UI and logs readable and make failures easy to locate.
+- **Give every job and every step a `name:`** — not only the non-trivial ones.
+  Left unnamed, a step is labelled by whatever GitHub derives from its `run` or
+  `uses`: the full pinned SHA for an action (`Run actions/checkout@de0fac…`), or
+  the truncated first line of a script — both hard to read, and both changing
+  whenever the command does. A written `name:` is the exact text shown in the
+  Actions UI, the logs, and the Checks view, so a step **reads the same in the
+  code as in the portal**, stays a **stable handle** for links and log searches
+  when the command underneath it changes, and names a failure by intent rather
+  than by a decoded command line. Under the
+  [SHA-pinning rule](#pin-every-action-to-a-full-commit-sha) it matters all the
+  more: an unnamed action step wears its 40-character SHA as its label.
+- **Separate each job and each step with a single blank line.** One blank line
+  between consecutive steps, and one between consecutive jobs, makes every unit a
+  self-contained block that is easy to scan, reorder, and read in a diff. Use
+  exactly one — with none, adjacent steps blur together; with several, the file
+  turns gappy.
 
 ## Build in logging and diagnostics
 
@@ -402,19 +626,19 @@ way until someone wants it.
 
 ```yaml
 - name: Publish
-  shell: bash
+  shell: pwsh
   env:
     SPACE: ${{ inputs.space }}
     DRY_RUN: ${{ inputs.dry-run }}
   run: |
-    echo "::group::Resolve inputs"
-    echo "space   = ${SPACE}"
-    echo "dry-run = ${DRY_RUN}"
-    echo "::endgroup::"
+    LogGroup 'Resolve inputs' {
+      Write-Host "space   = $env:SPACE"
+      Write-Host "dry-run = $env:DRY_RUN"
+    }
 
-    echo "::group::Publish"
-    # ...every step of the actual work, logged here as it happens...
-    echo "::endgroup::"
+    LogGroup 'Publish 42 pages' {
+      # ...each page logged here as it is published...
+    }
 ```
 
 ### Call out the result with an annotation
@@ -436,13 +660,13 @@ way until someone wants it.
   helper that emits the command handles this for you (PowerShell:
   `Write-GitHubNotice` / `Write-GitHubError`).
 
-```bash
-# Integer counts are safe to interpolate. Escape free-form text (names, messages)
-# with %25 / %0D / %0A first, or emit it through a helper such as Write-GitHubNotice.
-echo "::notice title=Published::created ${CREATED}, updated ${UPDATED}"
+```powershell
+# The GitHub module escapes dynamic data for you — no manual %25 / %0D / %0A.
+Write-GitHubNotice -Title 'Published' -Message "created $($created.Count), updated $($updated.Count)"
 
-# A blocking failure: annotate, then exit non-zero (see the status check below).
-echo "::error title=Publish failed::${FAILED} page(s) rejected"
+# A blocking failure: annotate, then throw so the step exits non-zero (see the status check below).
+Write-GitHubError -Title 'Publish failed' -Message "$($rejected.Count) page(s) rejected"
+throw "$($rejected.Count) page(s) rejected"
 ```
 
 ### Report the bigger picture in a step summary
@@ -465,22 +689,20 @@ echo "::error title=Publish failed::${FAILED} page(s) rejected"
   [Generalize the action](#generalize-the-action-drive-behaviour-through-inputs-and-outputs)),
   so a calling workflow acts on a value instead of scraping the summary.
 
-```bash
-{
-  echo "## ✅ Documentation publish"
-  echo ""
-  echo "| Result  | Count |"
-  echo "| ------- | ----- |"
-  echo "| Created | ${CREATED} |"
-  echo "| Updated | ${UPDATED} |"
-  echo "| Skipped | ${SKIPPED} |"
-  echo ""
-  echo "<details><summary>Pages created (${CREATED})</summary>"
-  echo ""
-  echo "${CREATED_LIST}"   # one entry per line — kept closed until opened
-  echo ""
-  echo "</details>"
-} >> "$GITHUB_STEP_SUMMARY"
+```powershell
+Set-GitHubStepSummary -Summary (
+  Heading 2 '✅ Documentation publish' {
+    Table {
+      [pscustomobject]@{ Result = 'Created'; Count = $created.Count }
+      [pscustomobject]@{ Result = 'Updated'; Count = $updated.Count }
+      [pscustomobject]@{ Result = 'Skipped'; Count = $skipped.Count }
+    }
+
+    Details "Pages created ($($created.Count))" {
+      $created -join "`n"   # one title per line — kept closed until opened
+    }
+  }
+)
 ```
 
 ### Report back on the triggering PR or issue
@@ -522,8 +744,11 @@ jobs:
       pull-requests: write # comment on the PR
     steps:
       # A local action runs from the checked-out repo, so check out first.
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: ./.github/actions/publish-summary   # upserts one marked comment
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Publish the summary comment
+        uses: ./.github/actions/publish-summary   # upserts one marked comment
 ```
 
 ### Gate merges with a named status check
@@ -550,6 +775,9 @@ jobs:
       contents: read
     steps:
       # A local action runs from the checked-out repo, so check out first.
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: ./.github/actions/validate-publishable   # exits 1 on a blocker
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Validate that the docs are publishable
+        uses: ./.github/actions/validate-publishable   # exits 1 on a blocker
 ```
