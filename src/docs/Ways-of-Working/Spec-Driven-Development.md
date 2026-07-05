@@ -168,13 +168,13 @@ Copy these skeletons to start a `spec.md` and its `design.md`. Every section is 
 
 ### Functional
 
-- **F1.** <what the capability does — behavioral, testable, no technology>
-- **F2.** <...>
+- **F1** <what the capability does — behavioral, testable, no technology>
+- **F2** <...>
 
 ### Non-functional
 
-- **N1.** <a quality attribute as a measurable condition — latency, availability, redaction, retention, cost>
-- **N2.** <...>
+- **N1** <a quality attribute as a measurable condition — latency, availability, redaction, retention, cost>
+- **N2** <...>
 
 ## Acceptance criteria
 
