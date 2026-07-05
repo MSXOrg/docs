@@ -66,7 +66,21 @@ function Get-UserData {
 ## Errors and output
 
 - **`throw` for terminating errors**; `Write-Error` only where the caller is expected to handle a non-terminating one.
-- **Emit one object type**, matching `[OutputType()]`; never `Write-Host` data another command might consume.
+- **Call cmdlets you mean to trap with `-ErrorAction Stop`** so they raise terminating, catchable errors. Native commands report failure through `$LASTEXITCODE`, not the error stream, so check it and `throw` yourself — or set `$PSNativeCommandUseErrorActionPreference = $true` on PowerShell 7.4+ so their non-zero exits honour `$ErrorActionPreference` too.
+- **Put the whole transaction in the `try` block** rather than setting success flags to gate later code, and do not lean on `$?` — it reports only whether the last command considered itself successful, with no detail.
+- **In a `catch`, copy `$_` into your own variable first**, before later commands overwrite it. The baseline rules — fail fast, never swallow — live in [Error Handling](../Error-Handling.md).
+
+## Output streams
+
+Send each kind of message to the stream built for it, so a caller can capture, redirect, or silence it:
+
+- **Results** are objects on the output stream — emit them implicitly by naming the object on its own line; do **not** use `return $obj` to emit, and in a pipeline function emit from `process`, not `end`.
+- **Emit one object type**, matching `[OutputType()]`.
+- **`Write-Verbose`** for status a caller may want (`-Verbose`), **`Write-Debug`** for maintainer breadcrumbs (`-Debug`), and **`Write-Progress`** for progress that need not persist.
+- **`Write-Warning`** and **`Write-Error`** for warnings and non-terminating errors.
+- **`Write-Host`** only for `Show-` or `Format-` verbs or an interactive prompt — never for data another command might consume.
+
+`[CmdletBinding()]` is what turns on the `-Verbose` and `-Debug` switches, so those streams reach the caller.
 
 ## Comment-based help (required)
 

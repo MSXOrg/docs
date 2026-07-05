@@ -19,6 +19,15 @@ This standard builds on the [language-agnostic baseline](../index.md); where the
 
 <!-- INDEX:END -->
 
+## Tools and controllers
+
+PowerShell falls into two kinds, and the difference decides how a command shapes its output:
+
+- A **tool** is a reusable unit — an advanced function, usually exported from a module. It takes input only through parameters and emits **raw, least-manipulated objects**, so it stays usable in situations its author never imagined; a tool that measures a size returns bytes, not a rounded string.
+- A **controller** is a script that automates one process by calling tools. It may reshape, round, or format data for how it will be read, and it is not meant to be reused.
+
+Keep the shaping at the edge: tools stay general and emit raw objects, and a controller — or a format view (`.format.ps1xml`) — turns those into presentation. This is the [thin script](Scripts.md) rule seen from the other side, and it is why tools [emit objects, not text](#shared-conventions).
+
 ## Shared conventions
 
 These hold for all PowerShell, whatever the construct:
@@ -26,6 +35,7 @@ These hold for all PowerShell, whatever the construct:
 - **`Verb-Noun` naming** with an approved verb (`Get-Verb`) and a singular noun: `Get-RepositorySecret`, not `Fetch-Secrets`.
 - **`PascalCase`** for functions, parameters, public variables, and class members; `camelCase` for local variables.
 - **Full cmdlet names, never aliases** (`Where-Object`, not `?`; `ForEach-Object`, not `%`).
+- **Full parameter names, and standard ones.** Pass parameters by name and avoid positional arguments in shared code — `Get-Process -Name pwsh`, not `Get-Process pwsh` — so a call survives parameter-set changes and reads clearly. Name your own parameters after PowerShell's built-ins (`Path`, `Name`, `ComputerName`), not `$Param_Computer`.
 - **Set `$ErrorActionPreference = 'Stop'`** at the top of every script and module so errors are terminating, not silently swallowed.
 - **Emit objects, not formatted text.** Return rich objects and let the caller format; reserve `Write-Host` for genuine console UX, and use `Write-Verbose` / `Write-Information` for progress narration.
 
@@ -49,7 +59,7 @@ Beyond the basics, these language-specific habits keep PowerShell correct and fa
 - **Put `$null` on the left of a comparison** — `$null -eq $x`, never `$x -eq $null`. Against a collection the right-hand form *filters* rather than tests. Use `-contains` / `-in` for membership, never `-eq`.
 - **Suppress unwanted output with `$null = ...`** (or `[void]` for method calls), not `| Out-Null` — the pipeline form is markedly slower on hot paths.
 - **Build collections with a typed list, not `+=` in a loop.** `$a += $x` reallocates the whole array every iteration; use `[System.Collections.Generic.List[T]]` with `.Add()`, and prefer a cmdlet's `-Filter` over piping to `Where-Object` on large sets.
-- **Keep secrets out of source, and never `Invoke-Expression` untrusted input.** Take secrets as `[securestring]` or through `Get-Credential`, and guard state-changing commands with `ShouldProcess` (see [Functions](Functions.md)); the wider rules live in the [Security](../Security.md) baseline.
+- **Keep secrets out of source, and never `Invoke-Expression` untrusted input.** Accept credentials as a `[PSCredential]` parameter with the `[Credential()]` attribute rather than calling `Get-Credential` inside a reusable function, so a caller can pass one they already hold, and take other sensitive values as `[securestring]`. Guard state-changing commands with `ShouldProcess` (see [Functions](Functions.md)); the wider rules live in the [Security](../Security.md) baseline.
 
 ## Toolchain
 
