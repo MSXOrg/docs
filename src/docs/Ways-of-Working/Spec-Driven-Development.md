@@ -61,9 +61,9 @@ The altitude test: push detail *down* into the design, and push scope *up* into 
 
 Requirements are testable statements of what must be true — never how it is built.
 
-**Functional** requirements describe what the capability does, as observable behavior. Number them so the design and the tests can trace back to each one.
+**Functional** requirements describe what the capability does, as observable behavior. Label each in bold — `F1`, `F2`, `F3` — so the design and the tests can trace back to each one.
 
-**Non-functional** requirements are the quality attributes the capability must hold — performance, security, reliability, availability, compliance, observability, and cost. State each as a measurable condition with a threshold; a non-functional requirement without a number is an opinion. For platform and infrastructure work these are often the point of the change rather than an afterthought — latency, redaction, retention, and blast radius decide whether the thing is fit to run.
+**Non-functional** requirements are the quality attributes the capability must hold — performance, security, reliability, availability, compliance, observability, and cost. Label each in bold — `N1`, `N2`, `N3` — and state it as a measurable condition with a threshold; a non-functional requirement without a number is an opinion. For platform and infrastructure work these are often the point of the change rather than an afterthought — latency, redaction, retention, and blast radius decide whether the thing is fit to run.
 
 The [acceptance criteria](#acceptance-criteria) verify these requirements, and every requirement has at least one.
 
