@@ -151,19 +151,22 @@ as script.
 
 A workflow is a set of **jobs**, and each job is a sequence of **steps**. The two
 are not interchangeable: steps in a job share one runner — the same filesystem
-and environment, running in order — while every job gets a **fresh runner** and
-runs in parallel with its siblings unless told to wait. Reach for a step by
-default; add a job only when a step cannot give you what you need.
+and environment, running in order by default — while every job gets a **fresh
+runner** and runs in parallel with its siblings unless told to wait. Reach for a
+step by default; add a job only when a step cannot give you what you need.
 
 - **Default to steps within one job.** Work that is sequential and shares state —
   check out, build, then test what you just built — belongs in a single job as
   ordered steps. They share the workspace, so each step sees the files the last
   one produced without copying anything, and the job reads top to bottom as one
   story.
-- **Add a job when work is independent and can run in parallel.** Two pieces of
+- **Add a job to run independent work on its own runner.** Two pieces of
   work with no data dependency between them — a lint pass and a security scan —
-  finish sooner as two jobs on two runners than as serial steps on one. Add
-  ordering with `needs:` only where a real dependency exists.
+  finish sooner as two jobs on two runners than as serial steps on one, each
+  isolated with its own environment and permissions. Steps within a single job
+  can now run concurrently too, but that is newer and shares one runner (see
+  [Parallel steps are new and not yet a default](#parallel-steps-are-new-and-not-yet-a-default)).
+  Add ordering with `needs:` only where a real dependency exists.
 - **Add a job to draw a permission boundary.** The job is the unit that
   `permissions:` scopes (see
   [Grant least-privilege permissions](#grant-least-privilege-permissions)). When
@@ -186,8 +189,8 @@ Weigh these against what a job costs. A new job is a fresh runner: it checks out
 again, warms its own caches, and shares no filesystem with its siblings — data
 crosses a job boundary only through `outputs` or an uploaded artifact. So
 splitting sequential, state-sharing work across jobs buys nothing and adds
-handoff overhead; parallelism, an isolated permission scope, a distinct
-environment, and merge gating are what earn a new job.
+handoff overhead; parallelism across separate runners, an isolated permission
+scope, a distinct environment, and merge gating are what earn a new job.
 
 ```yaml
 permissions: {}
@@ -220,6 +223,46 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: ./.github/actions/publish-summary
 ```
+
+### Parallel steps are new and not yet a default
+
+Every step in a job historically ran in sequence — each starting only once the
+last finished — and that sequential model is what the rest of this section
+assumes. GitHub has since added **concurrent steps** within a single job, through
+four workflow keywords:
+
+- `background: true` starts a step asynchronously and continues straight to the
+  next step.
+- `wait` / `wait-all` block until one, several, or all prior background steps
+  finish.
+- `cancel` stops a background step once it is no longer needed — for instance a
+  service started only for the steps that run alongside it.
+- `parallel` runs a group of steps concurrently and then waits for them: the
+  convenience form of "start these together, then carry on".
+
+This covers patterns that used to force a second job or a shell backgrounding
+hack (`&`): independent work run at once on one runner, a background service that
+later steps use and then shut down, or non-blocking work — uploading telemetry
+while packaging continues — overlapping the steps after it. Because the steps
+share the runner, they also share its filesystem, which a separate job does not.
+
+Adopt it deliberately:
+
+- **Prefer a separate job for ordinary parallelism.** When independent work does
+  not need a shared workspace, two jobs stay the clearer, better-isolated choice —
+  separate runners, permissions, and logs. Reach for concurrent steps only when
+  the work genuinely benefits from one shared runner.
+- **Confirm the toolchain supports the keywords first.** The feature is recent,
+  so the pinned [`actionlint` / `zizmor`](#toolchain) versions and the runner
+  image in use may not yet validate or run `background` / `wait` / `parallel`;
+  verify before relying on it. Expect interleaved concurrent steps to be harder
+  to follow, so keep the [grouped-logging discipline](#build-in-logging-and-diagnostics).
+
+Until it has settled in the ecosystem, treat concurrent steps as a tool for the
+few cases that need a shared runner, and let a separate job remain the default
+answer to "these should run in parallel". See the
+[workflow syntax reference](https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions)
+for exact usage.
 
 ## Choose an action or a reusable workflow
 
