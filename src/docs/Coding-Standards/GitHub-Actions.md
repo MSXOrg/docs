@@ -1,6 +1,6 @@
 ---
 title: GitHub Actions
-description: Workflow authoring — SHA pinning, least-privilege permissions, OIDC, secrets handling, script extraction, and diagnostic logging.
+description: Workflow authoring — SHA pinning, least-privilege permissions, OIDC, secrets handling, a PowerShell-first scripting default, script extraction, and diagnostic logging.
 ---
 
 # GitHub Actions
@@ -145,6 +145,52 @@ as script.
 
 # Avoid — attacker-controlled title is executed as shell
 - run: echo "${{ github.event.pull_request.title }}"
+```
+
+## Default to PowerShell as the glue language
+
+Between the declarative steps, a workflow always has some glue to run — reading a
+value, calling an API, shaping a result. That glue is written in **one language
+by default**, so every action reads the same way and reaches for the same helpers
+instead of each one inventing its own idiom. **PowerShell is that default.** It
+runs cross-platform on every runner, it is held to the
+[PowerShell](PowerShell/index.md) standard like any other code, and it carries the
+ecosystem's Actions tooling — above all the PSModule `GitHub` module, whose
+helpers speak the runner's own workflow-command protocol.
+
+Reach for the options in this order, and drop to the next only when the one above
+genuinely cannot serve:
+
+- **First choice — PowerShell with the PSModule `GitHub` module.** Talk to the
+  runner through the module's commands instead of hand-writing raw workflow
+  strings: the `Write-GitHub*` family (`Write-GitHubNotice`, `Write-GitHubWarning`,
+  `Write-GitHubError`) for annotations, `LogGroup` for grouped logging, and
+  `Set-GitHubStepSummary` for the step summary. The helper escapes dynamic data
+  for you, keeps the script declarative, and gives every action one vocabulary for
+  the diagnostics the [logging section](#build-in-logging-and-diagnostics) calls
+  for.
+- **Fallback — plain PowerShell.** When the `GitHub` module is not available or
+  not warranted — a script that does no runner communication, or one that must run
+  before the module is installed — stay in PowerShell and write to the log
+  directly.
+- **Last resort — Bash, only when PowerShell cannot be supported.** A context with
+  no `pwsh` — a minimal container, or a step that must run before PowerShell is on
+  the image — falls back to Bash. Keep it small and hold it to the same rules,
+  above all [never expand untrusted input inline](#never-expand-untrusted-input-inline).
+
+```yaml
+# Preferred — PowerShell glue; the GitHub module speaks to the runner.
+- name: Publish
+  shell: pwsh
+  env:
+    SPACE: ${{ inputs.space }}
+    DRY_RUN: ${{ inputs.dry-run }}
+  run: |
+    LogGroup 'Resolve inputs' {
+      Write-Host "space   = $env:SPACE"
+      Write-Host "dry-run = $env:DRY_RUN"
+    }
+    Write-GitHubNotice -Message "publishing to $env:SPACE" -Title 'Publish'
 ```
 
 ## Extract non-trivial `run:` scripts into an action
