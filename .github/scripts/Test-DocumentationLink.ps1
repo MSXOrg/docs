@@ -108,11 +108,11 @@ function Test-LinkTarget {
     if ($path.StartsWith('/')) { return } # absolute site path - not resolvable here
     $resolved = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($File.DirectoryName, $path))
     if (-not ([System.IO.File]::Exists($resolved) -or [System.IO.Directory]::Exists($resolved))) {
-        $Broken.Add("${Rel}:${LineNo}: '$Target' - target does not exist")
+        $Broken.Add("${Rel}:${LineNo}: '$t' - target does not exist")
         return
     }
     if ($frag -and $resolved.EndsWith('.md') -and ($frag -notin (Get-CachedSlug $resolved))) {
-        $Broken.Add("${Rel}:${LineNo}: '$Target' - no heading '#$frag' in the target file")
+        $Broken.Add("${Rel}:${LineNo}: '$t' - no heading '#$frag' in the target file")
     }
 }
 
