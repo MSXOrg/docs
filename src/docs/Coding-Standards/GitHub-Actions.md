@@ -28,11 +28,15 @@ them to point at different code. A full commit SHA is **immutable**.
 
 ```yaml
 # Correct — immutable SHA; comment carries the readable version
-- uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-- uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+- name: Check out the repository
+  uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+- name: Set up Node
+  uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
 
 # Avoid — mutable tag; the referenced code can change under us
-- uses: actions/checkout@v6
+- name: Check out the repository
+  uses: actions/checkout@v6
 ```
 
 Internal actions follow the same rule.
@@ -141,12 +145,14 @@ as script.
 
 ```yaml
 # Correct — value arrives as an environment variable, not inlined into the shell
-- env:
+- name: Echo the PR title
+  env:
     TITLE: ${{ github.event.pull_request.title }}
   run: echo "$TITLE"
 
 # Avoid — attacker-controlled title is executed as shell
-- run: echo "${{ github.event.pull_request.title }}"
+- name: Echo the PR title
+  run: echo "${{ github.event.pull_request.title }}"
 ```
 
 ## Structure work into jobs and steps
@@ -205,10 +211,13 @@ jobs:
       contents: read
     steps:
       # Sequential, state-sharing work belongs in one job as ordered steps.
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
       - name: Build
         shell: pwsh
         run: ./build.ps1     # writes artifacts into the workspace
+
       - name: Test
         shell: pwsh
         run: ./test.ps1      # reads them from the same workspace — no handoff
@@ -222,8 +231,11 @@ jobs:
       contents: read
       pull-requests: write   # a wider scope, isolated to this one job
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: ./.github/actions/publish-summary
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Publish the summary comment
+        uses: ./.github/actions/publish-summary
 ```
 
 ### Parallel steps are new and not yet a default
@@ -322,8 +334,11 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: ./.github/actions/publish-docs     # one task; returns outputs
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Publish the docs
+        uses: ./.github/actions/publish-docs     # one task; returns outputs
         with:
           space: ENG
 
@@ -552,13 +567,27 @@ concurrency:
   cancel-in-progress: false
 ```
 
-## Pin the runner and name everything
+## Pin the runner, name everything, and space it out
 
 - **Pin `runs-on` to a specific runner image** (`ubuntu-24.04`) rather than
   `ubuntu-latest`, so a runner upgrade is a deliberate, reviewable change rather
   than a silent one.
-- **Give every job and every non-trivial step a `name:`.** Named steps make the
-  Actions UI and logs readable and make failures easy to locate.
+- **Give every job and every step a `name:`** — not only the non-trivial ones.
+  Left unnamed, a step is labelled by whatever GitHub derives from its `run` or
+  `uses`: the full pinned SHA for an action (`Run actions/checkout@de0fac…`), or
+  the truncated first line of a script — both hard to read, and both changing
+  whenever the command does. A written `name:` is the exact text shown in the
+  Actions UI, the logs, and the Checks view, so a step **reads the same in the
+  code as in the portal**, stays a **stable handle** for links and log searches
+  when the command underneath it changes, and names a failure by intent rather
+  than by a decoded command line. Under the
+  [SHA-pinning rule](#pin-every-action-to-a-full-commit-sha) it matters all the
+  more: an unnamed action step wears its 40-character SHA as its label.
+- **Separate each job and each step with a single blank line.** One blank line
+  between consecutive steps, and one between consecutive jobs, makes every unit a
+  self-contained block that is easy to scan, reorder, and read in a diff. Use
+  exactly one — with none, adjacent steps blur together; with several, the file
+  turns gappy.
 
 ## Build in logging and diagnostics
 
@@ -713,8 +742,11 @@ jobs:
       pull-requests: write # comment on the PR
     steps:
       # A local action runs from the checked-out repo, so check out first.
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: ./.github/actions/publish-summary   # upserts one marked comment
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Publish the summary comment
+        uses: ./.github/actions/publish-summary   # upserts one marked comment
 ```
 
 ### Gate merges with a named status check
@@ -741,6 +773,9 @@ jobs:
       contents: read
     steps:
       # A local action runs from the checked-out repo, so check out first.
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      - uses: ./.github/actions/validate-publishable   # exits 1 on a blocker
+      - name: Check out the repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Validate that the docs are publishable
+        uses: ./.github/actions/validate-publishable   # exits 1 on a blocker
 ```
