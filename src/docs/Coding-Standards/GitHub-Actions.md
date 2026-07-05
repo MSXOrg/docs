@@ -147,6 +147,150 @@ as script.
 - run: echo "${{ github.event.pull_request.title }}"
 ```
 
+## Structure work into jobs and steps
+
+A workflow is a set of **jobs**, and each job is a sequence of **steps**. The two
+are not interchangeable: steps in a job share one runner — the same filesystem
+and environment, running in order — while every job gets a **fresh runner** and
+runs in parallel with its siblings unless told to wait. Reach for a step by
+default; add a job only when a step cannot give you what you need.
+
+- **Default to steps within one job.** Work that is sequential and shares state —
+  check out, build, then test what you just built — belongs in a single job as
+  ordered steps. They share the workspace, so each step sees the files the last
+  one produced without copying anything, and the job reads top to bottom as one
+  story.
+- **Add a job when work is independent and can run in parallel.** Two pieces of
+  work with no data dependency between them — a lint pass and a security scan —
+  finish sooner as two jobs on two runners than as serial steps on one. Add
+  ordering with `needs:` only where a real dependency exists.
+- **Add a job to draw a permission boundary.** The job is the unit that
+  `permissions:` scopes (see
+  [Grant least-privilege permissions](#grant-least-privilege-permissions)). When
+  one slice of the work needs a wider scope — a step that comments on the pull
+  request needs `pull-requests: write` — isolate it in its own job so the rest of
+  the workflow stays read-only instead of raising the floor for everything.
+- **Add a job for a different runner or a deployment environment.** A job pins
+  its own `runs-on:` and can target an `environment:` with its own protection
+  rules, approvals, and secrets. Work that must run on a different image, or
+  behind a manual deploy gate, is a separate job.
+- **Add a job when the result must gate merge.** Branch protection requires
+  status checks by job name (see
+  [Gate merges with a named status check](#gate-merges-with-a-named-status-check)),
+  so a result that blocks a pull request is its own job.
+- **Add a job to call a reusable workflow.** A reusable workflow is invoked as a
+  job-level `uses:`, never as a step (see
+  [Choose an action or a reusable workflow](#choose-an-action-or-a-reusable-workflow)).
+
+Weigh these against what a job costs. A new job is a fresh runner: it checks out
+again, warms its own caches, and shares no filesystem with its siblings — data
+crosses a job boundary only through `outputs` or an uploaded artifact. So
+splitting sequential, state-sharing work across jobs buys nothing and adds
+handoff overhead; parallelism, an isolated permission scope, a distinct
+environment, and merge gating are what earn a new job.
+
+```yaml
+permissions: {}
+
+jobs:
+  build:
+    name: Build and test
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      # Sequential, state-sharing work belongs in one job as ordered steps.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Build
+        shell: pwsh
+        run: ./build.ps1     # writes artifacts into the workspace
+      - name: Test
+        shell: pwsh
+        run: ./test.ps1      # reads them from the same workspace — no handoff
+
+  report:
+    name: Report
+    needs: build             # runs only after build succeeds
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      pull-requests: write   # a wider scope, isolated to this one job
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: ./.github/actions/publish-summary
+```
+
+## Choose an action or a reusable workflow
+
+Both an **action** and a **reusable workflow** package automation for reuse, but
+at different granularities, and they plug in at different levels. Match the unit
+to the thing being reused.
+
+- **An action is a reusable unit of *steps*.** It plugs into a job as a step
+  (`uses:` at step level), runs on the caller's runner inside the caller's job —
+  sharing that job's filesystem and environment — and does **one well-defined
+  thing** through an `inputs` / `outputs` interface. Several actions compose
+  within a single job. This is the smaller unit and the common case;
+  [Extract non-trivial `run:` scripts into an action](#extract-non-trivial-run-scripts-into-an-action)
+  is entirely about authoring one.
+- **A reusable workflow is a reusable unit of *jobs*.** It is called as a
+  job-level `uses:` (`org/repo/.github/workflows/build.yml@<sha>`) and brings its
+  own jobs, runners, `permissions`, and `secrets` contract — a whole pipeline,
+  not a single task. Use it to standardize a **multi-job process** several callers
+  should run the same way: a shared build-test-publish flow, a common release
+  pipeline.
+
+Reach for the smallest unit that fits:
+
+- **Choose an action** to package a **step-level capability** — one task used
+  inside a job (`link-check`, `publish-docs`, `start-cloud-agent`). It composes
+  with the steps around it and hands results back as outputs.
+- **Choose a reusable workflow** to package an **end-to-end, multi-job process** —
+  its own job graph, `needs:` ordering, per-job permissions, and environment
+  gates — that several repositories should run identically. When the thing worth
+  sharing is the *whole pipeline* rather than one step of it, the workflow is the
+  unit that carries the jobs with it.
+- **Do not wrap a single task in a reusable workflow.** A workflow drags a job
+  and a runner behind it; if the reused logic is one step's worth, an action is
+  lighter, composes with the surrounding steps, and returns outputs to the
+  calling step directly. Equally, do not force a multi-job pipeline into one
+  action — an action cannot span jobs or set per-job permissions.
+
+Both are consumed the same disciplined way: **pinned by full commit SHA** (see
+[Pin every action to a full commit SHA](#pin-every-action-to-a-full-commit-sha)),
+and both **start local and are promoted to a standalone repository only once a
+second consumer appears** (see
+[Start local; promote when it is reused](#start-local-promote-when-it-is-reused)).
+A reusable workflow additionally takes its secrets **explicitly by name, never
+`secrets: inherit`** (see
+[Distinguish `vars` from `secrets`](#distinguish-vars-from-secrets)).
+
+```yaml
+permissions: {}
+
+jobs:
+  # An action — a step-level capability, composed inside a job.
+  docs:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: ./.github/actions/publish-docs     # one task; returns outputs
+        with:
+          space: ENG
+
+  # A reusable workflow — a whole multi-job process, called as a job.
+  ci:
+    uses: org/reusable-workflows/.github/workflows/build.yml@<sha> # vX.Y.Z
+    permissions:
+      contents: read
+      id-token: write
+    secrets:
+      PROPAGATION_TOKEN: ${{ secrets.PROPAGATION_TOKEN }}  # explicit, by name
+```
+
 ## Default to PowerShell as the glue language
 
 Between the declarative steps, a workflow always has some glue to run — reading a
