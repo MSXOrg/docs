@@ -63,6 +63,14 @@ Beyond the basics, these language-specific habits keep PowerShell correct and fa
 - **Guard a value that must not change.** Declare it with `Set-Variable -Name Pi -Value 3.14159 -Option ReadOnly` — or `-Option Constant` for one that can never be reassigned or removed — so an accidental write fails loudly instead of quietly winning.
 - **Keep secrets out of source, and never `Invoke-Expression` untrusted input.** Accept credentials as a `[PSCredential]` parameter with the `[Credential()]` attribute rather than calling `Get-Credential` inside a reusable function, so a caller can pass one they already hold, and take other sensitive values as `[securestring]`. Guard state-changing commands with `ShouldProcess` (see [Functions](Functions.md)); the wider rules live in the [Security](../Security.md) baseline.
 
+## Prefer .NET for the actual work
+
+Cmdlets and the pipeline are for orchestration and glue; reach for the .NET base class library to do the real work when performance or precise behaviour matters — a .NET call is faster than a cmdlet pipeline and its contract is exact.
+
+- **Call .NET on hot paths.** `[System.IO.File]::ReadAllText($path)` over `Get-Content -Raw`, `[System.Text.StringBuilder]` for heavy string building, and `[System.IO.File]::Exists($path)` / `[System.IO.Directory]::Exists($path)` over `Test-Path` when a plain filesystem check is all you need — the typed-list and `$null =` idioms above are the same instinct.
+- **Use .NET for exact parsing and paths.** `[int]::TryParse(...)`, `[datetime]::ParseExact(...)`, and `[System.IO.Path]::Combine(...)` / `GetFullPath(...)` where operator or cmdlet behaviour is looser than you need; pass full paths to .NET calls (see [Scripts](Scripts.md)).
+- **Keep cmdlets where clarity wins.** Do not rewrite readable, one-time glue in .NET to save microseconds that do not matter — reach for .NET where the work is hot or the behaviour must be exact.
+
 ## Toolchain
 
 The toolchain enforces this standard in CI — it does not define it. The rules above are the source of truth; each tool's configuration is derived from them:
