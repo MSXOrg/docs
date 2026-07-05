@@ -1,6 +1,6 @@
 ---
 title: GitHub Actions
-description: Workflow authoring — SHA pinning, least-privilege permissions, OIDC, secrets handling, and script extraction.
+description: Workflow authoring — SHA pinning, least-privilege permissions, OIDC, secrets handling, a PowerShell-first scripting default, script extraction, and diagnostic logging.
 ---
 
 # GitHub Actions
@@ -145,6 +145,52 @@ as script.
 
 # Avoid — attacker-controlled title is executed as shell
 - run: echo "${{ github.event.pull_request.title }}"
+```
+
+## Default to PowerShell as the glue language
+
+Between the declarative steps, a workflow always has some glue to run — reading a
+value, calling an API, shaping a result. That glue is written in **one language
+by default**, so every action reads the same way and reaches for the same helpers
+instead of each one inventing its own idiom. **PowerShell is that default.** It
+runs cross-platform on every runner, it is held to the
+[PowerShell](PowerShell/index.md) standard like any other code, and it carries the
+ecosystem's Actions tooling — above all the PSModule `GitHub` module, whose
+helpers speak the runner's own workflow-command protocol.
+
+Reach for the options in this order, and drop to the next only when the one above
+genuinely cannot serve:
+
+- **First choice — PowerShell with the PSModule `GitHub` module.** Talk to the
+  runner through the module's commands instead of hand-writing raw workflow
+  strings: the `Write-GitHub*` family (`Write-GitHubNotice`, `Write-GitHubWarning`,
+  `Write-GitHubError`) for annotations, `LogGroup` for grouped logging, and
+  `Set-GitHubStepSummary` for the step summary. The helper escapes dynamic data
+  for you, keeps the script declarative, and gives every action one vocabulary for
+  the diagnostics the [logging section](#build-in-logging-and-diagnostics) calls
+  for.
+- **Fallback — plain PowerShell.** When the `GitHub` module is not available or
+  not warranted — a script that does no runner communication, or one that must run
+  before the module is installed — stay in PowerShell and write to the log
+  directly.
+- **Last resort — Bash, only when PowerShell cannot be supported.** A context with
+  no `pwsh` — a minimal container, or a step that must run before PowerShell is on
+  the image — falls back to Bash. Keep it small and hold it to the same rules,
+  above all [never expand untrusted input inline](#never-expand-untrusted-input-inline).
+
+```yaml
+# Preferred — PowerShell glue; the GitHub module speaks to the runner.
+- name: Publish
+  shell: pwsh
+  env:
+    SPACE: ${{ inputs.space }}
+    DRY_RUN: ${{ inputs.dry-run }}
+  run: |
+    LogGroup 'Resolve inputs' {
+      Write-Host "space   = $env:SPACE"
+      Write-Host "dry-run = $env:DRY_RUN"
+    }
+    Write-GitHubNotice -Message "publishing to $env:SPACE" -Title 'Publish'
 ```
 
 ## Extract non-trivial `run:` scripts into an action
@@ -322,3 +368,188 @@ concurrency:
   than a silent one.
 - **Give every job and every non-trivial step a `name:`.** Named steps make the
   Actions UI and logs readable and make failures easy to locate.
+
+## Build in logging and diagnostics
+
+An action is a black box until it fails. Make every run explain itself — what it
+read, what it decided, and what it produced — *by default*, so a failure is
+diagnosed from the log you already have rather than from a second run with extra
+logging switched on. The craft is keeping all that detail present but out of the
+way until someone wants it.
+
+### Log the whole story by default, collapsed into groups
+
+- **Log the resolved inputs, the decisions taken, each external call and its
+  status, and the outputs produced — on every run.** These are the details a
+  failure is diagnosed from, so the first run to fail carries enough to diagnose
+  it. Log a secret's presence, never its value; secret inputs stay masked (see
+  [Distinguish `vars` from `secrets`](#distinguish-vars-from-secrets)).
+- **Force an untrusted value onto a single line before logging it.** The runner
+  parses every line of stdout, so a value you do not control that carries a
+  newline followed by `::...` can smuggle in a workflow command. Strip or encode
+  `\r` / `\n` (or emit the value through a helper) so a logged input cannot break
+  out into a command — the same untrusted-input rule as
+  [Never expand untrusted input inline](#never-expand-untrusted-input-inline).
+- **Wrap each phase in a `::group::` / `::endgroup::` block.** Grouping keeps the
+  detail present but collapsed — there in plain sight, one expand away — so the
+  top level reads as a short list of phases while the depth sits a click beneath
+  each. Group by phase (`Resolve inputs`, `Publish 42 pages`), one group per
+  phase, not one per line.
+- **Wrap the group markers in a helper so the script stays declarative.**
+  Emitting the raw `::group::` / `::endgroup::` lines by hand is noisy; a small
+  wrapper that takes a title and a block keeps the intent visible. A PowerShell
+  action gets this from the PSModule `GitHub` module — `LogGroup 'phase' { ... }`.
+
+```yaml
+- name: Publish
+  shell: bash
+  env:
+    SPACE: ${{ inputs.space }}
+    DRY_RUN: ${{ inputs.dry-run }}
+  run: |
+    echo "::group::Resolve inputs"
+    echo "space   = ${SPACE}"
+    echo "dry-run = ${DRY_RUN}"
+    echo "::endgroup::"
+
+    echo "::group::Publish"
+    # ...every step of the actual work, logged here as it happens...
+    echo "::endgroup::"
+```
+
+### Call out the result with an annotation
+
+- **Use `::notice::`, `::warning::`, or `::error::` for the few lines a reader
+  must not miss** — above all the final result: what was created, or the
+  pass/fail verdict. Annotations render on the run summary and in the Checks
+  view, above the collapsed log, so the headline is visible without expanding a
+  single group.
+- **Annotate the outcome, not the progress.** Step-by-step narration belongs in
+  the grouped log; if every other line is a `::notice::`, the one callout that
+  matters is lost. Aim to end a run on a single clear annotation.
+- **Escape dynamic data in an annotation.** A workflow command is a single line,
+  so a value carrying `%`, a carriage return, or a newline must be encoded
+  (`%25`, `%0D`, `%0A`) or it corrupts the command — the same class of risk as
+  [expanding untrusted input inline](#never-expand-untrusted-input-inline). A
+  value placed in a command *property* (such as `title=`) needs `:` and `,`
+  encoded too (`%3A`, `%2C`), since those characters delimit the property list. A
+  helper that emits the command handles this for you (PowerShell:
+  `Write-GitHubNotice` / `Write-GitHubError`).
+
+```bash
+# Integer counts are safe to interpolate. Escape free-form text (names, messages)
+# with %25 / %0D / %0A first, or emit it through a helper such as Write-GitHubNotice.
+echo "::notice title=Published::created ${CREATED}, updated ${UPDATED}"
+
+# A blocking failure: annotate, then exit non-zero (see the status check below).
+echo "::error title=Publish failed::${FAILED} page(s) rejected"
+```
+
+### Report the bigger picture in a step summary
+
+- **When the result is more than a line — a table, per-item counts, a report —
+  write it to `$GITHUB_STEP_SUMMARY` as GitHub-flavored Markdown.** The step
+  summary renders on the run's summary page, so the outcome is legible without
+  opening the log at all.
+- **Keep the summary uncluttered by default.** Show the headline — the table or
+  the verdict — in the open, and tuck long or secondary detail inside
+  `<details><summary>...</summary>` blocks that stay closed until the reader
+  opens them. A summary that spills everything inline is as hard to scan as an
+  ungrouped log.
+- **Compose the Markdown with a helper rather than building strings** where you
+  can. A PowerShell action assembles the summary with the PSModule `Markdown`
+  module — `Heading`, `Table`, `Details { ... }` — and writes it with the
+  `GitHub` module's `Set-GitHubStepSummary`.
+- **Surface the same facts as outputs.** A URL, a count, or a verdict worth
+  putting in the summary is also worth an `output` (see
+  [Generalize the action](#generalize-the-action-drive-behaviour-through-inputs-and-outputs)),
+  so a calling workflow acts on a value instead of scraping the summary.
+
+```bash
+{
+  echo "## ✅ Documentation publish"
+  echo ""
+  echo "| Result  | Count |"
+  echo "| ------- | ----- |"
+  echo "| Created | ${CREATED} |"
+  echo "| Updated | ${UPDATED} |"
+  echo "| Skipped | ${SKIPPED} |"
+  echo ""
+  echo "<details><summary>Pages created (${CREATED})</summary>"
+  echo ""
+  echo "${CREATED_LIST}"   # one entry per line — kept closed until opened
+  echo ""
+  echo "</details>"
+} >> "$GITHUB_STEP_SUMMARY"
+```
+
+### Report back on the triggering PR or issue
+
+The step summary is only seen by someone who opens the run. When the outcome
+matters to a person mid-flow — a PR author, an issue reporter — surface the
+result where they already are. **Which channel is right depends on the event
+that triggered the run**, so make reporting conditional on the trigger rather
+than assuming one exists.
+
+- **`pull_request` → a pull request comment.** Post the summary to the PR so the
+  author sees it in the timeline.
+- **`issues` / `issue_comment` → an issue comment.** Reply on the issue that
+  started the run.
+- **`push` / `schedule` / `workflow_dispatch` → the step summary, plus a tracking
+  issue for a finding worth chasing.** There is no PR or issue in context, so the
+  step summary stands on its own; a scheduled job that detects a problem can open
+  or update an issue.
+- **Upsert one comment; never post a fresh one per run.** Write a hidden marker
+  (an HTML comment such as `<!-- publish-summary -->`) into the body, find the
+  existing comment by that marker, and edit it in place — so a PR pushed ten
+  times carries one current comment, not ten stale ones.
+- **Grant the write scope only on the job that comments.** A PR comment needs
+  `pull-requests: write`, an issue comment needs `issues: write`; the rest of the
+  workflow stays read-only. Keep untrusted input out of the comment body (see
+  [Never expand untrusted input inline](#never-expand-untrusted-input-inline)),
+  and treat `pull_request_target` with particular care — it runs with a writable
+  token in the context of untrusted pull request code.
+
+```yaml
+jobs:
+  report:
+    name: Report
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    # Only this job can write to the PR; every other job stays read-only.
+    permissions:
+      contents: read       # checkout
+      pull-requests: write # comment on the PR
+    steps:
+      # A local action runs from the checked-out repo, so check out first.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: ./.github/actions/publish-summary   # upserts one marked comment
+```
+
+### Gate merges with a named status check
+
+- **If a run's result should block merge, it must surface as a named status
+  check** that branch protection can require. A run that only writes to the log
+  or a comment cannot hold a pull request; a required check can.
+- **Keep the check name stable.** Branch protection matches checks by name, so
+  renaming the job or workflow silently drops the gate. Pick a clear, permanent
+  name and treat it as a contract — renaming it later removes the gate without a
+  trace, so the rename and the branch-protection update must land together.
+- **Fail the check for real problems; do not annotate and exit 0.** A gating
+  action must exit non-zero when it finds a blocking issue — the annotations and
+  the red summary are for humans, the exit code is what the merge gate reads.
+  Reserve `::warning::` and `::notice::` for advisory findings that should *not*
+  hold the pull request.
+
+```yaml
+jobs:
+  publishable:
+    name: Publishable          # the exact string branch protection requires
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      # A local action runs from the checked-out repo, so check out first.
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: ./.github/actions/validate-publishable   # exits 1 on a blocker
+```
