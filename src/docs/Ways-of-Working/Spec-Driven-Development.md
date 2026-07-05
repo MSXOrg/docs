@@ -59,13 +59,13 @@ The altitude test: push detail *down* into the design, and push scope *up* into 
 
 ## Requirements
 
-Requirements are testable statements of what must be true — never how it is built.
+Requirements are testable statements of what must be true — never how it is built. Write them with the [BCP 14](https://www.rfc-editor.org/info/bcp14) keywords — **MUST**, **MUST NOT**, **SHOULD**, **SHOULD NOT**, **MAY** — in uppercase, where they carry their normative meaning ([RFC 2119](https://www.rfc-editor.org/rfc/rfc2119), [RFC 8174](https://www.rfc-editor.org/rfc/rfc8174)).
 
-**Functional** requirements describe what the capability does, as observable behavior. Label each in bold — **F1**, **F2**, **F3** — so the design and the tests can trace back to each one.
+**Functional** requirements describe what the capability does, as observable behavior. **Non-functional** requirements are the quality attributes the capability must hold — performance, security, reliability, availability, compliance, observability, and cost — each stated as a measurable condition with a threshold; a non-functional requirement without a number is an opinion. For platform and infrastructure work these are often the point of the change rather than an afterthought — latency, redaction, retention, and blast radius decide whether the thing is fit to run.
 
-**Non-functional** requirements are the quality attributes the capability must hold — performance, security, reliability, availability, compliance, observability, and cost. Label each in bold — **N1**, **N2**, **N3** — and state it as a measurable condition with a threshold; a non-functional requirement without a number is an opinion. For platform and infrastructure work these are often the point of the change rather than an afterthought — latency, redaction, retention, and blast radius decide whether the thing is fit to run.
+Give each requirement its own heading with a stable, explicit anchor — `### FR1 — <statement> { #fr1 }` for functional, `### NFR1 — <statement> { #nfr1 }` for non-functional. The anchor is the identifier alone, so the heading can be reworded without breaking a single reference. Identifiers are **append-only**: assign the next unused number, never renumber, and never reuse — a removed requirement simply disappears, and git holds the history.
 
-The [acceptance criteria](#acceptance-criteria) verify these requirements, and every requirement has at least one.
+Reference a requirement by its anchor — `[FR1](#fr1)` on the same page, `[FR1](spec.md#fr1)` across pages. The [acceptance criteria](#acceptance-criteria) verify these requirements, and every requirement has at least one.
 
 ## Acceptance criteria
 
@@ -164,17 +164,17 @@ Copy these skeletons to start a `spec.md` and its `design.md`. Every section is 
 
 - <...>
 
-## Requirements
+## Functional requirements
 
-### Functional
+### FR1 — <what the capability does, behavioral, testable, no technology> { #fr1 }
 
-- **F1** <what the capability does — behavioral, testable, no technology>
-- **F2** <...>
+### FR2 — <...> { #fr2 }
 
-### Non-functional
+## Non-functional requirements
 
-- **N1** <a quality attribute as a measurable condition — latency, availability, redaction, retention, cost>
-- **N2** <...>
+### NFR1 — <a quality attribute as a measurable condition, latency, availability, redaction, retention, cost> { #nfr1 }
+
+### NFR2 — <...> { #nfr2 }
 
 ## Acceptance criteria
 
