@@ -314,11 +314,13 @@ Reach for the smallest unit that fits:
   calling step directly. Equally, do not force a multi-job pipeline into one
   action — an action cannot span jobs or set per-job permissions.
 
-Both are consumed the same disciplined way: **pinned by full commit SHA** (see
-[Pin every action to a full commit SHA](#pin-every-action-to-a-full-commit-sha)),
-and both **start local and are promoted to a standalone repository only once a
-second consumer appears** (see
-[Start local; promote when it is reused](#start-local-promote-when-it-is-reused)).
+Both follow the same lifecycle: **start as a local action or workflow**,
+referenced by path (`./.github/...`) so it runs at the checked-out commit, and
+**promote it to a standalone repository only once a second consumer appears**
+(see [Start local; promote when it is reused](#start-local-promote-when-it-is-reused)).
+Once standalone — like any third-party dependency — it is **consumed by full
+commit SHA** (see
+[Pin every action to a full commit SHA](#pin-every-action-to-a-full-commit-sha)).
 A reusable workflow additionally takes its secrets **explicitly by name, never
 `secrets: inherit`** (see
 [Distinguish `vars` from `secrets`](#distinguish-vars-from-secrets)).
