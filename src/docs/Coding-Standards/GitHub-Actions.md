@@ -624,19 +624,19 @@ way until someone wants it.
 
 ```yaml
 - name: Publish
-  shell: bash
+  shell: pwsh
   env:
     SPACE: ${{ inputs.space }}
     DRY_RUN: ${{ inputs.dry-run }}
   run: |
-    echo "::group::Resolve inputs"
-    echo "space   = ${SPACE}"
-    echo "dry-run = ${DRY_RUN}"
-    echo "::endgroup::"
+    LogGroup 'Resolve inputs' {
+      Write-Host "space   = $env:SPACE"
+      Write-Host "dry-run = $env:DRY_RUN"
+    }
 
-    echo "::group::Publish"
-    # ...every step of the actual work, logged here as it happens...
-    echo "::endgroup::"
+    LogGroup 'Publish 42 pages' {
+      # ...each page logged here as it is published...
+    }
 ```
 
 ### Call out the result with an annotation
@@ -658,13 +658,13 @@ way until someone wants it.
   helper that emits the command handles this for you (PowerShell:
   `Write-GitHubNotice` / `Write-GitHubError`).
 
-```bash
-# Integer counts are safe to interpolate. Escape free-form text (names, messages)
-# with %25 / %0D / %0A first, or emit it through a helper such as Write-GitHubNotice.
-echo "::notice title=Published::created ${CREATED}, updated ${UPDATED}"
+```powershell
+# The GitHub module escapes dynamic data for you — no manual %25 / %0D / %0A.
+Write-GitHubNotice -Title 'Published' -Message "created $($created.Count), updated $($updated.Count)"
 
-# A blocking failure: annotate, then exit non-zero (see the status check below).
-echo "::error title=Publish failed::${FAILED} page(s) rejected"
+# A blocking failure: annotate, then throw so the step exits non-zero (see the status check below).
+Write-GitHubError -Title 'Publish failed' -Message "$($rejected.Count) page(s) rejected"
+throw "$($rejected.Count) page(s) rejected"
 ```
 
 ### Report the bigger picture in a step summary
@@ -687,22 +687,20 @@ echo "::error title=Publish failed::${FAILED} page(s) rejected"
   [Generalize the action](#generalize-the-action-drive-behaviour-through-inputs-and-outputs)),
   so a calling workflow acts on a value instead of scraping the summary.
 
-```bash
-{
-  echo "## ✅ Documentation publish"
-  echo ""
-  echo "| Result  | Count |"
-  echo "| ------- | ----- |"
-  echo "| Created | ${CREATED} |"
-  echo "| Updated | ${UPDATED} |"
-  echo "| Skipped | ${SKIPPED} |"
-  echo ""
-  echo "<details><summary>Pages created (${CREATED})</summary>"
-  echo ""
-  echo "${CREATED_LIST}"   # one entry per line — kept closed until opened
-  echo ""
-  echo "</details>"
-} >> "$GITHUB_STEP_SUMMARY"
+```powershell
+Set-GitHubStepSummary -Summary (
+  Heading 2 '✅ Documentation publish' {
+    Table {
+      [pscustomobject]@{ Result = 'Created'; Count = $created.Count }
+      [pscustomobject]@{ Result = 'Updated'; Count = $updated.Count }
+      [pscustomobject]@{ Result = 'Skipped'; Count = $skipped.Count }
+    }
+
+    Details "Pages created ($($created.Count))" {
+      $created -join "`n"   # one title per line — kept closed until opened
+    }
+  }
+)
 ```
 
 ### Report back on the triggering PR or issue
