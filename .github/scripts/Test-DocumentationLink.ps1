@@ -85,7 +85,40 @@ function Get-CachedSlug {
     return $slugCache[$Path]
 }
 
+function Test-LinkTarget {
+    # Validate a single relative link target (inline or reference-style), adding
+    # a message to $Broken when the file or its heading anchor does not resolve.
+    param(
+        [string]$Target,
+        [System.IO.FileInfo]$File,
+        [string]$Rel,
+        [int]$LineNo,
+        [System.Collections.Generic.List[string]]$Broken
+    )
+    $t = ($Target.Trim() -replace '\s+"[^"]*"$', '') -replace '^<', '' -replace '>$', ''
+    if (-not $t) { return }
+    if ($t -match '^(https?:|mailto:|tel:|//)') { return }
+    $path, $frag = $t -split '#', 2
+    if (-not $path) {
+        if ($frag -and ($frag -notin (Get-CachedSlug $File.FullName))) {
+            $Broken.Add("${Rel}:${LineNo}: '#$frag' - no heading with that anchor on this page")
+        }
+        return
+    }
+    if ($path.StartsWith('/')) { return } # absolute site path - not resolvable here
+    $resolved = [System.IO.Path]::GetFullPath((Join-Path $File.DirectoryName $path))
+    if (-not (Test-Path -LiteralPath $resolved)) {
+        $Broken.Add("${Rel}:${LineNo}: '$Target' - target does not exist")
+        return
+    }
+    if ($frag -and $resolved.EndsWith('.md') -and ($frag -notin (Get-CachedSlug $resolved))) {
+        $Broken.Add("${Rel}:${LineNo}: '$Target' - no heading '#$frag' in the target file")
+    }
+}
+
+# Inline links '[text](target)' and reference-style definitions '[label]: target'.
 $linkPattern = '\[[^\]]*\]\(([^)]+)\)'
+$refDefPattern = '^\s*\[[^\]]+\]:\s+(\S+)'
 $broken = [System.Collections.Generic.List[string]]::new()
 
 foreach ($file in (Get-ChildItem -LiteralPath $Docs -Recurse -File -Filter *.md | Sort-Object FullName)) {
@@ -98,27 +131,14 @@ foreach ($file in (Get-ChildItem -LiteralPath $Docs -Recurse -File -Filter *.md 
         if ($inFence) { continue }
         # Remove inline code spans so links shown as examples are not validated.
         $scrubbed = $line -replace '`[^`]*`', ''
+        $lineNo = $n + 1
         foreach ($m in [regex]::Matches($scrubbed, $linkPattern)) {
-            $target = $m.Groups[1].Value.Trim() -replace '\s+"[^"]*"$', '' # strip optional link title
-            if (-not $target) { continue }
-            if ($target -match '^(https?:|mailto:|tel:|//)') { continue }
-            $lineNo = $n + 1
-            $path, $frag = $target -split '#', 2
-            if (-not $path) {
-                if ($frag -and ($frag -notin (Get-CachedSlug $file.FullName))) {
-                    $broken.Add("${rel}:${lineNo}: '#$frag' - no heading with that anchor on this page")
-                }
-                continue
-            }
-            if ($path.StartsWith('/')) { continue } # absolute site path - not resolvable here
-            $resolved = [System.IO.Path]::GetFullPath((Join-Path $file.DirectoryName $path))
-            if (-not (Test-Path -LiteralPath $resolved)) {
-                $broken.Add("${rel}:${lineNo}: '$target' - target does not exist")
-                continue
-            }
-            if ($frag -and $resolved.EndsWith('.md') -and ($frag -notin (Get-CachedSlug $resolved))) {
-                $broken.Add("${rel}:${lineNo}: '$target' - no heading '#$frag' in the target file")
-            }
+            Test-LinkTarget -Target $m.Groups[1].Value -File $file -Rel $rel -LineNo $lineNo -Broken $broken
+        }
+        # Reference-style link definitions ('[label]: target') carry a relative
+        # target too; validate it the same way so those links do not slip past CI.
+        if ($scrubbed -match $refDefPattern) {
+            Test-LinkTarget -Target $matches[1] -File $file -Rel $rel -LineNo $lineNo -Broken $broken
         }
     }
 }
