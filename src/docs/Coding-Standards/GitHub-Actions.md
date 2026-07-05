@@ -122,7 +122,9 @@ jobs:
     uses: org/reusable-workflows/.github/workflows/build.yml@<sha> # vX.Y.Z
     secrets:
       PROPAGATION_TOKEN: ${{ secrets.PROPAGATION_TOKEN }}
+```
 
+```yaml
 # Avoid — forwards every secret; the call site no longer documents what's used
 jobs:
   call:
