@@ -425,6 +425,8 @@ way until someone wants it.
   so a value carrying `%`, a carriage return, or a newline must be encoded
   (`%25`, `%0D`, `%0A`) or it corrupts the command — the same class of risk as
   [expanding untrusted input inline](#never-expand-untrusted-input-inline). A
+  value placed in a command *property* (such as `title=`) needs `:` and `,`
+  encoded too (`%3A`, `%2C`), since those characters delimit the property list. A
   helper that emits the command handles this for you (PowerShell:
   `Write-GitHubNotice` / `Write-GitHubError`).
 
@@ -510,7 +512,8 @@ jobs:
     runs-on: ubuntu-24.04
     # Only this job can write to the PR; every other job stays read-only.
     permissions:
-      pull-requests: write
+      contents: read       # checkout
+      pull-requests: write # comment on the PR
     steps:
       # A local action runs from the checked-out repo, so check out first.
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
