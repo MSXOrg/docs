@@ -243,7 +243,7 @@ jobs:
 Every step in a job historically ran in sequence — each starting only once the
 last finished — and that sequential model is what the rest of this section
 assumes. GitHub has since added **concurrent steps** within a single job, through
-four workflow keywords:
+new workflow keywords:
 
 - `background: true` starts a step asynchronously and continues straight to the
   next step.
@@ -268,8 +268,8 @@ Adopt it deliberately:
   the work genuinely benefits from one shared runner.
 - **Confirm the toolchain supports the keywords first.** The feature is recent,
   so the pinned [`actionlint` / `zizmor`](#toolchain) versions and the runner
-  image in use may not yet validate or run `background` / `wait` / `parallel`;
-  verify before relying on it. Expect interleaved concurrent steps to be harder
+  image in use may not yet validate or run the new keywords; verify before
+  relying on it. Expect interleaved concurrent steps to be harder
   to follow, so keep the [grouped-logging discipline](#build-in-logging-and-diagnostics).
 
 Until it has settled in the ecosystem, treat concurrent steps as a tool for the
