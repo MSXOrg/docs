@@ -99,7 +99,7 @@ function Get-LinkTargetIssue {
     if ($t -match '^(https?:|mailto:|tel:|//)') { return }
     $path, $frag = $t -split '#', 2
     if (-not $path) {
-        if ($frag -and ($frag -notin (Get-CachedSlug $File.FullName))) {
+        if ($frag -and ($frag -cnotin (Get-CachedSlug $File.FullName))) {
             "${Rel}:${LineNo}: '#$frag' - no heading with that anchor on this page"
         }
         return
@@ -110,7 +110,7 @@ function Get-LinkTargetIssue {
         "${Rel}:${LineNo}: '$t' - target does not exist"
         return
     }
-    if ($frag -and $resolved.EndsWith('.md') -and ($frag -notin (Get-CachedSlug $resolved))) {
+    if ($frag -and $resolved.EndsWith('.md') -and ($frag -cnotin (Get-CachedSlug $resolved))) {
         "${Rel}:${LineNo}: '$t' - no heading '#$frag' in the target file"
     }
 }
