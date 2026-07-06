@@ -54,7 +54,7 @@ function Get-UserData {
 ## Parameters
 
 - **Type every parameter** and validate at the boundary — `[Parameter(Mandatory)]`, `[ValidateSet(...)]`, `[ValidateNotNullOrEmpty()]` — so bad input is rejected early, not deep in the call stack.
-- **Give every parameter a `[Parameter()]` attribute**, even when it carries no arguments — it is what turns the function advanced and where `Mandatory`, `ValueFromPipeline`, and the rest attach.
+- **Give every parameter a `[Parameter()]` attribute**, even when it carries no arguments — it is where `Mandatory`, `ValueFromPipeline`, and the rest attach, and it keeps every parameter declared the same way.
 - **Attribute order**, each on its own line: `[Parameter()]`, then validation attributes, then `[ArgumentCompleter()]`, then `[Alias()]`, then the typed declaration.
 - **Separate parameters with a blank line**, so each one's inline doc comment, attributes, and typed declaration read as a single block.
 - **`[switch]` for boolean flags** — never a `[bool]` parameter.
