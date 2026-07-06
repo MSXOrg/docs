@@ -15,7 +15,7 @@ Functions are the unit of intent. A good function does one thing, says what it d
 
 ## Reuse before you build
 
-Before writing new logic, use what already exists — and build only what does not. This is DRY and single responsibility applied across the whole codebase, not just within one function.
+Before writing new logic, use what already exists — and build only what does not. This is DRY and one responsibility applied across the whole codebase, not just within one function.
 
 - Prefer a built-in. If the language or runtime already does the job, use it instead of a hand-rolled version.
 - Reuse an existing function instead of re-implementing it. If it is the weak link — too slow or imprecise on a hot path — fix it there so every caller benefits, rather than working around it.
