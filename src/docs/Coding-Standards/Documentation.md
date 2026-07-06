@@ -47,6 +47,8 @@ Every public function, command, module, or API carries documentation at its boun
 
 Include, at minimum: what it does, its parameters, what it returns, and at least one example. Examples are worth a paragraph of prose each.
 
+This is a floor, not a ceiling. Internal and private units — helper functions and the scripts that call them — carry the same native-format documentation, so the next maintainer or agent can understand a helper without reading its whole implementation.
+
 ## The README is the front door
 
 Every repository has a README that is the single source of truth for what the repository is and does. It is **evergreen** — updated in the same pull request that changes behavior, never as a separate task. A feature that ships without a README update is not done.
