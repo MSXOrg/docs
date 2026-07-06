@@ -20,7 +20,7 @@ Before writing new logic, use what already exists — and build only what does n
 - Prefer a built-in. If the language or runtime already does the job, use it instead of a hand-rolled version.
 - Reuse an existing function instead of re-implementing it. If it is the weak link — too slow or imprecise on a hot path — fix it there so every caller benefits, rather than working around it.
 - Take a dependency on a trusted module for a larger capability that already exists elsewhere; declare it explicitly instead of copying it in.
-- Build it only when nothing fits — no built-in, no existing function, no trustworthy dependency. Size the build to the need: small logic lives inline where it is used; a larger, cohesive capability becomes its own module.
+- Build it only when nothing fits — no built-in, no existing function, no trusted dependency. Size the build to the need: small logic lives inline where it is used; a larger, cohesive capability becomes its own module.
 
 ## Signatures are contracts
 
