@@ -15,7 +15,7 @@ Every repository must carry the files that make it understandable and governable
 
 | File | Requirement |
 | --- | --- |
-| `README.md` | Explains the repository purpose, current capabilities, and where to find deeper docs. |
+| `README.md` | Acts as the repository start page: purpose, value, access, first mental model, and where to go next. |
 | `LICENSE` | States the legal terms for reuse and redistribution. |
 | `CONTRIBUTING.md` | Explains how to contribute or links to the initiative contribution guide. |
 | `SECURITY.md` | Explains supported versions and private vulnerability reporting. |
@@ -33,18 +33,39 @@ Repository types may require additional files. For example, a PowerShell module 
 
 ## README defaults
 
-The README is the repository front door. It must be short enough to stay current and specific enough that a human or agent can understand the repository before reading source code.
+The README is the repository start page. It brings a reader in, gives them the first useful mental model, and then points them to the right deeper surface. It must be short enough to stay current and specific enough that a human or agent can understand the repository before reading source code.
 
-A README should include:
+A README answers these questions, in this order:
 
-- What the repository is.
-- What it currently does.
-- How to install or use the artifact, if applicable.
-- Where generated or detailed documentation lives.
-- How to contribute or where to find contribution guidance.
-- Status if the repository is a placeholder, archive, experiment, or in progress.
+| Question | README responsibility |
+| --- | --- |
+| What is it? | Name the product or artifact and its scope. |
+| Why should I care? | State the value or problem it solves. |
+| How do I get it? | Show the shortest install, download, import, or usage entry point. |
+| How does it work? | Give a concise introduction to the main capability or operating model. |
+| How do I get more info? | Point to the documentation surface that owns the details. |
+
+Do not use the README as a community-file index. Assume readers can find standard repository files such as `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, and `CODE_OF_CONDUCT.md` through GitHub's UI and repository conventions. The README should mention them only when the repository has an unusual rule that readers must know before using the product.
+
+Do not repeat repository-sidebar information in prose. If GitHub already exposes the repository description, deployments, releases, or site URL, the README may rely on those surfaces unless the information is necessary to answer the start-page questions.
 
 Do not leave template placeholders such as `{{ NAME }}`, `{{ DESCRIPTION }}`, `YourModuleName`, or fake example commands in a repository README after the initial setup commit.
+
+## Product documentation defaults
+
+The README is not the complete product manual. Important product documentation belongs in a documentation surface that can grow without bloating the start page.
+
+Default expectations by repository type:
+
+| Repository type | Documentation default |
+| --- | --- |
+| PowerShell modules | Product docs live under `docs/` and are published to GitHub Pages or the initiative's module documentation site. The README stays short and points there. |
+| Libraries, services, CLIs, and applications | Product docs live under `docs/` and are published when the product needs more than a small README. |
+| GitHub Actions | The README is the main documentation surface because GitHub Actions users expect inputs, outputs, permissions, and examples next to `action.yml`. |
+| Reusable workflows | The README is the main documentation surface because callers need workflow interface, permissions, secrets, and examples in the repository. |
+| Documentation repositories | The published site is the product. The repository README only explains the source repo and local contribution/build entry points. |
+
+Initiative docs define the implementation: exact folder layout, publishing workflow, URL convention, and which repositories are exceptions. MSX defines the expectation that product docs have an owner and that README pages stay small.
 
 ## Dependency and supply-chain defaults
 
