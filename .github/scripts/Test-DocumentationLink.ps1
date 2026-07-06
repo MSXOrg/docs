@@ -179,7 +179,7 @@ function Get-LinkTargetIssue {
         [Parameter(Mandatory)]
         [int] $LineNo
     )
-    $t = ($Target.Trim() -replace '\s+"[^"]*"$', '') -replace '^<', '' -replace '>$', ''
+    $t = ($Target.Trim() -replace '\s+("[^"]*"|''[^'']*''|\([^)]*\))$', '') -replace '^<', '' -replace '>$', ''
     if (-not $t) { return }
     if ($t -match '^(https?:|mailto:|tel:|//)') { return }
     $path, $frag = $t -split '#', 2
@@ -201,9 +201,11 @@ function Get-LinkTargetIssue {
 }
 
 # Inline links '[text](target)' and reference-style definitions '[label]: target'.
-# The definition destination is either an angle-bracketed path (which may contain
+# The inline target may carry an optional title ("...", '...', or (...)); the
+# nested-paren alternative keeps a parenthesised title from being truncated. The
+# definition destination is either an angle-bracketed path (which may contain
 # spaces) or a bare non-whitespace token.
-$linkPattern = '\[[^\]]*\]\(([^)]+)\)'
+$linkPattern = '\[[^\]]*\]\(([^()]*(?:\([^()]*\)[^()]*)*)\)'
 $refDefPattern = '^\s*\[[^\]]+\]:\s+(<[^>]+>|\S+)'
 $broken = [System.Collections.Generic.List[string]]::new()
 
