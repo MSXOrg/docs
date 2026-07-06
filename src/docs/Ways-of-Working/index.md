@@ -21,6 +21,8 @@ This section documents the principles, processes, and norms that every contribut
 | [Spec-Driven Development](Spec-Driven-Development.md) | The specification is the source of truth — the spec (why and what), its design (how), and how a change moves from need to shipped. |
 | [Evolutionary Development](Evolutionary-Development.md) | Grow software as bets under selection — variation, feedback, and survival of the fittest, run as one tight loop. |
 | [Agentic Development](Agentic-Development.md) | How ways of working, standards, and documentation are authored once and consumed by both humans and agents. |
+| [Organization Standard](Organization-Standard.md) | What every initiative organization must define centrally so humans and agents share the same expectations. |
+| [Repository Standard](Repository-Standard.md) | The baseline files and behaviours every repository must expose so it is understandable, secure, and maintainable. |
 | [Principles](Principles/index.md) | The foundational beliefs and product mindset behind every decision. |
 | [Engineering Taste](Engineering-Taste.md) | The judgment that takes over when the standards run out. |
 | [Goal-Setting Framework](Goal-Setting.md) | Mission, OKRs, and initiatives — strategy connected to delivery. |
