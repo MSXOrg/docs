@@ -38,17 +38,17 @@ $Root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $Docs = Join-Path $Root 'src/docs'
 
 function ConvertTo-Slug {
-    param([string]$Heading)
+    param([string] $Heading)
     # Mirror the site's Markdown TOC slugifier (python-markdown default): drop
     # non-ASCII, remove punctuation except word characters / whitespace / hyphen,
     # lowercase, then collapse whitespace and hyphen runs into a single hyphen.
-    $ascii = -join ([char[]] $Heading | Where-Object { [int] $_ -lt 128 })
+    $ascii = $Heading -replace '[^\x00-\x7F]', ''
     $clean = ($ascii -replace '[^\w\s-]', '').Trim().ToLowerInvariant()
     return ($clean -replace '[\s-]+', '-')
 }
 
 function Get-HeadingSlug {
-    param([string]$Path)
+    param([string] $Path)
     # The anchor slugs a page exposes, matching the duplicate-slug suffixing
     # ('_1', '_2', ...) the Markdown processor applies to repeated headings. A
     # heading may also carry an explicit attr_list id ('## Heading { #id }'),
@@ -80,20 +80,19 @@ function Get-HeadingSlug {
 # Parse each target file's anchors once.
 $slugCache = @{}
 function Get-CachedSlug {
-    param([string]$Path)
+    param([string] $Path)
     if (-not $slugCache.ContainsKey($Path)) { $slugCache[$Path] = Get-HeadingSlug $Path }
     return $slugCache[$Path]
 }
 
-function Test-LinkTarget {
-    # Validate a single relative link target (inline or reference-style), adding
-    # a message to $Broken when the file or its heading anchor does not resolve.
+function Get-LinkTargetIssue {
+    # Return a human-readable problem for a single relative link target (inline
+    # or reference-style), or nothing when the file and its anchor resolve.
     param(
-        [string]$Target,
-        [System.IO.FileInfo]$File,
-        [string]$Rel,
-        [int]$LineNo,
-        [System.Collections.Generic.List[string]]$Broken
+        [string] $Target,
+        [System.IO.FileInfo] $File,
+        [string] $Rel,
+        [int] $LineNo
     )
     $t = ($Target.Trim() -replace '\s+"[^"]*"$', '') -replace '^<', '' -replace '>$', ''
     if (-not $t) { return }
@@ -101,18 +100,18 @@ function Test-LinkTarget {
     $path, $frag = $t -split '#', 2
     if (-not $path) {
         if ($frag -and ($frag -notin (Get-CachedSlug $File.FullName))) {
-            $Broken.Add("${Rel}:${LineNo}: '#$frag' - no heading with that anchor on this page")
+            "${Rel}:${LineNo}: '#$frag' - no heading with that anchor on this page"
         }
         return
     }
     if ($path.StartsWith('/')) { return } # absolute site path - not resolvable here
     $resolved = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($File.DirectoryName, $path))
     if (-not ([System.IO.File]::Exists($resolved) -or [System.IO.Directory]::Exists($resolved))) {
-        $Broken.Add("${Rel}:${LineNo}: '$t' - target does not exist")
+        "${Rel}:${LineNo}: '$t' - target does not exist"
         return
     }
     if ($frag -and $resolved.EndsWith('.md') -and ($frag -notin (Get-CachedSlug $resolved))) {
-        $Broken.Add("${Rel}:${LineNo}: '$t' - no heading '#$frag' in the target file")
+        "${Rel}:${LineNo}: '$t' - no heading '#$frag' in the target file"
     }
 }
 
@@ -133,12 +132,14 @@ foreach ($file in (Get-ChildItem -LiteralPath $Docs -Recurse -File -Filter *.md 
         $scrubbed = $line -replace '`[^`]*`', ''
         $lineNo = $n + 1
         foreach ($m in [regex]::Matches($scrubbed, $linkPattern)) {
-            Test-LinkTarget -Target $m.Groups[1].Value -File $file -Rel $rel -LineNo $lineNo -Broken $broken
+            $issue = Get-LinkTargetIssue -Target $m.Groups[1].Value -File $file -Rel $rel -LineNo $lineNo
+            if ($issue) { $broken.Add($issue) }
         }
         # Reference-style link definitions ('[label]: target') carry a relative
         # target too; validate it the same way so those links do not slip past CI.
         if ($scrubbed -match $refDefPattern) {
-            Test-LinkTarget -Target $matches[1] -File $file -Rel $rel -LineNo $lineNo -Broken $broken
+            $issue = Get-LinkTargetIssue -Target $matches[1] -File $file -Rel $rel -LineNo $lineNo
+            if ($issue) { $broken.Add($issue) }
         }
     }
 }
