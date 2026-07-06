@@ -195,7 +195,7 @@ function Get-LinkTargetIssue {
         "${Rel}:${LineNo}: '$t' - target does not exist"
         return
     }
-    if ($frag -and $resolved.EndsWith('.md') -and ($frag -cnotin (Get-CachedSlug $resolved))) {
+    if ($frag -and $resolved.EndsWith('.md', [System.StringComparison]::OrdinalIgnoreCase) -and ($frag -cnotin (Get-CachedSlug $resolved))) {
         "${Rel}:${LineNo}: '$t' - no heading '#$frag' in the target file"
     }
 }
