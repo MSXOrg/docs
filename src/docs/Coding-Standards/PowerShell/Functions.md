@@ -54,7 +54,9 @@ function Get-UserData {
 ## Parameters
 
 - **Type every parameter** and validate at the boundary — `[Parameter(Mandatory)]`, `[ValidateSet(...)]`, `[ValidateNotNullOrEmpty()]` — so bad input is rejected early, not deep in the call stack.
+- **Give every parameter a `[Parameter()]` attribute**, even when it carries no arguments — it is where `Mandatory`, `ValueFromPipeline`, and the rest attach, and it keeps every parameter declared the same way.
 - **Attribute order**, each on its own line: `[Parameter()]`, then validation attributes, then `[ArgumentCompleter()]`, then `[Alias()]`, then the typed declaration.
+- **Separate parameters with a blank line**, so each one's inline doc comment, attributes, and typed declaration read as a single block.
 - **`[switch]` for boolean flags** — never a `[bool]` parameter.
 - **Name every parameter set** with an intent-revealing name when a function has more than one mode; never `Default` or `__AllParameterSets`. Set `DefaultParameterSetName` to the most common intent.
 
@@ -84,4 +86,4 @@ Send each kind of message to the stream built for it, so a caller can capture, r
 
 ## Comment-based help (required)
 
-Every public function carries comment-based help, first inside the body, with sections in this order: `.SYNOPSIS` (one imperative sentence), `.DESCRIPTION`, at least one `.EXAMPLE` per behaviour, then `.INPUTS`, `.OUTPUTS` (matching `[OutputType()]`), `.NOTES`, `.LINK`. Document each parameter with an inline comment above it rather than a `.PARAMETER` block, and let comments explain *why*, not *what*.
+Every function carries comment-based help — including internal and private helpers, not only the public surface. It is what lets a reader or an agent understand what the function does and how to call it without reading its body, and a private helper needs that as much as a public command does. Put it first inside the body, with sections in this order: `.SYNOPSIS` (one imperative sentence), `.DESCRIPTION`, at least one `.EXAMPLE` per behaviour, then `.INPUTS`, `.OUTPUTS` (matching `[OutputType()]`), `.NOTES`, `.LINK`. Document each parameter with an inline comment above it rather than a `.PARAMETER` block, and let comments explain *why*, not *what*.

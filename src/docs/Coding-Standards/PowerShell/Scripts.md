@@ -12,7 +12,7 @@ A script (`.ps1`) is an entry point, not a home for logic. Keep scripts **thin**
 A script file is laid out top to bottom in this order:
 
 1. **`#Requires`** statements — PowerShell version and module dependencies with minimum versions.
-2. **Comment-based help** — `.SYNOPSIS`, `.DESCRIPTION`, and at least one `.EXAMPLE`.
+2. **Comment-based help** — the same sections and order as a [function's](Functions.md#comment-based-help-required), only without the enclosing `function` block: `.SYNOPSIS`, `.DESCRIPTION`, at least one `.EXAMPLE`, then `.INPUTS`, `.OUTPUTS`, `.NOTES`, and `.LINK` as they apply. Document each parameter with an inline comment above it, just as a function does.
 3. **`[CmdletBinding()]` + `param()`** — typed and validated, mandatory first; add `SupportsShouldProcess` when the script changes state.
 4. **`$ErrorActionPreference = 'Stop'`**.
 5. **Body** — the thin orchestration.
