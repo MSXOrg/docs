@@ -13,6 +13,15 @@ Functions are the unit of intent. A good function does one thing, says what it d
 - Keep it small enough to hold in your head. Whether it fits on a screen is a better test than a line count.
 - One level of abstraction per function — don't mix high-level orchestration with low-level detail in the same body.
 
+## Reuse before you build
+
+Before writing new logic, use what already exists — and build only what does not. This is DRY and one responsibility applied across the whole codebase, not just within one function.
+
+- Prefer a built-in. If the language or runtime already does the job, use it instead of a hand-rolled version.
+- Reuse an existing function instead of re-implementing it. If it is the weak link — too slow or imprecise on a hot path — fix it there so every caller benefits, rather than working around it.
+- Take a dependency on a trusted module for a larger capability that already exists elsewhere; declare it explicitly instead of copying it in.
+- Build it only when nothing fits — no built-in, no existing function, no trusted dependency. Size the build to the need: small logic lives inline where it is used; a larger, cohesive capability becomes its own module.
+
 ## Signatures are contracts
 
 - Type the parameters and return value where the language allows. The signature documents intent and lets tooling catch misuse before it runs.
