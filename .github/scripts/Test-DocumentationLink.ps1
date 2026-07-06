@@ -38,22 +38,60 @@ $Root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $Docs = Join-Path $Root 'src/docs'
 
 function ConvertTo-Slug {
-    param([string] $Heading)
-    # Mirror the site's Markdown TOC slugifier (python-markdown default): drop
-    # non-ASCII, remove punctuation except word characters / whitespace / hyphen,
-    # lowercase, then collapse whitespace and hyphen runs into a single hyphen.
+    <#
+        .SYNOPSIS
+        Convert a heading to the anchor slug the site's Markdown processor emits.
+
+        .DESCRIPTION
+        Mirror python-markdown's default TOC slugifier: drop non-ASCII characters,
+        remove punctuation except word characters, whitespace, and hyphens,
+        lowercase the result, then collapse whitespace and hyphen runs into a
+        single hyphen.
+
+        .EXAMPLE
+        ConvertTo-Slug -Heading 'Prefer .NET for the actual work'
+        Returns 'prefer-net-for-the-actual-work'.
+
+        .OUTPUTS
+        [string]
+    #>
+    [CmdletBinding()]
+    param(
+        # The heading text to slugify.
+        [Parameter(Mandatory)]
+        [string] $Heading
+    )
     $ascii = $Heading -replace '[^\x00-\x7F]', ''
     $clean = ($ascii -replace '[^\w\s-]', '').Trim().ToLowerInvariant()
     return ($clean -replace '[\s-]+', '-')
 }
 
 function Get-HeadingSlug {
-    param([string] $Path)
-    # The anchor slugs a page exposes, matching the duplicate-slug suffixing
-    # ('_1', '_2', ...) the Markdown processor applies to repeated headings. A
-    # heading may also carry an explicit attr_list id ('## Heading { #id }'),
-    # which the site renderer uses as the anchor verbatim, overriding the text
-    # slug; recognise those so links to '#id' validate.
+    <#
+        .SYNOPSIS
+        Get the anchor slugs a Markdown file exposes.
+
+        .DESCRIPTION
+        Return each heading's anchor, matching the duplicate-slug suffixing
+        ('_1', '_2', ...) the Markdown processor applies to repeated headings. A
+        heading may also carry an explicit attr_list id ('## Heading { #id }'),
+        which the site renderer uses as the anchor verbatim, overriding the text
+        slug; those are recognised so links to '#id' validate. Fenced code blocks
+        are skipped.
+
+        .EXAMPLE
+        Get-HeadingSlug -Path ./src/docs/index.md
+        Returns the anchor slugs and explicit ids defined in index.md.
+
+        .OUTPUTS
+        [System.Collections.Generic.List[string]]
+    #>
+    [CmdletBinding()]
+    param(
+        # Path to the Markdown file to scan for heading anchors.
+        [Parameter(Mandatory)]
+        [string] $Path
+    )
     $slugs = [System.Collections.Generic.List[string]]::new()
     $seen = @{}
     $inFence = $false
@@ -77,21 +115,68 @@ function Get-HeadingSlug {
     return $slugs
 }
 
-# Parse each target file's anchors once.
 $slugCache = @{}
 function Get-CachedSlug {
-    param([string] $Path)
+    <#
+        .SYNOPSIS
+        Get a file's heading slugs, parsing each file only once.
+
+        .DESCRIPTION
+        Memoise Get-HeadingSlug in the script-scoped $slugCache so a file that is
+        linked from many places is scanned a single time.
+
+        .EXAMPLE
+        Get-CachedSlug -Path ./src/docs/index.md
+        Returns index.md's anchor slugs, reading the file only on the first call.
+
+        .OUTPUTS
+        [System.Collections.Generic.List[string]]
+    #>
+    [CmdletBinding()]
+    param(
+        # Path to the Markdown file whose slugs are wanted.
+        [Parameter(Mandatory)]
+        [string] $Path
+    )
     if (-not $slugCache.ContainsKey($Path)) { $slugCache[$Path] = Get-HeadingSlug $Path }
     return $slugCache[$Path]
 }
 
 function Get-LinkTargetIssue {
-    # Return a human-readable problem for a single relative link target (inline
-    # or reference-style), or nothing when the file and its anchor resolve.
+    <#
+        .SYNOPSIS
+        Get the problem with a single relative Markdown link target, if any.
+
+        .DESCRIPTION
+        Validate one inline or reference-style link target: external links,
+        absolute site paths, and empty targets are ignored; a relative file must
+        exist; and a '#fragment' must match a heading anchor (case-sensitively)
+        either in the target file or on the same page. Return a human-readable
+        message when the target does not resolve, or nothing when it is valid.
+
+        .EXAMPLE
+        Get-LinkTargetIssue -Target '../reference/bar.md#setup' -File $file -Rel 'docs/foo.md' -LineNo 12
+        Returns a message when bar.md or its '#setup' anchor is missing, otherwise nothing.
+
+        .OUTPUTS
+        [string]
+    #>
+    [CmdletBinding()]
     param(
+        # The raw link target - a destination and an optional '#fragment'.
+        [Parameter(Mandatory)]
         [string] $Target,
+
+        # The Markdown file the link appears in, used to resolve relative paths.
+        [Parameter(Mandatory)]
         [System.IO.FileInfo] $File,
+
+        # The file's repository-relative path, for the reported message.
+        [Parameter(Mandatory)]
         [string] $Rel,
+
+        # The 1-based line number the link is on, for the reported message.
+        [Parameter(Mandatory)]
         [int] $LineNo
     )
     $t = ($Target.Trim() -replace '\s+"[^"]*"$', '') -replace '^<', '' -replace '>$', ''
