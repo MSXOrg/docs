@@ -116,8 +116,10 @@ function Get-LinkTargetIssue {
 }
 
 # Inline links '[text](target)' and reference-style definitions '[label]: target'.
+# The definition destination is either an angle-bracketed path (which may contain
+# spaces) or a bare non-whitespace token.
 $linkPattern = '\[[^\]]*\]\(([^)]+)\)'
-$refDefPattern = '^\s*\[[^\]]+\]:\s+(\S+)'
+$refDefPattern = '^\s*\[[^\]]+\]:\s+(<[^>]+>|\S+)'
 $broken = [System.Collections.Generic.List[string]]::new()
 
 foreach ($file in (Get-ChildItem -LiteralPath $Docs -Recurse -File -Filter *.md | Sort-Object FullName)) {
