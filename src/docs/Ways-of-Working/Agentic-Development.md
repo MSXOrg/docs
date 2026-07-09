@@ -55,8 +55,8 @@ This split follows [Repository Segmentation](Repository-Segmentation.md) and [RE
 Agent context is delivered through three layers, in priority order — the same three layers the [Principles](Principles/AI-First-Development.md#human-agent-coexistence) describe:
 
 1. **Documentation.** The primary source. The published docs, READMEs, and issue bodies are written for humans and read natively by agents.
-2. **Central agent configuration.** Organization-wide agent files in a `.github-private` repository. These are thin orchestrators built mostly from references to the docs — they define roles, boundaries, and procedural steps, never standards or conventions.
-3. **Local repository files.** Per-repository instruction files for what is unique to a single repository, including the small amount of genuinely tool-specific configuration (permission scopes, path-scoped rules) that cannot be expressed as a pointer.
+2. **Central agent descriptions.** The roles agents play — Define, Implement, Reviewer, and the rest — are authored once as documentation in the [Agents](../Agents/index.md) section. They describe roles, boundaries, and procedural steps, and they reference the ways of working; they never restate a standard or convention.
+3. **Local pointer files.** Each repository carries an `AGENTS.md` — read natively by most agent runtimes — and a `CLAUDE.md` that imports it, pointing to the central descriptions and adding only repo-specific nuance and the small amount of genuinely tool-specific configuration (permission scopes, path-scoped rules) that cannot be expressed as a pointer.
 
 Any new runtime follows the same pattern, regardless of vendor:
 
@@ -68,10 +68,10 @@ The context file and the entry points are pointers; the settings are the only ge
 
 ## Distribution
 
-The two non-documentation layers have different distribution models, set by the level at which the platform supports shared configuration:
+The two non-documentation layers have different distribution models:
 
-- **Org-wide agent files** are distributed through a central `.github-private` repository and are available across every repository in the organization with zero per-repo maintenance.
-- **Per-repository files** — context files and path-scoped instruction files — are seeded from a template repository and kept current across existing repositories by a sync mechanism.
+- **Central agent descriptions** live in the [Agents](../Agents/index.md) section of this site and are referenced by canonical URL — one definition, available to every repository and runtime with no per-repo copy to maintain.
+- **Per-repository pointer files** — `AGENTS.md`, the `CLAUDE.md` that imports it, and any path-scoped instruction files — are seeded from a template repository and kept current across existing repositories by a sync mechanism.
 
 Process knowledge is never added to a distributed config file. If an agent needs the branch strategy, it goes in [Branching and Merging](Branching-and-Merging.md) or the repo's `CONTRIBUTING.md`; if it needs a coding convention, it goes in the relevant [coding standard](../Coding-Standards/index.md). The config file only points — it never defines.
 

@@ -32,8 +32,8 @@ Agents are trained to read documentation. That is their natural skill. By keepin
 Agent context is delivered through three layers, in priority order:
 
 1. **Documentation** — the primary source. Published docs at <https://msxorg.github.io/docs/>, READMEs, and issue bodies are written for humans and naturally consumable by agents.
-2. **Central agent configuration** — organization-wide agent files in `.github-private`. Thin orchestrators built mostly from references to the docs. They define roles, boundaries, and procedural steps — not standards or conventions.
-3. **Local repository files** — `.github/` instruction files and repo-level overrides for what is unique to a single repository.
+2. **Central agent descriptions** — the roles agents play, authored once as documentation in the [Agents](../../Agents/index.md) section. They reference the ways of working and define roles, boundaries, and procedural steps — never standards or conventions.
+3. **Local pointer files** — each repository's `AGENTS.md` (and the `CLAUDE.md` that imports it), pointing to the central descriptions and adding only repo-specific nuance and genuinely tool-specific settings.
 
 ## Augmentation, not replacement
 
