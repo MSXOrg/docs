@@ -99,13 +99,11 @@ lost.
 
 ## Marking ready
 
-Mark the pull request **ready for review** only when it meets the
-[Definition of Ready for Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review):
-the loop is clean with no unresolved threads, every required check is green, no task in
-the linked issue is left open, dependencies are current, and the title, description, and
-label are final. Readiness is a deliberate signal that the change has passed the
-automated pass and is ready for people — see [Review Etiquette](Review-Etiquette.md) for
-what a reviewer is accountable for.
+Mark the pull request **ready for review** only when it meets every item in the
+[Definition of Ready for Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review)
+— that gate is the single checklist, and nothing in it is left open. Readiness is a
+deliberate signal that the change has passed the automated pass and is ready for people
+— see [Review Etiquette](Review-Etiquette.md) for what a reviewer is accountable for.
 
 Anyone who can verify that gate — a human contributor, or an agent acting on their
 behalf — may mark the pull request ready. The gate, not the actor, is what makes it
