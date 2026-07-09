@@ -17,6 +17,8 @@ canonical "how to author" reference that the security control points to.
 
 ## Pin every action to a full commit SHA
 
+Pinning an action by SHA is the GitHub Actions expression of the [Dependencies](Dependencies.md) standard — an **identity pin** to immutable bytes, kept current by automation (below).
+
 A `uses:` reference accepts a tag, a branch, or a commit SHA. Tags and branches
 are **mutable** — a maintainer (or an attacker who compromises one) can move
 them to point at different code. A full commit SHA is **immutable**.
