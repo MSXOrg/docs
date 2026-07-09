@@ -46,6 +46,7 @@ $ErrorActionPreference = 'Stop'
 ## Rules
 
 - **Name scripts `Verb-Noun.ps1`** to match the function convention.
+- **Name a helper module bundled inside a GitHub Action after the action** (`action-name.Helpers`), never a generic name like `Helpers` — a generic name collides with shared or sibling modules in the runner's shared session. See [GitHub Actions](../GitHub-Actions.md#name-helper-modules-after-the-action).
 - **No side effects on load.** A script runs top to bottom when invoked; it should not do work merely by being dot-sourced.
 - **Return objects**, so the script composes in a pipeline like any other command.
 
