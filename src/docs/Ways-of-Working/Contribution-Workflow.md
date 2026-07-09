@@ -27,7 +27,9 @@ flowchart TD
     E --> C
     F --> C
     D -- none --> G[Mark ready for review]
-    G --> H[Human review]
+    G --> AM[Enable auto-merge]
+    AM --> H[Human review]
+    H --> M[Auto-merge lands it on approval + green checks]
 ```
 
 1. **Branch and implement.** Work on a `<type>/<description>` branch and keep the
@@ -37,8 +39,10 @@ flowchart TD
    out of people's review queues while you iterate.
 3. **Run the Copilot review loop** (below) until Copilot reports a clean round —
    no changes requested and no new inline comments.
-4. **Mark the pull request ready for review** once Copilot is clean and checks are
-   green. Human review takes over from there.
+4. **Mark the pull request ready for review** once it meets the
+   [Definition of Ready for Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review).
+5. **Enable auto-merge** so the change lands automatically when human review
+   approves and the required checks stay green. Human review takes over from there.
 
 ## Why draft first
 
@@ -95,14 +99,31 @@ lost.
 
 ## Marking ready
 
-When the loop is clean and lint and any required checks are green, mark the pull
-request **ready for review**. Readiness is the author's signal that the change has
-passed the automated pass and is ready for people — see
-[Review Etiquette](Review-Etiquette.md) for what a reviewer is accountable for.
+Mark the pull request **ready for review** only when it meets the
+[Definition of Ready for Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review):
+the loop is clean with no unresolved threads, every required check is green, no task
+is left open, and the title, description, and label are final. Readiness is a
+deliberate signal that the change has passed the automated pass and is ready for
+people — see [Review Etiquette](Review-Etiquette.md) for what a reviewer is
+accountable for.
+
+Anyone who can verify that gate — a human contributor, or an agent acting on their
+behalf — may mark the pull request ready. The gate, not the actor, is what makes it
+ready.
+
+## Enable auto-merge
+
+Once the pull request is ready, enable auto-merge (squash). The change then lands
+automatically the moment human review approves and the required checks are green — no
+one has to watch the pull request to click merge. Auto-merge waits on exactly the
+branch's required checks and required approval, so nothing lands early. See
+[Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge) for
+the approval identity that satisfies the gate.
 
 ## Where this connects
 
 - [Workflow](Workflow.md) — the spec-led loop this operates within.
 - [PR Format](PR-Format.md) — the pull request title, description, and labels.
+- [Definition of Ready and Done](Definition-of-Ready-and-Done.md#definition-of-ready-for-review) — the readiness gate this hands off at.
 - [Branching and Merging](Branching-and-Merging.md) — the branch model a pull request builds on.
 - [Review Etiquette](Review-Etiquette.md) — how human review proceeds once the pull request is ready.
