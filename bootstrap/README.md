@@ -38,7 +38,7 @@ Wire it into the tools so it runs as the first instruction:
   @~/.msx/docs/bootstrap/AGENTS.template.md
   ```
 
-- **Copilot** reads `AGENTS.md` natively. Use the contents of `AGENTS.template.md` as your user-level Copilot instructions, or copy it into a repository as `AGENTS.md`.
+- **Copilot** reads `AGENTS.md` natively. Install the contents of `AGENTS.template.md` as your **user-level** Copilot instructions so it applies in every repository. Per-repository `AGENTS.md` files stay thin pointers to the central docs — don't put the bootstrap there.
 
 ## Identity
 

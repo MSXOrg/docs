@@ -6,7 +6,7 @@ This repository is the central documentation for the MSX ecosystem. Everything a
 
 1. Read this file, then the [README](README.md) for what this repository is and how it builds.
 2. Read the [Ways of Working](https://msxorg.github.io/docs/Ways-of-Working/) — how work flows from idea to delivery.
-3. Load the [Coding Standards](https://msxorg.github.io/docs/Coding-Standards/) relevant to the change. Repo-local linter config wins where it disagrees.
+3. Load the [Coding Standards](https://msxorg.github.io/docs/Coding-Standards/) relevant to the change.
 
 ## Roles
 
