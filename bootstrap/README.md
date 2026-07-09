@@ -12,6 +12,8 @@ The single starting point for agents: a git-isolated local clone of the MSX cent
 - `~/.msx/docs` is **read context** — the ways of working, coding standards, and agent roles. Changes to it go through **pull requests**.
 - `~/.msx/memory` is **append-only context** — durable notes and session history. Changes to it are **pushed to main**.
 
+> **Prerequisite:** `MSXOrg/memory` is a private repository — the bootstrap needs access to it (and working github.com credentials) to clone or update memory.
+
 Keeping the workspace separate and git-isolated means an agent reads the same docs and memory in every repository, and its commits there use the workspace identity rather than whatever the working repository or the global config happens to be set to.
 
 ## Install (once per machine)

@@ -25,6 +25,8 @@ This produces:
 
 Each clone has repository-local git config only; it never modifies the global git config or the repository being worked in (git still reads them, but only repository-local config is written).
 
+> `MSXOrg/memory` is private — the bootstrap needs access to it (and working github.com credentials) for the memory clone.
+
 ## Then — read before acting
 
 1. Read the relevant pages under `~/.msx/docs` for the task at hand.

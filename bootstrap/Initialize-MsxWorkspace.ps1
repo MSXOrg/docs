@@ -95,7 +95,9 @@ $results = foreach ($repo in $repositories) {
     # Isolated identity: write repository-local config only. Git still reads
     # global and system config; the script never writes to them.
     git -C $path config user.name $UserName
+    if ($LASTEXITCODE -ne 0) { throw "git config user.name failed for '$path' (exit $LASTEXITCODE)." }
     git -C $path config user.email $UserEmail
+    if ($LASTEXITCODE -ne 0) { throw "git config user.email failed for '$path' (exit $LASTEXITCODE)." }
 
     [pscustomobject]@{ Repository = $repo.Name; Path = $path; Changes = $repo.Changes }
 }
