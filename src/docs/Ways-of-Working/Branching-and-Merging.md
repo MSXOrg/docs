@@ -36,11 +36,11 @@ Auto-merge is the default way changes land. When a ready pull request has auto-m
 
 ### Who approves
 
-The required approval comes from an identity that is **not** the pull request's author and **not** the built-in Actions identity:
+The required-approval ruleset must require an approval from an identity that is neither the pull request's author nor the built-in Actions identity:
 
-- **Author is not approver.** The required approval never comes from the identity that wrote the change. GitHub prevents a user from approving their own pull request, and the required-approval ruleset ensures the author's identity — human or agent — cannot satisfy the merge gate.
-- **Not the GitHub Actions bot.** The required-approval rule is not satisfied by a review from the workflow token (`GITHUB_TOKEN`, the `github-actions[bot]` identity). The approval therefore comes from a **separate identity** — a distinct GitHub App with its own installation token, or a person's token — provisioned with least privilege for the reviewer role.
-- **Agents may approve.** An agent acting as reviewer may submit the approving review, as long as it runs under that separate identity and did not author the change.
+- **The author must not be the approver.** The ruleset requires that no change is approved by the identity that wrote it; the author's identity — human or agent — cannot satisfy it.
+- **The Actions bot must not be the approver.** A review from the workflow token (`GITHUB_TOKEN`, the `github-actions[bot]` identity) must not satisfy the requirement. The approval must come from a **separate identity** — a distinct GitHub App with its own installation token, or a person's token — provisioned with least privilege for the reviewer role.
+- **Agents may approve.** An agent acting as reviewer may submit the approving review, provided it runs under that separate identity and did not author the change.
 
 This is least privilege and separation of duties applied to the merge gate ([Principles](Principles/index.md)): the power to write a change and the power to approve it live in different identities, so no single identity can both author and land a change unreviewed.
 
