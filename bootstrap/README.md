@@ -4,7 +4,7 @@ The single starting point for agents: a git-isolated local clone of the MSX cent
 
 ## Contents
 
-- `Initialize-MsxWorkspace.ps1` — idempotent setup. Clones `MSXOrg/docs` and `MSXOrg/memory` under `~/.msx`, fast-forwards them if present, and writes a repository-local git identity so the workspace never modifies the global git config.
+- `Initialize-MsxWorkspace.ps1` — idempotent setup. Clones `MSXOrg/docs` and `MSXOrg/memory` under `~/.msx`, attempts to fast-forward them if present, and writes a repository-local git identity so the workspace never modifies the global git config.
 - `AGENTS.template.md` — the user-global entry instruction. It bootstraps the workspace, then points the agent at the docs and memory. Install it once per machine (below).
 
 ## The model
@@ -20,6 +20,9 @@ Run the bootstrap:
 
 ```powershell
 $docs = Join-Path $HOME '.msx/docs'
+if ((Test-Path $docs) -and -not (Test-Path (Join-Path $docs '.git'))) {
+    throw "$docs exists but is not a git repository. Remove it and re-run."
+}
 if (-not (Test-Path (Join-Path $docs '.git'))) {
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $docs) | Out-Null
     git clone https://github.com/MSXOrg/docs.git $docs

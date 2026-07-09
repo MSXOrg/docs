@@ -37,7 +37,7 @@
 
 .EXAMPLE
     ./Initialize-MsxWorkspace.ps1
-    Clones missing repositories and fast-forwards existing ones under ~/.msx.
+    Clones missing repositories and attempts to fast-forward existing ones under ~/.msx.
 
 .EXAMPLE
     ./Initialize-MsxWorkspace.ps1 -Root /work/.msx -Verbose
@@ -57,6 +57,10 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+if (-not $PSBoundParameters.ContainsKey('UserEmail')) {
+    Write-Warning "Using the default maintainer identity ($UserName <$UserEmail>). Pass -UserName / -UserEmail to attribute your own commits (memory pushes to main)."
+}
 
 $repositories = @(
     [pscustomobject]@{ Name = 'docs'; Url = 'https://github.com/MSXOrg/docs.git'; Changes = 'pull requests' }

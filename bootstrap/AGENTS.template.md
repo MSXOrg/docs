@@ -8,6 +8,9 @@ The workspace is a git-isolated clone of the central repositories under `~/.msx`
 
 ```powershell
 $docs = Join-Path $HOME '.msx/docs'
+if ((Test-Path $docs) -and -not (Test-Path (Join-Path $docs '.git'))) {
+    throw "$docs exists but is not a git repository. Remove it and re-run."
+}
 if (-not (Test-Path (Join-Path $docs '.git'))) {
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $docs) | Out-Null
     git clone https://github.com/MSXOrg/docs.git $docs

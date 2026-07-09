@@ -77,7 +77,7 @@ Process knowledge is never added to a distributed config file. If an agent needs
 
 ## The workspace bootstrap
 
-The natively-read entry file is a thin **bootstrap**, not a copy of the docs. Each runtime auto-loads its own file — Copilot reads `AGENTS.md`, Claude Code reads `CLAUDE.md` (which imports the same instructions) — and that file's first instruction is to make the central workspace present locally, then read from it.
+The **user-global** entry file is a thin **bootstrap**, not a copy of the docs. Each runtime auto-loads its own user-level file — Copilot from its user instructions, Claude Code from `~/.claude/CLAUDE.md` (which imports the same instructions) — and its first instruction is to make the central workspace present locally, then read from it. This is distinct from the per-repository `AGENTS.md` and `CLAUDE.md`, which remain thin pointers to the central descriptions.
 
 The workspace is a git-isolated clone of the central repositories under `~/.msx`:
 
