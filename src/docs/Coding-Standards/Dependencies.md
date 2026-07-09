@@ -24,7 +24,7 @@ From tightest to loosest, each step trades safety for speed:
 
 | Lock | What can change | Update velocity | Supply-chain exposure | Reproducible |
 | --- | --- | --- | --- | --- |
-| **Identity + exact** (`GUID` / SHA / digest, exact version) | Nothing until you re-pin | None — every move is an explicit, reviewed change | **Lowest** — nothing lands unvetted | Yes |
+| **Identity + exact** (`GUID` / SHA / digest, exact version) | Nothing until you re-pin | Only via a reviewed re-pin PR | **Lowest** — nothing lands unvetted | Yes |
 | **Patch** (`x.y.*`) | Fix-level releases | Fixes flow in | Low | With a lockfile |
 | **Minor** (`x.*`) | Additive features and fixes | Features and fixes flow in | Moderate | With a lockfile |
 | **Major** (floor only, `>= x`) | Anything from the floor up, including breaking releases | Everything flows in | Higher | With a lockfile |

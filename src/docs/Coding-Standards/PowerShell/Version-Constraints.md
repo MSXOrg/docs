@@ -47,7 +47,7 @@ PowerShell can express every point of the [locking spectrum](../Dependencies.md#
 | **Major** (floor, `≥ 6.0.0`) | `[6.0.0, )` | `ModuleVersion = '6.0.0'` |
 | **Latest** | omit `-Version`; `*` | a bare name, `@{ ModuleName = 'Pester' }` |
 
-- **Identity + exact** is the tightest — nothing changes until you re-pin, so every move is reviewed. Pair the `GUID` with `RequiredVersion`, or with a lockfile-resolved install, for the strongest supply-chain posture.
+- **Identity + exact** is the tightest — the pin never drifts; the bot proposes each re-pin and a human reviews it. Pair the `GUID` with `RequiredVersion`, or with a lockfile-resolved install, for the strongest supply-chain posture.
 - **Patch** and **minor** are the everyday tracks: let fixes (and, for minor, additive features) flow while a new major is held back.
 - **Major** — a floor with no ceiling — accepts breaking releases; use it where you actively co-evolve with the dependency, and expect the [updater](../../Capabilities/dependency-updates/index.md) to route those as human-reviewed `update:major` pull requests.
 - **Latest** pulls whatever is newest, unvetted and non-reproducible — avoid it for anything shipped or run in CI (see [Dependencies → the balance](../Dependencies.md#the-balance)).
