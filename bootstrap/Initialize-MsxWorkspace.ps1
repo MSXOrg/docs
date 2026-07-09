@@ -58,8 +58,8 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-if (-not $PSBoundParameters.ContainsKey('UserEmail')) {
-    Write-Warning "Using the default maintainer identity ($UserName <$UserEmail>). Pass -UserName / -UserEmail to attribute your own commits (memory pushes to main)."
+if ((-not $PSBoundParameters.ContainsKey('UserName')) -or (-not $PSBoundParameters.ContainsKey('UserEmail'))) {
+    Write-Warning "Using part of the default maintainer identity ($UserName <$UserEmail>). Pass both -UserName and -UserEmail to attribute your own commits (memory pushes to main)."
 }
 
 $repositories = @(
