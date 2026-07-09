@@ -4,7 +4,7 @@ The single starting point for any agent, in any repository. Before doing anythin
 
 ## First — bootstrap the workspace
 
-The workspace is a git-isolated clone of the central repositories under `~/.msx`. Set it up (idempotent — clones what is missing, fast-forwards the rest):
+The workspace is a git-isolated clone of the central repositories under `~/.msx`. Set it up (idempotent — clones what is missing, attempts to fast-forward the rest):
 
 ```powershell
 $docs = Join-Path $HOME '.msx/docs'

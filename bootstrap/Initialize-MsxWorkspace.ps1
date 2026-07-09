@@ -22,8 +22,9 @@
     - Memory (MSXOrg/memory) is append-only context; notes are committed and
       pushed to main directly, without a pull request.
 
-    The script is idempotent: it clones what is missing and fast-forwards what is
-    already present.
+    The script is idempotent: it clones what is missing and attempts to
+    fast-forward what is already present, leaving a repository unchanged (with a
+    warning) when it cannot fast-forward.
 
 .PARAMETER Root
     The workspace root under which 'docs' and 'memory' are placed. Defaults to ~/.msx.
