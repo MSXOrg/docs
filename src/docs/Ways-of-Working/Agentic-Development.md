@@ -55,8 +55,8 @@ This split follows [Repository Segmentation](Repository-Segmentation.md) and [RE
 Agent context is delivered through three layers, in priority order — the same three layers the [Principles](Principles/AI-First-Development.md#human-agent-coexistence) describe:
 
 1. **Documentation.** The primary source. The published docs, READMEs, and issue bodies are written for humans and read natively by agents.
-2. **Central agent configuration.** Organization-wide agent files in a `.github-private` repository. These are thin orchestrators built mostly from references to the docs — they define roles, boundaries, and procedural steps, never standards or conventions.
-3. **Local repository files.** Per-repository instruction files for what is unique to a single repository, including the small amount of genuinely tool-specific configuration (permission scopes, path-scoped rules) that cannot be expressed as a pointer.
+2. **Central agent descriptions.** The roles agents play — Define, Implement, Reviewer, and the rest — are authored once as documentation in the [Agents](../Agents/index.md) section. They describe roles, boundaries, and procedural steps, and they reference the ways of working; they never restate a standard or convention.
+3. **Local pointer files.** Each repository carries an `AGENTS.md` — read natively by most agent runtimes — and a `CLAUDE.md` that imports it, pointing to the central descriptions and adding only repo-specific nuance and the small amount of genuinely tool-specific configuration (permission scopes, path-scoped rules) that cannot be expressed as a pointer.
 
 Any new runtime follows the same pattern, regardless of vendor:
 
@@ -68,12 +68,23 @@ The context file and the entry points are pointers; the settings are the only ge
 
 ## Distribution
 
-The two non-documentation layers have different distribution models, set by the level at which the platform supports shared configuration:
+The two non-documentation layers have different distribution models:
 
-- **Org-wide agent files** are distributed through a central `.github-private` repository and are available across every repository in the organization with zero per-repo maintenance.
-- **Per-repository files** — context files and path-scoped instruction files — are seeded from a template repository and kept current across existing repositories by a sync mechanism.
+- **Central agent descriptions** live in the [Agents](../Agents/index.md) section of this site and are referenced by canonical URL — one definition, available to every repository and runtime with no per-repo copy to maintain.
+- **Per-repository pointer files** — `AGENTS.md`, the `CLAUDE.md` that imports it, and any path-scoped instruction files — are seeded from a template repository and kept current across existing repositories by a sync mechanism.
 
 Process knowledge is never added to a distributed config file. If an agent needs the branch strategy, it goes in [Branching and Merging](Branching-and-Merging.md) or the repo's `CONTRIBUTING.md`; if it needs a coding convention, it goes in the relevant [coding standard](../Coding-Standards/index.md). The config file only points — it never defines.
+
+## The workspace bootstrap
+
+The **user-global** entry file is a thin **bootstrap**, not a copy of the docs. Each runtime auto-loads its own user-level file — Copilot from its user instructions, Claude Code from `~/.claude/CLAUDE.md` (which imports the same instructions) — and its first instruction is to make the central workspace present locally, then read from it. This is distinct from the per-repository `AGENTS.md` and `CLAUDE.md`, which remain thin pointers to the central descriptions.
+
+The workspace is a git-isolated clone of the central repositories under `~/.msx`:
+
+- `~/.msx/docs` — this documentation, read as local files. Changes to it go through pull requests.
+- `~/.msx/memory` — durable notes and prior session context. Changes to it are pushed to main.
+
+Each clone carries repository-local git config only, so the workspace never modifies the global git config or the repository the agent is working in — git still reads them, but only repository-local config is written. The setup is one idempotent script — [`bootstrap/Initialize-MsxWorkspace.ps1`](https://github.com/MSXOrg/docs/blob/main/bootstrap/Initialize-MsxWorkspace.ps1) — that clones what is missing and attempts to fast-forward the rest, leaving a repository as-is if it cannot. This keeps "start at the same point" literal: every agent, in every repository, begins from the same local docs and memory.
 
 ## Where this connects
 
