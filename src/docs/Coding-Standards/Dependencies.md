@@ -51,7 +51,7 @@ A "track" is how a given dependency is allowed to move. You do **not** need ever
 
 | Track | Fits a dependency that… | Typical handling |
 | --- | --- | --- |
-| **Identity + exact** | runs with privilege or has a wide blast radius (Actions, base images), or must be byte-for-byte reproducible | manual, reviewed re-pin only — never auto-merged |
+| **Identity + exact** | runs with privilege or has a wide blast radius (Actions, base images), or must be byte-for-byte reproducible | the bot still opens the re-pin PR, but a human reviews every one — never auto-merged |
 | **Patch** | is trusted and whose patches are fixes you always want (most dependencies) | auto-merge on green CI |
 | **Minor** | is trusted and whose additive releases are safe to absorb | auto-merge on green CI (a repo may require review) |
 | **Major** | you actively co-evolve with and can absorb breaking changes for | always human-reviewed |
