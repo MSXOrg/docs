@@ -41,14 +41,17 @@
 param(
     # The workspace root under which 'docs' and 'memory' are placed.
     [Parameter()]
+    [ValidateNotNullOrEmpty()]
     [string] $Root = (Join-Path $HOME '.msx'),
 
     # The git author name written to each clone's local config.
     [Parameter()]
+    [ValidateNotNullOrEmpty()]
     [string] $UserName = 'Marius Storhaug',
 
     # The git author email written to each clone's local config.
     [Parameter()]
+    [ValidateNotNullOrEmpty()]
     [string] $UserEmail = 'MariusStorhaug@users.noreply.github.com'
 )
 

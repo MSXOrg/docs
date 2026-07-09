@@ -28,6 +28,9 @@ if ((Test-Path $docs) -and -not (Test-Path (Join-Path $docs '.git'))) {
 if (-not (Test-Path (Join-Path $docs '.git'))) {
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $docs) | Out-Null
     git clone https://github.com/MSXOrg/docs.git $docs
+    if ($LASTEXITCODE -ne 0) {
+        throw "git clone of MSXOrg/docs failed (exit $LASTEXITCODE). Check network access and github.com credentials, then re-run."
+    }
 }
 pwsh (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1')
 ```
