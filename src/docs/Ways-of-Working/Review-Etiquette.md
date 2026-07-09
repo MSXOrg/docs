@@ -48,7 +48,7 @@ Self-review is fine and encouraged — but it goes to the terminal as a pre-flig
 
 ### Approving is co-signing
 
-An approving review co-signs the change — the reviewer vouches for it, so approve only once the blocking concerns are resolved. The approving identity differs from the author — GitHub prevents self-approval, and the repository's required-approval ruleset makes an independent approval mandatory — and it is not the built-in Actions identity; approvals come from a separate reviewer identity, a person or a distinct reviewer app. An agent may submit the approval when it runs under that separate identity and did not author the change. See [Branching and Merging § Who approves](Branching-and-Merging.md#who-approves).
+An approving review co-signs the change — the reviewer vouches for it, so approve only once the blocking concerns are resolved. Approvals come from a reviewer identity that is separate from the author and from the built-in Actions identity, as the repository's required-approval ruleset requires; an agent may submit the approval when it runs under that separate identity and did not author the change. See [Branching and Merging § Who approves](Branching-and-Merging.md#who-approves) for the mechanics.
 
 ### Distinguish bots from humans
 
