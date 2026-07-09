@@ -19,8 +19,11 @@ Keeping the workspace separate and git-isolated means an agent reads the same do
 Run the bootstrap:
 
 ```powershell
-if (-not (Test-Path ~/.msx/docs)) { git clone https://github.com/MSXOrg/docs.git ~/.msx/docs }
-pwsh ~/.msx/docs/bootstrap/Initialize-MsxWorkspace.ps1
+$docs = Join-Path $HOME '.msx/docs'
+if (-not (Test-Path (Join-Path $docs '.git'))) {
+    git clone https://github.com/MSXOrg/docs.git $docs
+}
+pwsh (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1')
 ```
 
 Wire it into the tools so it runs as the first instruction:
