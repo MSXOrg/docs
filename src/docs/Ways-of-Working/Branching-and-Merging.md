@@ -30,9 +30,9 @@ The choice follows from [repository segmentation](Repository-Segmentation.md): a
 
 ## Required checks and auto-merge
 
-A branch ruleset on the protected branch defines the **required status checks** and the **required approval** every pull request must satisfy before it can merge. These are the required steps: a pull request that has not passed all of them cannot land, however it was marked. The ruleset is configured on the repository (in its settings), not in these files; this section defines what it must enforce.
+A branch ruleset on the protected branch defines the merge requirements every pull request must satisfy before it can land — the **required status checks**, the **required approvals**, and any others the ruleset enforces (for example conversation resolution or signed commits). These are the required steps: a pull request that has not satisfied all of them cannot land, however it was marked. The ruleset is configured on the repository (in its settings), not in these files; this section defines what it must enforce.
 
-Auto-merge is the default way changes land. When a ready pull request has auto-merge enabled, it squash-merges the moment the required checks are green and the required approval is in place — and not before. No one watches the pull request waiting to click merge.
+Auto-merge is the default way changes land. When a ready pull request has auto-merge enabled, it squash-merges the moment every one of those requirements is satisfied — and not before. No one watches the pull request waiting to click merge.
 
 ### Who approves
 
