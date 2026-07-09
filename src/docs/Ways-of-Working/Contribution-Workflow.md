@@ -115,8 +115,9 @@ ready.
 
 Once the pull request is ready, enable auto-merge (squash). The change then lands
 automatically the moment human review approves and the required checks are green — no
-one has to watch the pull request to click merge. Auto-merge waits on exactly the
-branch's required checks and required approval, so nothing lands early. See
+one has to watch the pull request to click merge. Auto-merge waits on all of the
+branch's protection requirements — required checks, required approvals, and anything
+else the ruleset enforces — so nothing lands early. See
 [Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge) for
 the approval identity that satisfies the gate.
 
