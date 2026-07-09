@@ -26,15 +26,6 @@
     fast-forward what is already present, leaving a repository unchanged (with a
     warning) when it cannot fast-forward.
 
-.PARAMETER Root
-    The workspace root under which 'docs' and 'memory' are placed. Defaults to ~/.msx.
-
-.PARAMETER UserName
-    The git author name written to each clone's local config.
-
-.PARAMETER UserEmail
-    The git author email written to each clone's local config.
-
 .EXAMPLE
     ./Initialize-MsxWorkspace.ps1
     Clones missing repositories and attempts to fast-forward existing ones under ~/.msx.
@@ -42,15 +33,21 @@
 .EXAMPLE
     ./Initialize-MsxWorkspace.ps1 -Root /work/.msx -Verbose
     Uses a custom workspace root and logs each step.
+
+.OUTPUTS
+    [pscustomobject] with Repository, Path, and Changes for each workspace repository.
 #>
-[CmdletBinding()]
+[CmdletBinding(SupportsShouldProcess)]
 param(
+    # The workspace root under which 'docs' and 'memory' are placed.
     [Parameter()]
     [string] $Root = (Join-Path $HOME '.msx'),
 
+    # The git author name written to each clone's local config.
     [Parameter()]
     [string] $UserName = 'Marius Storhaug',
 
+    # The git author email written to each clone's local config.
     [Parameter()]
     [string] $UserEmail = 'MariusStorhaug@users.noreply.github.com'
 )
@@ -67,40 +64,47 @@ $repositories = @(
     [pscustomobject]@{ Name = 'memory'; Url = 'https://github.com/MSXOrg/memory.git'; Changes = 'push to main' }
 )
 
-New-Item -ItemType Directory -Force -Path $Root | Out-Null
+if ($PSCmdlet.ShouldProcess($Root, 'Create workspace root')) {
+    New-Item -ItemType Directory -Force -Path $Root | Out-Null
+}
 
 $results = foreach ($repo in $repositories) {
     $path = Join-Path $Root $repo.Name
     if (Test-Path (Join-Path $path '.git')) {
-        Write-Verbose "Updating $path"
-        git -C $path fetch origin --quiet
-        if ($LASTEXITCODE -ne 0) {
-            throw "git fetch failed for '$path' (exit $LASTEXITCODE). Check network access and credentials for $($repo.Url)."
-        }
-        git -C $path pull --ff-only --quiet
-        if ($LASTEXITCODE -ne 0) {
-            Write-Warning "Could not fast-forward '$path' (local changes or diverged history). Left as-is."
+        if ($PSCmdlet.ShouldProcess($path, 'Fetch and fast-forward')) {
+            Write-Verbose "Updating $path"
+            git -C $path fetch origin --quiet
+            if ($LASTEXITCODE -ne 0) {
+                throw "git fetch failed for '$path' (exit $LASTEXITCODE). Check network access and credentials for $($repo.Url)."
+            }
+            git -C $path pull --ff-only --quiet
+            if ($LASTEXITCODE -ne 0) {
+                Write-Warning "Could not fast-forward '$path' (local changes or diverged history). Left as-is."
+            }
         }
     } else {
         if (Test-Path $path) {
             throw "Cannot clone into '$path': it exists but is not a git repository. Remove it or choose a different -Root."
         }
-        Write-Verbose "Cloning $($repo.Url) into $path"
-        git clone --quiet $repo.Url $path
-        if ($LASTEXITCODE -ne 0) {
-            throw "git clone failed for $($repo.Url) (exit $LASTEXITCODE). Check access and credentials (MSXOrg/memory is private)."
+        if ($PSCmdlet.ShouldProcess($repo.Url, "Clone into '$path'")) {
+            Write-Verbose "Cloning $($repo.Url) into $path"
+            git clone --quiet $repo.Url $path
+            if ($LASTEXITCODE -ne 0) {
+                throw "git clone failed for $($repo.Url) (exit $LASTEXITCODE). Check access and credentials (MSXOrg/memory is private)."
+            }
         }
     }
 
     # Isolated identity: write repository-local config only. Git still reads
     # global and system config; the script never writes to them.
-    git -C $path config user.name $UserName
-    if ($LASTEXITCODE -ne 0) { throw "git config user.name failed for '$path' (exit $LASTEXITCODE)." }
-    git -C $path config user.email $UserEmail
-    if ($LASTEXITCODE -ne 0) { throw "git config user.email failed for '$path' (exit $LASTEXITCODE)." }
+    if ($PSCmdlet.ShouldProcess($path, 'Set repository-local git identity')) {
+        git -C $path config user.name $UserName
+        if ($LASTEXITCODE -ne 0) { throw "git config user.name failed for '$path' (exit $LASTEXITCODE)." }
+        git -C $path config user.email $UserEmail
+        if ($LASTEXITCODE -ne 0) { throw "git config user.email failed for '$path' (exit $LASTEXITCODE)." }
+    }
 
     [pscustomobject]@{ Repository = $repo.Name; Path = $path; Changes = $repo.Changes }
 }
 
-$results | Format-Table -AutoSize
-Write-Output 'MSX workspace ready. Read docs and memory here; docs change through pull requests, memory pushes to main.'
+$results
