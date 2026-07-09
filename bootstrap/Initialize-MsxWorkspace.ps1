@@ -69,10 +69,12 @@ $results = foreach ($repo in $repositories) {
     if (Test-Path (Join-Path $path '.git')) {
         Write-Verbose "Updating $path"
         git -C $path fetch origin --quiet
-        try {
-            git -C $path pull --ff-only --quiet
-        } catch {
-            Write-Warning "Could not fast-forward '$path' (local changes?). Left as-is."
+        if ($LASTEXITCODE -ne 0) {
+            throw "git fetch failed for '$path' (exit $LASTEXITCODE). Check network access and credentials for $($repo.Url)."
+        }
+        git -C $path pull --ff-only --quiet
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning "Could not fast-forward '$path' (local changes or diverged history). Left as-is."
         }
     } else {
         if (Test-Path $path) {
@@ -80,6 +82,9 @@ $results = foreach ($repo in $repositories) {
         }
         Write-Verbose "Cloning $($repo.Url) into $path"
         git clone --quiet $repo.Url $path
+        if ($LASTEXITCODE -ne 0) {
+            throw "git clone failed for $($repo.Url) (exit $LASTEXITCODE). Check access and credentials (MSXOrg/memory is private)."
+        }
     }
 
     # Isolated identity: write repository-local config only. Git still reads

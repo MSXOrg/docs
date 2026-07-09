@@ -9,6 +9,7 @@ The workspace is a git-isolated clone of the central repositories under `~/.msx`
 ```powershell
 $docs = Join-Path $HOME '.msx/docs'
 if (-not (Test-Path (Join-Path $docs '.git'))) {
+    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $docs) | Out-Null
     git clone https://github.com/MSXOrg/docs.git $docs
 }
 pwsh (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1')
