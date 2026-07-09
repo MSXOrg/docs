@@ -169,8 +169,9 @@ Commands that query a specific repository, enterprise, or release by name now re
 ## Drafts and readiness
 
 - The Shipper always creates the PR as **draft** so CI attaches immediately.
-- Marking ready for review is the contributor's decision — never the agent's.
-- Suggested gates before marking ready: tests pass locally, description finalized, no known issues.
+- A pull request is marked ready only when it meets every item in the [Definition of Ready for Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review) — nothing in that gate is left open. That page is the single checklist; this section does not restate it.
+- Marking ready is a gate, not a person: anyone who can verify that gate — a contributor, or an agent acting on their behalf — may mark it ready. The gate, not the actor, is what makes it ready.
+- Once ready, enable auto-merge (squash) so the change lands when review approves and the required checks stay green. See [Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge).
 
 ## Branches and commits
 

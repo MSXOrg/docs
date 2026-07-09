@@ -46,6 +46,10 @@ Cite the docs, the linter rule, the security advisory, the linked issue's Sectio
 
 Self-review is fine and encouraged — but it goes to the terminal as a pre-flight report, not as GitHub comments on your own PR. (And by GitHub rules, you cannot `Request changes` on your own PR — submit a `Comment` review and use a blocking label if needed.)
 
+### Approving is co-signing
+
+An approving review co-signs the change — the reviewer vouches for it, so approve only once the blocking concerns are resolved. Approvals come from a reviewer identity that is separate from the author and from the built-in Actions identity, as the repository's required-approval ruleset requires; an agent may submit the approval when it runs under that separate identity and did not author the change. See [Branching and Merging § Who approves](Branching-and-Merging.md#who-approves) for the mechanics.
+
 ### Distinguish bots from humans
 
 Bot comments (linters, security scanners) tend to be factual. Human comments may carry context the bot can't infer — read them carefully and don't bulk-dismiss.

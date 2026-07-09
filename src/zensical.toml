@@ -67,6 +67,7 @@ nav = [
     {"Testing" = "Coding-Standards/Testing.md"},
     {"Performance" = "Coding-Standards/Performance.md"},
     {"Security" = "Coding-Standards/Security.md"},
+    {"Dependencies" = "Coding-Standards/Dependencies.md"},
     {"GitHub Actions" = "Coding-Standards/GitHub-Actions.md"},
     {"Markdown" = "Coding-Standards/Markdown.md"},
     {"PowerShell" = [
@@ -74,6 +75,7 @@ nav = [
       {"Functions" = "Coding-Standards/PowerShell/Functions.md"},
       {"Classes" = "Coding-Standards/PowerShell/Classes.md"},
       {"Scripts" = "Coding-Standards/PowerShell/Scripts.md"},
+      {"Version Constraints" = "Coding-Standards/PowerShell/Version-Constraints.md"},
     ]},
     {"Terraform" = "Coding-Standards/Terraform.md"},
     {"TypeScript" = "Coding-Standards/TypeScript.md"},
@@ -89,6 +91,11 @@ nav = [
       "Capabilities/dependency-updates/index.md",
       {"Spec" = "Capabilities/dependency-updates/spec.md"},
       {"Design" = "Capabilities/dependency-updates/design.md"},
+    ]},
+    {"Merge Automation" = [
+      "Capabilities/merge-automation/index.md",
+      {"Spec" = "Capabilities/merge-automation/spec.md"},
+      {"Design" = "Capabilities/merge-automation/design.md"},
     ]},
     {"Downstream Release Propagation" = [
       "Capabilities/downstream-release-propagation/index.md",

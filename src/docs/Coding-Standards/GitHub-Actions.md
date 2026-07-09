@@ -17,6 +17,8 @@ canonical "how to author" reference that the security control points to.
 
 ## Pin every action to a full commit SHA
 
+Pinning an action by SHA is the GitHub Actions expression of the [Dependencies](Dependencies.md) standard — an **identity pin** to immutable bytes, kept current by automation (below).
+
 A `uses:` reference accepts a tag, a branch, or a commit SHA. Tags and branches
 are **mutable** — a maintainer (or an attacker who compromises one) can move
 them to point at different code. A full commit SHA is **immutable**.
@@ -802,3 +804,36 @@ jobs:
       - name: Validate that the docs are publishable
         uses: ./.github/actions/validate-publishable   # exits 1 on a blocker
 ```
+
+**Two mechanisms, either requirable by name.** A named check reaches a pull
+request one of two ways, and a ruleset can require either:
+
+- **A check run — the job itself.** Every Actions job automatically becomes a
+  check run named after the job, so the `Publishable` job above *is* the check
+  and needs no extra permission. Prefer this whenever the signal is one of the
+  workflow's own jobs.
+- **A commit status — the Status API.** A step or an external system posts a
+  status against the head commit under its own **context** name via the
+  [Commit Status API](https://docs.github.com/rest/commits/statuses), for a
+  signal that is not a whole job — the linter in this repository's own `Docs`
+  workflow reports per-language statuses this way. Posting a status is the one
+  thing that needs **`statuses: write`**; a check run does not.
+
+```yaml
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      statuses: write        # post commit statuses via the Status API
+```
+
+**A check gates nothing until a ruleset requires it.** Publishing the check is
+half the contract; a repository ruleset (or branch protection) must list it as
+**required** by its exact name or context, or it stays advisory — visible on the
+pull request but unable to hold it. A required check's pass or fail is then a
+machine-readable signal that automation can act on: approve or merge a green pull
+request, hold a red one. That end-to-end pattern is the
+[Merge Automation](../Capabilities/merge-automation/index.md) capability; this
+section is the authoring half it builds on.
