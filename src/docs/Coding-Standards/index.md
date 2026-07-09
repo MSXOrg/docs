@@ -25,6 +25,7 @@ The baseline pages apply to all code and come first; the per-language standards 
 | [Testing](Testing.md) | The executable specification — test-first, locally runnable, deterministic. |
 | [Performance](Performance.md) | Scale with the input, measure before optimizing, clarity first. |
 | [Security](Security.md) | Least privilege, secret hygiene, and the OWASP baseline. |
+| [Dependencies](Dependencies.md) | How dependencies are pinned and kept current — the locking spectrum from identity pins to floating latest, and the balance between update velocity and supply-chain exposure. |
 | [GitHub Actions](GitHub-Actions.md) | Workflow authoring — SHA pinning, least-privilege permissions, OIDC, secrets handling, a PowerShell-first scripting default, script extraction, and diagnostic logging. |
 | [Markdown](Markdown.md) | GitHub Flavored Markdown authoring rules enforced by the shared markdownlint configuration. |
 | [PowerShell](PowerShell/index.md) | Cross-platform PowerShell 7 — the conventions shared by every script, function, and class, with per-construct standards below. |

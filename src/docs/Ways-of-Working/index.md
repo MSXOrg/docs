@@ -26,7 +26,7 @@ This section documents the principles, processes, and norms that every contribut
 | [Principles](Principles/index.md) | The foundational beliefs and product mindset behind every decision. |
 | [Engineering Taste](Engineering-Taste.md) | The judgment that takes over when the standards run out. |
 | [Goal-Setting Framework](Goal-Setting.md) | Mission, OKRs, and initiatives — strategy connected to delivery. |
-| [Definition of Ready and Done](Definition-of-Ready-and-Done.md) | The two checklists that bracket every piece of work. |
+| [Definition of Ready and Done](Definition-of-Ready-and-Done.md) | The three gates that bracket every piece of work. |
 | [Issue Format](Issue-Format.md) | The three-section issue structure, formatting, and labels. |
 | [Issue Hierarchy](Issue-Hierarchy.md) | Epic, PBI, and Task — the three operational levels. |
 | [PR Format](PR-Format.md) | Pull request title, description, change types, and labels. |
