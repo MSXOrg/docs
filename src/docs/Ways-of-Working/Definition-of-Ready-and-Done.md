@@ -1,6 +1,6 @@
 ---
 title: Definition of Ready and Done
-description: The two checklists that bracket every piece of work.
+description: The three gates that bracket every piece of work.
 ---
 
 # Definition of Ready and Done
