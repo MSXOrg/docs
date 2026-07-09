@@ -20,10 +20,10 @@ Agent behaviour is authored once, as documentation, in the [Agents](https://msxo
 
 ## How work happens here
 
-- Work on a `<type>/<description>` branch in its own [worktree](https://msxorg.github.io/docs/Ways-of-Working/Git-Worktrees/); open a **draft** pull request early.
-- Run the [Copilot review loop](https://msxorg.github.io/docs/Ways-of-Working/Contribution-Workflow/) until it is clean.
-- Mark ready only when the change meets the [Definition of Ready for Review](https://msxorg.github.io/docs/Ways-of-Working/Definition-of-Ready-and-Done/), then enable auto-merge.
-- Documentation is validated by lint, link, and index checks — see the [README](README.md).
+- [Branching and Merging](https://msxorg.github.io/docs/Ways-of-Working/Branching-and-Merging/) and [Git Worktrees](https://msxorg.github.io/docs/Ways-of-Working/Git-Worktrees/) — the branch model and where to work.
+- [Contribution Workflow](https://msxorg.github.io/docs/Ways-of-Working/Contribution-Workflow/) — the draft-first, Copilot-review loop through to a ready pull request.
+- [Definition of Ready and Done](https://msxorg.github.io/docs/Ways-of-Working/Definition-of-Ready-and-Done/) — when a change is ready for review and when it lands.
+- This repository's build and checks — see the [README](README.md).
 
 ## The rule
 
