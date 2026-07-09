@@ -98,8 +98,10 @@ Execute the plan:
 2. **Draft PR** — push early and open a draft pull request. Link it to the issue. This makes progress visible and attaches CI from the start.
 3. **Implement** — work through the checklist. One logical change per commit. Update the issue as each task completes.
 4. **Test locally** — don't push known failures to CI. Push work as far inward as it can go.
+5. **Self-review with automation** — run the [Copilot review loop](Contribution-Workflow.md#the-copilot-review-loop) until it reports a clean round, fixing in-scope feedback and filing follow-up issues for the rest.
+6. **Ready and auto-merge** — when the change meets the [Definition of Ready for Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review), finalize the pull request per [PR Format](PR-Format.md), mark it ready, and enable auto-merge.
 
-See [Commit Conventions](Commit-Conventions.md), [PR Format](PR-Format.md).
+See [Commit Conventions](Commit-Conventions.md), [PR Format](PR-Format.md), [Contribution Workflow](Contribution-Workflow.md).
 
 ### Review
 
@@ -116,15 +118,11 @@ See [Review Etiquette](Review-Etiquette.md).
 
 ### Ship
 
-When all tasks are complete, CI is green, and review is approved:
+Human review approves the ready pull request and the required checks stay green, so auto-merge lands the change — squash-merged into the protected branch, its branch deleted. Where the project releases from the trunk, the merge cuts the release.
 
-1. Update the PR title and description as a user-facing release note.
-2. Apply the correct labels (Major, Minor, Patch, etc.).
-3. Mark ready for review (or merge, depending on the project's flow).
+The pull request description becomes the release note. Write it for end users, not reviewers.
 
-The PR description becomes the release note. Write it for end users, not reviewers.
-
-See [PR Format](PR-Format.md).
+See [PR Format](PR-Format.md), [Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge).
 
 ### Operate
 
