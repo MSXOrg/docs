@@ -516,6 +516,27 @@ appears.
   `main.<ext>` sits at the action root for a single-file action, or under `src/`
   as the entry point alongside the other modules.
 
+### Name helper modules after the action
+
+- **A helper module bundled inside an action is named after the action**, not
+  given a generic name. For a `publish-docs` action the module is
+  `publish-docs.Helpers` in `publish-docs.Helpers.psm1`, imported by path from
+  the entry script.
+- **Why it matters:** every module imported during a job shares one session on
+  the runner. A generic name — `Helpers`, `Utils`, `Common` — collides with a
+  shared module of the same name (an ecosystem often installs a shared helper
+  module that actions import by name) or with another action's helper loaded in
+  the same job. Once two loaded modules share a name they can no longer be told
+  apart: module resolution is ambiguous, and unit tests that target a module by
+  name — mocking a command *inside* the module, say — fail because the framework
+  cannot choose which copy to patch.
+- **An action-scoped name is unambiguous, mockable, and traceable.** It never
+  clashes, tests can address it by name, and it identifies the owning action in
+  loaded-module listings, errors, and stack traces.
+- **The exception is a module published for sharing.** A helper whose whole
+  purpose is to be installed and imported by many actions keeps its shared,
+  stable name; only an action's *private* helper module is action-scoped.
+
 ## Toolchain
 
 Two linters enforce this standard in CI, and their configuration is derived from

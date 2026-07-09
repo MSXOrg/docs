@@ -91,7 +91,7 @@ Here a bare `Version="16.0.0"` is a *minimum* — NuGet's own semantics — the 
 
 ## `#Requires` and module manifests
 
-`#Requires -Modules` and a manifest's `RequiredModules` do **not** accept a NuGet range string. They take a [module-specification hashtable](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_requires) whose keys are typed: `ModuleVersion` (minimum) and `RequiredVersion` (exact) parse as `[version]`, while `MaximumVersion` is a string that also accepts the `N.*` wildcard. The [spectrum table](#the-locking-spectrum-in-powershell) gives the keys for each lock; the rules that constrain them:
+`#Requires -Modules` and a manifest's `RequiredModules` do **not** accept a NuGet range string. They take a [module-specification hashtable](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_requires) whose keys are typed: `ModuleVersion` (minimum) and `RequiredVersion` (exact) parse as `[version]`, while `MaximumVersion` is a string that also accepts the `N.*` wildcard. The [spectrum table](#the-locking-spectrum-in-powershell) gives the keys for each lock, and [Module Requirements](Requires-Modules.md) is the full reference with an executable proof; the rules that constrain them:
 
 - `RequiredVersion` cannot be combined with `ModuleVersion` or `MaximumVersion`. A range needs the floor **and** ceiling keys together; the exact pin stands alone.
 - `MaximumVersion` is **inclusive** and understands the `N.*` wildcard, so a major lock is `MaximumVersion = '6.*'` — every `6.x`, nothing in `7` — with no `6.999.999` sentinel.
