@@ -7,14 +7,14 @@ description: "Express module and package version constraints as NuGet version ra
 
 A version constraint says *which versions of a dependency are acceptable*. PowerShell offers several places to state one — an `Install-PSResource` call, a `#Requires` line, a module manifest, a `.csproj` — and they do not all take the same string. Rather than learn a different dialect for each, express every constraint in **one** notation: the [NuGet version range](https://learn.microsoft.com/nuget/concepts/package-versioning#version-ranges). It is the native syntax of the install tooling ([PSResourceGet](https://learn.microsoft.com/powershell/module/microsoft.powershell.psresourceget/)) and of .NET package references, it follows [SemVer](https://semver.org/), and it makes intent — a floor, a ceiling, an exact pin, a range — explicit and reviewable.
 
-This page sits under the [PowerShell standard](index.md) and builds on [Security → Supply chain](../Security.md#supply-chain) — the *why*: pin what you cannot let drift — and on [Dependency Updates](../../Capabilities/dependency-updates/index.md), which keeps those pins current.
+This page is the PowerShell implementation of the [Dependencies](../Dependencies.md) standard: the locking spectrum and the update-velocity-versus-supply-chain-risk balance are argued there; this page is how you express each point of that spectrum in PowerShell. It sits under the [PowerShell standard](index.md), builds on [Security → Supply chain](../Security.md#supply-chain), and pairs with [Dependency Updates](../../Capabilities/dependency-updates/index.md), which keeps pins current.
 
 ## The rule
 
 - **State every module or package version constraint as a NuGet version range, in explicit interval brackets** — `[6.0.0, )`, `[6.0.0, 7.0.0)`, `[6.0.0]` — never a bare number.
 - **Never write a bare version as a constraint.** A bare `6.0.0` means different things on different surfaces — a *minimum* to .NET package references, but the *exact* required version to PSResourceGet (see [the bare-version trap](#the-bare-version-trap)) — so the same string silently changes meaning. Brackets say one thing everywhere.
-- **Default to a floor** (`[6.0.0, )`) so security patches, fixes, and features flow in. Add a ceiling only when a newer version would actually break you.
-- **Prefer a major ceiling to an exact pin.** `[6.0.0, 7.0.0)` — any `6.x` — absorbs patches while holding back a breaking major; `[6.0.0]` freezes out even patches and goes stale. Reserve the exact pin for strict reproducibility.
+- **Choose the lock deliberately** — exact, patch, minor, major, or latest — from the [locking spectrum](#the-locking-spectrum-in-powershell); tighter is safer but slower to update, looser is faster but less vetted. The [Dependencies](../Dependencies.md) standard argues the balance.
+- **Declare a compatibility floor in a module** (`ModuleVersion`, `[6.0.0, )`) so you do not over-constrain your consumers; **pin tight what an application or CI installs** for reproducibility, and let the updater move it. Reserve the exact pin for strict reproducibility, not as a way to avoid updates.
 - **Keep pins current** with automated update pull requests — see [Dependency Updates](../../Capabilities/dependency-updates/index.md).
 
 ## NuGet version-range syntax
@@ -33,6 +33,24 @@ The interval notation, from the [NuGet reference](https://learn.microsoft.com/nu
 | `(6.0.0, 7.0.0)` | `6.0.0 < x < 7.0.0` | open range |
 
 A square bracket `[ ]` includes the endpoint; a parenthesis `( )` excludes it. Follow the NuGet guidance on ceilings: do not cap a dependency you do not own unless you know of an incompatibility — an unnecessary upper bound holds consumers back from fixes — but *do* bound a dependency whose next major would break you. A test framework such as Pester is the typical case.
+
+## The locking spectrum in PowerShell
+
+PowerShell can express every point of the [locking spectrum](../Dependencies.md#the-locking-spectrum). The module `GUID` is the **identity pin** — orthogonal to the version, it binds to the exact module and combines with any row below; the rest set version tightness, tightest first:
+
+| Lock | NuGet range (PSResourceGet, `PackageReference`) | `#Requires` / `RequiredModules` |
+| --- | --- | --- |
+| **Identity** | not a version — pins *which* module | add `GUID = '<module-guid>'` to any row |
+| **Exact** | `[6.1.2]` | `RequiredVersion = '6.1.2'` |
+| **Patch** (any `6.1.x`) | `[6.1.0, 6.2.0)` | `ModuleVersion = '6.1.0'; MaximumVersion = '6.1.*'` |
+| **Minor** (any `6.x`) | `[6.0.0, 7.0.0)` | `ModuleVersion = '6.0.0'; MaximumVersion = '6.*'` |
+| **Major** (floor, `≥ 6.0.0`) | `[6.0.0, )` | `ModuleVersion = '6.0.0'` |
+| **Latest** | omit `-Version`; `*` | a bare name, `@{ ModuleName = 'Pester' }` |
+
+- **Identity + exact** is the tightest — nothing changes until you re-pin, so every move is reviewed. Pair the `GUID` with `RequiredVersion`, or with a lockfile-resolved install, for the strongest supply-chain posture.
+- **Patch** and **minor** are the everyday tracks: let fixes (and, for minor, additive features) flow while a new major is held back.
+- **Major** — a floor with no ceiling — accepts breaking releases; use it where you actively co-evolve with the dependency, and expect the [updater](../../Capabilities/dependency-updates/index.md) to route those as human-reviewed `update:major` pull requests.
+- **Latest** pulls whatever is newest, unvetted and non-reproducible — avoid it for anything shipped or run in CI (see [Dependencies → the balance](../Dependencies.md#the-balance)).
 
 ## Where the range applies directly
 
@@ -71,26 +89,15 @@ A binary module, or a build or test project, references NuGet packages with the 
 
 Here a bare `Version="16.0.0"` is a *minimum* — NuGet's own semantics — the mirror image of the PSResourceGet trap: the very same string means "minimum" to the build and "exact" to the installer. Brackets remove the ambiguity.
 
-## `#Requires` and module manifests — map the range
+## `#Requires` and module manifests
 
-`#Requires -Modules` and a manifest's `RequiredModules` do **not** accept a NuGet range string. They take a [module-specification hashtable](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_requires) whose keys are typed: `ModuleVersion` (minimum) and `RequiredVersion` (exact) parse as `[version]`, while `MaximumVersion` is a string that also accepts the `N.*` wildcard. Express the range you want with these keys:
+`#Requires -Modules` and a manifest's `RequiredModules` do **not** accept a NuGet range string. They take a [module-specification hashtable](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_requires) whose keys are typed: `ModuleVersion` (minimum) and `RequiredVersion` (exact) parse as `[version]`, while `MaximumVersion` is a string that also accepts the `N.*` wildcard. The [spectrum table](#the-locking-spectrum-in-powershell) gives the keys for each lock; the rules that constrain them:
 
-| Intent | NuGet range | `#Requires` / `RequiredModules` |
-| --- | --- | --- |
-| Minimum (floor) | `[6.0.0, )` | `@{ ModuleName = 'Pester'; ModuleVersion = '6.0.0' }` |
-| Exact | `[6.0.0]` | `@{ ModuleName = 'Pester'; RequiredVersion = '6.0.0' }` |
-| Maximum | `(, 6.0.0]` | `@{ ModuleName = 'Pester'; MaximumVersion = '6.0.0' }` |
-| Major lock | `[6.0.0, 7.0.0)` | `@{ ModuleName = 'Pester'; ModuleVersion = '6.0.0'; MaximumVersion = '6.*' }` |
-
-Notes on the mapping:
-
-- `MaximumVersion` is **inclusive** and understands the `N.*` wildcard, so the half-open major lock `[6.0.0, 7.0.0)` is written `MaximumVersion = '6.*'` — every `6.x`, nothing in `7`. No `6.999.999` sentinel is needed.
 - `RequiredVersion` cannot be combined with `ModuleVersion` or `MaximumVersion`. A range needs the floor **and** ceiling keys together; the exact pin stands alone.
-- A bare module name, or `ModuleVersion` on its own, is a floor — the default (see [Scripts](Scripts.md)). Reach for the major lock only when a new major would break you, and prefer it to an exact pin.
-- Pinning module **identity** with a `GUID` is a separate supply-chain control, orthogonal to the version — see [Security → Supply chain](../Security.md#supply-chain). It is not part of the version constraint.
-
-The `#Requires -Version` statement and a manifest's `PowerShellVersion` are **not** package ranges — each is a single minimum engine version (we target PowerShell 7). Leave them as a bare version: `#Requires -Version 7.0`.
+- `MaximumVersion` is **inclusive** and understands the `N.*` wildcard, so a major lock is `MaximumVersion = '6.*'` — every `6.x`, nothing in `7` — with no `6.999.999` sentinel.
+- The module `GUID` pins **identity**, orthogonal to the version: a supply-chain control, not part of the version constraint (see [Security → Supply chain](../Security.md#supply-chain)). Add it to any lock.
+- The `#Requires -Version` statement and a manifest's `PowerShellVersion` are **not** package ranges — each is a single minimum engine version (we target PowerShell 7). Leave them as a bare version: `#Requires -Version 7.0`.
 
 ## Not a version range — pin by digest
 
-Ranges are for packages resolved from a gallery. Dependencies that are not gallery packages are pinned differently: **GitHub Actions and container images pin to an immutable commit SHA or image digest**, never a moving tag or a range — see [Security → Supply chain](../Security.md#supply-chain) and [GitHub Actions](../GitHub-Actions.md).
+Ranges are for packages resolved from a gallery. Dependencies that are not gallery packages are pinned differently: **GitHub Actions and container images pin to an immutable commit SHA or image digest** — an [identity pin](../Dependencies.md#two-decisions-two-axes) — never a moving tag or a range. See [Security → Supply chain](../Security.md#supply-chain) and [GitHub Actions](../GitHub-Actions.md).
