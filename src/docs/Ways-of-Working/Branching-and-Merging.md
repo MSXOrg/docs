@@ -38,7 +38,7 @@ Auto-merge is the default way changes land. When a ready pull request has auto-m
 
 The required approval comes from an identity that is **not** the pull request's author and **not** the built-in Actions identity:
 
-- **Author is not approver.** A change is never approved by the identity that wrote it; GitHub enforces this for people, and it holds for agents — an agent that authored a pull request cannot approve it.
+- **Author is not approver.** The required approval never comes from the identity that wrote the change. GitHub prevents a user from approving their own pull request, and the required-approval ruleset ensures the author's identity — human or agent — cannot satisfy the merge gate.
 - **Not the GitHub Actions bot.** A review submitted with the workflow token (`GITHUB_TOKEN`, the `github-actions[bot]` identity) does not count toward a required approval, and that app cannot approve a pull request it opened. The approval therefore comes from a **separate identity** — a distinct GitHub App with its own installation token, or a person's token — provisioned with least privilege for the reviewer role.
 - **Agents may approve.** An agent acting as reviewer may submit the approving review, as long as it runs under that separate identity and did not author the change.
 
