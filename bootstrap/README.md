@@ -36,3 +36,5 @@ Wire it into the tools so it runs as the first instruction:
 ## Identity
 
 The script writes a repository-local git identity to each clone. The default is the maintainer's GitHub **noreply** identity, so no personal email is written into git config and commits still attribute to the maintainer. Override it with `-UserName` / `-UserEmail`, or point it at a dedicated agent account when one exists.
+
+> **Override this if you are not the maintainer.** With the default, commits — including memory pushes to `main` — are attributed to the maintainer's account. Pass `-UserName` and `-UserEmail` (for example `-UserEmail 'you@users.noreply.github.com'`), or point the script at a dedicated agent account, so your commits are attributed correctly.
