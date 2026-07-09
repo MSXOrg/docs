@@ -45,7 +45,7 @@ PowerShell can express every point of the [locking spectrum](../Dependencies.md#
 | **Patch** (any `6.1.x`) | `[6.1.0, 6.2.0)` | `ModuleVersion = '6.1.0'; MaximumVersion = '6.1.*'` |
 | **Minor** (any `6.x`) | `[6.0.0, 7.0.0)` | `ModuleVersion = '6.0.0'; MaximumVersion = '6.*'` |
 | **Major** (floor, `≥ 6.0.0`) | `[6.0.0, )` | `ModuleVersion = '6.0.0'` |
-| **Latest** | omit `-Version`; `*` | a bare name, `@{ ModuleName = 'Pester' }` |
+| **Latest** | omit `-Version`; `*` in `PackageReference` | a bare name, `@{ ModuleName = 'Pester' }` |
 
 - **Identity + exact** is the tightest — the pin never drifts; the bot proposes each re-pin and a human reviews it. Pair the `GUID` with `RequiredVersion`, or with a lockfile-resolved install, for the strongest supply-chain posture.
 - **Patch** and **minor** are the everyday tracks: let fixes (and, for minor, additive features) flow while a new major is held back.
