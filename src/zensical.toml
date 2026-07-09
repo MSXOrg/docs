@@ -66,7 +66,9 @@ nav = [
     {"Documentation" = "Coding-Standards/Documentation.md"},
     {"Testing" = "Coding-Standards/Testing.md"},
     {"Performance" = "Coding-Standards/Performance.md"},
-    {"Security" = "Coding-Standards/Security.md"},      {"Dependencies" = "Coding-Standards/Dependencies.md"},    {"GitHub Actions" = "Coding-Standards/GitHub-Actions.md"},
+    {"Security" = "Coding-Standards/Security.md"},
+    {"Dependencies" = "Coding-Standards/Dependencies.md"},
+    {"GitHub Actions" = "Coding-Standards/GitHub-Actions.md"},
     {"Markdown" = "Coding-Standards/Markdown.md"},
     {"PowerShell" = [
       "Coding-Standards/PowerShell/index.md",
