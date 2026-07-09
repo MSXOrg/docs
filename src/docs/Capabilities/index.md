@@ -18,6 +18,7 @@ and design relate and evolve.
 | --- | --- |
 | [Release Management](release-management/index.md) | How a source change becomes a versioned, immutable artifact, driven entirely on the GitHub platform. |
 | [Dependency Updates](dependency-updates/index.md) | How a repository's pinned dependencies are kept current and secure through automated, labelled update pull requests. |
+| [Merge Automation](merge-automation/index.md) | How a pull request's required status checks become the machine-readable signal that drives automated approval and merge — green merges, red holds, nothing bypasses the gate. |
 | [Downstream Release Propagation](downstream-release-propagation/index.md) | How a release in one repository propagates to the repositories that depend on it, via a delegated agent pull request. |
 
 <!-- INDEX:END -->
