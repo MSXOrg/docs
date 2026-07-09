@@ -75,6 +75,17 @@ The two non-documentation layers have different distribution models:
 
 Process knowledge is never added to a distributed config file. If an agent needs the branch strategy, it goes in [Branching and Merging](Branching-and-Merging.md) or the repo's `CONTRIBUTING.md`; if it needs a coding convention, it goes in the relevant [coding standard](../Coding-Standards/index.md). The config file only points — it never defines.
 
+## The workspace bootstrap
+
+The natively-read entry file is a thin **bootstrap**, not a copy of the docs. Each runtime auto-loads its own file — Copilot reads `AGENTS.md`, Claude Code reads `CLAUDE.md` (which imports the same instructions) — and that file's first instruction is to make the central workspace present locally, then read from it.
+
+The workspace is a git-isolated clone of the central repositories under `~/.msx`:
+
+- `~/.msx/docs` — this documentation, read as local files. Changes to it go through pull requests.
+- `~/.msx/memory` — durable notes and prior session context. Changes to it are pushed to main.
+
+Each clone carries repository-local git config only, so the workspace never touches the global git config or the repository the agent is working in. The setup is one idempotent script — [`bootstrap/Initialize-MsxWorkspace.ps1`](https://github.com/MSXOrg/docs/blob/main/bootstrap/Initialize-MsxWorkspace.ps1) — that clones what is missing and fast-forwards the rest. This keeps "start at the same point" literal: every agent, in every repository, begins from the same local docs and memory.
+
 ## Where this connects
 
 - [Documentation Model](Documentation-Model.md) — the discipline this specification follows.
