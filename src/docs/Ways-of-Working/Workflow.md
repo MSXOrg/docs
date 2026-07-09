@@ -99,7 +99,7 @@ Execute the plan:
 3. **Implement** — work through the checklist. One logical change per commit. Update the issue as each task completes.
 4. **Test locally** — don't push known failures to CI. Push work as far inward as it can go.
 5. **Self-review with automation** — run the [Copilot review loop](Contribution-Workflow.md#the-copilot-review-loop) until it reports a clean round, fixing in-scope feedback and filing follow-up issues for the rest.
-6. **Ready and auto-merge** — when the change meets the [Definition of Ready for Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review), finalize the title, description, and label, mark the pull request ready, and enable auto-merge.
+6. **Ready and auto-merge** — when the change meets the [Definition of Ready for Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review), finalize the pull request per [PR Format](PR-Format.md), mark it ready, and enable auto-merge.
 
 See [Commit Conventions](Commit-Conventions.md), [PR Format](PR-Format.md), [Contribution Workflow](Contribution-Workflow.md).
 
