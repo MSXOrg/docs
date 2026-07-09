@@ -90,6 +90,11 @@ nav = [
       {"Spec" = "Capabilities/dependency-updates/spec.md"},
       {"Design" = "Capabilities/dependency-updates/design.md"},
     ]},
+    {"Merge Automation" = [
+      "Capabilities/merge-automation/index.md",
+      {"Spec" = "Capabilities/merge-automation/spec.md"},
+      {"Design" = "Capabilities/merge-automation/design.md"},
+    ]},
     {"Downstream Release Propagation" = [
       "Capabilities/downstream-release-propagation/index.md",
       {"Spec" = "Capabilities/downstream-release-propagation/spec.md"},
