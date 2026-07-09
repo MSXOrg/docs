@@ -4,7 +4,7 @@ The single starting point for agents: a git-isolated local clone of the MSX cent
 
 ## Contents
 
-- `Initialize-MsxWorkspace.ps1` — idempotent setup. Clones `MSXOrg/docs` and `MSXOrg/memory` under `~/.msx`, fast-forwards them if present, and writes a repository-local git identity so the workspace never touches the global git config.
+- `Initialize-MsxWorkspace.ps1` — idempotent setup. Clones `MSXOrg/docs` and `MSXOrg/memory` under `~/.msx`, fast-forwards them if present, and writes a repository-local git identity so the workspace never modifies the global git config.
 - `AGENTS.template.md` — the user-global entry instruction. It bootstraps the workspace, then points the agent at the docs and memory. Install it once per machine (below).
 
 ## The model
@@ -35,4 +35,4 @@ Wire it into the tools so it runs as the first instruction:
 
 ## Identity
 
-The script writes a repository-local git identity to each clone (default: the maintainer's GitHub identity). Override it with `-UserName` / `-UserEmail`, or point it at a dedicated agent account when one exists.
+The script writes a repository-local git identity to each clone. The default is the maintainer's GitHub **noreply** identity, so no personal email is written into git config and commits still attribute to the maintainer. Override it with `-UserName` / `-UserEmail`, or point it at a dedicated agent account when one exists.

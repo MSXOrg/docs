@@ -84,7 +84,7 @@ The workspace is a git-isolated clone of the central repositories under `~/.msx`
 - `~/.msx/docs` — this documentation, read as local files. Changes to it go through pull requests.
 - `~/.msx/memory` — durable notes and prior session context. Changes to it are pushed to main.
 
-Each clone carries repository-local git config only, so the workspace never touches the global git config or the repository the agent is working in. The setup is one idempotent script — [`bootstrap/Initialize-MsxWorkspace.ps1`](https://github.com/MSXOrg/docs/blob/main/bootstrap/Initialize-MsxWorkspace.ps1) — that clones what is missing and fast-forwards the rest. This keeps "start at the same point" literal: every agent, in every repository, begins from the same local docs and memory.
+Each clone carries repository-local git config only, so the workspace never modifies the global git config or the repository the agent is working in — git still reads them, but only repository-local config is written. The setup is one idempotent script — [`bootstrap/Initialize-MsxWorkspace.ps1`](https://github.com/MSXOrg/docs/blob/main/bootstrap/Initialize-MsxWorkspace.ps1) — that clones what is missing and fast-forwards the rest. This keeps "start at the same point" literal: every agent, in every repository, begins from the same local docs and memory.
 
 ## Where this connects
 

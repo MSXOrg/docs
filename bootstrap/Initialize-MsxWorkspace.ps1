@@ -14,8 +14,9 @@
     The workspace is deliberately kept separate from the repositories an agent
     works in:
 
-    - Each clone gets repository-local git config only. Nothing here touches the
-      global git config or the working repository's config.
+    - Each clone gets repository-local git config only. Nothing here modifies the
+      global git config or the working repository's config; git still reads global
+      and system config as usual, but this script writes only repository-local config.
     - Documentation (MSXOrg/docs) is context and is changed through pull requests
       only; this script never pushes its main branch.
     - Memory (MSXOrg/memory) is append-only context; notes are committed and
@@ -50,7 +51,7 @@ param(
     [string] $UserName = 'Marius Storhaug',
 
     [Parameter()]
-    [string] $UserEmail = 'marstor@hotmail.com'
+    [string] $UserEmail = 'MariusStorhaug@users.noreply.github.com'
 )
 
 Set-StrictMode -Version Latest
@@ -74,6 +75,9 @@ $results = foreach ($repo in $repositories) {
             Write-Warning "Could not fast-forward '$path' (local changes?). Left as-is."
         }
     } else {
+        if (Test-Path $path) {
+            throw "Cannot clone into '$path': it exists but is not a git repository. Remove it or choose a different -Root."
+        }
         Write-Verbose "Cloning $($repo.Url) into $path"
         git clone --quiet $repo.Url $path
     }
