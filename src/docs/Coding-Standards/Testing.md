@@ -31,6 +31,12 @@ Most tests should be fast and narrow; few should be slow and broad.
 
 Inverting the pyramid — leaning on slow, brittle end-to-end tests — produces a suite that is painful to run and quick to be ignored.
 
+## Don't mock what you don't own
+
+Mock the boundary you control, not someone else's surface. Wrap a third-party API or SDK behind your own thin interface and fake *that*. Mocking the vendor's client directly only freezes your assumptions about how it behaves — the mock keeps passing after the real dependency changes, and the break reaches production unseen.
+
+Where the real contract matters, back the mocked unit tests with a small integration suite that exercises the live dependency on a schedule, so drift surfaces early.
+
 ## Properties of a good test
 
 - **Deterministic.** Same input, same result, every time. A test that passes intermittently is worse than no test — it trains people to ignore failures. No reliance on wall-clock time, network, ordering, or shared mutable state.
