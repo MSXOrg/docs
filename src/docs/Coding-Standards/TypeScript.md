@@ -44,3 +44,22 @@ The toolchain is the enforcement mechanism — formatting and linting are not ma
 
 - **[Vitest](https://vitest.dev/)** is the test runner; colocate or mirror tests and run them in CI (`vitest run`, with coverage on the CI path).
 - Tests are the executable specification — see the [Testing baseline](Testing.md).
+
+## VS Code extensions
+
+A VS Code extension's `package.json` carries two version fields that must be kept in step — `engines.vscode` and the `@types/vscode` dev dependency. Getting them wrong is the most common way an extension build breaks or an extension quietly drops users.
+
+`engines.vscode` is the **minimum** VS Code version the extension supports — a compatibility floor, not a dependency pin. A user on an older VS Code cannot install the extension, so keep the floor **as low as the extension's APIs allow**, to reach the widest audience. Express it as a caret range on that floor (`^1.118.0`) — the platform convention for engine fields, and the one place a range is correct rather than the exact pin used for [dependencies](#dependencies-are-pinned).
+
+**Raise `engines.vscode` only when the extension actually calls an API introduced in a newer release** — bump for functionality you need, never because a newer version exists. Raising the floor for its own sake drops everyone on an older VS Code for no functional gain.
+
+**`@types/vscode` must never exceed `engines.vscode`.** The type definitions describe the API surface of one VS Code version, so typing against a version newer than the declared floor lets the code call APIs that will not exist for some users. `@vscode/vsce` enforces this at package time and fails the build otherwise:
+
+```text
+@types/vscode ^1.125.0 greater than engines.vscode ^1.118.0.
+Either upgrade engines.vscode or use an older @types/vscode version
+```
+
+So the two move **together**: pin `@types/vscode` to the same version as the `engines.vscode` floor, and change both in a single commit — and only when you adopt an API that requires it.
+
+**Do not let automated updates float `@types/vscode`.** A bot bump of `@types/vscode` is neither a fix nor a feature: because the two are tied, it forces a matching `engines.vscode` bump (or the build breaks), silently raising the minimum supported VS Code. Treat `@types/vscode` as pinned to the engine floor — hold it back in the updater (for example, ignore `@types/vscode` in `dependabot.yml`) and raise it deliberately, alongside `engines.vscode`, when a needed API lands. This is the [dependency locking](Dependencies.md) rule applied to a compatibility floor: move it only when the functionality you need requires it.
