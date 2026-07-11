@@ -42,6 +42,7 @@ A spec **contains**:
 - **Outcomes and impact** — the result in the world, and its expected effect on delivery (see [Impact](#impact)).
 - **Users and jobs** — who uses this and the job it gets done.
 - **Scope** — what is included, and an explicit list of what is out of scope.
+- **Non-goals** — outcomes it deliberately does not pursue, named so its intent is not misread; distinct from out of scope, which bounds this change.
 - **Requirements** — what the capability does and the qualities it must hold, functional and non-functional (see [Requirements](#requirements)).
 - **Acceptance criteria** — observable behavior that verifies the requirements (see [Acceptance criteria](#acceptance-criteria)).
 - **Constraints, assumptions, and dependencies** — the boundaries it respects and the work, access, or decisions it waits on.
@@ -56,6 +57,12 @@ A spec **excludes** — this is the design's job:
 - Links to the code that fulfils it — implementations come and go.
 
 The altitude test: push detail *down* into the design, and push scope *up* into the epic. If a sentence would change when the team picks a different library, it belongs in the design, not the spec. This is the same rule the [Issue Format](Issue-Format.md) applies to issues — describe the *what* and *why*, never the *how*.
+
+## Specify the minimum
+
+A spec fixes the smallest set of requirements that make the capability correct and verifiable, and leaves every other choice to the design and the people building it. Over-specification is waste: it commits the team to decisions before they must be made, and every detail the spec pins is one more thing that rots when the implementation moves. Fix what must be agreed; leave the rest open.
+
+This is [Lean Software Development](Principles/Planning-and-Delivery.md#lean-software-development) and YAGNI applied to intent — the fewer things a spec pins, the longer it stays true and the more freedom the people building it keep. The altitude test above is how the principle is applied in practice.
 
 ## Requirements
 
@@ -163,6 +170,10 @@ Copy these skeletons to start a `spec.md` and its `design.md`. Every section is 
 **Out of scope**
 
 - <...>
+
+## Non-goals
+
+- <an outcome someone might expect this to pursue that it deliberately does not — and why>
 
 ## Functional requirements
 
