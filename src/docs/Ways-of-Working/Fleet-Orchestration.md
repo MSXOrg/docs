@@ -37,7 +37,7 @@ request, or both. A campaign has a short, stable **slug** (for example
 A work item is usually created for the campaign, but an **existing open pull
 request can be adopted** as one. When a repository already has a pull request
 that does part of the change, add the remaining change to that branch and label
-it with the same campaign prefix instead of opening a duplicate — the existing pull request
+it with the same campaign prefix in the title instead of opening a duplicate — the existing pull request
 *is* the work item. A separate tracking issue is optional in this case (a work
 item may be a pull request alone); if one already exists, link it with
 `Fixes #n` so merging still closes it. Reusing what is already open avoids two
@@ -77,8 +77,8 @@ repository join key; labels stay reserved for mutable workflow state.
 
 ### Process labels fill the gap
 
-Only two label namespaces are added, for state GitHub has no property for. Both
-are ordinary project-management words — not tool- or agent-specific — so a person
+Only one label namespace is added, for state GitHub has no property for. The
+labels are ordinary project-management words — not tool- or agent-specific — so a person
 with the web UI, an agent, or a separate automation system all read them the
 same way.
 
@@ -92,7 +92,7 @@ Rules: the campaign prefix is mandatory on every work item; at most one
 `stage:*` label applies at a time; and `stage:*` may be dropped once a pull
 request carries the signal itself (a ready pull request needs no `stage` label,
 but `stage:blocked` stays explicit because "a human must act" has no built-in
-equivalent). Prefixes are lowercase and hyphenated.
+equivalent). The slug inside the prefix is lowercase and hyphenated.
 
 ## Effective status
 
@@ -145,7 +145,7 @@ flowchart TD
   pull request that covers part of the change, adopt it instead of opening a
   new one: add the remaining change to its branch, return it to **draft** while
   work is in progress, and give it the same campaign prefix and
-  `stage:in-progress` labels (clearing `stage:*` from any linked issue). The
+  `stage:in-progress` label (clearing `stage:*` from any linked issue). The
   adopted pull request is the work item, so a separate tracking issue is
   optional — link one with `Fixes #n` if it exists; when there is none, the
   tracking-issue steps (1 and the close-on-merge in 6) simply do not apply, and
@@ -247,7 +247,7 @@ requests alike.
 
 ```powershell
 # enumerate a campaign's pull requests across an owner
-gh search prs --owner <owner> --search "in:title \"[<slug>]\"" `
+gh search prs --owner <owner> --search 'in:title "[<slug>]"' `
   --json number,repository,title,url,isDraft,state
 
 # read one pull request's authoritative state
