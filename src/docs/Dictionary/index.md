@@ -53,6 +53,10 @@ Every identity — human, agent, or workflow — gets only the permissions it ne
 
 Long-Term Support — a release line maintained with fixes for an extended period. We target current LTS runtimes rather than legacy editions.
 
+### Open Knowledge Format
+
+OKF — a vendor-neutral format for representing knowledge as plain Markdown files with YAML frontmatter, one concept per file with its path as its identity, so the same file is readable by a human and parseable by an agent with no SDK in between. See the [OKF specification](https://github.com/GoogleCloudPlatform/knowledge-catalog/blob/main/okf/SPEC.md).
+
 ### Philosophy
 
 The most stable tier of belief — *why* we exist and what we value: easy, fast, safe. It informs the [Principles](../Ways-of-Working/Principles/index.md).

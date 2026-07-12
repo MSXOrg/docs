@@ -12,4 +12,4 @@ It is two things at once:
 - **A module-building workflow** — GitHub Actions and reusable workflows that automate the whole PowerShell delivery lifecycle: build, test, version, and publish.
 - **The modules themselves** — a growing collection of reusable PowerShell modules built with that workflow.
 
-PSModule inherits the [Coding Standards](../Coding-Standards/index.md) and [Ways of Working](../Ways-of-Working/index.md) from this site and adds only what is specific to the framework. Its own documentation lives at [psmodule.io](https://psmodule.io).
+PSModule inherits the [Coding Standards](../Coding-Standards/index.md) and [Ways of Working](../Ways-of-Working/index.md) from this site and adds only what is specific to the framework. The end-to-end workflow that ships every module — Process-PSModule — is documented under [Frameworks](../Frameworks/Process-PSModule/index.md), and its module reference lives at [psmodule.io](https://psmodule.io).

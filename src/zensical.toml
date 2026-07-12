@@ -111,6 +111,23 @@ nav = [
       {"Spec" = "Capabilities/downstream-release-propagation/spec.md"},
       {"Design" = "Capabilities/downstream-release-propagation/design.md"},
     ]},
+    {"VS Code Extension Framework" = [
+      "Capabilities/vscode-extension-framework/index.md",
+      {"Spec" = "Capabilities/vscode-extension-framework/spec.md"},
+      {"Design" = "Capabilities/vscode-extension-framework/design.md"},
+    ]},
+  ]},
+  {"Frameworks" = [
+    "Frameworks/index.md",
+    {"Process-PSModule" = [
+      "Frameworks/Process-PSModule/index.md",
+      {"Pipeline Stages" = "Frameworks/Process-PSModule/pipeline-stages.md"},
+      {"Usage" = "Frameworks/Process-PSModule/usage.md"},
+      {"Configuration" = "Frameworks/Process-PSModule/configuration.md"},
+      {"Skipping Framework Tests" = "Frameworks/Process-PSModule/skipping-framework-tests.md"},
+      {"Repository Structure" = "Frameworks/Process-PSModule/repository-structure.md"},
+      {"Principles and Practices" = "Frameworks/Process-PSModule/principles-and-practices.md"},
+    ]},
   ]},
   {"Dictionary" = "Dictionary/index.md"},
 ]
