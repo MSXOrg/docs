@@ -117,12 +117,13 @@ GitHub action, so the resulting state is always re-derivable.
 ```mermaid
 flowchart TD
     Q[Queued: tracking issue] --> P[Open PR as draft]
+    A[Adopt existing PR: return to draft] --> R
     P --> R[Contribution Workflow: Copilot review loop]
     R -->|needs a human decision| B[Blocked]
     B -->|unblocked| R
     R -->|loop clean| Y[Mark ready for review]
     Y --> M[Human review and merge]
-    M --> D[Tracking issue closed]
+    M --> D[Close tracking issue if linked]
 ```
 
 1. **Queue the work.** Create a tracking issue per repository, labelled
