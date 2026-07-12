@@ -178,8 +178,8 @@ of absorbing it:
   unrelated problems breaks the "same change everywhere" property and stalls the
   fleet.
 - **Upstream or shared tooling** — file an issue against the shared component, set
-  `stage:blocked` with a link, and move on. One fix there unblocks every
-  repository hitting the same wall.
+  set `stage:blocked` with a note linking it, and move on. One fix there
+  unblocks every repository hitting the same wall.
 
 Because the change is identical everywhere, the review loop tends to raise the
 *same* point on many pull requests. Decide the response once — a fix, or an
