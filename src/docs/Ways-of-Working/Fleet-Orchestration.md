@@ -34,6 +34,13 @@ repository's slice of the change is a **work item**: a tracking issue, a pull
 request, or both. A campaign has a short, stable **slug** (for example
 `process-psmodule-v6`) that names it everywhere.
 
+A work item is usually created for the campaign, but an **existing open pull
+request can be adopted** as one. When a repository already has a pull request
+that does part of the change, add the remaining change to that branch and label
+it into the campaign instead of opening a duplicate — the existing pull request
+*is* the work item. Reusing what is already open avoids two competing pull
+requests touching the same files.
+
 ## State lives on GitHub
 
 There is no orchestration database. Every fact needed to resume, hand off, or
@@ -122,7 +129,9 @@ flowchart TD
 2. **Branch and open a draft.** Create a worktree and branch
    ([Git Worktrees](Git-Worktrees.md)), then open a **draft** pull request that
    closes the tracking issue, per [PR Format](PR-Format.md). Set
-   `stage:in-progress`.
+   `stage:in-progress`. If the repository already has an open pull request that
+   covers part of the change, adopt it instead: add the remaining change to its
+   branch and label it into the campaign, rather than opening a second one.
 3. **Apply the change and run the loop.** Make the change and take the pull
    request through the [Contribution Workflow](Contribution-Workflow.md) —
    the Copilot review loop — exactly as any single-repository change. The
@@ -138,6 +147,34 @@ flowchart TD
 6. **Human review and merge land it.** Merging closes the tracking issue via its
    `Fixes #n` link. The campaign's job is to get every pull request to *Ready*;
    [Branching and Merging](Branching-and-Merging.md) governs how it merges.
+
+## What a rollout surfaces
+
+Applying one change across a whole fleet is also a fleet-wide audit. The same
+edit that lands cleanly in most repositories will expose latent problems in a
+few: a newer tool version starts enforcing a rule that flags pre-existing debt,
+an upstream bug appears only under the new version, or a file was never quite
+valid to begin with. Expect this, and triage each blocker by its cause instead
+of absorbing it:
+
+- **Caused by the change** — fix it in the campaign pull request; it is part of
+  the work.
+- **Pre-existing debt** — leave it to its owning effort and keep the pull request
+  scoped to the change. Widening one repository's pull request to clean up
+  unrelated problems breaks the "same change everywhere" property and stalls the
+  fleet.
+- **Upstream or shared tooling** — file an issue against the shared component, set
+  `stage:blocked` with a link, and move on. One fix there unblocks every
+  repository hitting the same wall.
+
+Because the change is identical everywhere, the review loop tends to raise the
+*same* point on many pull requests. Decide the response once — a fix, or an
+evidence-based reply when it is a false positive — and apply it consistently: a
+concern that is invalid on one repository is invalid on all of them.
+
+Discovery can also surface a repository where the change applies differently, or
+not at all. Adapt that work item — its change and its pull request description —
+to what the repository actually needs, rather than forcing an identical diff.
 
 ## The dashboard
 
