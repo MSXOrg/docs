@@ -10,7 +10,7 @@ description: Requirements for the VS Code extension framework — an opt-in, Git
 A VS Code extension has a lifecycle that is the same for every extension:
 compile the source into a bundle, test it against a real editor, lint and
 type-check it, decide its version, package it into a VSIX, and publish that VSIX
-so a user can install it. This framework automates that lifecycle end to end. A
+so a user can install it. This framework automates that lifecycle end-to-end. A
 contributor focuses on the extension's own code and tests; the framework builds,
 tests, versions, packages, and ships it — driven entirely on the GitHub
 platform, with no local release ritual. A repository *opts in* to the framework;
