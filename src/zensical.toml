@@ -112,6 +112,18 @@ nav = [
       {"Design" = "Capabilities/downstream-release-propagation/design.md"},
     ]},
   ]},
+  {"Frameworks" = [
+    "Frameworks/index.md",
+    {"Process-PSModule" = [
+      "Frameworks/Process-PSModule/index.md",
+      {"Pipeline Stages" = "Frameworks/Process-PSModule/pipeline-stages.md"},
+      {"Usage" = "Frameworks/Process-PSModule/usage.md"},
+      {"Configuration" = "Frameworks/Process-PSModule/configuration.md"},
+      {"Skipping Framework Tests" = "Frameworks/Process-PSModule/skipping-framework-tests.md"},
+      {"Repository Structure" = "Frameworks/Process-PSModule/repository-structure.md"},
+      {"Principles and Practices" = "Frameworks/Process-PSModule/principles-and-practices.md"},
+    ]},
+  ]},
   {"Dictionary" = "Dictionary/index.md"},
 ]
 
