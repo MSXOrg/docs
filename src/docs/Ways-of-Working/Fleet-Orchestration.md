@@ -247,7 +247,7 @@ requests alike.
 
 ```powershell
 # enumerate a campaign's pull requests across an owner
-gh search prs --owner <owner> --search 'in:title "[<slug>]"' `
+gh search prs 'in:title "[<slug>]"' --owner <owner> `
   --json number,repository,title,url,isDraft,state
 
 # read one pull request's authoritative state
