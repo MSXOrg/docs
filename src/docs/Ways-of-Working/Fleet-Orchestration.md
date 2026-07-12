@@ -134,7 +134,7 @@ flowchart TD
    `stage:in-progress`. If the repository already has an open pull request that
    covers part of the change, adopt it instead of opening a new one: add the
    remaining change to its branch and label it into the campaign. The adopted
-   pull request is the work item, so the step-1 tracking issue is optional here
+   pull request is the work item, so a separate tracking issue is optional here
    — link one with `Fixes #n` only if it exists.
 3. **Apply the change and run the loop.** Make the change and take the pull
    request through the [Contribution Workflow](Contribution-Workflow.md) —
@@ -148,8 +148,9 @@ flowchart TD
    and CI is green, mark the pull request ready for review per the
    [Definition of Ready and Done](Definition-of-Ready-and-Done.md). The draft
    flag flips and the item becomes *Ready for review*.
-6. **Human review and merge land it.** Merging closes the tracking issue via its
-   `Fixes #n` link. The campaign's job is to get every pull request to *Ready*;
+6. **Human review and merge land it.** Merging lands the change and, where the
+   pull request links a tracking issue, closes it via the `Fixes #n` reference.
+   The campaign's job is to get every pull request to *Ready*;
    [Branching and Merging](Branching-and-Merging.md) governs how it merges.
 
 ## What a rollout surfaces
@@ -174,7 +175,8 @@ of absorbing it:
 Because the change is identical everywhere, the review loop tends to raise the
 *same* point on many pull requests. Decide the response once — a fix, or an
 evidence-based reply when it is a false positive — and apply it consistently: a
-concern that is invalid on one repository is invalid on all of them.
+concern that is invalid on one repository is usually invalid on the rest,
+barring a repository where the change genuinely differs.
 
 Discovery can also surface a repository where the change applies differently, or
 not at all. Adapt that work item — its change and its pull request description —
