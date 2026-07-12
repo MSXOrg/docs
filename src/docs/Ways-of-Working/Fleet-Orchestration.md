@@ -136,14 +136,15 @@ flowchart TD
    closes the tracking issue, per [PR Format](PR-Format.md). Label it
    `campaign:<slug>` and move the stage to `stage:in-progress`, clearing the
    tracking issue's `stage:queued` so the work item never carries two stages at
-   once. If the repository already has
-   an open pull request that covers part of the change, adopt it instead of
-   opening a new one: add the remaining change to its branch, return it to
-   **draft** while work is in progress, and apply the same `campaign:<slug>`
-   label. The adopted pull request is the work item, so a separate tracking
-   issue is optional — link one with `Fixes #n` if it exists; when there is
-   none, the tracking-issue steps (1 and the close-on-merge in 6) simply do not
-   apply, and the pull request's own draft and merge state carry the signal.
+   once. If the repository already has an open pull request that covers part of
+   the change, adopt it instead of opening a new one: add the remaining change
+   to its branch, return it to **draft** while work is in progress, and give it
+   the same `campaign:<slug>` and `stage:in-progress` labels (clearing `stage:*`
+   from any linked issue). The adopted pull request is the work item, so a
+   separate tracking issue is optional — link one with `Fixes #n` if it exists;
+   when there is none, the tracking-issue steps (1 and the close-on-merge in 6)
+   simply do not apply, and the pull request's own draft and merge state carry
+   the signal.
 3. **Apply the change and run the loop.** Make the change and take the pull
    request through the [Contribution Workflow](Contribution-Workflow.md) —
    the Copilot review loop — exactly as any single-repository change. The
