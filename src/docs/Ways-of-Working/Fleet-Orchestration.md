@@ -37,9 +37,11 @@ request, or both. A campaign has a short, stable **slug** (for example
 A work item is usually created for the campaign, but an **existing open pull
 request can be adopted** as one. When a repository already has a pull request
 that does part of the change, add the remaining change to that branch and label
-it into the campaign instead of opening a duplicate — the existing pull request
-*is* the work item. Reusing what is already open avoids two competing pull
-requests touching the same files.
+it `campaign:<slug>` instead of opening a duplicate — the existing pull request
+*is* the work item. A separate tracking issue is optional in this case (a work
+item may be a pull request alone); if one already exists, link it with
+`Fixes #n` so merging still closes it. Reusing what is already open avoids two
+competing pull requests touching the same files.
 
 ## State lives on GitHub
 
@@ -130,8 +132,10 @@ flowchart TD
    ([Git Worktrees](Git-Worktrees.md)), then open a **draft** pull request that
    closes the tracking issue, per [PR Format](PR-Format.md). Set
    `stage:in-progress`. If the repository already has an open pull request that
-   covers part of the change, adopt it instead: add the remaining change to its
-   branch and label it into the campaign, rather than opening a second one.
+   covers part of the change, adopt it instead of opening a new one: add the
+   remaining change to its branch and label it into the campaign. The adopted
+   pull request is the work item, so the step-1 tracking issue is optional here
+   — link one with `Fixes #n` only if it exists.
 3. **Apply the change and run the loop.** Make the change and take the pull
    request through the [Contribution Workflow](Contribution-Workflow.md) —
    the Copilot review loop — exactly as any single-repository change. The
