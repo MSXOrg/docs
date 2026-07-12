@@ -36,8 +36,8 @@ request, or both. A campaign has a short, stable **slug** (for example
 
 A work item is usually created for the campaign, but an **existing open pull
 request can be adopted** as one. When a repository already has a pull request
-that does part of the change, add the remaining change to that branch and label
-it with the same campaign prefix in the title instead of opening a duplicate — the existing pull request
+that does part of the change, add the remaining change to that branch and prefix
+its title with the same bracketed slug (`[<slug>]`) instead of opening a duplicate — the existing pull request
 *is* the work item. A separate tracking issue is optional in this case (a work
 item may be a pull request alone); if one already exists, link it with
 `Fixes #n` so merging still closes it. Reusing what is already open avoids two
