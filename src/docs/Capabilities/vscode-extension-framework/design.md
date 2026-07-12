@@ -11,8 +11,7 @@ workflow** and a **template repository**, following the org's `Process-*` /
 does for PowerShell modules). A repository opts in with a short caller workflow
 and a single `.github/vscode-extension.yml` settings file; everything else has a
 secure, working default, so a minimal caller is enough to adopt it. Step logic
-lives in versioned scripts the workflow calls, never inline shell — code in code
-files.
+lives in versioned scripts the workflow calls, never inline shell.
 
 ## The pipeline
 
@@ -57,12 +56,19 @@ artifact forward.
 
 ## Build
 
-The TypeScript source is bundled into a single self-contained CommonJS module
-with a fast bundler (esbuild), with `vscode` marked external (the host provides
-it), minified for release and source-mapped for development. The bundle is the
-extension entry point (`dist/extension.js`); packaging with the editor's
-packaging CLI (`vsce package --no-dependencies`) produces the VSIX. Bundling
-first is what lets the VSIX omit `node_modules` and stay small.
+Dependencies are installed with `npm ci` so the lockfile is authoritative and the
+install is reproducible. The TypeScript source is then bundled into a single
+self-contained file with esbuild, with `vscode` marked external (the host
+provides it). The output format is **CommonJS by default** — esbuild folds even
+pure-ESM dependencies into that output; an extension whose own entry point
+requires ECMAScript-module semantics (top-level `await`, or a deliberate
+ESM-first choice) overrides the bundler format to `esm`, on a host new enough to
+load ESM extension bundles. The pipeline produces **one** build: the release
+bundle, always minified, with a source map emitted as a side artifact for
+debugging rather than a separate development build. The bundle is the extension entry point
+(`dist/extension.js`); packaging it with `@vscode/vsce package --no-dependencies`
+produces the VSIX. Bundling first is what lets the VSIX omit `node_modules` and
+stay small.
 
 ## Test
 
@@ -71,7 +77,9 @@ A real editor is downloaded and driven by the VS Code test harness
 Development Host. The test job runs as a matrix over:
 
 - the **host versions** the extension supports — at least the minimum declared
-  in `engines.vscode` and the current stable, optionally Insiders; and
+  in `engines.vscode` and the current stable; Insiders runs as an optional,
+  non-blocking job, because it updates daily and can fail on VS Code regressions
+  unrelated to the extension; and
 - the **operating systems** the extension declares — Linux, macOS, Windows.
 
 Framework-level tests (the counterpart to the PSModule source-code tests) assert
@@ -97,7 +105,9 @@ VSIX artifact — this framework does not re-implement it:
   hand-edited.
 - A prerelease is requested by a `Prerelease` label on an open pull request (or
   a prerelease branch), producing a prerelease VSIX that is never promoted to
-  latest.
+  latest. When such a build is also published to the VS Code Marketplace, it goes
+  out with `@vscode/vsce publish --pre-release` and an odd minor-version number,
+  the Marketplace's pre-release-channel convention.
 
 ## Publishing and distribution
 
@@ -110,13 +120,16 @@ required on GitHub Enterprise Cloud with data residency, where that scope is not
 grantable.
 
 - **Install without a marketplace.** A hosted one-liner install script fetches
-  the latest release's VSIX asset and installs it with
-  `code --install-extension`, honouring a host override so it targets Insiders,
-  Cursor, or VSCodium. This is always available.
+  the latest release's VSIX asset through the authenticated GitHub CLI
+  (`gh api`), so it works even where unauthenticated asset access is disabled,
+  and installs it with `code --install-extension`, honouring a host override so
+  it targets Insiders, Cursor, or VSCodium. This is always available.
 - **Marketplace publication (optional).** Where the repository configures it, the
-  same VSIX is published to the VS Code Marketplace (`vsce publish`) and/or Open
-  VSX (`ovsx publish`), gated behind a GitHub environment holding the publish
-  token. It is opt-in and never blocks the GitHub-Release install path.
+  same VSIX is published to the VS Code Marketplace (`@vscode/vsce publish`)
+  and/or Open VSX (`ovsx publish`). Neither registry supports OIDC, so each
+  publish token is a long-lived, publish-scoped personal access token held in a
+  protected GitHub environment. It is opt-in and never blocks the GitHub-Release
+  install path.
 
 Prerelease tags, releases, and their VSIX assets are cleaned up when the pull
 request closes; stable releases are never touched.
@@ -136,11 +149,15 @@ request closes; stable releases are never touched.
 ## Least privilege and serialisation
 
 The workflow is `contents: read` at the top level; only the release job elevates
-to `contents: write`, because it alone creates the tag and the release. Release
-runs for the same ref are **serialised and queue rather than cancel** — an
-in-flight release is never aborted mid-write — via a concurrency group keyed by
-workflow and ref with `cancel-in-progress` disabled, inherited from the
+to `contents: write`, because it alone creates the tag and the release. The
+separate pull-request-close job that cleans up a prerelease's tag, release, and
+VSIX assets is the only other place that needs `contents: write`. Release runs
+for the same ref are **serialised and queue rather than cancel** — an in-flight
+release is never aborted mid-write — via a concurrency group keyed by workflow
+and ref with `cancel-in-progress` disabled, inherited from the
 [GitHub Actions standard](../../Coding-Standards/GitHub-Actions.md#concurrency).
+Pull-request validation runs, by contrast, use a per-branch concurrency group
+with `cancel-in-progress` enabled, so a new push supersedes stale in-flight runs.
 Every Action is pinned to a commit SHA.
 
 ## Configuration surface
