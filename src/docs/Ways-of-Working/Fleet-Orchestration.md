@@ -133,7 +133,9 @@ flowchart TD
 2. **Branch and open a draft.** Create a worktree and branch
    ([Git Worktrees](Git-Worktrees.md)), then open a **draft** pull request that
    closes the tracking issue, per [PR Format](PR-Format.md). Label it
-   `campaign:<slug>` and set `stage:in-progress`. If the repository already has
+   `campaign:<slug>` and move the stage to `stage:in-progress`, clearing the
+   tracking issue's `stage:queued` so the work item never carries two stages at
+   once. If the repository already has
    an open pull request that covers part of the change, adopt it instead of
    opening a new one: add the remaining change to its branch, return it to
    **draft** while work is in progress, and apply the same `campaign:<slug>`
