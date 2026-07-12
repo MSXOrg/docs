@@ -37,7 +37,7 @@ request, or both. A campaign has a short, stable **slug** (for example
 A work item is usually created for the campaign, but an **existing open pull
 request can be adopted** as one. When a repository already has a pull request
 that does part of the change, add the remaining change to that branch and label
-it `campaign:<slug>` instead of opening a duplicate — the existing pull request
+it with the same campaign prefix instead of opening a duplicate — the existing pull request
 *is* the work item. A separate tracking issue is optional in this case (a work
 item may be a pull request alone); if one already exists, link it with
 `Fixes #n` so merging still closes it. Reusing what is already open avoids two
@@ -51,7 +51,7 @@ audit a campaign is stored on GitHub, in two layers.
 ### Built-in properties come first
 
 If GitHub already models a fact, that property *is* the state — it is never
-copied into a label, because duplicated state drifts.
+copied into another state-bearing field, because duplicated state drifts.
 
 | Fact | GitHub property |
 | --- | --- |
@@ -69,6 +69,12 @@ copied into a label, because duplicated state drifts.
 signals people care about most are native, and are set by the same act that does
 the work — [marking ready](Contribution-Workflow.md) and merging.
 
+### Campaign identity lives in the title
+
+Campaign membership is carried in a stable square-bracket prefix on every work
+item title, for example `[process-psmodule-v6]`. The prefix is the cross-
+repository join key; labels stay reserved for mutable workflow state.
+
 ### Process labels fill the gap
 
 Only two label namespaces are added, for state GitHub has no property for. Both
@@ -78,16 +84,15 @@ same way.
 
 | Label | Purpose |
 | --- | --- |
-| `campaign:<slug>` | Groups every work item in one campaign across all repositories. The cross-repository join key. Exactly one per item. |
 | `stage:queued` | Identified, not started (typically a tracking issue with no pull request yet). |
 | `stage:in-progress` | Actively being changed; the assignee owns it. |
 | `stage:blocked` | Needs a human decision or a manual, off-platform action before it can proceed. |
 
-Rules: `campaign:<slug>` is mandatory on every work item; at most one `stage:*`
-label applies at a time; and `stage:*` may be dropped once a pull request carries
-the signal itself (a ready pull request needs no `stage` label, but
-`stage:blocked` stays explicit because "a human must act" has no built-in
-equivalent). Slugs are lowercase and hyphenated.
+Rules: the campaign prefix is mandatory on every work item; at most one
+`stage:*` label applies at a time; and `stage:*` may be dropped once a pull
+request carries the signal itself (a ready pull request needs no `stage` label,
+but `stage:blocked` stays explicit because "a human must act" has no built-in
+equivalent). Prefixes are lowercase and hyphenated.
 
 ## Effective status
 
@@ -126,25 +131,25 @@ flowchart TD
     M --> D[Close tracking issue if linked]
 ```
 
-1. **Queue the work.** Create a tracking issue per repository, labelled
-   `campaign:<slug>` and `stage:queued`, following the
-   [Issue Format](Issue-Format.md). The whole fleet starts as *Queued*. Skip
-   this for any repository whose work item will be an **adopted pull request**
-   (see step 2): that pull request is the work item and needs no tracking issue.
+1. **Queue the work.** Create a tracking issue per repository, with the campaign
+  prefix in the title and `stage:queued`, following the [Issue Format](Issue-Format.md).
+  The whole fleet starts as *Queued*. Skip this for any repository whose work
+  item will be an **adopted pull request** (see step 2): that pull request is
+  the work item and needs no tracking issue.
 2. **Branch and open a draft.** Create a worktree and branch
    ([Git Worktrees](Git-Worktrees.md)), then open a **draft** pull request that
-   closes the tracking issue, per [PR Format](PR-Format.md). Label it
-   `campaign:<slug>` and move the stage to `stage:in-progress`, clearing the
-   tracking issue's `stage:queued` so the work item never carries two stages at
-   once. If the repository already has an open pull request that covers part of
-   the change, adopt it instead of opening a new one: add the remaining change
-   to its branch, return it to **draft** while work is in progress, and give it
-   the same `campaign:<slug>` and `stage:in-progress` labels (clearing `stage:*`
-   from any linked issue). The adopted pull request is the work item, so a
-   separate tracking issue is optional — link one with `Fixes #n` if it exists;
-   when there is none, the tracking-issue steps (1 and the close-on-merge in 6)
-   simply do not apply, and the pull request's own draft and merge state carry
-   the signal.
+  closes the tracking issue, per [PR Format](PR-Format.md). Use the same
+  campaign prefix in the pull request title and move the stage to
+  `stage:in-progress`, clearing the tracking issue's `stage:queued` so the work
+  item never carries two stages at once. If the repository already has an open
+  pull request that covers part of the change, adopt it instead of opening a
+  new one: add the remaining change to its branch, return it to **draft** while
+  work is in progress, and give it the same campaign prefix and
+  `stage:in-progress` labels (clearing `stage:*` from any linked issue). The
+  adopted pull request is the work item, so a separate tracking issue is
+  optional — link one with `Fixes #n` if it exists; when there is none, the
+  tracking-issue steps (1 and the close-on-merge in 6) simply do not apply, and
+  the pull request's own draft and merge state carry the signal.
 3. **Apply the change and run the loop.** Make the change and take the pull
    request through the [Contribution Workflow](Contribution-Workflow.md) —
    the Copilot review loop — exactly as any single-repository change. The
@@ -178,7 +183,7 @@ of absorbing it:
   unrelated problems breaks the "same change everywhere" property and stalls the
   fleet.
 - **Upstream or shared tooling** — file an issue against the shared component, set
-  set `stage:blocked` with a note linking it, and move on. One fix there
+  `stage:blocked` with a note linking it, and move on. One fix there
   unblocks every repository hitting the same wall.
 
 Because the change is identical everywhere, the review loop tends to raise the
@@ -195,10 +200,10 @@ to what the repository actually needs, rather than forcing an identical diff.
 
 A campaign is watched through a **dashboard** — a deterministic projection of
 GitHub state, not a store of its own. A script enumerates the campaign's work
-items (`campaign:<slug>` across the owners), reads each pull request's built-in
-properties, computes the effective status, and renders a page. It can regenerate
-on an interval so the view refreshes as GitHub changes; deleting it loses
-nothing, because GitHub is the source of truth.
+items by title prefix (`[<slug>]` across the owners), reads each pull request's
+built-in properties, computes the effective status, and renders a page. It can
+regenerate on an interval so the view refreshes as GitHub changes; deleting it
+loses nothing, because GitHub is the source of truth.
 
 Typical columns: effective status, repository, work item (linked), draft/ready,
 CI, review decision and open-thread count, assignee, the latest progress note,
@@ -221,10 +226,10 @@ a deterministic label-and-comment write, so it is scripted; the judgement of
 
 ## Driving it by hand or from another system
 
-Because all state is on GitHub and the labels are generic:
+Because all state is on GitHub and the workflow labels are generic:
 
 - **A person** can run a whole campaign from the GitHub UI — filter by
-  `campaign:<slug>`, read each pull request's draft and merge state, move
+  the campaign prefix in the title, read each pull request's draft and merge state, move
   `stage:*` labels, and merge.
 - **An automated system** — a scheduled workflow, a different agent framework, or
   a teammate's tooling — can enumerate the work with one query and pick up any
@@ -242,7 +247,7 @@ requests alike.
 
 ```powershell
 # enumerate a campaign's pull requests across an owner
-gh search prs --owner <owner> --label "campaign:<slug>" `
+gh search prs --owner <owner> --search "in:title \"[<slug>]\"" `
   --json number,repository,title,url,isDraft,state
 
 # read one pull request's authoritative state
@@ -271,7 +276,7 @@ the Pester version requirement to the test files, and migrate the tests.
   `#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.0.0'; MaximumVersion = '6.*' }`
   requirement to each `*.Tests.ps1`, migrate the tests, and take the pull request
   through the [Contribution Workflow](Contribution-Workflow.md).
-- **Track it:** every issue and pull request carries `campaign:process-psmodule-v6`;
+- **Track it:** every issue and pull request starts with `[process-psmodule-v6]`;
   the dashboard shows the fleet advancing from *Queued* to *Merged*.
 
 ## What this is not
@@ -279,5 +284,5 @@ the Pester version requirement to the test files, and migrate the tests.
 - **Not a database.** Any `JSON` or `HTML` is a disposable projection of GitHub.
 - **Not agent-specific.** The model stays fully operable by people and non-agent
   tools; nothing in it depends on a particular assistant.
-- **Not a shared label store.** Labels are per-repository; the `campaign:<slug>`
-  string is the shared contract, created in each participating repository.
+- **Not a shared label store.** Labels are per-repository; the campaign title
+  prefix is the shared contract, created in each participating repository.
