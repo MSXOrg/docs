@@ -1,0 +1,251 @@
+---
+title: Pipeline stages
+description: The job-by-job breakdown of the Process-PSModule workflow, from Plan through Publish Docs.
+---
+
+# Pipeline stages
+
+The Process-PSModule workflow composes its work from a set of reusable jobs. Each
+one is described below, in the order it runs, with a link to the workflow that
+implements it.
+
+## Plan
+
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Plan.yml)
+
+The Plan job is the single decision point of the workflow. It reads the settings file (`.github/PSModule.yml`),
+collects event context from GitHub, and decides what should happen in the rest of the process. Using that
+situational awareness, it calculates the next module version. All decisions are captured in a single `Settings`
+object — including version data under `Settings.Module` — that every downstream job receives.
+
+## Lint-Repository
+
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Lint-Repository.yml)
+
+## Build module
+
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Build-Module.yml)
+
+- Compiles the module source code into a PowerShell module, stamping the version from `Settings.Module` into the manifest.
+- Uploads the built artifact.
+
+## Test source code
+
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Test-SourceCode.yml)
+
+- Tests the source code in parallel (matrix) using:
+  - [PSModule framework settings for style and standards for source code](https://github.com/PSModule/Test-PSModule?tab=readme-ov-file#sourcecode-tests)
+- This produces a JSON-based report that is used by [Get-PesterTestResults](#get-test-results) evaluate the results of the tests.
+
+The [PSModule - SourceCode tests](https://github.com/PSModule/Process-PSModule/blob/main/scripts/tests/SourceCode/PSModule/PSModule.Tests.ps1) verifies the following coding practices that the framework enforces:
+
+| ID                  | Category            | Description                                                                                |
+|---------------------|---------------------|--------------------------------------------------------------------------------------------|
+| NumberOfProcessors  | General             | Should use `[System.Environment]::ProcessorCount` instead of `$env:NUMBER_OF_PROCESSORS`.  |
+| Verbose             | General             | Should not contain `-Verbose` unless it is explicitly disabled with `:$false`.             |
+| OutNull             | General             | Should use `$null = ...` instead of piping output to `Out-Null`.                           |
+| NoTernary           | General             | Should not use ternary operations to maintain compatibility with PowerShell 5.1 and below. |
+| LowercaseKeywords   | General             | All PowerShell keywords should be written in lowercase.                                    |
+| FunctionCount       | Functions (Generic) | Each script file should contain exactly one function or filter.                            |
+| FunctionName        | Functions (Generic) | Script filenames should match the name of the function or filter they contain.             |
+| CmdletBinding       | Functions (Generic) | Functions should include the `[CmdletBinding()]` attribute.                                |
+| ParamBlock          | Functions (Generic) | Functions should have a parameter block (`param()`).                                       |
+| FunctionTest        | Functions (Public)  | All public functions/filters should have corresponding tests.                              |
+
+## Lint source code
+
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Lint-SourceCode.yml)
+
+- Lints the source code in parallel (matrix) using:
+  - [PSScriptAnalyzer rules](https://github.com/PSModule/Invoke-ScriptAnalyzer)
+- This produces a JSON-based report that is used by [Get-PesterTestResults](#get-test-results) evaluate the results of the linter.
+
+## Framework test
+
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Test-Module.yml)
+
+- Tests and lints the module in parallel (matrix) using:
+  - [PSModule framework settings for style and standards for modules](https://github.com/PSModule/Test-PSModule?tab=readme-ov-file#module-tests)
+  - [PSScriptAnalyzer rules](https://github.com/PSModule/Invoke-ScriptAnalyzer)
+- This produces a JSON-based report that is used by [Get-PesterTestResults](#get-test-results) evaluate the results of the tests.
+- **Code coverage for framework-generated code**: This step collects code coverage for framework-generated
+  boilerplate. During the [build step](#build-module), [Build-PSModule](https://github.com/PSModule/Build-PSModule)
+  injects boilerplate code into the compiled `.psm1` file — including type accelerator registration for public classes
+  and enums, and the `OnRemove` cleanup hook. The framework tests in
+  [Test-PSModule](https://github.com/PSModule/Test-PSModule) exercise these code paths and produce coverage artifacts
+  that are aggregated with coverage from [Test-ModuleLocal](#test-module) in the
+  [Get code coverage](#get-code-coverage) step. This keeps framework-generated lines from counting against the module
+  author's coverage report.
+
+## Test module
+
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Test-ModuleLocal.yml)
+
+- Imports and tests the module in parallel (matrix) using Pester tests from the module repository.
+- Module test files declare a Pester **6.x** requirement via `#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.0.0'; MaximumVersion = '6.*' }` — a convention module authors add to each `*.Tests.ps1`, not something this pipeline injects. The [Invoke-Pester](https://github.com/PSModule/Invoke-Pester) action installs a matching `6.x`, so minor and patch updates flow in automatically while a new major stays a deliberate, reviewed change.
+- Supports setup and teardown scripts executed via separate dedicated jobs:
+  - `BeforeAll`: Runs once before all test matrix jobs to set up the test environment (e.g., deploy infrastructure, download test data).
+  - `AfterAll`: Runs once after all test matrix jobs complete to clean up the test environment (e.g., remove test resources, clean up databases).
+- Setup/teardown scripts are automatically detected in test directories and executed with the same environment variables as the tests.
+- This produces a JSON-based report that is used by [Get-PesterTestResults](#get-test-results) evaluate the results of the tests.
+
+### Setup and Teardown Scripts
+
+The workflow supports automatic execution of setup and teardown scripts for module tests:
+
+- Scripts are automatically detected and executed if present.
+- If no scripts are found, the workflow continues normally.
+
+#### Setup - `BeforeAll.ps1`
+
+- Place in your test directories (`tests/BeforeAll.ps1`).
+- Runs once before all test matrix jobs to prepare the test environment.
+- Deploy test infrastructure, download test data, initialize databases, or configure services.
+- Has access to the same environment variables as your tests (secrets, GitHub token, etc.).
+
+##### Example - `BeforeAll.ps1`
+
+```powershell
+Write-Host "Setting up test environment..."
+# Deploy test infrastructure
+# Download test data
+# Initialize test databases
+Write-Host "Test environment ready!"
+```
+
+#### Teardown - `AfterAll.ps1`
+
+- Place in your test directories (`tests/AfterAll.ps1`).
+- Runs once after all test matrix jobs complete to clean up the test environment.
+- Remove test resources, clean up databases, stop services, or upload artifacts.
+- Has access to the same environment variables as your tests.
+
+##### Example - `AfterAll.ps1`
+
+```powershell
+Write-Host "Cleaning up test environment..."
+# Remove test resources
+# Clean up databases
+# Stop services
+Write-Host "Cleanup completed!"
+```
+
+#### Best practices for shared test infrastructure
+
+Tests run in parallel across multiple OS runners. To avoid rate limits or conflicts from excessive resource creation,
+provision shared infrastructure once in `BeforeAll.ps1` and tear it down in `AfterAll.ps1`. Individual test files
+should consume the shared infrastructure instead of creating their own.
+
+##### Use deterministic naming with `$env:GITHUB_RUN_ID`
+
+Use `$env:GITHUB_RUN_ID` (stable per workflow run, shared across OS runners) to build deterministic resource names.
+This lets test files reference shared resources by name without passing state between jobs.
+
+```powershell
+# BeforeAll.ps1
+$os = $env:RUNNER_OS
+$id = $env:GITHUB_RUN_ID
+$resourceName = "Test-$os-$id"
+```
+
+Do **not** use `[guid]::NewGuid()` or `Get-Random` for shared resource names — these produce different values on
+each runner and cannot be referenced by other jobs.
+
+##### Clean up stale resources from previous failed runs
+
+If a previous workflow run failed before teardown completed, stale resources may remain. Start `BeforeAll.ps1` by
+removing any resources matching your naming prefix before creating new ones:
+
+```powershell
+# Remove stale resources from previous failed runs
+Get-Resources -Filter "Test-$os-*" | Remove-Resource
+
+# Create fresh shared resources
+New-Resource -Name "Test-$os-$id"
+```
+
+##### Tests reference shared resources — they do not create them
+
+Test files should fetch the shared resource by its deterministic name, not create new resources:
+
+```powershell
+# Inside a test file
+BeforeAll {
+    $os = $env:RUNNER_OS
+    $id = $env:GITHUB_RUN_ID
+    $resource = Get-Resource -Name "Test-$os-$id"
+}
+```
+
+Test-specific ephemeral resources (for example, secrets, variables, or temporary items) can still be created and
+cleaned up within each test file. Only long-lived or expensive resources should be shared.
+
+##### Naming conventions
+
+Use a consistent naming scheme so that resources are easy to identify and clean up. A recommended pattern:
+
+| Resource          | Pattern                               | Example                    |
+|-------------------|---------------------------------------|----------------------------|
+| Shared resource   | `Test-{OS}-{RunID}`                   | `Test-Linux-1234`          |
+| Extra resource    | `Test-{OS}-{RunID}-{N}`               | `Test-Linux-1234-1`        |
+| Secret / variable | `{TestName}_{OS}_{RunID}`             | `Secrets_Linux_1234`       |
+| Environment       | `{TestName}-{OS}-{RunID}`             | `Secrets-Linux-1234`       |
+
+When tests use multiple authentication contexts that share the same runner, include a token or context identifier in
+the name to avoid collisions (for example, `Test-{OS}-{ContextID}-{RunID}`).
+
+### Module tests
+
+The [PSModule - Module tests](https://github.com/PSModule/Process-PSModule/blob/main/scripts/tests/Module/PSModule/PSModule.Tests.ps1) verifies the following coding practices that the framework enforces:
+
+| Name | Description |
+| ------ | ----------- |
+| Module Manifest exists | Verifies that a module manifest file is present. |
+| Module Manifest is valid | Verifies that the module manifest file is valid. |
+
+## Get test results
+
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Get-TestResults.yml)
+
+- Gathers the test results from the previous steps and creates a summary of the results.
+- If any tests have failed, the workflow will fail here.
+
+## Get code coverage
+
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Get-CodeCoverage.yml)
+
+- Gathers the code coverage from the previous steps and creates a summary of the results.
+- Aggregates coverage from the [Framework test](#framework-test) step (framework-generated boilerplate) and the
+  [Test module](#test-module) step (module author code). A command executed in either step counts as covered, so
+  framework-generated lines do not count against the module author's coverage target.
+- If the code coverage is below the target, the workflow will fail here.
+
+## Publish module
+
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Publish-Module.yml)
+
+- Publishes the artifact to the PowerShell Gallery exactly as built — no version mutation.
+- Creates a GitHub Release using the version already stamped in the manifest.
+- Attaches the built module as a `.zip` asset on the GitHub Release so consumers can download the exact bytes that were tested and pushed to the PowerShell Gallery.
+- **Abandoned PR cleanup**: When a PR is closed without merging (abandoned), the workflow automatically cleans up any
+  prerelease versions and tags that were created for that PR. This ensures that abandoned work doesn't leave orphaned
+  prereleases in the PowerShell Gallery or repository. This behavior is controlled by the `Publish.Module.AutoCleanup`
+  setting.
+
+## Build docs
+
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Build-Docs.yml)
+
+- Generates documentation and lints the documentation using:
+  - [super-linter](https://github.com/super-linter/super-linter).
+
+## Build site
+
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Build-Site.yml)
+
+- Generates a static site using:
+  - [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).
+
+## Publish Docs
+
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Publish-Docs.yml)
