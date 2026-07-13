@@ -22,6 +22,7 @@ This section documents the principles, processes, and norms that every contribut
 | [Spec-Driven Development](Spec-Driven-Development.md) | The specification is the source of truth — the spec (why and what), its design (how), and how a change moves from need to shipped. |
 | [Evolutionary Development](Evolutionary-Development.md) | Grow software as bets under selection — variation, feedback, and survival of the fittest, run as one tight loop. |
 | [Agentic Development](Agentic-Development.md) | How ways of working, standards, and documentation are authored once and consumed by both humans and agents. |
+| [Git Worktrees](Git-Worktrees.md) | How agentic development is implemented locally — a bare-clone and worktree layout for working on several things at once. |
 | [Organization Standard](Organization-Standard.md) | What every initiative organization must define centrally so humans and agents share the same expectations. |
 | [Repository Standard](Repository-Standard.md) | The baseline files and behaviours every repository must expose so it is understandable, secure, and maintainable. |
 | [Principles](Principles/index.md) | The foundational beliefs and product mindset behind every decision. |
@@ -36,7 +37,6 @@ This section documents the principles, processes, and norms that every contribut
 | [Review Etiquette](Review-Etiquette.md) | Tone, scope, severity, and how to disagree well. |
 | [Repository Segmentation](Repository-Segmentation.md) | What belongs in a repository, and when to split or combine. |
 | [README-Driven Context](Readme-Driven-Context.md) | Why the README is the front door and the source of truth. |
-| [Git Worktrees](Git-Worktrees.md) | Bare-clone and worktree layout for parallel, conflict-free work. |
 | [Continuous Practices](Continuous-Practices.md) | The Continuous X family, Continuous AI, and the DevOps Dojo pillars. |
 | [DevOps Reference](DevOps-Reference.md) | A curated reading list and the principles behind how we work. |
 

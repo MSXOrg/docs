@@ -31,7 +31,10 @@ nav = [
     {"Documentation Model" = "Ways-of-Working/Documentation-Model.md"},
     {"Spec-Driven Development" = "Ways-of-Working/Spec-Driven-Development.md"},
     {"Evolutionary Development" = "Ways-of-Working/Evolutionary-Development.md"},
-    {"Agentic Development" = "Ways-of-Working/Agentic-Development.md"},
+    {"Agentic Development" = [
+      "Ways-of-Working/Agentic-Development.md",
+      {"Git Worktrees" = "Ways-of-Working/Git-Worktrees.md"},
+    ]},
     {"Organization Standard" = "Ways-of-Working/Organization-Standard.md"},
     {"Repository Standard" = "Ways-of-Working/Repository-Standard.md"},
     {"Principles" = [
@@ -54,7 +57,6 @@ nav = [
     {"Review Etiquette" = "Ways-of-Working/Review-Etiquette.md"},
     {"Repository Segmentation" = "Ways-of-Working/Repository-Segmentation.md"},
     {"README-Driven Context" = "Ways-of-Working/Readme-Driven-Context.md"},
-    {"Git Worktrees" = "Ways-of-Working/Git-Worktrees.md"},
     {"Continuous Practices" = "Ways-of-Working/Continuous-Practices.md"},
     {"DevOps Reference" = "Ways-of-Working/DevOps-Reference.md"},
   ]},
