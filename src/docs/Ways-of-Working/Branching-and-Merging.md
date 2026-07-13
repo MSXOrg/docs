@@ -10,12 +10,14 @@ How changes move from a working branch into a protected branch. The model is sma
 ## Topic branches
 
 - Work happens on short-lived branches cut from the default branch — one per issue. Each gets its own [worktree](Git-Worktrees.md).
+- The base is the default branch unless another is named. A topic branch is cut from the default branch by default; an agent follows the same default and branches from somewhere else only when explicitly instructed to.
 - Name branches `<type>/<issue>-<short-slug>`, e.g. `feat/42-pagination` or `fix/99-null-context`. The type matches the change type.
 - Branches stay short-lived. The longer a branch lives, the further it diverges and the harder it is to merge.
 
 ## Pull requests only
 
 - Protected branches are never pushed to directly. Every change arrives through a pull request — even a one-line fix.
+- A pull request is raised against its base branch — the branch the topic branch was cut from. A branch off the default branch merges back into the default branch; in the promotion model a branch off `dev` targets `dev`, not `main`. The target differs from the base branch only when that is explicitly intended.
 - A pull request is green before review begins. Automated checks run first, so reviewers spend their attention on judgment rather than on catching what CI catches. This is [shift left](Principles/Engineering-Practices.md#shift-left).
 - Keep pull requests small and focused: one deliverable, reviewable in a single pass.
 
