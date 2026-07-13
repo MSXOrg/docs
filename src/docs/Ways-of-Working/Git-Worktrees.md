@@ -9,6 +9,16 @@ Git worktrees are how [agentic development](Agentic-Development.md) is implement
 
 All repositories are set up as **bare clones with worktrees**. Each piece of work gets its own worktree — an independent working directory for one branch — so parallel work never collides.
 
+## Why this matters: working agentically in parallel
+
+The reason this layout is the default — not the occasional convenience it is in most projects — is **parallelism**. [Agentic development](Agentic-Development.md) does not proceed one issue at a time. A single developer can have several agents working at once, each on a different issue, alongside their own hands-on changes. Worktrees are what make running many streams at once safe instead of chaotic:
+
+- **One worktree per issue, one agent per worktree.** Each agent gets its own working directory, its own branch, and its own uncommitted state. Two agents never write to the same checkout, so their edits cannot corrupt one another.
+- **No stashing, no branch-switching, no waiting.** Because the worktrees are independent, the agent finishing issue #42 never disturbs the one still working on issue #99 — and neither touches the clean `<default>/` reference you read from. Nobody has to reach a clean tree before anyone else can move.
+- **Fan out, then integrate.** A batch of independent issues can be started together — one worktree each — worked concurrently, and merged back one at a time through the normal [branch-and-PR flow](Branching-and-Merging.md) as each finishes.
+
+In a single ordinary clone the opposite is forced: one branch checked out at a time, every human and agent contending for the same files, constant stashing and switching. Worktrees turn "several issues at once" from a hazard into the default working mode — which is what makes local agentic development practical at all.
+
 ## Why worktrees
 
 | Problem with traditional clones              | How worktrees solve it                                    |
