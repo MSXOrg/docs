@@ -86,8 +86,11 @@ The workspace is a git-isolated clone of the central repositories under `~/.msx`
 
 Each clone carries repository-local git config only, so the workspace never modifies the global git config or the repository the agent is working in — git still reads them, but only repository-local config is written. The setup is one idempotent script — [`bootstrap/Initialize-MsxWorkspace.ps1`](https://github.com/MSXOrg/docs/blob/main/bootstrap/Initialize-MsxWorkspace.ps1) — that clones what is missing and attempts to fast-forward the rest, leaving a repository as-is if it cannot. This keeps "start at the same point" literal: every agent, in every repository, begins from the same local docs and memory.
 
+The workspace makes the *central* context present locally; the same local-first stance shapes how each working repository is laid out. Repositories are cloned as [git worktrees](Git-Worktrees.md) — one working directory per branch — so a person and an agent, or several agents, can work on multiple issues in the same repository at once without stashing or switching branches.
+
 ## Where this connects
 
+- [Git Worktrees](Git-Worktrees.md) — how this framework is implemented on a local machine, so several pieces of work run in parallel.
 - [Documentation Model](Documentation-Model.md) — the discipline this specification follows.
 - [Principles](Principles/index.md) — the beliefs this specification rests on, including the three-layer agent context model.
 - [README-Driven Context](Readme-Driven-Context.md) — why the repository's own context comes first.

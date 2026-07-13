@@ -1,11 +1,13 @@
 ---
 title: Git Worktrees
-description: Bare-clone and worktree layout for parallel, conflict-free work.
+description: How agentic development is implemented locally — a bare-clone and worktree layout for working on several things at once.
 ---
 
 # Git Worktrees
 
-All repositories are set up as **bare clones with worktrees**. This enables parallel work — multiple agents (or a human and an agent) can work on different issues in the same repository simultaneously without conflicts, stashing, or context-switching.
+Git worktrees are how [agentic development](Agentic-Development.md) is implemented on a local machine. They are purely a **local development** convenience: a way for one person — or a person and an agent, or several agents — to work on multiple issues in the same repository at the same time, without stashing, committing half-finished work, or switching branches. They change nothing about how a repository is built, reviewed, or shipped — that still happens through branches and pull requests, exactly as it would with an ordinary clone.
+
+All repositories are set up as **bare clones with worktrees**. Each piece of work gets its own worktree — an independent working directory for one branch — so parallel work never collides.
 
 ## Why worktrees
 
@@ -117,3 +119,9 @@ git -C .bare branch -D 42-add-pagination
 # Prune if needed (removes stale worktree references)
 git -C .bare worktree prune
 ```
+
+## Where this connects
+
+- [Agentic Development](Agentic-Development.md) — the framework these worktrees implement locally, so several pieces of work run in parallel.
+- [Branching and Merging](Branching-and-Merging.md) — the branch-per-issue model each worktree holds.
+- [Workflow](Workflow.md) — where creating a worktree fits in the flow from issue to delivery.

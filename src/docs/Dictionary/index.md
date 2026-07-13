@@ -41,6 +41,10 @@ The *how* of a capability: the approach and the thing built, kept beside its spe
 
 Guidance written to be declarative and directional — it states what must be true and the direction to move, and leaves the *how* to the doer. Standards, principles, and specs are written as directives.
 
+### Git Worktree
+
+A checkout of a branch in its own directory, backed by a single bare clone that every worktree shares — so several branches are checked out at once, each in its own folder. It is purely a *local development* convenience: it lets one person, a person and an agent, or several agents work on multiple issues in the same repository in parallel, with no stashing or branch-switching. It changes nothing about how a repository is built, reviewed, or shipped. See [Git Worktrees](../Ways-of-Working/Git-Worktrees.md).
+
 ### Initiative
 
 A product that makes the vision real — a framework, a set of reusable actions, or an editor extension. See [Initiatives](../Initiatives/index.md).
