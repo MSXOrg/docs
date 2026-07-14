@@ -387,6 +387,34 @@ workflow reaches for.)
   the opposite of the workflow case — so co-located actions call each other with
   `./` and no pin. This asymmetry is what lets a set of actions live and ship
   together.
+- **Self-checkout is the only escape hatch, and a poor foundation.** A reusable
+  workflow *can* check its own repository out at runtime — without caller input —
+  through the `job.workflow_repository` / `job.workflow_ref` / `job.workflow_sha`
+  contexts (`actions/checkout` with `repository: ${{ job.workflow_repository }}`,
+  `ref: ${{ job.workflow_sha }}`). But those contexts are **not available on
+  GitHub Enterprise Server**, the checkout is extra machinery that must not
+  clobber the caller's workspace, and it ties the actions to the workflow's own
+  commit — so an action others also consume gets no version line of its own.
+  Treat it as a last resort, not the pattern.
+
+### Why the actions need their own versioned repository
+
+Two lifecycle needs make a **separately versioned** action repository — not
+co-located local actions — the sound choice:
+
+- **Development must test the branch, not the last release.** While you build the
+  workflow, you want it to run the action versions *on the branch you are
+  developing*. A `./` local action does not resolve in a shared reusable workflow
+  at all, and pinning `OWNER/REPO/action@<released-sha>` runs stale code — so give
+  the actions their own repository and point the workflow's pin at that
+  repository's **branch or commit** to test branch against branch.
+- **A release cannot pin its actions to itself.** The action versions a released
+  workflow runs must be exactly those of that release. But the workflow's tag is
+  cut *after* the merge to its default branch, so the workflow file can never pin
+  a co-located action to its own release commit — that commit does not exist when
+  the file is written. An independently versioned repository has a commit of its
+  own that the workflow pins by SHA, locking the release to an exact set of
+  actions.
 
 ### Give the actions a home that matches their reuse
 
