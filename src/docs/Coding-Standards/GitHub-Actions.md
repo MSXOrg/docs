@@ -367,16 +367,17 @@ the **building blocks** it calls. Once the workflow is shared across
 repositories, GitHub's reference resolution forces the two apart, and the split
 pays off in versioning and reuse.
 
-### A shared reusable workflow ships only its own file
+### A shared reusable workflow ships only workflow files
 
 When one repository calls another's reusable workflow
-(`uses: OWNER/REPO/.github/workflows/name.yml@<sha>`), GitHub loads **only that
-one workflow file** into the caller's run — the reusable workflow's repository is
-*not* checked out. A `./`-relative action reference inside it therefore resolves
-against the **caller's** checkout, not the workflow's own repository, and finds
-the wrong action or none at all. (A same-repository caller may still name the
-workflow itself by a local `./` path; the constraint is on the actions the
-workflow reaches for.)
+(`uses: OWNER/REPO/.github/workflows/name.yml@<sha>`), GitHub loads that workflow
+file into the caller's run. If that workflow calls another reusable workflow,
+GitHub loads the nested workflow file too. It still does **not** check out the
+reusable workflow's repository. A `./`-relative action reference inside the
+workflow therefore resolves against the **caller's** checkout, not the workflow's
+own repository, and finds the wrong action or none at all. (A same-repository
+caller may still name the workflow itself by a local `./` path; the constraint is
+on the actions the workflow reaches for.)
 
 - **Reference every action from a shared reusable workflow by full path** —
   `OWNER/REPO/path@<sha>`, which resolves the same way regardless of which
