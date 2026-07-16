@@ -384,7 +384,7 @@ workflow reaches for.)
   [Pin every action to a full commit SHA](#pin-every-action-to-a-full-commit-sha)).
 - **A composite action may still call a sibling with `./`.** Inside a composite
   action, `./` resolves within *that action's own repository at the same ref* —
-  the opposite of the workflow case — so co-located actions call each other with
+  the opposite of the workflow case — so colocated actions call each other with
   `./` and no pin. This asymmetry is what lets a set of actions live and ship
   together.
 - **Self-checkout is the only escape hatch, and a poor foundation.** A reusable
@@ -400,7 +400,7 @@ workflow reaches for.)
 ### Why the actions need their own versioned repository
 
 Two lifecycle needs make a **separately versioned** action repository — not
-co-located local actions — the sound choice:
+colocated local actions — the sound choice:
 
 - **Development must test the branch, not the last release.** While you build the
   workflow, you want it to run the action versions *on the branch you are
@@ -411,33 +411,38 @@ co-located local actions — the sound choice:
 - **A release cannot pin its actions to itself.** The action versions a released
   workflow runs must be exactly those of that release. But the workflow's tag is
   cut *after* the merge to its default branch, so the workflow file can never pin
-  a co-located action to its own release commit — that commit does not exist when
+  a colocated action to its own release commit — that commit does not exist when
   the file is written. An independently versioned repository has a commit of its
   own that the workflow pins by SHA, locking the release to an exact set of
   actions.
 
 ### Give the actions a home that matches their reuse
 
-A shared reusable workflow cannot reach a local action, so its actions live in
-one of two cross-repository homes — chosen, as always, by
-[single responsibility and shared lifecycle](../Ways-of-Working/Repository-Segmentation.md):
+Use the smallest home that matches the reuse boundary and lifecycle:
 
-- **A standalone action repository** when the action is consumed **on its own**
-  by other repositories — its own responsibility, its own version line. This is
-  the promotion path in [Start local; promote when it is
+- **Use a local action** when the logic is used by one repository. Keep it under
+  `.github/actions/<action-name>/` and call it by `./` so the workflow tests the
+  action at the checked-out commit.
+- **Use a standalone action repository** when one action is consumed **on its
+  own** by other repositories — its own responsibility, its own version line.
+  This is the promotion path in [Start local; promote when it is
   reused](#start-local-promote-when-it-is-reused).
-- **An action-library repository** when a reusable workflow needs **several
-  actions built, tested, and released together as one set**. Their lifecycle is
-  shared — changing one re-releases the set — so
+- **Use an action-library repository** when several actions are built, tested,
+  and released together as one package. Their lifecycle is shared — changing one
+  re-releases the set — so
   [they belong in one repository](../Ways-of-Working/Repository-Segmentation.md#share-a-repository-only-when-the-development-lifecycle-is-shared),
   not a repository each: several top-level composite actions, one test suite, one
-  release, one SHA to pin. It is a package of actions, consumed like any other
-  dependency.
+  release, one SHA to pin.
+- **Use a reusable-workflow repository** when the thing reused is the *process*:
+  a job graph, permissions contract, environment gates, and ordering that several
+  repositories should run the same way.
 
-Keep the workflow and the library in **separate repositories**: the workflow
-repository — the *process* — pins the action-library repository — the *building
-blocks* — by SHA. A change then flows outward as a deliberate bump at each hop,
-so every layer upgrades on a reviewed pull request rather than silently.
+A shared reusable workflow cannot reach a local action. When that workflow needs
+non-trivial actions, keep the workflow and the action library in **separate
+repositories**: the workflow repository — the *process* — pins the action-library
+repository — the *building blocks* — by SHA. A change then flows outward as a
+deliberate bump at each hop, so every layer upgrades on a reviewed pull request
+rather than silently.
 
 ## Default to PowerShell as the glue language
 
