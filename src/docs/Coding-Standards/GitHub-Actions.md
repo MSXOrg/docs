@@ -370,14 +370,28 @@ pays off in versioning and reuse.
 ### A shared reusable workflow ships only workflow files
 
 When one repository calls another's reusable workflow
-(`uses: OWNER/REPO/.github/workflows/name.yml@<sha>`), GitHub loads that workflow
-file into the caller's run. If that workflow calls another reusable workflow,
-GitHub loads the nested workflow file too. It still does **not** check out the
-reusable workflow's repository. A `./`-relative action reference inside the
-workflow therefore resolves against the **caller's** checkout, not the workflow's
-own repository, and finds the wrong action or none at all. (A same-repository
-caller may still name the workflow itself by a local `./` path; the constraint is
-on the actions the workflow reaches for.)
+by full path, GitHub loads that workflow file into the caller's run:
+
+```yaml
+jobs:
+  call-shared-process:
+    uses: OWNER/REPO/.github/workflows/name.yml@<sha>
+```
+
+If that workflow calls another reusable workflow, GitHub loads the nested
+workflow file too. It still does **not** check out the reusable workflow's
+repository. A local action reference inside the workflow therefore resolves
+against the **caller's** checkout, not the workflow's own repository, and finds
+the wrong action or none at all:
+
+```yaml
+steps:
+  - name: Run a local action
+    uses: ./.github/actions/some-action
+```
+
+A same-repository caller may still name the workflow itself by a local path; the
+constraint is on the actions the workflow reaches for.
 
 - **Reference every action from a shared reusable workflow by full path** —
   `OWNER/REPO/path@<sha>`, which resolves the same way regardless of which
