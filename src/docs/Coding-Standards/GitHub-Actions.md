@@ -359,6 +359,106 @@ jobs:
       PROPAGATION_TOKEN: ${{ secrets.PROPAGATION_TOKEN }}  # explicit, by name
 ```
 
+## Separate a reusable workflow from the actions it consumes
+
+Choosing a reusable workflow has a consequence for the actions it runs. The
+workflow is a **process** — it stitches jobs into an order — and the actions are
+the **building blocks** it calls. Once the workflow is shared across
+repositories, GitHub's reference resolution forces the two apart, and the split
+pays off in versioning and reuse.
+
+### A shared reusable workflow ships only workflow files
+
+When one repository calls another's reusable workflow
+by full path, GitHub loads that workflow file into the caller's run:
+
+```yaml
+jobs:
+  call-shared-process:
+    uses: OWNER/REPO/.github/workflows/name.yml@<sha>
+```
+
+If that workflow calls another reusable workflow, GitHub loads the nested
+workflow file too. It still does **not** check out the reusable workflow's
+repository. A local action reference inside the workflow therefore resolves
+against the **caller's** checkout, not the workflow's own repository, and finds
+the wrong action or none at all:
+
+```yaml
+steps:
+  - name: Run a local action
+    uses: ./.github/actions/some-action
+```
+
+A same-repository caller may still name the workflow itself by a local path; the
+constraint is on the actions the workflow reaches for.
+
+- **Reference every action from a shared reusable workflow by full path** —
+  `OWNER/REPO/path@<sha>`, which resolves the same way regardless of which
+  repository is checked out. Pin it by SHA like any other dependency (see
+  [Pin every action to a full commit SHA](#pin-every-action-to-a-full-commit-sha)).
+- **A composite action may still call a sibling with `./`.** Inside a composite
+  action, `./` resolves within *that action's own repository at the same ref* —
+  the opposite of the workflow case — so colocated actions call each other with
+  `./` and no pin. This asymmetry is what lets a set of actions live and ship
+  together.
+- **Self-checkout is the only escape hatch, and a poor foundation.** A reusable
+  workflow *can* check its own repository out at runtime — without caller input —
+  through the `job.workflow_repository` / `job.workflow_ref` / `job.workflow_sha`
+  contexts (`actions/checkout` with `repository: ${{ job.workflow_repository }}`,
+  `ref: ${{ job.workflow_sha }}`). But those contexts are **not available on
+  GitHub Enterprise Server**, the checkout is extra machinery that must not
+  clobber the caller's workspace, and it ties the actions to the workflow's own
+  commit — so an action others also consume gets no version line of its own.
+  Treat it as a last resort, not the pattern.
+
+### Why the actions need their own versioned repository
+
+Two lifecycle needs make a **separately versioned** action repository — not
+colocated local actions — the sound choice:
+
+- **Development must test the branch, not the last release.** While you build the
+  workflow, you want it to run the action versions *on the branch you are
+  developing*. A `./` local action does not resolve in a shared reusable workflow
+  at all, and pinning `OWNER/REPO/action@<released-sha>` runs stale code — so give
+  the actions their own repository and point the workflow's pin at that
+  repository's **branch or commit** to test branch against branch.
+- **A release cannot pin its actions to itself.** The action versions a released
+  workflow runs must be exactly those of that release. But the workflow's tag is
+  cut *after* the merge to its default branch, so the workflow file can never pin
+  a colocated action to its own release commit — that commit does not exist when
+  the file is written. An independently versioned repository has a commit of its
+  own that the workflow pins by SHA, locking the release to an exact set of
+  actions.
+
+### Give the actions a home that matches their reuse
+
+Use the smallest home that matches the reuse boundary and lifecycle:
+
+- **Use a local action** when the logic is used by one repository. Keep it under
+  `.github/actions/<action-name>/` and call it by `./` so the workflow tests the
+  action at the checked-out commit.
+- **Use a standalone action repository** when one action is consumed **on its
+  own** by other repositories — its own responsibility, its own version line.
+  This is the promotion path in [Start local; promote when it is
+  reused](#start-local-promote-when-it-is-reused).
+- **Use an action-library repository** when several actions are built, tested,
+  and released together as one package. Their lifecycle is shared — changing one
+  re-releases the set — so
+  [they belong in one repository](../Ways-of-Working/Repository-Segmentation.md#share-a-repository-only-when-the-development-lifecycle-is-shared),
+  not a repository each: several top-level composite actions, one test suite, one
+  release, one SHA to pin.
+- **Use a reusable-workflow repository** when the thing reused is the *process*:
+  a job graph, permissions contract, environment gates, and ordering that several
+  repositories should run the same way.
+
+A shared reusable workflow cannot reach a local action. When that workflow needs
+non-trivial actions, keep the workflow and the action library in **separate
+repositories**: the workflow repository — the *process* — pins the action-library
+repository — the *building blocks* — by SHA. A change then flows outward as a
+deliberate bump at each hop, so every layer upgrades on a reviewed pull request
+rather than silently.
+
 ## Default to PowerShell as the glue language
 
 Between the declarative steps, a workflow always has some glue to run — reading a
@@ -500,6 +600,10 @@ appears.
   [Pin every action to a full commit SHA](#pin-every-action-to-a-full-commit-sha)).
   Do not reach for a separate repo preemptively — the cost of a shared release
   surface is only worth paying once there is a second consumer.
+- **A reusable workflow's actions are the exception** — a shared reusable
+  workflow cannot reach a local action, and a cohesive set is better kept in one
+  action library than a repository each. See [Separate a reusable workflow from
+  the actions it consumes](#separate-a-reusable-workflow-from-the-actions-it-consumes).
 
 ### Move the script into its own file
 
@@ -581,12 +685,12 @@ build.
   to an overview and a pointer into those docs. The README is always present;
   it is the entry point, not the whole manual.
 
-## Reusable workflows with co-located composite actions
+## Reusable workflows with colocated composite actions
 
 When a reusable workflow (`on: workflow_call`) has its own composite actions
 (stored in `.github/actions/` alongside it), those actions are initially local
 to a single workflow — the workflow itself. If a reusable workflow is the only
-caller of such an action, it should stay co-located and not be promoted to a
+caller of such an action, it should stay colocated and not be promoted to a
 standalone repository.
 
 **The problem:** A reusable workflow runs in the *caller's* checked-out workspace,
@@ -613,7 +717,7 @@ workflow being executed, not the caller.
 
 ```yaml
 jobs:
-  # Reusable workflow with co-located composite actions
+  # Reusable workflow with colocated composite actions
   my-task:
     runs-on: ubuntu-24.04
     permissions:
@@ -628,7 +732,7 @@ jobs:
           ref: ${{ job.workflow_sha }}
           path: workflow
 
-      # Now call the co-located action from the workflow's path
+      # Now call the colocated action from the workflow's path
       - name: Run the workflow's action
         uses: ./workflow/.github/actions/my-action
         with:
