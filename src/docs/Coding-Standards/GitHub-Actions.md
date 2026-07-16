@@ -581,12 +581,12 @@ build.
   to an overview and a pointer into those docs. The README is always present;
   it is the entry point, not the whole manual.
 
-## Reusable workflows with co-located composite actions
+## Reusable workflows with colocated composite actions
 
 When a reusable workflow (`on: workflow_call`) has its own composite actions
 (stored in `.github/actions/` alongside it), those actions are initially local
 to a single workflow — the workflow itself. If a reusable workflow is the only
-caller of such an action, it should stay co-located and not be promoted to a
+caller of such an action, it should stay colocated and not be promoted to a
 standalone repository.
 
 **The problem:** A reusable workflow runs in the *caller's* checked-out workspace,
@@ -613,7 +613,7 @@ workflow being executed, not the caller.
 
 ```yaml
 jobs:
-  # Reusable workflow with co-located composite actions
+  # Reusable workflow with colocated composite actions
   my-task:
     runs-on: ubuntu-24.04
     permissions:
@@ -628,7 +628,7 @@ jobs:
           ref: ${{ job.workflow_sha }}
           path: workflow
 
-      # Now call the co-located action from the workflow's path
+      # Now call the colocated action from the workflow's path
       - name: Run the workflow's action
         uses: ./workflow/.github/actions/my-action
         with:
