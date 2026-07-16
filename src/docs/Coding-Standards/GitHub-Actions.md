@@ -685,6 +685,64 @@ build.
   to an overview and a pointer into those docs. The README is always present;
   it is the entry point, not the whole manual.
 
+## Reusable workflows with colocated composite actions
+
+When a reusable workflow (`on: workflow_call`) has its own composite actions
+(stored in `.github/actions/` alongside it), those actions are initially local
+to a single workflow — the workflow itself. If a reusable workflow is the only
+caller of such an action, it should stay colocated and not be promoted to a
+standalone repository.
+
+**The problem:** A reusable workflow runs in the *caller's* checked-out workspace,
+not in its own repository. When the workflow tries to `uses:` a relative action
+path (e.g., `./.github/actions/my-action/`), that path resolves to the *caller's*
+repository, not the reusable workflow's repo — so it fails or runs the wrong
+version of the action.
+
+**The solution:** The reusable workflow must check itself out first, using the
+`job.workflow_repository` and `job.workflow_sha` contexts provided by GitHub
+Actions. These contexts give the exact repository and commit SHA of the reusable
+workflow being executed, not the caller.
+
+- **Check out the reusable workflow's own repository** at the start of the job,
+  using `job.workflow_repository` and `job.workflow_sha`, before calling any
+  local composite actions. This ensures the actions resolve in the reusable
+  workflow's own workspace.
+- **Use a `path:` argument** in the checkout step to place the reusable workflow
+  in a separate subdirectory, so you can distinguish it from the caller's
+  checkout and reference actions under that path.
+- The same reusable workflow will then work correctly whether invoked at a
+  tagged release (e.g., `v1.2.3`) or on a development branch, and the caller
+  automatically gets the right version of both the workflow and its actions.
+
+```yaml
+jobs:
+  # Reusable workflow with colocated composite actions
+  my-task:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      # Check out the reusable workflow's own repository
+      # (not the caller's — that's assumed to be the default checkout)
+      - name: Check out the reusable workflow
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          repository: ${{ job.workflow_repository }}
+          ref: ${{ job.workflow_sha }}
+          path: workflow
+
+      # Now call the colocated action from the workflow's path
+      - name: Run the workflow's action
+        uses: ./workflow/.github/actions/my-action
+        with:
+          input-value: example
+```
+
+**Availability:** `job.workflow_repository` and `job.workflow_sha` are available
+on GitHub.com and GitHub Enterprise Cloud (GHEC).
+They are **not** available on GitHub Enterprise Server (GHES).
+
 ## Concurrency
 
 Declare `concurrency` on workflows that must not race — anything that
