@@ -97,7 +97,7 @@ jobs:
         "TEST_APP_ORG_CLIENT_ID": "${{ secrets.TEST_APP_ORG_CLIENT_ID }}" } }
 ```
 
-### Passing test data (secrets and variables) to the tests
+### Passing test phase data (secrets and variables)
 
 A single `TestData` secret lets a module expose any number of caller-defined values to its test jobs
 (`BeforeAll-ModuleLocal`, `Test-ModuleLocal` and `AfterAll-ModuleLocal`) without changing the shared
@@ -134,6 +134,16 @@ $env:CONFLUENCE_API_TOKEN     # from the "secrets" map (masked in logs)
 $env:CONFLUENCE_SITE          # from the "variables" map (not masked)
 ```
 
+The same `TestData` keys are exported before every module-local phase runs:
+
+- `BeforeAll-ModuleLocal` runs `tests/BeforeAll.ps1` before the module-local test matrix.
+- `Test-ModuleLocal` runs the module's Pester tests.
+- `AfterAll-ModuleLocal` runs `tests/AfterAll.ps1` after the module-local test matrix, including cleanup paths.
+
+Setup scripts, tests, and teardown scripts should therefore use the same environment variable names.
+If `$env:<name>` is available in one phase but missing in another, treat that as a Process-PSModule
+propagation bug rather than a caller contract difference.
+
 Notes:
 
 - The names are caller-defined; no secret or variable names are hard-coded in the shared workflow.
@@ -161,6 +171,9 @@ Notes:
 - Omit `TestData` entirely when the module needs no secrets or variables. Include only the map you
   need (just `secrets`, just `variables`, or both).
 - Because `secrets: inherit` is not used, only the values you list are ever exposed.
+- If using `secrets: inherit` in a caller workflow, remember that GitHub only forwards secrets that
+  already exist by name. It does not assemble a `TestData` JSON payload from individual secrets such as
+  `TEST_USER_PAT`; the caller must still create and pass the `TestData` value explicitly.
 - Organization, repository and GitHub *Environment* secrets and variables are supported when they are
   visible to the calling job. For environment-scoped values, set `environment:` on the calling job and
   explicitly include those values in `TestData`; they are not exposed automatically.
