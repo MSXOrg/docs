@@ -636,8 +636,8 @@ jobs:
 ```
 
 **Availability:** `job.workflow_repository` and `job.workflow_sha` are available
-on GitHub.com and GitHub Enterprise Cloud (GHEC). They are **not** available
-on GitHub Enterprise Server (GHES).
+on GitHub.com and GitHub Enterprise Cloud (GHEC).
+They are **not** available on GitHub Enterprise Server (GHES).
 
 ## Concurrency
 
