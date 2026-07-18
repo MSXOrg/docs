@@ -22,6 +22,7 @@ The baseline pages apply to all code and come first; the per-language standards 
 | [Functions](Functions.md) | One responsibility, contracts in the signature, and validation at the boundary. |
 | [Error Handling](Error-Handling.md) | Fail fast, never swallow, and write messages that help the next person. |
 | [Documentation](Documentation.md) | Help that lives next to the code and explains the why. |
+| [Natural Language](Natural-Language.md) | Plain-language writing rules for docs, issues, pull requests, comments, prompts, and agent-facing text — with US English as the project dialect. |
 | [Testing](Testing.md) | The executable specification — test-first, locally runnable, deterministic. |
 | [Performance](Performance.md) | Scale with the input, measure before optimizing, clarity first. |
 | [Security](Security.md) | Least privilege, secret hygiene, and the OWASP baseline. |
