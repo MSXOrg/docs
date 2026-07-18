@@ -15,8 +15,35 @@ implements it.
 
 The Plan job is the single decision point of the workflow. It reads the settings file (`.github/PSModule.yml`),
 collects event context from GitHub, and decides what should happen in the rest of the process. Using that
-situational awareness, it calculates the next module version. All decisions are captured in a single `Settings`
-object — including version data under `Settings.Module` — that every downstream job receives.
+situational awareness, it calculates the next module version.
+
+The user-facing settings file shape stays under `.github/PSModule.yml`. The workflow then enriches that input into
+an internal runtime `Settings` object passed between jobs. In that runtime object, execution decisions are phase-owned
+(`*.Enabled`) and resolved module version metadata is under `Settings.Publish.Module.Resolution`.
+
+### Internal runtime contract mapping (old -> new)
+
+| Previous internal path | Current internal path |
+| --- | --- |
+| `Settings.Run.LinterRepository` | `Settings.Linter.Repository.Enabled` |
+| `Settings.Run.BuildModule` | `Settings.Build.Module.Enabled` |
+| `Settings.Run.TestSourceCode` | `Settings.Test.SourceCode.Enabled` |
+| `Settings.Run.TestPSModule` | `Settings.Test.PSModule.Enabled` |
+| `Settings.Run.TestModuleBeforeAll` | `Settings.Test.Module.BeforeAllEnabled` |
+| `Settings.Run.TestModule` | `Settings.Test.Module.MainEnabled` |
+| `Settings.Run.TestModuleAfterAll` | `Settings.Test.Module.AfterAllEnabled` |
+| `Settings.Run.GetTestResults` | `Settings.Test.TestResults.Enabled` |
+| `Settings.Run.GetCodeCoverage` | `Settings.Test.CodeCoverage.Enabled` |
+| `Settings.Run.PublishModule` | `Settings.Publish.Module.Enabled` |
+| `Settings.Run.PublishSite` | `Settings.Publish.Site.Enabled` |
+| `Settings.TestSuites.SourceCode` | `Settings.Test.SourceCode.Suites` |
+| `Settings.TestSuites.PSModule` | `Settings.Test.PSModule.Suites` |
+| `Settings.TestSuites.Module` | `Settings.Test.Module.Suites` |
+| `Settings.Module.Version` | `Settings.Publish.Module.Resolution.Version` |
+| `Settings.Module.Prerelease` | `Settings.Publish.Module.Resolution.Prerelease` |
+| `Settings.Module.FullVersion` | `Settings.Publish.Module.Resolution.FullVersion` |
+| `Settings.Module.ReleaseType` | `Settings.Publish.Module.Resolution.ReleaseType` |
+| `Settings.Module.CreateRelease` | `Settings.Publish.Module.Resolution.CreateRelease` |
 
 ## Lint-Repository
 
@@ -26,7 +53,7 @@ object — including version data under `Settings.Module` — that every downstr
 
 [workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Build-Module.yml)
 
-- Compiles the module source code into a PowerShell module, stamping the version from `Settings.Module` into the manifest.
+- Compiles the module source code into a PowerShell module, stamping the version from `Settings.Publish.Module.Resolution.Version` into the manifest.
 - Uploads the built artifact.
 
 ## Test source code
