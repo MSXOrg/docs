@@ -75,6 +75,7 @@ nav = [
     {"Functions" = "Coding-Standards/Functions.md"},
     {"Error Handling" = "Coding-Standards/Error-Handling.md"},
     {"Documentation" = "Coding-Standards/Documentation.md"},
+    {"Natural Language" = "Coding-Standards/Natural-Language.md"},
     {"Testing" = "Coding-Standards/Testing.md"},
     {"Performance" = "Coding-Standards/Performance.md"},
     {"Security" = "Coding-Standards/Security.md"},
@@ -126,6 +127,11 @@ nav = [
   ]},
   {"Frameworks" = [
     "Frameworks/index.md",
+    {"Agentic Development" = [
+      "Frameworks/Agentic-Development/index.md",
+      {"Spec" = "Frameworks/Agentic-Development/spec.md"},
+      {"Design" = "Frameworks/Agentic-Development/design.md"},
+    ]},
     {"Process-PSModule" = [
       "Frameworks/Process-PSModule/index.md",
       {"Pipeline Stages" = "Frameworks/Process-PSModule/pipeline-stages.md"},
