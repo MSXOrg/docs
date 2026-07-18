@@ -81,6 +81,7 @@ this section is the Actions-specific view of it.
   level, since the workflow and its one job are equivalent.)
 - **Declare permissions per job**, not only at workflow level, and grant only
   the scopes that job needs. Most jobs need no more than `contents: read`.
+- **Disable checkout's persisted credentials unless the job intentionally pushes.** `actions/checkout` writes the token into the local Git configuration by default; set `persist-credentials: false` for read-only jobs so later steps cannot accidentally push with it. When a job must push, isolate that work in the smallest possible job, grant the write scope there, and make the persisted credential an explicit review point.
 
 ```yaml
 # Default-deny floor at the top; each job opts into exactly what it needs.
@@ -144,6 +145,14 @@ Interpolating `${{ github.event.* }}` (PR titles, branch names, issue bodies)
 directly into a `run:` script allows shell injection. **Pass untrusted values
 through an `env:` variable** and reference the variable, which is not re-parsed
 as script.
+
+Avoid `pull_request_target` and `workflow_run` unless the workflow genuinely
+needs the elevated context. Both can connect untrusted contributions to tokens,
+secrets, or artifacts from a more privileged run. If one is required, split the
+workflow so untrusted code is never executed with a writable token: validate or
+build the contributor's code in the unprivileged workflow, then let the
+privileged workflow consume only trusted, explicitly produced artifacts or
+metadata.
 
 ```yaml
 # Correct — value arrives as an environment variable, not inlined into the shell
@@ -217,6 +226,8 @@ jobs:
       # Sequential, state-sharing work belongs in one job as ordered steps.
       - name: Check out the repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Build
         shell: pwsh
@@ -657,6 +668,14 @@ it — the rules above are the source of truth:
 Both run through [super-linter](https://github.com/super-linter/super-linter) on
 every push and pull request, so a workflow that breaks this standard fails the
 build.
+
+Treat `actionlint` errors and high-severity `zizmor` findings as blockers.
+Medium-severity `zizmor` findings are fixed unless the workflow documents why
+the risk is accepted; low-severity findings are fixed when the simpler, safer
+shape is available. In practice, an audit starts by checking for unpinned
+actions, broad or inherited secrets, missing `permissions`, persisted checkout
+credentials, untrusted context interpolation, and elevated triggers such as
+`pull_request_target` or `workflow_run`.
 
 ```text
 # Single-file action — main.<ext> at the action root
