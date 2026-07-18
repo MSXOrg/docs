@@ -1,6 +1,6 @@
 ---
 title: Process-PSModule
-description: The end-to-end GitHub Actions workflow that builds, tests, versions, and publishes every PSModule PowerShell module — configured through a single settings file.
+description: The end-to-end GitHub Actions workflow that builds, tests, versions, and publishes every PSModule PowerShell module and documentation site — configured through a single settings file and zensical.toml for site generation.
 ---
 
 # Process-PSModule
@@ -27,7 +27,8 @@ projects.
       secret on the organization.
 3. Clone the repo locally, create a branch, make your changes, push the changes, create a PR and let the workflow run.
    - Adding a `Prerelease` label to the PR will create a prerelease version of the module.
-4. When merging to `main`, the workflow automatically builds, tests, and publishes your module to the PowerShell Gallery and maintains the
+4. Use `.github/zensical.toml` for site generation. Process-PSModule builds documentation with Zensical from this file.
+5. When merging to `main`, the workflow automatically builds, tests, and publishes your module to the PowerShell Gallery and maintains the
    documentation on GitHub Pages. By default the process releases a patch version, which you can change by applying labels like `minor` or `major` on
    the PR to bump the version accordingly.
 

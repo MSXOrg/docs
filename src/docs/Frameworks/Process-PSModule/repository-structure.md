@@ -18,7 +18,7 @@ Process-PSModule expects repositories to follow the staged layout produced by Te
 │   │   └── Process-PSModule.yml               # Consumer hook into this workflow bundle
 │   ├── CODEOWNERS                             # Default reviewers enforced by Process-PSModule checks
 │   ├── dependabot.yml                         # Dependency update cadence handled by GitHub
-│   ├── mkdocs.yml                             # MkDocs config consumed during site builds
+│   ├── zensical.toml                          # Site config consumed during site builds
 │   ├── PSModule.yml                           # Settings parsed to drive matrices
 │   └── release.yml                            # Release automation template invoked on publish
 ├── examples/                                  # Samples referenced in generated documentation
@@ -39,6 +39,7 @@ Process-PSModule expects repositories to follow the staged layout produced by Te
 Key expectations:
 
 - Keep at least one exported function under `src/functions/public/` and corresponding tests in `tests/`.
+- Keep documentation site configuration in `.github/zensical.toml`.
 - Optional folders (`assemblies`, `formats`, `types`, `variables`, and others) are processed automatically when present.
 - Markdown files in `src/functions/public` subfolders become documentation pages alongside generated help.
 - A group's overview page (`<Category>/<Category>.md` named after the folder, or `<Category>/index.md`) becomes that group's section landing page in the docs navigation.
