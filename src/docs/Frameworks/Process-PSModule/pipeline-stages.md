@@ -15,8 +15,36 @@ implements it.
 
 The Plan job is the single decision point of the workflow. It reads the settings file (`.github/PSModule.yml`),
 collects event context from GitHub, and decides what should happen in the rest of the process. Using that
-situational awareness, it calculates the next module version. All decisions are captured in a single `Settings`
-object — including version data under `Settings.Module` — that every downstream job receives.
+situational awareness, it calculates the next module version.
+
+The user-facing settings file stays in `.github/PSModule.yml`. The workflow enriches that input into an internal runtime
+`Settings` object passed between jobs. In this runtime contract, execution decisions are phase-owned (`*.Enabled`), test
+suite matrices are defined under each owning test phase, and resolved version metadata is stored under
+`Settings.Publish.Module.Resolution`.
+
+### Internal runtime settings contract
+
+| Runtime path | Meaning |
+| --- | --- |
+| `Settings.Linter.Repository.Enabled` | Whether repository linting runs. |
+| `Settings.Build.Module.Enabled` | Whether module build runs. |
+| `Settings.Test.SourceCode.Enabled` | Whether source-code tests run. |
+| `Settings.Test.PSModule.Enabled` | Whether framework tests run. |
+| `Settings.Test.Module.BeforeAllEnabled` | Whether setup scripts run before module-local tests. |
+| `Settings.Test.Module.MainEnabled` | Whether module-local Pester tests run. |
+| `Settings.Test.Module.AfterAllEnabled` | Whether teardown scripts run after module-local tests. |
+| `Settings.Test.TestResults.Enabled` | Whether test results aggregation runs. |
+| `Settings.Test.CodeCoverage.Enabled` | Whether code coverage aggregation/enforcement runs. |
+| `Settings.Publish.Module.Enabled` | Whether module publication/release runs. |
+| `Settings.Publish.Site.Enabled` | Whether documentation publication runs. |
+| `Settings.Test.SourceCode.Suites` | Source-code test suite matrix. |
+| `Settings.Test.PSModule.Suites` | Framework test suite matrix. |
+| `Settings.Test.Module.Suites` | Module-local test suite matrix. |
+| `Settings.Publish.Module.Resolution.Version` | Resolved semantic version used for build and publish. |
+| `Settings.Publish.Module.Resolution.Prerelease` | Whether the resolved version is prerelease. |
+| `Settings.Publish.Module.Resolution.FullVersion` | Resolved full version string. |
+| `Settings.Publish.Module.Resolution.ReleaseType` | Resolved release classification for this run. |
+| `Settings.Publish.Module.Resolution.CreateRelease` | Whether this run creates a release. |
 
 ## Lint-Repository
 
@@ -26,7 +54,7 @@ object — including version data under `Settings.Module` — that every downstr
 
 [workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Build-Module.yml)
 
-- Compiles the module source code into a PowerShell module, stamping the version from `Settings.Module` into the manifest.
+- Compiles the module source code into a PowerShell module, stamping the version from `Settings.Publish.Module.Resolution.Version` into the manifest.
 - Uploads the built artifact.
 
 ## Test source code

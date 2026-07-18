@@ -291,7 +291,7 @@ When a pull request does not contain changes to important files:
 
 1. A comment is automatically added to the PR listing the configured patterns and explaining why build/test stages are
    skipped
-2. `Settings.Module.ReleaseType` is set to `None` (and `Settings.Module.CreateRelease` is `false`)
+2. `Settings.Publish.Module.Resolution.ReleaseType` is `None` (and `Settings.Publish.Module.Resolution.CreateRelease` is `false`)
 3. Build, test, and publish stages are skipped
 4. The PR can still be merged for non-release changes (documentation updates, CI improvements, etc.)
 
