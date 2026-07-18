@@ -17,33 +17,34 @@ The Plan job is the single decision point of the workflow. It reads the settings
 collects event context from GitHub, and decides what should happen in the rest of the process. Using that
 situational awareness, it calculates the next module version.
 
-The user-facing settings file shape stays under `.github/PSModule.yml`. The workflow then enriches that input into
-an internal runtime `Settings` object passed between jobs. In that runtime object, execution decisions are phase-owned
-(`*.Enabled`) and resolved module version metadata is under `Settings.Publish.Module.Resolution`.
+The user-facing settings file stays in `.github/PSModule.yml`. The workflow enriches that input into an internal runtime
+`Settings` object passed between jobs. In this runtime contract, execution decisions are phase-owned (`*.Enabled`), test
+suite matrices are defined under each owning test phase, and resolved version metadata is stored under
+`Settings.Publish.Module.Resolution`.
 
-### Internal runtime contract mapping (old -> new)
+### Internal runtime settings contract
 
-| Previous internal path | Current internal path |
+| Runtime path | Meaning |
 | --- | --- |
-| `Settings.Run.LinterRepository` | `Settings.Linter.Repository.Enabled` |
-| `Settings.Run.BuildModule` | `Settings.Build.Module.Enabled` |
-| `Settings.Run.TestSourceCode` | `Settings.Test.SourceCode.Enabled` |
-| `Settings.Run.TestPSModule` | `Settings.Test.PSModule.Enabled` |
-| `Settings.Run.TestModuleBeforeAll` | `Settings.Test.Module.BeforeAllEnabled` |
-| `Settings.Run.TestModule` | `Settings.Test.Module.MainEnabled` |
-| `Settings.Run.TestModuleAfterAll` | `Settings.Test.Module.AfterAllEnabled` |
-| `Settings.Run.GetTestResults` | `Settings.Test.TestResults.Enabled` |
-| `Settings.Run.GetCodeCoverage` | `Settings.Test.CodeCoverage.Enabled` |
-| `Settings.Run.PublishModule` | `Settings.Publish.Module.Enabled` |
-| `Settings.Run.PublishSite` | `Settings.Publish.Site.Enabled` |
-| `Settings.TestSuites.SourceCode` | `Settings.Test.SourceCode.Suites` |
-| `Settings.TestSuites.PSModule` | `Settings.Test.PSModule.Suites` |
-| `Settings.TestSuites.Module` | `Settings.Test.Module.Suites` |
-| `Settings.Module.Version` | `Settings.Publish.Module.Resolution.Version` |
-| `Settings.Module.Prerelease` | `Settings.Publish.Module.Resolution.Prerelease` |
-| `Settings.Module.FullVersion` | `Settings.Publish.Module.Resolution.FullVersion` |
-| `Settings.Module.ReleaseType` | `Settings.Publish.Module.Resolution.ReleaseType` |
-| `Settings.Module.CreateRelease` | `Settings.Publish.Module.Resolution.CreateRelease` |
+| `Settings.Linter.Repository.Enabled` | Whether repository linting runs. |
+| `Settings.Build.Module.Enabled` | Whether module build runs. |
+| `Settings.Test.SourceCode.Enabled` | Whether source-code tests run. |
+| `Settings.Test.PSModule.Enabled` | Whether framework tests run. |
+| `Settings.Test.Module.BeforeAllEnabled` | Whether setup scripts run before module-local tests. |
+| `Settings.Test.Module.MainEnabled` | Whether module-local Pester tests run. |
+| `Settings.Test.Module.AfterAllEnabled` | Whether teardown scripts run after module-local tests. |
+| `Settings.Test.TestResults.Enabled` | Whether test results aggregation runs. |
+| `Settings.Test.CodeCoverage.Enabled` | Whether code coverage aggregation/enforcement runs. |
+| `Settings.Publish.Module.Enabled` | Whether module publication/release runs. |
+| `Settings.Publish.Site.Enabled` | Whether documentation publication runs. |
+| `Settings.Test.SourceCode.Suites` | Source-code test suite matrix. |
+| `Settings.Test.PSModule.Suites` | Framework test suite matrix. |
+| `Settings.Test.Module.Suites` | Module-local test suite matrix. |
+| `Settings.Publish.Module.Resolution.Version` | Resolved semantic version used for build and publish. |
+| `Settings.Publish.Module.Resolution.Prerelease` | Whether the resolved version is prerelease. |
+| `Settings.Publish.Module.Resolution.FullVersion` | Resolved full version string. |
+| `Settings.Publish.Module.Resolution.ReleaseType` | Resolved release classification for this run. |
+| `Settings.Publish.Module.Resolution.CreateRelease` | Whether this run creates a release. |
 
 ## Lint-Repository
 
