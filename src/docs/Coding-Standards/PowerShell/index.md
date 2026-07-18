@@ -38,6 +38,7 @@ These hold for all PowerShell, whatever the construct:
 - **`PascalCase`** for functions, parameters, public variables, and class members; `camelCase` for local variables.
 - **Full cmdlet names, never aliases** (`Where-Object`, not `?`; `ForEach-Object`, not `%`).
 - **Full parameter names, and standard ones.** Pass parameters by name and avoid positional arguments in shared code — `Get-Process -Name pwsh`, not `Get-Process pwsh` — so a call survives parameter-set changes and reads clearly. Name your own parameters after PowerShell's built-ins (`Path`, `Name`, `ComputerName`), not `$Param_Computer`.
+- **Map data and integration verbs predictably.** Data modules use `ConvertFrom-` / `ConvertTo-` around a neutral PowerShell object shape, `Import-` / `Export-` for file or store round trips, and `Format-`, `Merge-`, `Compare-`, `Test-`, or `Remove-<Noun>Entry` for structure operations. API and integration modules name commands after the resource and intent, not the transport: map `GET` to `Get-`, create-style `POST` to `New-` / `Add-`, `PUT` / `PATCH` to `Set-` / `Update-`, `DELETE` to `Remove-`, and non-CRUD operations to the approved verb that matches the user intent.
 - **Set `$ErrorActionPreference = 'Stop'`** at the top of every script and module so errors are terminating, not silently swallowed.
 - **Emit objects, not formatted text.** Return rich objects and let the caller format; reserve `Write-Host` for genuine console UX, and use `Write-Verbose` / `Write-Information` for progress narration.
 
@@ -49,8 +50,10 @@ These rules define the layout; [PSScriptAnalyzer](#toolchain) enforces them (its
 - **Indent with four spaces, never tabs**, and indent comment-based help to align with the function it documents.
 - **One space around operators and after commas** (`$a -eq $b`, `@(1, 2, 3)`), and **one space between a type and the name** — `[string] $Name`, not `[string]$Name`.
 - **`elseif` is one word**, not `else if`.
+- **Use lowercase language keywords** (`if`, `else`, `foreach`, `class`, `enum`, `return`) and reserve PascalCase for commands and named symbols.
 - **Blank lines separate logical blocks.** No trailing whitespace, and end every file with a single newline.
 - **Keep code lines readable — aim for roughly 120 columns.** When a call grows long, prefer [splatting](#idioms-and-pitfalls) over backtick line-continuations.
+- **Avoid semicolons, ternary expressions, and regions in shared code.** Put one statement on each line, use ordinary `if` / `else` when a conditional value matters, and structure code with functions, modules, and headings rather than `#region` blocks.
 
 ## Idioms and pitfalls
 
@@ -60,6 +63,7 @@ Beyond the basics, these language-specific habits keep PowerShell correct and fa
 - **Splat calls that carry many parameters.** Build a `@{}` of parameters and splat it (`Get-Thing @params`) instead of a long line of `-Param value` pairs or backtick continuations; it reads better and diffs cleanly.
 - **Put `$null` on the left of a comparison** — `$null -eq $x`, never `$x -eq $null`. Against a collection the right-hand form *filters* rather than tests. Use `-contains` / `-in` for membership, never `-eq`.
 - **Match text with the operator built for it.** Use `-like` for wildcard patterns and `-match` for regular expressions instead of hand-rolled string surgery; both default to case-insensitive, so add the `-c` prefix (`-clike`, `-cmatch`, `-ceq`) when a comparison must be case-sensitive.
+- **Use the built-in intent checks for strings and wildcards.** Use `[string]::IsNullOrWhiteSpace($value)` for blank input and `[System.Management.Automation.WildcardPattern]::ContainsWildcardCharacters($pattern)` when deciding whether a value contains wildcard syntax.
 - **Reuse before you build.** Work down the [reuse order](../Functions.md#reuse-before-you-build) — a built-in cmdlet or operator, then an existing function (public or private), then a trusted module (`#Requires -Modules` / `RequiredModules`), then your own code (small logic inline, a larger capability as its own module). State a dependency's acceptable versions as a [version range](Version-Constraints.md).
 - **PowerShell already *is* .NET; work at that level rather than wrapping it.** Casts, type accelerators (`[datetime]`, `[int]`), the `-split` / `-replace` / `-match` operators, and member methods (`.Trim()`, `.Where()`) all resolve to the base class library — using .NET means reaching for BCL types and methods for the computation, not restating everything as `[Namespace.Type]::Method(...)`. Where idiomatic PowerShell already resolves to the same .NET call, leave it; reach for explicit .NET only where it is measurably faster or more precise, and keep cmdlets and the pipeline where you need them for glue or readability.
 - **Do the work in .NET when you implement it.** When you write the logic yourself — or fix an internal function that is too slow or imprecise on a hot path — call the .NET base class library directly instead of a cmdlet pipeline: `[System.IO.File]::ReadAllText($path)` over `Get-Content -Raw`, `[System.IO.Path]::Combine(...)` for paths, `[System.Text.StringBuilder]` for repeated concatenation, `[int]::TryParse(...)` for parsing. .NET methods are faster and their contracts are precise; keep cmdlets where their clarity is worth more than the speed. The next two rules are specific cases.
@@ -67,6 +71,7 @@ Beyond the basics, these language-specific habits keep PowerShell correct and fa
 - **Build collections with a typed list, not `+=` in a loop.** `$a += $x` reallocates the whole array every iteration; use `[System.Collections.Generic.List[T]]` with `.Add()`, and prefer a cmdlet's `-Filter` over piping to `Where-Object` on large sets.
 - **Guard a value that must not change.** Declare it with `Set-Variable -Name Pi -Value 3.14159 -Option ReadOnly` — or `-Option Constant` for one that can never be reassigned or removed — so an accidental write fails loudly instead of quietly winning.
 - **Keep secrets out of source, and never `Invoke-Expression` untrusted input.** Accept credentials as a `[PSCredential]` parameter with the `[Credential()]` attribute rather than calling `Get-Credential` inside a reusable function, so a caller can pass one they already hold, and take other sensitive values as `[securestring]`. Guard state-changing commands with `ShouldProcess` (see [Functions](Functions.md)); the wider rules live in the [Security](../Security.md) baseline.
+- **Read cross-platform environment values through .NET when the provider is not the point.** Prefer `[Environment]::GetEnvironmentVariable('NAME')` for process environment reads that should behave the same on every platform; use `$env:NAME` when you are intentionally working through the PowerShell environment provider.
 
 ## Toolchain
 
