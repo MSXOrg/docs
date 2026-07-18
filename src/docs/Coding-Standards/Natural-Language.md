@@ -47,9 +47,9 @@ Prefer specific, observable language over vague intent.
 
 | Prefer | Avoid |
 | --- | --- |
-| `The workflow fails when the version label is missing.` | `There may be some issues with labels.` |
-| `Add `NoRelease` to documentation-only PRs.` | `Make sure docs PRs are handled correctly.` |
-| `The agent reads `AGENTS.md` before editing files.` | `The agent should probably look at the instructions.` |
+| The workflow fails when the version label is missing. | There may be some issues with labels. |
+| Add `NoRelease` to documentation-only PRs. | Make sure docs PRs are handled correctly. |
+| The agent reads `AGENTS.md` before editing files. | The agent should probably look at the instructions. |
 
 Use **MUST**, **SHOULD**, and **MAY** only when a sentence is intentionally normative. If a rule is optional, say what trade-off decides it.
 
