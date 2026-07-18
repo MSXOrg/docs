@@ -18,7 +18,7 @@ cover how it works, how to use it, and how to configure it.
 
 | Section | Description |
 | --- | --- |
-| [Agentic Development](Agentic-Development/index.md) | The framework for org-scoped docs and memory repositories that give agents project-specific standards, working knowledge, and behaviour. |
+| [Agentic Development](Agentic-Development/index.md) | The framework for org-scoped docs and memory repositories that give agents project-specific standards, working knowledge, and behavior. |
 | [Process-PSModule](Process-PSModule/index.md) | The end-to-end GitHub Actions workflow that builds, tests, versions, and publishes every PSModule PowerShell module — configured through a single settings file. |
 
 <!-- INDEX:END -->

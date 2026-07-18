@@ -11,7 +11,7 @@ This repository is the central documentation for the MSX ecosystem. Everything a
 
 ## Roles
 
-Agent behaviour is authored once, as documentation, in the [Agents](https://msxorg.github.io/docs/Agents/) section. Use the role that fits the task:
+Agent behavior is authored once, as documentation, in the [Agents](https://msxorg.github.io/docs/Agents/) section. Use the role that fits the task:
 
 - [Define](https://msxorg.github.io/docs/Agents/define/) — capture, refine, and plan a change into an issue.
 - [Implement](https://msxorg.github.io/docs/Agents/implement/) — deliver a planned issue as a review-ready pull request.

@@ -5,7 +5,7 @@ description: How the agentic development framework is built — OKF documentatio
 
 # Agentic Development — Design
 
-The behaviour in the [spec](spec.md) is delivered by an organization-level documentation and memory pair, adopted by each product repository through thin pointer files. The design keeps project knowledge in one reviewed place, keeps working memory in one durable place, and lets each agent runtime adapt without copying process knowledge.
+The behavior in the [spec](spec.md) is delivered by an organization-level documentation and memory pair, adopted by each product repository through thin pointer files. The design keeps project knowledge in one reviewed place, keeps working memory in one durable place, and lets each agent runtime adapt without copying process knowledge.
 
 ## Organization anatomy
 
@@ -230,11 +230,11 @@ Agents write memory only when a lesson is likely to matter again. Good memory is
 
 Session-specific notes stay out of durable memory unless they become reusable project knowledge.
 
-## Client behaviour
+## Client behavior
 
 Different clients load different files, but the framework keeps the same dependency direction:
 
-| Client | Adapter | Behaviour |
+| Client | Adapter | Behavior |
 | --- | --- | --- |
 | Cross-client agents | `AGENTS.md` | Read the shared project pointer and local nuance. |
 | Claude Code | `CLAUDE.md` | Import `AGENTS.md`; add no duplicated process knowledge. |

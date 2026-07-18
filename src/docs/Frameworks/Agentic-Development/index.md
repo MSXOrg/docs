@@ -1,6 +1,6 @@
 ---
 title: Agentic Development
-description: The framework for org-scoped docs and memory repositories that give agents project-specific standards, working knowledge, and behaviour.
+description: The framework for org-scoped docs and memory repositories that give agents project-specific standards, working knowledge, and behavior.
 ---
 
 # Agentic Development
