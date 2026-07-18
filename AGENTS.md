@@ -16,6 +16,7 @@ If you find a problem, fix it if it's small; otherwise, register it as an issue 
       - Simple clone, only main.
 
 To install:
+
 - Clone the repos in the users home folder under a sub-folder named `.msx`.
 - Set configs locally to each of these repos using the GitHub username and email.
 
