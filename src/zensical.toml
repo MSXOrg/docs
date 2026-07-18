@@ -121,6 +121,11 @@ nav = [
   ]},
   {"Frameworks" = [
     "Frameworks/index.md",
+    {"Agentic Development" = [
+      "Frameworks/Agentic-Development/index.md",
+      {"Spec" = "Frameworks/Agentic-Development/spec.md"},
+      {"Design" = "Frameworks/Agentic-Development/design.md"},
+    ]},
     {"Process-PSModule" = [
       "Frameworks/Process-PSModule/index.md",
       {"Pipeline Stages" = "Frameworks/Process-PSModule/pipeline-stages.md"},

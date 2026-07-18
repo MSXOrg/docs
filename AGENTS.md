@@ -5,8 +5,9 @@ This repository is the central documentation for the MSX ecosystem. Everything a
 ## Start here
 
 1. Read this file, then the [README](README.md) for what this repository is and how it builds.
-2. Read the [Ways of Working](https://msxorg.github.io/docs/Ways-of-Working/) — how work flows from idea to delivery.
-3. Load the [Coding Standards](https://msxorg.github.io/docs/Coding-Standards/) relevant to the change.
+2. Resolve the project segment before loading standards: host, organization, repository, path, and task. This repository is `github.com/MSXOrg/docs`; use MSXOrg context unless the task explicitly asks for another organization.
+3. Read the [Ways of Working](https://msxorg.github.io/docs/Ways-of-Working/) — how work flows from idea to delivery.
+4. Load the [Coding Standards](https://msxorg.github.io/docs/Coding-Standards/) relevant to the change.
 
 ## Roles
 
@@ -24,6 +25,18 @@ Agent behaviour is authored once, as documentation, in the [Agents](https://msxo
 - [Contribution Workflow](https://msxorg.github.io/docs/Ways-of-Working/Contribution-Workflow/) — the draft-first, Copilot-review loop through to a ready pull request.
 - [Definition of Ready and Done](https://msxorg.github.io/docs/Ways-of-Working/Definition-of-Ready-and-Done/) — when a change is ready for review and when it lands.
 - This repository's build and checks — see the [README](README.md).
+
+## Context segmentation
+
+Before acting, segment the work by scope:
+
+1. **Host** — `github.com` or `dnb.ghe.com`.
+2. **Organization** — the project boundary, such as `MSXOrg`, `PSModule`, or `AI-Platform`.
+3. **Repository** — the product, docs, or memory repository receiving the change.
+4. **Path** — the file area and any path-specific standards that apply.
+5. **Task** — the issue, prompt, branch, PR, diagnostics, and open files.
+
+Load only the docs and memory for the resolved organization. Do not apply another organization's standards or memory unless the user explicitly asks for cross-organization work.
 
 ## The rule
 
