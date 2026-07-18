@@ -16,6 +16,7 @@ This standard builds on the [language-agnostic baseline](../index.md); where the
 | [Functions](Functions.md) | Advanced functions — CmdletBinding, typed and validated parameters, pipeline blocks, ShouldProcess, and required comment-based help. |
 | [Classes](Classes.md) | When to reach for a PowerShell class, and how to structure its members, constructors, and documentation. |
 | [Scripts](Scripts.md) | Structure for standalone .ps1 scripts — requirements, parameters, help, and keeping the script thin. |
+| [Messaging](Messaging.md) | Write-Verbose for user-facing operational progress and normal troubleshooting; Write-Debug for developer-focused internals and deep diagnostics. |
 | [Version Constraints](Version-Constraints.md) | Express module and package version constraints as NuGet version ranges — the canonical notation across PSResourceGet, .NET package references, and (mapped) #Requires and module manifests. |
 | [Module Requirements](Requires-Modules.md) | Valid `#Requires -Modules` version specifications — minimum, major-lock (with the `N.*` wildcard), exact, and GUID identity pinning — with an executable proof. |
 
