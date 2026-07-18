@@ -21,6 +21,7 @@ and design relate and evolve.
 | [Merge Automation](merge-automation/index.md) | How a pull request's required status checks become the machine-readable signal that drives automated approval and merge — green merges, red holds, nothing bypasses the gate. |
 | [Downstream Release Propagation](downstream-release-propagation/index.md) | How a release in one repository propagates to the repositories that depend on it, via a delegated agent pull request. |
 | [VS Code Extension Framework](vscode-extension-framework/index.md) | How a VS Code extension is built, tested, versioned, packaged, and published — one GitHub-native pipeline, opt-in from a template and a single settings file. |
+| [PowerShell on GitHub](powershell-on-github/index.md) | How we make GitHub a first-class platform for PowerShell through reusable modules, actions, and capability gaps we close over time. |
 
 <!-- INDEX:END -->
 

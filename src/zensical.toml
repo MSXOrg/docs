@@ -119,6 +119,11 @@ nav = [
       {"Spec" = "Capabilities/vscode-extension-framework/spec.md"},
       {"Design" = "Capabilities/vscode-extension-framework/design.md"},
     ]},
+    {"PowerShell on GitHub" = [
+      "Capabilities/powershell-on-github/index.md",
+      {"Spec" = "Capabilities/powershell-on-github/spec.md"},
+      {"Design" = "Capabilities/powershell-on-github/design.md"},
+    ]},
   ]},
   {"Frameworks" = [
     "Frameworks/index.md",

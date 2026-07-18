@@ -79,6 +79,7 @@ Send each kind of message to the stream built for it, so a caller can capture, r
 - **Results** are objects on the output stream — emit them implicitly by naming the object on its own line; do **not** use `return $obj` to emit, and in a pipeline function emit from `process`, not `end`.
 - **Emit one object type**, matching `[OutputType()]`.
 - **`Write-Verbose`** for status a caller may want (`-Verbose`), **`Write-Debug`** for maintainer breadcrumbs (`-Debug`), and **`Write-Progress`** for progress that need not persist.
+- **Do not pass `-Verbose` or `-Debug` explicitly to internal calls** just because the current function was invoked with them. Common parameters are caller controls; write to the stream in the current function and let the caller decide which streams to show or capture.
 - **`Write-Warning`** and **`Write-Error`** for warnings and non-terminating errors.
 - **`Write-Host`** only for `Show-` or `Format-` verbs or an interactive prompt — never for data another command might consume.
 
