@@ -12,8 +12,8 @@ If you find a problem, fix it if it's small; otherwise, register it as an issue 
    1. <https://github.com/MSXOrg/docs> — requires PRs to be updated.
       - Clone as bare and use worktrees.
       - Create a worktree for all branches - worktree = name of the branch.
-- The [memory](https://msxorg.github.io/memory/) — work directly towards main.
-  - Simple clone, only main.
+   2. <https://github.com/MSXOrg/memory/> — work directly towards main.
+      - Simple clone, only main.
 
 To install:
 - Clone the repos in the users home folder under a sub-folder named `.msx`.
@@ -24,5 +24,6 @@ To install:
 1. Get to know this repo first:
    - [README](README.md) for what this repository is and how it builds.
    - [CONTRIBUTING](CONTRIBUTING.md) for how to contribute and the review process.
-2. Read the msx/main/docs - start with the index to get an overview of what is here.
-3. Read the msx/main/memory - start with the index to get an overview of what is here.
+2. Read the `.msx/main/docs` - start with the index to get an overview of what is here.
+3. Read the `.msx/memory` - start with the index to get an overview of what is here. Use this while working - commit your memories here for work inside the PSModule organization.
+4. While working with the code, do small micro commits and push on every commit. This will make it easier to review and merge your changes.
