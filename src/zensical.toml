@@ -87,6 +87,7 @@ nav = [
       {"Functions" = "Coding-Standards/PowerShell/Functions.md"},
       {"Classes" = "Coding-Standards/PowerShell/Classes.md"},
       {"Scripts" = "Coding-Standards/PowerShell/Scripts.md"},
+      {"Messaging" = "Coding-Standards/PowerShell/Messaging.md"},
       {"Version Constraints" = "Coding-Standards/PowerShell/Version-Constraints.md"},
     ]},
     {"Terraform" = "Coding-Standards/Terraform.md"},
