@@ -1,5 +1,5 @@
 # Zensical build output
-src/site/
+/src/site/
 
 # Python
 __pycache__/
