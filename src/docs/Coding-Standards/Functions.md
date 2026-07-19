@@ -19,8 +19,8 @@ Before writing new logic, use what already exists — and build only what does n
 
 - Prefer a built-in. If the language or runtime already does the job, use it instead of a hand-rolled version.
 - Reuse an existing function instead of re-implementing it. If it is the weak link — too slow or imprecise on a hot path — fix it there so every caller benefits, rather than working around it.
-- Take a dependency on a trusted module for a larger capability that already exists elsewhere; declare it explicitly instead of copying it in.
-- Build it only when nothing fits — no built-in, no existing function, no trusted dependency. Size the build to the need: small logic lives inline where it is used; a larger, cohesive capability becomes its own module.
+- Prefer shared code you own before introducing a third-party dependency, especially in a shipped library or module. An external package is a lasting trust and maintenance commitment, so only take it when the capability is large or specialized enough that owning it would be the worse trade.
+- Build it only when nothing fits — no built-in, no existing function, no shared code you own, and no justified trusted dependency. Size the build to the need: small logic lives inline where it is used; a larger, cohesive capability becomes its own module.
 
 ## Signatures are contracts
 

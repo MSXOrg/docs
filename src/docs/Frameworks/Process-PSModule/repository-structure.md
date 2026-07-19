@@ -101,7 +101,7 @@ How the module is built.
 
 Declare module dependencies using
 [`#Requires -Modules`](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_requires)
-statements at the top of function files in `src/functions/public/` or `src/functions/private/` that require external modules.
+statements at the top of function files in `src/functions/public/` or `src/functions/private/` that genuinely require external modules. For modules we build, the default is to avoid third-party module, DLL, and package dependencies when PowerShell, the .NET base class library, or code we own can carry the feature with reasonable effort.
 [Build-PSModule](https://github.com/PSModule/Build-PSModule) collects every `#Requires -Modules` declaration across all
 source files, de-duplicates the list, and writes it into the `RequiredModules` field of the compiled manifest
 automatically. For the full range of supported syntax variants, see the
