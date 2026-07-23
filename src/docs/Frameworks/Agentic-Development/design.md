@@ -175,13 +175,15 @@ Canonical project context:
 Before changing files:
 
 1. Segment the work by host, organization, repository, path, and task.
-2. Read the relevant index in the resolved project docs repository.
-3. Read relevant project memory for the resolved organization.
-4. Read this repository's README and local docs.
+2. Read this repository's README and local docs (front door first).
+3. Read the relevant index in the resolved project docs repository.
+4. Read relevant project memory for the resolved organization.
 5. Apply path-specific instructions for the files being changed.
 
 This file points; it does not define process knowledge.
 ```
+
+> **Discovery order vs. conflict precedence** — agents read local repository context first so they understand what a repository is and does before consulting cross-cutting standards. That discovery order does not invert authority: organization standards remain authoritative for cross-org practices. Local pointer files and `docs/` add repo-specific nuance and narrow exceptions; they never silently override an organization standard unless the standard explicitly permits a local exception.
 
 `CLAUDE.md` stays a thin import:
 
