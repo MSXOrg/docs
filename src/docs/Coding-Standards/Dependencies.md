@@ -18,6 +18,8 @@ A pin has two independent parts; keep them separate.
 
 The strongest posture combines both: a verified identity **and** a deliberate version. Identity is the integrity control; tightness is the velocity-versus-risk control below.
 
+Before you choose a pin, decide whether you should add the dependency at all. For modules and libraries we build, the default is to **avoid introducing a new third-party dependency when the capability can reasonably be implemented with PowerShell, the .NET base class library, or code we own**. Every external DLL, package, or module adds another update stream, trust boundary, and failure mode to carry for the lifetime of the module. Spend a bit more effort up front if that keeps the shipped surface smaller and the ownership clearer.
+
 ## The locking spectrum
 
 From tightest to loosest, each step trades safety for speed:
