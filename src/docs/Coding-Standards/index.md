@@ -9,6 +9,22 @@ Standards for code written anywhere in the MSX ecosystem, in two tiers. The **ba
 
 These standards are prescriptive, and they are the source of truth: the relevant linter or formatter is the enforcement mechanism, and its configuration is derived from the standard — never the other way around. Wherever a rule can be checked mechanically, a linter derived from the standard enforces it in CI.
 
+## Linter decision path
+
+When a PSScriptAnalyzer rule flags code, follow this order:
+
+1. **Fix the issue.**
+2. **Reconsider the implementation approach or design.**
+3. **If the implementation is correct only for this case, add one file-level suppression attribute at the top of that file.**
+4. **If the implementation is broadly correct always, update linter settings (usually under `.github/linters`).**
+
+```powershell
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+ 'PSUseDeclaredVarsMoreThanAssignments', '',
+ Justification = 'Required for Pester tests'
+)]
+```
+
 ## Contents
 
 The baseline pages apply to all code and come first; the per-language standards build on them and follow.
