@@ -272,7 +272,8 @@ The [PSModule - Module tests](https://github.com/PSModule/Process-PSModule/blob/
 [workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Build-Site.yml)
 
 - Generates a static site using:
-  - [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/).
+  - [Zensical](https://zensical.org/).
+- Uses `zensical.toml` as the site configuration contract.
 
 ## Publish Docs
 

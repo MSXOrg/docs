@@ -6,6 +6,7 @@ description: How to call the Process-PSModule workflow — inputs, secrets, perm
 # Usage
 
 To use the workflow, create a new file in the `.github/workflows` directory of the module repository and add the following content.
+For documentation site generation, use `zensical.toml` as the active site contract.
 
 <details>
 <summary>Workflow suggestion</summary>
