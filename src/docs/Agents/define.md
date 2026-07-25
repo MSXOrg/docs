@@ -22,7 +22,7 @@ A description of a desired change, a feedback issue from a non-contributor (trea
 Turn the input into an issue with Section 1 (context and request).
 
 1. Search for duplicates first — propose consolidation rather than creating a new issue.
-2. Frame from the user's perspective per [Issue Format](../Ways-of-Working/Issue-Format.md).
+2. Frame from the user's perspective per [Issue Format](../Ways-of-Working/Issues/Process/Format.md).
 3. Acceptance criteria must be user-observable and testable.
 
 ### 2. Refine
@@ -38,8 +38,8 @@ Ground the issue so anyone reading it agrees on what "done" means, up to the [De
 
 Decide how the work will happen and record the decisions.
 
-1. **Task** — one deliverable, one pull request. Populate the technical decisions and the implementation plan per [Issue Format](../Ways-of-Working/Issue-Format.md).
-2. **Larger work** — decompose into child issues per [Issue Hierarchy](../Ways-of-Working/Issue-Hierarchy.md).
+1. **Task** — one deliverable, one pull request. Populate the technical decisions and the implementation plan per [Issue Format](../Ways-of-Working/Issues/Process/Format.md).
+2. **Larger work** — decompose into child issues per [Issue Hierarchy](../Ways-of-Working/Issues/Types/Hierarchy.md).
 3. Find the minimum viable path — spike, then proof of concept, then minimum viable product, then improve.
 4. Record decisions with their rationale and the alternatives considered.
 5. Resolve open questions before finishing; defer anything that does not block this slice to a follow-up issue.
@@ -54,5 +54,5 @@ Decide how the work will happen and record the decisions.
 ## Where this connects
 
 - [Workflow](../Ways-of-Working/Workflow.md) — the loop this opens.
-- [Issue Format](../Ways-of-Working/Issue-Format.md) and [Issue Hierarchy](../Ways-of-Working/Issue-Hierarchy.md) — issue structure and levels.
+- [Issue Format](../Ways-of-Working/Issues/Process/Format.md) and [Issue Hierarchy](../Ways-of-Working/Issues/Types/Hierarchy.md) — issue structure and levels.
 - [Definition of Ready and Done](../Ways-of-Working/Definition-of-Ready-and-Done.md) — the readiness bar this aims for.

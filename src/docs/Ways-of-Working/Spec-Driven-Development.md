@@ -18,7 +18,7 @@ A change moves down a ladder of artifacts. Each sits at a fixed altitude, is ver
 | **Need** | Is this worth doing? | one line | the request or issue | — |
 | **Spec** | Why, what, for whom, and what "done" means | implementation-agnostic | the capability folder, in the owning repo | intent changes |
 | **Design** | How it is built | technical, still readable | beside its spec (`design.md`) | the approach changes |
-| **Tasks** | In what steps | actionable | issues, at the levels of the [issue hierarchy](Issue-Hierarchy.md) | the plan changes |
+| **Tasks** | In what steps | actionable | issues, at the levels of the [issue hierarchy](Issues/Types/Hierarchy.md) | the plan changes |
 | **Code & tests** | The working expression | concrete | the codebase | continuously |
 
 ```mermaid
@@ -56,7 +56,7 @@ A spec **excludes** — this is the design's job:
 - The task breakdown and rollout sequence.
 - Links to the code that fulfils it — implementations come and go.
 
-The altitude test: push detail *down* into the design, and push scope *up* into the epic. If a sentence would change when the team picks a different library, it belongs in the design, not the spec. This is the same rule the [Issue Format](Issue-Format.md) applies to issues — describe the *what* and *why*, never the *how*.
+The altitude test: push detail *down* into the design, and push scope *up* into the epic. If a sentence would change when the team picks a different library, it belongs in the design, not the spec. This is the same rule the [Issue Format](Issues/Process/Format.md) applies to issues — describe the *what* and *why*, never the *how*.
 
 ## Specify the minimum
 
@@ -112,7 +112,7 @@ The method is requirements-first. Work does not start from a solution; it starts
 2. **Draft the spec.** Capture the why, the outcome, and the requirements collaboratively. Agents draft, research context, and check the spec for ambiguity and gaps; humans supply the intent and make the calls ([AI-first development](Principles/AI-First-Development.md)). Unknowns are marked, not guessed (see [Authoring conventions](#authoring-conventions)).
 3. **Review the spec as a pull request.** The spec is versioned and reviewed like any change, following [PR Format](PR-Format.md) and [Review Etiquette](Review-Etiquette.md). Review argues about intent while it is still cheap to change.
 4. **Pass the readiness bar.** The spec is ready when it meets the [Definition of Ready](Definition-of-Ready-and-Done.md#definition-of-ready) — clear intent, testable acceptance criteria, no open questions that would change the approach.
-5. **Design and decompose.** Write the design, then break the work into the levels of the [issue hierarchy](Issue-Hierarchy.md) — an epic into smaller, independently deliverable items.
+5. **Design and decompose.** Write the design, then break the work into the levels of the [issue hierarchy](Issues/Types/Hierarchy.md) — an epic into smaller, independently deliverable items.
 6. **Build against the spec.** Implement in thin vertical slices, test-first where it pays, to the [Definition of Done](Definition-of-Ready-and-Done.md#definition-of-done) ([engineering practices](Principles/Engineering-Practices.md)). [Test-driven development](Principles/Engineering-Practices.md#test-driven-development) is an implementation practice governed by the coding standards and the Definition of Done, not something each spec re-specifies.
 7. **Feed reality back.** Metrics and incidents update the spec, and the cycle repeats.
 
@@ -134,7 +134,7 @@ Splitting the spec from the design is what lets the spec stay stable across refa
 - **Self-review against a checklist.** Before review, confirm the spec is complete: no clarification markers remain, every requirement is testable, and the success criteria are measurable — a checklist is a unit test for the English.
 - **Keep it navigable.** The spec is readable in one sitting. Heavy detail moves into the design or a linked note, not the body.
 - **Reference, do not restate.** Point at the canonical standard or guide rather than copying it, so there is one source of truth and no drift.
-- **Links, not bare URLs.** Every external reference is a Markdown link, scoped the same way as in the [Issue Format](Issue-Format.md).
+- **Links, not bare URLs.** Every external reference is a Markdown link, scoped the same way as in the [Issue Format](Issues/Process/Format.md).
 
 ## Templates
 

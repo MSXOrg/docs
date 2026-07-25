@@ -11,7 +11,7 @@ Three gates bracket every piece of work: one gates when it can start, one gates 
 
 An item is ready to be pulled into work when:
 
-- It is at the right level — a single deliverable, not a bundle. See [Issue Hierarchy](Issue-Hierarchy.md).
+- It is at the right level — a single deliverable, not a bundle. See [Issue Hierarchy](Issues/Types/Hierarchy.md).
 - The intent is clear — the problem and the desired outcome are understood, written from the user's perspective.
 - It has acceptance criteria — "done" is described and testable.
 - It is sized to fit comfortably within one cycle of work.

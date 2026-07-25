@@ -27,7 +27,7 @@ mechanism, the moving parts, the configuration. Both are durable, and both
 evolve — neither is a one-time plan.
 
 Only the detail of a *single change* — the paths touched, the trade-off taken
-this once — stays out of both, living in the [issue](Issue-Format.md) and the
+this once — stays out of both, living in the [issue](Issues/Process/Format.md) and the
 pull request where it belongs.
 
 ## Capabilities live in folders
@@ -57,7 +57,7 @@ two documents live with the code.
 | **How / what** we build to deliver it | the capability's **design** |
 | **How we work** — process, principles, conventions | [Ways of Working](index.md) |
 | **How code looks** — style applied to code | [Coding Standards](../Coding-Standards/index.md) |
-| **How this one change is implemented** — paths, trade-offs | the [issue](Issue-Format.md) and the PR |
+| **How this one change is implemented** — paths, trade-offs | the [issue](Issues/Process/Format.md) and the PR |
 
 Keeping implementation out of the spec is what makes the spec durable:
 implementation detail rots fastest, so the spec leaves it to the design, and the

@@ -132,7 +132,7 @@ flowchart TD
 ```
 
 1. **Queue the work.** Create a tracking issue per repository, with the campaign
-  prefix in the title and `stage:queued`, following the [Issue Format](Issue-Format.md).
+  prefix in the title and `stage:queued`, following the [Issue Format](Issues/Process/Format.md).
   The whole fleet starts as *Queued*. Skip this for any repository whose work
   item will be an **adopted pull request** (see step 2): that pull request is
   the work item and needs no tracking issue.

@@ -11,7 +11,7 @@ Copilot on a **draft** pull request until it has no more feedback, then opens th
 pull request for people.
 
 This is the operational "how". The conventions it builds on live in the ways of
-working — [Issue Format](Issue-Format.md), [PR Format](PR-Format.md),
+working — [Issue Format](Issues/Process/Format.md), [PR Format](PR-Format.md),
 [Branching and Merging](Branching-and-Merging.md), and
 [Review Etiquette](Review-Etiquette.md).
 
@@ -87,7 +87,7 @@ For each piece of feedback, decide:
 - **In scope** — it concerns the change under review. Address it in this pull
   request and push; the next round re-checks it.
 - **Out of scope** — it points at a pre-existing gap or an adjacent improvement.
-  File an issue ([Issue Format](Issue-Format.md)) capturing the gap and reference
+  File an issue ([Issue Format](Issues/Process/Format.md)) capturing the gap and reference
   it; do not grow the pull request to cover it.
 - **Not actionable** — a false positive, or a matter of taste you disagree with.
   Reply with the reason and resolve the thread; a documented dismissal counts as

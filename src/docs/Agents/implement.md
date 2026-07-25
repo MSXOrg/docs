@@ -19,7 +19,7 @@ A Task issue number or URL with its three sections populated.
 
 ### 1. Orient
 
-1. Read the issue fully — all three sections per [Issue Format](../Ways-of-Working/Issue-Format.md).
+1. Read the issue fully — all three sections per [Issue Format](../Ways-of-Working/Issues/Process/Format.md).
 2. Read the repository README first per [README-Driven Context](../Ways-of-Working/Readme-Driven-Context.md).
 3. Identify the stack and load the relevant [Coding Standards](../Coding-Standards/index.md). Repo-local linter config wins where it disagrees with a published standard.
 

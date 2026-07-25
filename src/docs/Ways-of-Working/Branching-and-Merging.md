@@ -33,7 +33,7 @@ Build the stack from its destination upward:
 
 Every layer follows the ordinary [Contribution Workflow](Contribution-Workflow.md):
 
-1. **Plan the dependency.** Give each layer its own Task issue. Record `Blocked by: #N` on dependent issues as described in [Issue Hierarchy](Issue-Hierarchy.md#how-to-express-the-hierarchy), and order the implementation so the shared foundation is the first layer.
+1. **Plan the dependency.** Give each layer its own Task issue. Record `Blocked by: #N` on dependent issues as described in [Issue Hierarchy](Issues/Types/Hierarchy.md#how-to-express-the-hierarchy), and order the implementation so the shared foundation is the first layer.
 2. **Open every layer as a draft.** After the initial commit, push the branch and open its pull request immediately. Use the standard user-facing title and description from [PR Format](PR-Format.md); do not add stack position or an internal branch name to the title.
 3. **Link the stack in Technical Details.** Add fully qualified pull request links for the immediate dependency and dependent, using `Depends on Owner/Repo#N` and `Followed by Owner/Repo#N`. Each pull request closes only its own Task issue.
 4. **Keep each delta isolated.** The pull request diff against its current base contains only that layer's change. Run its tests, checks, and automated review even when an earlier layer already exercised the combined code.
