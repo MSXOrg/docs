@@ -110,7 +110,7 @@ Default title pattern:
 <Icon> [<Change type>]: <User-facing outcome>
 ```
 
-The description should lead with user-facing impact, then issue links when available, then user-facing change sections, with technical details at the bottom.
+The description should lead with user-facing impact, continue with user-facing change sections, include optional technical details after those sections, and end with the related-issues block.
 
 Repository templates may be simpler than the full PR Manager body, but they must gather enough information to reconstruct it.
 
