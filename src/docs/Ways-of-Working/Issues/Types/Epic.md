@@ -55,4 +55,4 @@ An Epic is ready for decomposition when:
 
 Close an Epic only when every required child PBI is complete, the aggregate acceptance criteria are verified, and the success measures have current evidence. Move any intentionally deferred outcome to a linked follow-up before closure. Record the final evidence in the Epic; do not close it through a direct implementation pull request.
 
-See the [Goal-Setting Framework](../../Goal-Setting.md) for the Mission-to-Initiative model and the [Issue Hierarchy](Hierarchy.md) for containment and routing.
+See the [Goal-Setting Framework](../../Goal-Setting.md) for the Mission, OKR, and Initiative model and the [Issue Hierarchy](Hierarchy.md) for containment and routing.
