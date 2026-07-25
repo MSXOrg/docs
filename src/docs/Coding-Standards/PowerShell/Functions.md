@@ -30,14 +30,12 @@ function Get-UserData {
         Returns the record for the user 'jdoe'.
 
         .INPUTS
-        None
-            You can't pipe objects to Get-UserData.
+        None. You can't pipe objects to Get-UserData.
 
         .OUTPUTS
-        System.Management.Automation.PSCustomObject
-            The user record for the requested id.
+        System.Management.Automation.PSCustomObject. The user record for the requested id.
     #>
-    [OutputType([System.Management.Automation.PSCustomObject])]
+    [OutputType([PSCustomObject])]
     [CmdletBinding()]
     param(
         # The unique identifier of the user.
@@ -100,24 +98,21 @@ Every function carries comment-based help — including internal and private hel
 
 **`.OUTPUTS`** documents what the function emits to the output stream. Must match `[OutputType()]`.
 
-**Format:** type name alone on the first line, description indented on the next line. PlatyPS renders the type name as a `###` subheading and the description as body text below it — putting both on one line causes trailing-period heading violations in the generated Markdown.
+**Format:** type name, a period, a space, then the description — all on one line. This is the canonical format from [`about_Comment_Based_Help`](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comment_based_help) and matches how the PowerShell project itself writes these sections. Long descriptions wrap to the next line as a continuation.
 
 ```powershell
 .INPUTS
-None
-    You can't pipe objects to Get-Example.
+None. You can't pipe objects to Get-Example.
 
 .INPUTS
-System.String
-    The name of the user to look up.
+System.String. The name of the user to look up.
 
 .OUTPUTS
-System.IO.FileInfo
-    The file object written to disk.
+System.Management.Automation.PSCustomObject. The user record for the requested id.
 ```
 
 Rules that apply to both sections:
 
-- Use the fully-qualified .NET type name (`System.String`, `System.IO.FileInfo`), not a PowerShell type accelerator (`[string]`, `[fileinfo]`).
-- When no parameters accept pipeline input, write `None` as the type with `You can't pipe objects to <CommandName>.` as the description (use the actual command name).
+- Use the fully-qualified .NET type name (`System.String`, `System.Management.Automation.PSCustomObject`), not a PowerShell type accelerator (`[string]`, `[pscustomobject]`).
+- When no parameters accept pipeline input, write `None. You can't pipe objects to <CommandName>.` (use the actual command name).
 - Repeat the keyword once per type when multiple types are accepted or returned.
