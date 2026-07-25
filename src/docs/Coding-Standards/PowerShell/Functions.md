@@ -88,3 +88,21 @@ Send each kind of message to the stream built for it, so a caller can capture, r
 ## Comment-based help (required)
 
 Every function carries comment-based help — including internal and private helpers, not only the public surface. It is what lets a reader or an agent understand what the function does and how to call it without reading its body, and a private helper needs that as much as a public command does. Put it first inside the body, with sections in this order: `.SYNOPSIS` (one imperative sentence), `.DESCRIPTION`, at least one `.EXAMPLE` per behaviour, then `.INPUTS`, `.OUTPUTS` (matching `[OutputType()]`), `.NOTES`, `.LINK`. Document each parameter with an inline comment above it rather than a `.PARAMETER` block, and let comments explain *why*, not *what*.
+
+### `.INPUTS` and `.OUTPUTS`
+
+**`.INPUTS`** documents **pipeline input only** — types accepted via `ValueFromPipeline` or `ValueFromPipelineByPropertyName` parameters. It does not document ordinary parameters.
+
+- When no parameters accept pipeline input: `None. You can't pipe objects to <CommandName>.` (use the actual command name).
+- When pipeline input is accepted: `System.FullTypeName. Description of what is piped.`
+- Use the fully-qualified .NET type name (`System.String`, `System.IO.FileInfo`), not a PowerShell type accelerator (`[string]`, `[fileinfo]`).
+- Repeat the `.INPUTS` keyword once per accepted pipeline type when there are multiple.
+
+**`.OUTPUTS`** documents what the function emits to the output stream.
+
+- Format: `System.FullTypeName. Description of what is returned.`
+- Use the fully-qualified .NET type name — same convention as `.INPUTS`.
+- Repeat `.OUTPUTS` once per return type when the function can return multiple types.
+- Must match `[OutputType()]`.
+
+> **PlatyPS note:** PlatyPS renders each line under `.INPUTS` / `.OUTPUTS` as a `###` heading in the generated Markdown — keep each entry to a single concise line.
