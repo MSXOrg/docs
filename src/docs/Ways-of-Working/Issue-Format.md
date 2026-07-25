@@ -45,9 +45,9 @@ The description has three sections separated by horizontal rules (`---`), ordere
 
 | Section                   | Owner                 | Present in                                                    |
 | ------------------------- | --------------------- | ------------------------------------------------------------- |
-| 1 — Context and Request   | Ideator → Clarifier   | Every issue at every level (Task, PBI, Epic)                  |
-| 2 — Technical Decisions   | Planner               | Task always; PBI / Epic for decomposition rationale           |
-| 3 — Implementation Plan   | Planner               | Task always (task list); PBI / Epic (links to children)       |
+| 1 — Context and Request   | Ideator → Clarifier   | Every issue at every level (Task, Bug, PBI, Epic)              |
+| 2 — Technical Decisions   | Planner               | Task / Bug always; PBI / Epic for decomposition rationale     |
+| 3 — Implementation Plan   | Planner               | Task / Bug always (task list); PBI / Epic (links to children) |
 
 ## Section 1 — Context and Request
 
@@ -229,10 +229,11 @@ The task-level roadmap. Implementers track progress here; reviewers use it to un
 Structure:
 
 - Every discrete piece of work is a checkbox: `- [ ]`.
-- Tasks are grouped under subheadings when work spans multiple areas (files, components, tests).
+- Tasks are grouped under subheadings when work spans multiple behaviors or dependencies. Keep each behavior's tests with its implementation tasks.
 - Each task is specific and actionable — file paths, function names, modules.
 - All tasks start unchecked. Checking happens during implementation.
-- Tasks are ordered logically — dependencies first, tests last.
+- Order groups and tasks so scope and dependencies are clear; the checklist layout is not a mandatory execution sequence.
+- Follow [test-first development](../Coding-Standards/Testing.md#test-first): define and run a behavior's test before implementing that behavior, regardless of how its checkboxes are organized.
 
 For PBIs and Epics, Section 3 is **a list of links to child issues**, not inline tasks. See [Issue Hierarchy](Issue-Hierarchy.md).
 
@@ -243,17 +244,17 @@ For PBIs and Epics, Section 3 is **a list of links to child issues**, not inline
 
 ## Implementation plan
 
-### Core changes
-
-- [ ] Add a paged-request helper in `src/lib/`
-- [ ] Update the `repo list` command to call the paged variant in `src/commands/repository/`
-- [ ] Add a `--limit` option with integer type and validation
-
-### Tests
+### Paged responses
 
 - [ ] Add unit test for single-page response
 - [ ] Add unit test for multi-page response
+- [ ] Add a paged-request helper in `src/lib/`
+- [ ] Update the `repo list` command to call the paged variant in `src/commands/repository/`
+
+### Result limiting
+
 - [ ] Add unit test for `--limit` option limiting results
+- [ ] Add a `--limit` option with integer type and validation
 
 ### Documentation
 
@@ -375,17 +376,17 @@ multi-page, and `--limit` limiting.
 
 ## Implementation plan
 
-### Core changes
-
-- [ ] Add a paged-request helper in `src/lib/`
-- [ ] Update the `repo list` command to call the paged variant in `src/commands/repository/`
-- [ ] Add a `--limit` option with integer type and validation
-
-### Tests
+### Paged responses
 
 - [ ] Add unit test for single-page response
 - [ ] Add unit test for multi-page response
+- [ ] Add a paged-request helper in `src/lib/`
+- [ ] Update the `repo list` command to call the paged variant in `src/commands/repository/`
+
+### Result limiting
+
 - [ ] Add unit test for `--limit` option limiting results
+- [ ] Add a `--limit` option with integer type and validation
 
 ### Documentation
 
@@ -407,4 +408,4 @@ Labels categorize. The category is never encoded in the title.
 | `Feature`   | Feature requests                                     |
 | `Question`  | Questions or discussion                              |
 
-Issue **types** (Epic / PBI / Task) are GitHub-native and separate from labels — see [Issue Hierarchy](Issue-Hierarchy.md).
+Issue **types** are GitHub-native and separate from labels. The operational types are Epic / PBI / Task / Bug; see [Issue Hierarchy](Issue-Hierarchy.md) for their roles and Feature's temporary retention.

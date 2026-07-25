@@ -1,6 +1,6 @@
 ---
 title: Issue Hierarchy
-description: Epic, PBI, and Task — the three operational levels.
+description: Delivery (Task or Bug), PBI, and Epic — the three operational levels.
 ---
 
 # Issue Hierarchy
@@ -15,7 +15,7 @@ Epics originate from Initiatives in the [Goal-Setting Framework](Goal-Setting.md
 Epic (initiative from an OKR, repo-level)
 ├── PBI (body of work, multiple PRs)
 │   ├── Task (one PR-sized deliverable)
-│   └── Task
+│   └── Bug (one PR-sized correction)
 └── PBI
     └── Task
 ```
@@ -24,25 +24,27 @@ GitHub supports up to **8 levels** of nested sub-issues and **100 sub-issues per
 
 ## The three operational levels
 
-| Level                    | Issue type   | Scope                                              | Output                                                     |
-| ------------------------ | ------------ | -------------------------------------------------- | ---------------------------------------------------------- |
-| **Task**                 | `Task`       | One deliverable. One small reviewable PR.          | Working software.                                          |
-| **Product Backlog Item** | `PBI`        | A body of work composed of multiple Tasks.         | Tracking, delegation, oversight, visibility into progress. |
-| **Epic**                 | `Epic`       | Strategic chunk needing multiple PBIs.             | The co-planning artifact. Where OKRs become initiatives.   |
+| Level                    | Issue type    | Scope                                                | Output                                                     |
+| ------------------------ | ------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
+| **Delivery**             | `Task`, `Bug` | One deliverable. One small reviewable PR.            | Working software.                                          |
+| **Product Backlog Item** | `PBI`         | A body of work composed of multiple delivery issues. | Tracking, delegation, oversight, visibility into progress. |
+| **Epic**                 | `Epic`        | Strategic chunk needing multiple PBIs.               | The co-planning artifact. Where OKRs become initiatives.   |
 
 > The name **Product Backlog Item** is chosen for its neutral vibe — it works equally well for a feature, a fix, a refactor, or an internal capability. "Feature" implies user-visible value, which isn't always the case for the middle tier.
 
+Epic and PBI are aggregation types. Task and Bug are delivery leaves: use Task for planned work and Bug for an unexpected problem or behavior, with both sized to one reviewable pull request. Feature remains enabled temporarily while existing Feature issues are migrated; it is not a level in the target operational hierarchy and is retired only after that migration is complete.
+
 ## When to use each level
 
-### Task
+### Task or Bug
 
-Use Task when:
+Use Task or Bug when:
 
 - The work has one clear deliverable.
 - The expected PR is small and reviewable in a single pass (rough guideline: under ~500 lines / 15 files).
 - One person (or one agent) can pick it up and finish it independently.
 
-A Task is the **default starting point**. Promote upward only when you discover the work is too big.
+A Task is the **default starting point** for planned work; use Bug when the deliverable corrects unexpected behavior. Promote upward only when you discover the work is too big.
 
 ### Product Backlog Item
 
@@ -82,16 +84,16 @@ Epic (initiative, ties to an OKR)
     └── Task
 ```
 
-The rule: **one Task = one PR-sized deliverable**. Everything above is for aggregation.
+The rule: **one Task or Bug = one PR-sized deliverable**. Everything above is for aggregation.
 
 ## How to express the hierarchy
 
-Use GitHub's **sub-issue relationship** between issue types. This is a first-class GitHub feature — not just text references — and the Planner agent creates these relationships when decomposing.
+Use GitHub's native **sub-issue relationship** for containment between aggregation issues and their children. Containment does not imply sequence. When one issue must finish before another can proceed, use the native **blocked-by / blocking relationship** to express that execution order. The Planner agent creates both kinds of relationship during decomposition.
 
-Text-level conventions on child issues:
+Text-level conventions on child issues are courtesy duplicates of the native relationships:
 
 - `Parent: #N` at the top of Section 1 (a courtesy duplicate of the GitHub link).
-- `Blocked by: #M` when sequencing matters.
+- `Blocked by: #M` when sequencing matters (a courtesy duplicate of the native dependency).
 - Acceptance criteria scoped to **just this child's slice**, not the parent's whole goal.
 
 ## How the sections differ by level
