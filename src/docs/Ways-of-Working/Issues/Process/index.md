@@ -5,7 +5,7 @@ description: How issue bodies are structured and formatted.
 
 # Issue Process
 
-The universal rules for structuring and formatting issue bodies.
+How issue bodies, planning, lifecycle, and native relationships support delivery.
 
 <!-- INDEX:START -->
 
