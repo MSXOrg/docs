@@ -1,6 +1,6 @@
 ---
 title: Issue Process
-description: How issue bodies are structured and formatted.
+description: How issue bodies, planning, lifecycle, and native relationships support delivery.
 ---
 
 # Issue Process

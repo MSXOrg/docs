@@ -12,7 +12,7 @@ The MSX issue hierarchy separates strategic aggregation from delivery. Altitude 
 | Altitude | Native issue type | Owns | Delivery |
 | --- | --- | --- | --- |
 | Strategic aggregate | [Epic](Epic.md) | One repository outcome tied to an Initiative and delivered by multiple PBIs. | Progress and closure aggregate from child PBIs. |
-| Bounded aggregate | [PBI](PBI.md) | One bounded outcome delivered by multiple child issues. | Progress and closure aggregate from Task, Bug, or nested-PBI children. |
+| Bounded aggregate | [PBI](PBI.md) | One bounded outcome delivered by multiple child issues. | Progress and closure aggregate from Tasks, Bugs, or nested PBI children. |
 | Delivery leaf | [Task](Task.md) | One planned deliverable. | One pull request, or one audited and independently verified operational action. |
 | Delivery leaf | [Bug](Bug.md) | One correction for unexpected behavior. | One pull request with regression-first verification. |
 
