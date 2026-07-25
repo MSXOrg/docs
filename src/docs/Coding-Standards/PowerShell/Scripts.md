@@ -34,12 +34,8 @@ A script file is laid out top to bottom in this order:
     .INPUTS
     None
 
-    You can't pipe objects to Rotate-Secret.ps1.
-
     .OUTPUTS
     None
-
-    This script produces no output — it operates by side effect.
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
