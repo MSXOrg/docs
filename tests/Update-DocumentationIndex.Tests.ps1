@@ -11,6 +11,7 @@ Describe 'Update-DocumentationIndex line endings' {
         $script:pwsh = (Get-Process -Id $PID).Path
         $script:utf8 = [System.Text.UTF8Encoding]::new($false)
         function Set-FixtureText {
+            [CmdletBinding(SupportsShouldProcess)]
             param(
                 [Parameter(Mandatory)]
                 [string] $Path,
@@ -23,10 +24,13 @@ Describe 'Update-DocumentationIndex line endings' {
             )
 
             $text = [regex]::Replace($Content, '\r\n|\r|\n', $NewLine)
-            [System.IO.File]::WriteAllText($Path, $text, $script:utf8)
+            if ($PSCmdlet.ShouldProcess($Path, 'Write fixture text')) {
+                [System.IO.File]::WriteAllText($Path, $text, $script:utf8)
+            }
         }
 
         function New-IndexFixture {
+            [CmdletBinding(SupportsShouldProcess)]
             param(
                 [Parameter(Mandatory)]
                 [string] $NewLine,
@@ -36,6 +40,9 @@ Describe 'Update-DocumentationIndex line endings' {
             )
 
             $root = Join-Path ([System.IO.Path]::GetTempPath()) "docs-index-$([guid]::NewGuid().ToString('N'))"
+            if (-not $PSCmdlet.ShouldProcess($root, 'Create documentation index fixture')) {
+                return
+            }
             $scripts = New-Item -ItemType Directory -Path (Join-Path $root '.github/scripts')
             $docs = New-Item -ItemType Directory -Path (Join-Path $root 'src/docs/Section')
             Copy-Item -LiteralPath $script:sourceScript -Destination $scripts.FullName
