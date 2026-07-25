@@ -32,8 +32,12 @@ function Get-UserData {
         .INPUTS
         None
 
+        You can't pipe objects to Get-UserData.
+
         .OUTPUTS
         System.Management.Automation.PSCustomObject
+
+        The user record for the requested UserId.
     #>
     [OutputType([PSCustomObject])]
     [CmdletBinding()]
@@ -98,23 +102,29 @@ Every function carries comment-based help — including internal and private hel
 
 **`.OUTPUTS`** documents what the function emits to the output stream. Must match `[OutputType()]`.
 
-**Format for PlatyPS-generated docs:** put the type name alone on its own line — no period, no inline description. PlatyPS v2 (`Microsoft.PowerShell.PlatyPS`) renders the first line of each entry as a `###` heading in the generated Markdown; a trailing period or an inline description both end up inside that heading, violating MD026 and producing ugly output. The description belongs in the generated Markdown file, not the comment-based help.
+**Format for PlatyPS-generated docs:** type name on the first line, a blank line, then the description as a plain paragraph. PlatyPS v2 (`Microsoft.PowerShell.PlatyPS`) renders the first line as a `###` heading and the paragraph after the blank line as body text below it — producing clean, well-structured Markdown. Without the blank line, the description attaches directly below the heading with no separator; with 4-space indent it becomes a code block; with the type and description on the same line the entire sentence ends up inside the heading.
 
 ```powershell
 .INPUTS
 None
 
+You can't pipe objects to Get-Example.
+
 .INPUTS
 System.String
 
+The name of the user to look up, piped in.
+
 .OUTPUTS
 System.Management.Automation.PSCustomObject
+
+The user record for the requested id.
 ```
 
-> **Note:** The official `about_Comment_Based_Help` examples show `System.String. Description.` on one line — that format works fine in `Get-Help` output but produces poor Markdown when processed by PlatyPS v2. Follow the type-only format when your module uses PlatyPS for documentation.
+> **Note:** The official `about_Comment_Based_Help` examples show `System.String. Description.` on one line — that format works in `Get-Help` output but causes MD026 violations and puts a full sentence inside a `###` heading when processed by PlatyPS v2. Use the blank-line format above for modules that use PlatyPS for documentation.
 
 Rules that apply to both sections:
 
 - Use the fully-qualified .NET type name (`System.String`, `System.Management.Automation.PSCustomObject`), not a PowerShell type accelerator (`[string]`, `[pscustomobject]`).
-- When no parameters accept pipeline input, write `None` as the type.
+- When no parameters accept pipeline input, write `None` as the type with `You can't pipe objects to <CommandName>.` as the description paragraph (use the actual command name).
 - Repeat the keyword once per type when multiple types are accepted or returned.
