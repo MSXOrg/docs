@@ -45,7 +45,7 @@ Epic
 ```
 
 - Epic and PBI are aggregates. Their children own delivery branches, pull requests, or operational evidence.
-- Task and Bug are leaves and do not contain implementation work.
+- Task and Bug are leaves and do not aggregate implementation work through sub-issues.
 - A nested PBI is valid only when its bounded child outcome still needs multiple delivery issues.
 - Each child's acceptance criteria cover only its slice; the parent owns criteria for the combined outcome.
 - Containment does not imply sequence. Use native blocked-by and blocking relationships when execution order matters.
