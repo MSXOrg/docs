@@ -51,6 +51,25 @@ function Get-UserData {
 }
 ```
 
+### `[OutputType]` and parameter sets
+
+When every parameter set returns the same type, one `[OutputType]` with no scoping is correct. When different parameter sets return different types, scope each `[OutputType]` to its parameter set using the `ParameterSetName` argument — `[OutputType]` may appear multiple times on the same function, once per type/set combination:
+
+```powershell
+[OutputType([System.String],      ParameterSetName = 'ByName')]
+[OutputType([System.IO.FileInfo], ParameterSetName = 'ByPath')]
+[CmdletBinding(DefaultParameterSetName = 'ByName')]
+param(
+    [Parameter(Mandatory, ParameterSetName = 'ByName')]
+    [string] $Name,
+
+    [Parameter(Mandatory, ParameterSetName = 'ByPath')]
+    [string] $Path
+)
+```
+
+The types listed in `[OutputType]` must match what `.OUTPUTS` documents in the comment-based help — they are the contract between the function and its callers.
+
 ## Parameters
 
 - **Type every parameter** and validate at the boundary — `[Parameter(Mandatory)]`, `[ValidateSet(...)]`, `[ValidateNotNullOrEmpty()]` — so bad input is rejected early, not deep in the call stack.
@@ -58,7 +77,7 @@ function Get-UserData {
 - **Attribute order**, each on its own line: `[Parameter()]`, then validation attributes, then `[ArgumentCompleter()]`, then `[Alias()]`, then the typed declaration.
 - **Separate parameters with a blank line**, so each one's inline doc comment, attributes, and typed declaration read as a single block.
 - **`[switch]` for boolean flags** — never a `[bool]` parameter.
-- **Name every parameter set** with an intent-revealing name when a function has more than one mode; never `Default` or `__AllParameterSets`. Set `DefaultParameterSetName` to the most common intent.
+- **Name every parameter set** with a meaningful English phrase that describes the *scenario or input strategy* the caller is using — parameter set names appear verbatim in `Get-Help` syntax output and must be prose a caller can read without decoding. Names that describe what the caller provides (`ByName`, `ByPath`, `ByLiteralPath`, `ByGuid`) or how the call is made (`WithCredential`, `AsComputerName`, `AsSession`) work well. Never acceptable: `Default`, `__AllParameterSets`, `__DefaultParameterSet`, `ParameterSetA`, `Set1`, `Mode1`, or any name a caller would have to decode. `DefaultParameterSetName` on `[CmdletBinding()]` must name one of the declared parameter sets using the same prose convention and is never omitted when multiple sets exist.
 
 ## State changes and the pipeline
 
