@@ -11,7 +11,7 @@ If you find a problem, fix it if it's small; otherwise, register it as an issue 
 2. Clone the ecosystem locally:
    1. <https://github.com/MSXOrg/docs> — requires PRs to be updated.
       - Clone as bare and use worktrees.
-      - Create a worktree for all branches - worktree = name of the branch.
+      - Create a worktree for every branch. Use a concise `<issue>-<slug>` worktree folder for a topic branch named `<type>/<issue>-<slug>`.
    2. <https://github.com/MSXOrg/memory/> — work directly towards main.
       - Simple clone, only main.
 

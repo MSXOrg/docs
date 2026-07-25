@@ -35,14 +35,14 @@ In a single ordinary clone the opposite is forced: one branch checked out at a t
 ├── .bare/              # bare git data (the actual repository)
 ├── .git                # file containing: gitdir: ./.bare
 ├── <default>/          # worktree: default branch (always clean, never worked in directly)
-├── 42-add-pagination/  # worktree: issue #42 in progress
-└── 99-fix-null-ref/    # worktree: issue #99 in progress
+├── 42-add-pagination/  # worktree folder; branch: feat/42-add-pagination
+└── 99-null-ref/        # worktree folder; branch: fix/99-null-ref
 ```
 
 - **`.bare/`** — the shared git object store. All worktrees share this.
 - **`.git`** — a file (not a directory) that points git tooling to `.bare/`.
 - **`<default>/`** — the default branch worktree (e.g. `main` or `master`). Kept as a clean reference. Used for diffing, reading docs, running comparisons. Never directly committed to.
-- **`<N>-<slug>/`** — one worktree per issue in flight. Named by issue number and a short slug. Branch name matches the folder name.
+- **`<N>-<slug>/`** — one worktree folder per issue in flight, named by issue number and a short slug. The folder is a concise local path; its branch uses the required `<type>/<issue>-<slug>` name, so the two names do not need to match.
 
 ## Remotes
 
@@ -105,14 +105,16 @@ git -C .bare config "branch.$defaultBranch.merge" "refs/heads/$defaultBranch"
 ```powershell
 # From the repo root (where .bare/ lives)
 $defaultBranch = git -C .bare symbolic-ref HEAD | ForEach-Object { $_ -replace 'refs/heads/', '' }
-git -C .bare worktree add ../42-add-pagination -b 42-add-pagination $defaultBranch
+$worktreeName = '42-add-pagination'
+$branchName = 'feat/42-add-pagination'
+git -C .bare worktree add "../$worktreeName" -b $branchName $defaultBranch
 
 # Set upstream tracking (prevents "Publish Branch" prompt in VS Code)
-git -C .bare config branch.42-add-pagination.remote origin
-git -C .bare config branch.42-add-pagination.merge refs/heads/42-add-pagination
+git -C .bare config "branch.$branchName.remote" origin
+git -C .bare config "branch.$branchName.merge" "refs/heads/$branchName"
 
 # Open in VS Code
-code 42-add-pagination
+code $worktreeName
 ```
 
 Then follow the normal Implement flow: initial commit → push → draft PR → build → finalize.
@@ -124,7 +126,7 @@ Then follow the normal Implement flow: initial commit → push → draft PR → 
 git -C .bare worktree remove 42-add-pagination
 
 # Delete the local branch ref
-git -C .bare branch -D 42-add-pagination
+git -C .bare branch -D feat/42-add-pagination
 
 # Prune if needed (removes stale worktree references)
 git -C .bare worktree prune
