@@ -62,6 +62,10 @@ nav = [
       {"Types" = [
         "Ways-of-Working/Issues/Types/index.md",
         {"Hierarchy" = "Ways-of-Working/Issues/Types/Hierarchy.md"},
+        {"Epic" = "Ways-of-Working/Issues/Types/Epic.md"},
+        {"PBI" = "Ways-of-Working/Issues/Types/PBI.md"},
+        {"Task" = "Ways-of-Working/Issues/Types/Task.md"},
+        {"Bug" = "Ways-of-Working/Issues/Types/Bug.md"},
       ]},
     ]},
     {"PR Format" = "Ways-of-Working/PR-Format.md"},

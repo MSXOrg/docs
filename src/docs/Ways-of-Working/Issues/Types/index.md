@@ -11,6 +11,10 @@ How native issue types organize delivery and aggregation.
 
 | Page | Description |
 | --- | --- |
-| [Issue Hierarchy](Hierarchy.md) | Delivery (Task or Bug), PBI, and Epic — the three operational levels. |
+| [Issue Hierarchy](Hierarchy.md) | Shared taxonomy, routing, containment, and promotion rules for native issue types. |
+| [Epic](Epic.md) | A strategic repository aggregate that turns one Initiative into measurable outcomes and PBIs. |
+| [PBI](PBI.md) | A bounded outcome delivered through multiple Task, Bug, or nested-PBI sub-issues. |
+| [Task](Task.md) | One implementation-ready planned deliverable completed by one pull request or one audited operation. |
+| [Bug](Bug.md) | One implementation-ready correction for unexpected behavior, delivered at Task level. |
 
 <!-- INDEX:END -->
