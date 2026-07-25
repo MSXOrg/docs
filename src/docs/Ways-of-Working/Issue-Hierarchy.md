@@ -24,11 +24,11 @@ GitHub supports up to **8 levels** of nested sub-issues and **100 sub-issues per
 
 ## The three operational levels
 
-| Level                    | Issue type    | Scope                                              | Output                                                     |
-| ------------------------ | ------------- | -------------------------------------------------- | ---------------------------------------------------------- |
-| **Delivery**             | `Task`, `Bug` | One deliverable. One small reviewable PR.          | Working software.                                          |
+| Level                    | Issue type    | Scope                                                | Output                                                     |
+| ------------------------ | ------------- | ---------------------------------------------------- | ---------------------------------------------------------- |
+| **Delivery**             | `Task`, `Bug` | One deliverable. One small reviewable PR.            | Working software.                                          |
 | **Product Backlog Item** | `PBI`         | A body of work composed of multiple delivery issues. | Tracking, delegation, oversight, visibility into progress. |
-| **Epic**                 | `Epic`        | Strategic chunk needing multiple PBIs.             | The co-planning artifact. Where OKRs become initiatives.   |
+| **Epic**                 | `Epic`        | Strategic chunk needing multiple PBIs.               | The co-planning artifact. Where OKRs become initiatives.   |
 
 > The name **Product Backlog Item** is chosen for its neutral vibe — it works equally well for a feature, a fix, a refactor, or an internal capability. "Feature" implies user-visible value, which isn't always the case for the middle tier.
 
