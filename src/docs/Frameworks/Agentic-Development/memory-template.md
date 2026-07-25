@@ -18,6 +18,7 @@ organization; structure does not.
 memory/
 ├── README.md        # front door: what this repo is, that it's private, "commit straight to main, no PR"
 ├── CONTRIBUTING.md   # short: direct push to main, no PR/review gate, keep entries short/dated/factual
+├── AGENTS.md         # cross-client agent entry point: orients an agent landing here cold, points at index.md and the memory-writing rules
 ├── .gitattributes
 ├── .gitignore
 ├── index.md          # OKF root index (okf_version frontmatter), links to the sections below
@@ -48,6 +49,16 @@ top-level folder is one of those responsibilities made concrete:
 it links to `gotchas/index.md`, `knowledge/index.md`, and `agents/index.md` so a human or
 agent can start at the root and drill inward.
 
+`AGENTS.md` doesn't map to a `memory` ownership bullet — it isn't content memory owns, it's the
+framework's [client behavior table](design.md#client-behavior) entry point: "Cross-client agents |
+`AGENTS.md` | Read the shared project pointer and local nuance." Every repository in the
+framework carries one so an agent landing cold knows where to start; a `memory` repository is no
+exception. Its job is narrower than `README.md`'s and different from `CONTRIBUTING.md`'s — it
+orients an *agent* specifically, pointing straight at `index.md` and the
+[memory writing rules](design.md#memory-writing-rules), while `CONTRIBUTING.md` stays
+contribution-process-flavored (direct push, no PR) even though this repository's real audience is
+agents, not human contributors.
+
 ## A deliberate exception to the Repository Standard
 
 [Repository Standard](../../Ways-of-Working/Repository-Standard.md) lists the files every
@@ -75,8 +86,8 @@ exception, made explicit rather than left as an oversight:
   expectations for a broad or public contributor community; a `memory` repository's
   audience is the organization's own humans and agents.
 
-A `memory` repository still carries `README.md`, `CONTRIBUTING.md`, `.gitattributes`, and
-`.gitignore` — the minimum needed to explain itself and behave predictably in git.
+A `memory` repository still carries `README.md`, `CONTRIBUTING.md`, `AGENTS.md`, `.gitattributes`,
+and `.gitignore` — the minimum needed to explain itself and behave predictably in git.
 
 ## Visibility
 
