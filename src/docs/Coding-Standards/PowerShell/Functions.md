@@ -30,10 +30,10 @@ function Get-UserData {
         Returns the record for the user 'jdoe'.
 
         .INPUTS
-        None. You can't pipe objects to Get-UserData.
+        None
 
         .OUTPUTS
-        System.Management.Automation.PSCustomObject. The user record for the requested id.
+        System.Management.Automation.PSCustomObject
     #>
     [OutputType([PSCustomObject])]
     [CmdletBinding()]
@@ -98,21 +98,23 @@ Every function carries comment-based help — including internal and private hel
 
 **`.OUTPUTS`** documents what the function emits to the output stream. Must match `[OutputType()]`.
 
-**Format:** type name, a period, a space, then the description — all on one line. This is the canonical format from [`about_Comment_Based_Help`](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_comment_based_help) and matches how the PowerShell project itself writes these sections. Long descriptions wrap to the next line as a continuation.
+**Format for PlatyPS-generated docs:** put the type name alone on its own line — no period, no inline description. PlatyPS v2 (`Microsoft.PowerShell.PlatyPS`) renders the first line of each entry as a `###` heading in the generated Markdown; a trailing period or an inline description both end up inside that heading, violating MD026 and producing ugly output. The description belongs in the generated Markdown file, not the comment-based help.
 
 ```powershell
 .INPUTS
-None. You can't pipe objects to Get-Example.
+None
 
 .INPUTS
-System.String. The name of the user to look up.
+System.String
 
 .OUTPUTS
-System.Management.Automation.PSCustomObject. The user record for the requested id.
+System.Management.Automation.PSCustomObject
 ```
+
+> **Note:** The official `about_Comment_Based_Help` examples show `System.String. Description.` on one line — that format works fine in `Get-Help` output but produces poor Markdown when processed by PlatyPS v2. Follow the type-only format when your module uses PlatyPS for documentation.
 
 Rules that apply to both sections:
 
 - Use the fully-qualified .NET type name (`System.String`, `System.Management.Automation.PSCustomObject`), not a PowerShell type accelerator (`[string]`, `[pscustomobject]`).
-- When no parameters accept pipeline input, write `None. You can't pipe objects to <CommandName>.` (use the actual command name).
+- When no parameters accept pipeline input, write `None` as the type.
 - Repeat the keyword once per type when multiple types are accepted or returned.
