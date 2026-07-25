@@ -93,16 +93,26 @@ Every function carries comment-based help — including internal and private hel
 
 **`.INPUTS`** documents **pipeline input only** — types accepted via `ValueFromPipeline` or `ValueFromPipelineByPropertyName` parameters. It does not document ordinary parameters.
 
-- When no parameters accept pipeline input: `None. You can't pipe objects to <CommandName>.` (use the actual command name).
-- When pipeline input is accepted: `System.FullTypeName. Description of what is piped.`
+**`.OUTPUTS`** documents what the function emits to the output stream. Must match `[OutputType()]`.
+
+**Format:** type name alone on the first line, description indented on the next line. PlatyPS renders the type name as a `###` subheading and the description as body text below it — putting both on one line causes trailing-period heading violations in the generated Markdown.
+
+```powershell
+.INPUTS
+None
+    You can't pipe objects to Get-Example.
+
+.INPUTS
+System.String
+    The name of the user to look up.
+
+.OUTPUTS
+System.IO.FileInfo
+    The file object written to disk.
+```
+
+Rules that apply to both sections:
+
 - Use the fully-qualified .NET type name (`System.String`, `System.IO.FileInfo`), not a PowerShell type accelerator (`[string]`, `[fileinfo]`).
-- Repeat the `.INPUTS` keyword once per accepted pipeline type when there are multiple.
-
-**`.OUTPUTS`** documents what the function emits to the output stream.
-
-- Format: `System.FullTypeName. Description of what is returned.`
-- Use the fully-qualified .NET type name — same convention as `.INPUTS`.
-- Repeat `.OUTPUTS` once per return type when the function can return multiple types.
-- Must match `[OutputType()]`.
-
-> **PlatyPS note:** PlatyPS renders each line under `.INPUTS` / `.OUTPUTS` as a `###` heading in the generated Markdown — keep each entry to a single concise line.
+- When no parameters accept pipeline input, write `None` as the type with `You can't pipe objects to <CommandName>.` as the description (use the actual command name).
+- Repeat the keyword once per type when multiple types are accepted or returned.
