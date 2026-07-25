@@ -1,6 +1,6 @@
 ---
 title: PBI
-description: A bounded outcome delivered through multiple Task, Bug, or nested-PBI sub-issues.
+description: A bounded outcome delivered through multiple Tasks, Bugs, or nested PBI sub-issues.
 ---
 
 # PBI
@@ -22,7 +22,7 @@ Follow the universal [Issue Format](../Process/Format.md), with these PBI-specif
 
 ### Technical decisions
 
-- Explain the decomposition into Task, Bug, or nested-PBI children.
+- Explain the decomposition into Tasks, Bugs, or nested PBIs.
 - Define interfaces, contracts, ownership boundaries, and integration points between children.
 - Record cross-child sequencing with native blocked-by relationships; containment alone does not imply order.
 - Keep child-local implementation decisions in the child issue.
