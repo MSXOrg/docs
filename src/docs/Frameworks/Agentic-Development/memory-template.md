@@ -65,7 +65,10 @@ exception, made explicit rather than left as an oversight:
   `pull_request_template.md` and `CODEOWNERS` review routing make no sense for a repo
   where every change lands as a direct commit to `main`.
   See [Memory writing rules](design.md#memory-writing-rules) for what a good direct
-  commit looks like.
+  commit looks like. This only works in practice once the organization's ruleset stops
+  requiring pull requests for `memory` repositories — see
+  [Repository Type Property](../../Ways-of-Working/Repository-Type-Property.md) for how
+  that exclusion is implemented via a `Type: Memory` custom property value.
 - **No external dependencies.** Plain Markdown files have no supply chain, so
   `.github/dependabot.yml` has nothing to update.
 - **Small, defined audience.** `SUPPORT.md` and `CODE_OF_CONDUCT.md` exist to set
@@ -90,3 +93,6 @@ public audience, even when the adjoining `docs` repository is public.
   set this page's scaffold deliberately departs from.
 - [Organization Standard](../../Ways-of-Working/Organization-Standard.md) — how
   initiative-defined, type-specific exceptions to the default file set are allowed.
+- [Repository Type Property](../../Ways-of-Working/Repository-Type-Property.md) — how a
+  `Type: Memory` custom property value excludes memory repositories from the org-wide
+  pull-request-required ruleset so the direct-commit workflow above actually works.
