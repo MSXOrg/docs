@@ -89,6 +89,7 @@ A lower layer MAY refine a higher layer, but MUST NOT contradict it unless the h
 ## Where this connects
 
 - [Design](design.md) — how these requirements are delivered.
+- [Memory Repository Template](memory-template.md) — the concrete scaffold every organization's canonical `memory` repository instantiates.
 - [Agentic Development](../../Ways-of-Working/Agentic-Development.md) — the existing way-of-working standard this framework operationalizes.
 - [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — how specs and designs are written and kept evergreen.
 - [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) — the Markdown and frontmatter model used for knowledge pages.
