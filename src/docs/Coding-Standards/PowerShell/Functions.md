@@ -29,8 +29,15 @@ function Get-UserData {
         Get-UserData -UserId 'jdoe'
         Returns the record for the user 'jdoe'.
 
+        .INPUTS
+        None
+
+        You can't pipe objects to Get-UserData.
+
         .OUTPUTS
-        [PSCustomObject]
+        System.Management.Automation.PSCustomObject
+
+        The user record for the requested UserId.
     #>
     [OutputType([PSCustomObject])]
     [CmdletBinding()]
@@ -107,3 +114,36 @@ Send each kind of message to the stream built for it, so a caller can capture, r
 ## Comment-based help (required)
 
 Every function carries comment-based help — including internal and private helpers, not only the public surface. It is what lets a reader or an agent understand what the function does and how to call it without reading its body, and a private helper needs that as much as a public command does. Put it first inside the body, with sections in this order: `.SYNOPSIS` (one imperative sentence), `.DESCRIPTION`, at least one `.EXAMPLE` per behaviour, then `.INPUTS`, `.OUTPUTS` (matching `[OutputType()]`), `.NOTES`, `.LINK`. Document each parameter with an inline comment above it rather than a `.PARAMETER` block, and let comments explain *why*, not *what*.
+
+### `.INPUTS` and `.OUTPUTS`
+
+**`.INPUTS`** documents **pipeline input only** — types accepted via `ValueFromPipeline` or `ValueFromPipelineByPropertyName` parameters. It does not document ordinary parameters.
+
+**`.OUTPUTS`** documents what the function emits to the output stream. Must match `[OutputType()]`.
+
+**Format for PlatyPS-generated docs:** type name on the first line, a blank line, then the description as a plain paragraph. PlatyPS v2 (`Microsoft.PowerShell.PlatyPS`) renders the first line as a `###` heading and the paragraph after the blank line as body text below it — producing clean, well-structured Markdown. Without the blank line, the description attaches directly below the heading with no separator; with 4-space indent it becomes a code block; with the type and description on the same line the entire sentence ends up inside the heading.
+
+```powershell
+.INPUTS
+None
+
+You can't pipe objects to Get-Example.
+
+.INPUTS
+System.String
+
+The name of the user to look up, piped in.
+
+.OUTPUTS
+System.Management.Automation.PSCustomObject
+
+The user record for the requested id.
+```
+
+> **Note:** The official `about_Comment_Based_Help` examples show `System.String. Description.` on one line — that format works in `Get-Help` output but causes MD026 violations and puts a full sentence inside a `###` heading when processed by PlatyPS v2. Use the blank-line format above for modules that use PlatyPS for documentation.
+
+Rules that apply to both sections:
+
+- Use the fully-qualified .NET type name (`System.String`, `System.Management.Automation.PSCustomObject`), not a PowerShell type accelerator (`[string]`, `[pscustomobject]`).
+- When no parameters accept pipeline input, write `None` as the type with `You can't pipe objects to <CommandName>.` as the description paragraph (use the actual command name).
+- Repeat the keyword once per type when multiple types are accepted or returned.
