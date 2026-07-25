@@ -29,10 +29,15 @@ function Get-UserData {
         Get-UserData -UserId 'jdoe'
         Returns the record for the user 'jdoe'.
 
+        .INPUTS
+        None
+            You can't pipe objects to Get-UserData.
+
         .OUTPUTS
-        [PSCustomObject]
+        System.Management.Automation.PSCustomObject
+            The user record for the requested id.
     #>
-    [OutputType([PSCustomObject])]
+    [OutputType([System.Management.Automation.PSCustomObject])]
     [CmdletBinding()]
     param(
         # The unique identifier of the user.
