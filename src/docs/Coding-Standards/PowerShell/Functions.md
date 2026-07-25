@@ -115,7 +115,7 @@ Send each kind of message to the stream built for it, so a caller can capture, r
 
 Every function carries comment-based help — including internal and private helpers, not only the public surface. It is what lets a reader or an agent understand what the function does and how to call it without reading its body, and a private helper needs that as much as a public command does. Put it first inside the body, with sections in this order: `.SYNOPSIS` (one imperative sentence), `.DESCRIPTION`, at least one `.EXAMPLE` per behaviour, then `.INPUTS`, `.OUTPUTS` (matching `[OutputType()]`), `.NOTES`, `.LINK`. Document each parameter with an inline comment above it rather than a `.PARAMETER` block, and let comments explain *why*, not *what*.
 
-Functions in modules built with the PSModule framework use the generated online reference URL in `.LINK`: `https://psmodule.io/<ModuleName>/Functions/<Function-Name>` or, for a grouped command, `https://psmodule.io/<ModuleName>/Functions/<Group>/<Function-Name>`. A private helper links to the published public function it supports.
+Every public function in a module built with the PSModule framework uses its generated online reference URL as the first `.LINK` entry. The canonical URL always ends in `/`: `https://psmodule.io/<ModuleName>/Functions/<Function-Name>/` or, for a grouped command, `https://psmodule.io/<ModuleName>/Functions/<Group>/<Function-Name>/`. A private helper links to the published public function it supports.
 
 ### `.INPUTS` and `.OUTPUTS`
 
