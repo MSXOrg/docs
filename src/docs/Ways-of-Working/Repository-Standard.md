@@ -146,6 +146,7 @@ For example, PSModule can define its module-specific managed files in `PSModule/
 ## Where this connects
 
 - [Organization Standard](Organization-Standard.md) — what an initiative organization must define centrally.
+- [Repository Type Property](Repository-Type-Property.md) — the `Type` custom property that classifies a repository and drives which type-specific files and controls apply.
 - [README-Driven Context](Readme-Driven-Context.md) — why the README is the front door.
 - [PR Format](PR-Format.md) — the PR Manager-style title and description format.
 - [GitHub Actions](../Coding-Standards/GitHub-Actions.md) — workflow and automation standards.
