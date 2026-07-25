@@ -58,37 +58,132 @@ Here's an example of a function file that skips the `FunctionCount` test because
 function Get-ComplexData {
     <#
         .SYNOPSIS
-        Retrieves complex data using helper functions.
+        Get formatted data from a file.
+
+        .DESCRIPTION
+        Read data from a file and format it as a structured object.
+
+        .EXAMPLE
+        Get-ComplexData -Path '.\data.txt'
+
+        Get the file content and its character count.
+
+        .INPUTS
+        None
+
+        You can't pipe objects to Get-ComplexData.
+
+        .OUTPUTS
+        System.Management.Automation.PSCustomObject
+
+        The formatted file data.
+
+        .NOTES
+        This file intentionally skips only the FunctionCount framework test.
+
+        .LINK
+        Get-RawData
     #>
+    [OutputType([PSCustomObject])]
     [CmdletBinding()]
     param(
+        # The path to the data file.
         [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [string] $Path
     )
 
     $data = Get-RawData -Path $Path
-    $processed = Format-ComplexData -Data $data
-    return $processed
+    Format-ComplexData -Data $data
 }
 
 function Get-RawData {
+    <#
+        .SYNOPSIS
+        Get unformatted data from a file.
+
+        .DESCRIPTION
+        Read the complete content of a data file as one string.
+
+        .EXAMPLE
+        Get-RawData -Path '.\data.txt'
+
+        Get the complete content of the data file.
+
+        .INPUTS
+        None
+
+        You can't pipe objects to Get-RawData.
+
+        .OUTPUTS
+        System.String
+
+        The unformatted file content.
+
+        .NOTES
+        This function is a private helper for Get-ComplexData.
+
+        .LINK
+        Get-Content
+    #>
+    [OutputType([string])]
     [CmdletBinding()]
     param(
+        # The path to the data file.
         [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [string] $Path
     )
-    # Helper function implementation
+
+    Get-Content -LiteralPath $Path -Raw
 }
 
 function Format-ComplexData {
+    <#
+        .SYNOPSIS
+        Format raw data as a structured object.
+
+        .DESCRIPTION
+        Add useful metadata to raw data while preserving its content.
+
+        .EXAMPLE
+        Format-ComplexData -Data 'example'
+
+        Format the string and include its character count.
+
+        .INPUTS
+        None
+
+        You can't pipe objects to Format-ComplexData.
+
+        .OUTPUTS
+        System.Management.Automation.PSCustomObject
+
+        The formatted data and its character count.
+
+        .NOTES
+        This function is a private helper for Get-ComplexData.
+
+        .LINK
+        Get-ComplexData
+    #>
+    [OutputType([PSCustomObject])]
     [CmdletBinding()]
     param(
+        # The raw content to format.
         [Parameter(Mandatory)]
-        $Data
+        [ValidateNotNullOrEmpty()]
+        [string] $Data
     )
-    # Helper function implementation
+
+    [PSCustomObject] @{
+        Content        = $Data
+        CharacterCount = $Data.Length
+    }
 }
 ```
+
+The skip exempts only `FunctionCount`. Every function in the file must still follow the [PowerShell function standard](../../Coding-Standards/PowerShell/Functions.md), including complete comment-based help, matching `[OutputType()]` and `.OUTPUTS` metadata, typed parameters, and implicit output.
 
 ## Best Practices
 
