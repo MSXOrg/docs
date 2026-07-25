@@ -258,7 +258,7 @@ Different clients load different files, but the framework keeps the same depende
 ## Adoption path
 
 1. Create or identify the organization `docs` repository.
-2. Create or identify the organization `memory` repository.
+2. Create or identify the organization `memory` repository, using the [Memory Repository Template](memory-template.md) as the starting scaffold.
 3. Add `docs/index.md` and `memory/index.md` as the two root maps.
 4. Add framework docs, standards, and agent role descriptions to `docs`.
 5. Add starter memory sections to `memory`.
@@ -269,6 +269,7 @@ Different clients load different files, but the framework keeps the same depende
 ## Where this connects
 
 - [Spec](spec.md) — the requirements this design delivers.
+- [Memory Repository Template](memory-template.md) — the concrete scaffold every organization's canonical `memory` repository instantiates.
 - [Agentic Development](../../Ways-of-Working/Agentic-Development.md) — the way-of-working standard this framework implements.
 - [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — why spec and design are split.
 - [README-Driven Context](../../Ways-of-Working/Readme-Driven-Context.md) — why local repository context remains the front door.

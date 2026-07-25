@@ -132,6 +132,7 @@ nav = [
       "Frameworks/Agentic-Development/index.md",
       {"Spec" = "Frameworks/Agentic-Development/spec.md"},
       {"Design" = "Frameworks/Agentic-Development/design.md"},
+      {"Memory Repository Template" = "Frameworks/Agentic-Development/memory-template.md"},
     ]},
     {"Process-PSModule" = [
       "Frameworks/Process-PSModule/index.md",
