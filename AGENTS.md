@@ -24,6 +24,6 @@ To install:
 1. Get to know this repo first:
    - [README](README.md) for what this repository is and how it builds.
    - [CONTRIBUTING](CONTRIBUTING.md) for how to contribute and the review process.
-2. Read the `.msx/main/docs` - start with the index to get an overview of what is here.
-3. Read the `.msx/memory` - start with the index to get an overview of what is here. Use this while working - commit your memories here for work inside the PSModule organization.
+2. Read `~/.msx/docs` - start with the index to get an overview of what is here.
+3. Read `~/.msx/memory` - start with the index to get an overview of what is here. Use this while working - commit your memories here for work inside the PSModule organization.
 4. While working with the code, do small micro commits and push on every commit. This will make it easier to review and merge your changes.

@@ -37,6 +37,7 @@ nav = [
     ]},
     {"Organization Standard" = "Ways-of-Working/Organization-Standard.md"},
     {"Repository Standard" = "Ways-of-Working/Repository-Standard.md"},
+    {"Repository Type Property" = "Ways-of-Working/Repository-Type-Property.md"},
     {"Principles" = [
       "Ways-of-Working/Principles/index.md",
       {"Purpose and Direction" = "Ways-of-Working/Principles/Purpose-and-Direction.md"},
@@ -132,6 +133,7 @@ nav = [
       "Frameworks/Agentic-Development/index.md",
       {"Spec" = "Frameworks/Agentic-Development/spec.md"},
       {"Design" = "Frameworks/Agentic-Development/design.md"},
+      {"Memory Repository Template" = "Frameworks/Agentic-Development/memory-template.md"},
     ]},
     {"Process-PSModule" = [
       "Frameworks/Process-PSModule/index.md",

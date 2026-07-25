@@ -20,6 +20,29 @@ How changes move from a working branch into a protected branch. The model is sma
 - A pull request is green before review begins. Automated checks run first, so reviewers spend their attention on judgment rather than on catching what CI catches. This is [shift left](Principles/Engineering-Practices.md#shift-left).
 - Keep pull requests small and focused: one deliverable, reviewable in a single pass.
 
+## Stacked pull requests
+
+Use a stack when several reviewable changes depend on one another and cannot land independently. Each layer remains one Task issue, one branch, and one pull request; the stack only records their dependency and order. Independent changes use separate branches from the default branch instead.
+
+Build the stack from its destination upward:
+
+| Layer | Branch from | Pull request targets | Becomes ready |
+| --- | --- | --- | --- |
+| First | The default branch, or another explicitly chosen destination | The branch it was cut from | First |
+| Later | The immediately preceding layer's branch | The immediately preceding layer's branch | After every preceding layer has landed and this layer has been refreshed |
+
+Every layer follows the ordinary [Contribution Workflow](Contribution-Workflow.md):
+
+1. **Plan the dependency.** Give each layer its own Task issue. Record `Blocked by: #N` on dependent issues as described in [Issue Hierarchy](Issue-Hierarchy.md#how-to-express-the-hierarchy), and order the implementation so the shared foundation is the first layer.
+2. **Open every layer as a draft.** After the initial commit, push the branch and open its pull request immediately. Use the standard user-facing title and description from [PR Format](PR-Format.md); do not add stack position or an internal branch name to the title.
+3. **Link the stack in Technical Details.** Add fully qualified pull request links for the immediate dependency and dependent, using `Depends on Owner/Repo#N` and `Followed by Owner/Repo#N`. Each pull request closes only its own Task issue.
+4. **Keep each delta isolated.** The pull request diff against its current base contains only that layer's change. Run its tests, checks, and automated review even when an earlier layer already exercised the combined code.
+5. **Make one layer ready at a time.** Only the lowest unmerged layer is marked ready and given auto-merge. Every later layer stays draft, even when its current checks are green.
+6. **Advance after merge.** When the lowest layer lands, refresh the next branch against the landed target, retarget its pull request to that target, and verify that the diff still contains only its intended change. Run CI and the automated review loop again before marking it ready.
+7. **Merge bottom-up.** Repeat the refresh, retarget, validation, and readiness steps for each remaining layer. Never merge a later layer into an earlier branch to bypass the order; that collapses the review boundaries the stack exists to preserve.
+
+If an earlier layer changes during review, update each dependent branch in order from the closest layer outward. Recheck every diff after the update so a conflict resolution or rewritten base does not silently move work between layers.
+
 ## Merge models
 
 Two models, chosen by the repository's deployment shape:
