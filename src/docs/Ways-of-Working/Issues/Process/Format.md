@@ -1,411 +1,58 @@
 ---
 title: Issue Format
-description: The three-section issue structure, formatting, and labels.
+description: Universal title, body, audit, and formatting rules for every issue.
 ---
 
 # Issue Format
 
-Every issue in the MSX ecosystem follows the same structure. The format makes issues:
-
-- **Readable** by anyone — human or agent — without prior context.
-- **Actionable** by an implementer without back-and-forth.
-- **Traceable** because decisions and changes are recorded.
-
-## Properties of every issue
-
-- **Every change has an issue.** Features, fixes, refactors, documentation, maintenance — all tracked as issues before work begins.
-- **The description is the single source of truth.** It reflects the current state of the work at all times. Decisions, scope changes, and approach changes are written directly into the description.
-- **Comments record change history only.** Each description update is accompanied by a comment summarizing what changed and why.
-- **Tone is impersonal.** No first-person ("I", "my") or second-person ("you", "your") language. Neutral references like "the user", "the developer", or passive constructions.
-- **External references are hyperlinks.** Every mention of an API, RFC, library, doc, or tool is a clickable `[text](url)` link. No bare URLs.
-- **No duplicates.** Existing issues are searched before creating or restructuring. Duplicates are consolidated or cross-linked.
+Every issue in the MSX ecosystem follows the same universal rules. The issue's native type determines the body detail; use the guidance for [Epic](../Types/Epic.md), [PBI](../Types/PBI.md), [Task](../Types/Task.md), or [Bug](../Types/Bug.md) rather than adding type-specific conventions here.
 
 ## Title
 
-A clear, imperative-mood statement of the work. Not a question, not a symptom.
+Write a clear, imperative statement of the outcome or work:
 
-- Scope or area when it aids disambiguation: `release pipeline: Add retry logic to the publish step`.
-- No type prefixes (`[Bug]`, `[Feature]`) — labels handle categorization.
+- Name the scope when it aids disambiguation.
+- Describe the requested result, not a question, symptom, or status.
+- Do not add type prefixes such as `[Bug]` or `[Feature]`; the native issue type carries that meaning.
 
-### Well-formed
+## Body
 
-- `Add pagination support to the repository list command`
-- `Fix null reference when the session context is not resolved`
-- `Update installation guide with prerequisites`
+The body is the current source of truth. It:
 
-### Malformed
+- Explains the issue's local purpose and desired outcome without requiring prior context.
+- States observable acceptance criteria.
+- Records the decisions and plan needed at the issue's [planning altitude](Planning.md).
+- Links to durable specifications, designs, prior decisions, pull requests, or external references instead of duplicating them.
+- Changes as understanding, readiness, and scope change through the [issue lifecycle](Lifecycle.md).
 
-- `Bug in module`
-- `Please fix`
-- `WIP`
+Keep information at its owning altitude. User-visible intent precedes technical detail, and implementation choices do not leak into outcome-level acceptance criteria. The type pages define which sections and evidence are required at each altitude.
 
-## The three sections
+## Native metadata and relationships
 
-The description has three sections separated by horizontal rules (`---`), ordered from behavioural to architectural to tactical. The user need is understood before the technical discussion.
+Assign the native issue type and maintain [native relationships](Relationships.md) in GitHub. Labels may classify release impact or repository-specific concerns, but they do not replace issue types, containment, dependencies, or readiness.
 
-| Section                   | Owner                 | Present in                                                    |
-| ------------------------- | --------------------- | ------------------------------------------------------------- |
-| 1 — Context and Request   | Ideator → Clarifier   | Every issue at every level (Task, Bug, PBI, Epic)              |
-| 2 — Technical Decisions   | Planner               | Task / Bug always; PBI / Epic for decomposition rationale     |
-| 3 — Implementation Plan   | Planner               | Task / Bug always (task list); PBI / Epic (links to children) |
+Do not duplicate metadata or relationships in the body. In particular, do not add manual `Parent:` or `Blocked by:` fields, copied child-link lists, or prose that treats list position as execution order.
 
-## Section 1 — Context and Request
+## Audit trail
 
-Describes the **user experience** — what someone wants, what isn't working, or what is missing. Written from the user's perspective, not the implementer's.
+Edit the body whenever the current truth changes, then add a comment that briefly records:
 
-Two parts:
+- What changed.
+- Why it changed.
+- Any unresolved question or follow-up.
 
-- **Context** — who the user is, what they're trying to accomplish, the situation.
-- **Request** — the problem or need, as the user experiences it.
-
-Answers:
-
-- What does the user want to do?
-- What is the user experiencing today (for bugs / gaps)?
-- What should the experience look like instead?
-- Why does it matter?
-
-Framing by work type:
-
-| Type           | Framing                                                                              |
-| -------------- | ------------------------------------------------------------------------------------ |
-| Feature        | **Desired capability:** The desired capability from the user's point of view.        |
-| Bug / Fix      | **What happens:** / **What is expected:** Observed vs. expected behavior.            |
-| Change request | **Current experience:** / **Desired experience:** The shift from the user's lens.    |
-| Maintenance    | **User impact:** How internal work improves reliability, speed, or correctness.      |
-| Documentation  | **What is confusing or missing:** The gap from a user trying to accomplish a task.   |
-
-Elements per work type:
-
-| Element                  | Feature | Bug / Fix | Change request | Maintenance | Documentation |
-| ------------------------ | :-----: | :-------: | :------------: | :---------: | :-----------: |
-| Acceptance criteria      |    ✓    |     ✓     |       ✓        |      ✓      |       ✓       |
-| Reproduction steps       |         |     ✓     |                |             |               |
-| Environment / version    |         |     ✓     |                |             |               |
-| Regression indicator     |         |     ✓     |                |             |               |
-| Known workarounds        |         |     ✓     |       ○        |             |               |
-| Error messages / logs    |         |     ✓     |                |      ○      |               |
-| Screenshots / visuals    |    ○    |     ✓     |       ○        |             |       ○       |
-
-✓ = present when applicable, ○ = optional
-
-Element definitions:
-
-- **Reproduction steps** — a [minimal reproducible example](https://en.wikipedia.org/wiki/Minimal_reproducible_example): exact steps, inputs, and commands that trigger the problem. Anyone can reproduce the failure without guessing.
-- **Environment / version** — tool version, runtime version, and operating system. Other relevant runtime details (host application, execution context) included as applicable. Omitted only when clearly version-independent.
-- **Regression indicator** — whether this previously worked, and in which version. If unknown, stated explicitly.
-- **Known workarounds** — any mitigation available today, even if ugly or incomplete.
-
-This section contains:
-
-- Context: user story or scenario, background, what the user is trying to accomplish
-- Request: the specific problem, gap, or desired change — as the user experiences it
-- Current vs. desired experience
-- Impact of not addressing this (data loss, confusion, blocked workflows)
-- Acceptance criteria — what "done" looks like from the user's perspective
-- Applicable work-type-specific elements from the table above
-- Links to related issues, PRs, or external references — every external resource is a clickable hyperlink
-
-This section **does not contain** file paths, function internals, API endpoints, or implementation patterns. Those belong in Section 2. The section is understandable by someone who has never read the source code.
-
-**Example (Bug / Fix):**
-
-```markdown
-The `repo list` command is used in automation to sync all repositories for an account.
-The script relies on getting the full list so it can detect new or removed repositories.
-
-## Request
-
-When `repo list` is run on an account with more than 30 repositories, only 30 results are returned.
-There is no indication that results are incomplete, so it appears as though the full list has been retrieved.
-The silent truncation causes scripts to miss repositories, which can go unnoticed for weeks.
-
-### Reproduction steps
-
-1. Create or use an account with more than 30 repositories
-2. Run `repo list`
-3. Count the returned objects — only 30 are returned regardless of total count
-
-### What is expected
-
-The command should return **all** repositories by default. If there is a way to limit results,
-it should be opt-in — not the default.
-
-### Environment
-
-- **Tool version:** 0.14.0
-- **OS:** Ubuntu 22.04 (Linux)
-
-### Regression
-
-This appears to have been the behavior since the initial release. Not a regression.
-
-### Workaround
-
-Calling the REST API directly with manual pagination returns all results.
-
-### Acceptance criteria
-
-- All repositories are returned by default, regardless of how many exist
-- Results can be limited with a parameter when only a subset is needed
-- No silent data loss — if something limits results, it should be explicit
-```
-
-**Example (Feature):**
-
-```markdown
-Automation scripts that publish releases to multiple registries currently call the `publish` command
-in a loop for each target. There is no built-in way to publish to several registries in a single invocation.
-
-## Request
-
-### Desired capability
-
-A `--registry` option on the `publish` command that accepts a list of registry names, publishing
-to each in sequence. If any single publish fails, the error should be reported per-registry
-without aborting the remaining targets.
-
-### Acceptance criteria
-
-- `--registry` accepts one or more registry names
-- Each target is attempted independently — a failure on one does not block the others
-- Output clearly indicates success or failure per registry
-```
-
-## Section 2 — Technical Decisions
-
-The technical choices that shape the plan. Sits between the user-facing request and the tactical plan.
-
-Why this section exists:
-
-- Different technical choices lead to fundamentally different plans — deciding upfront avoids rework.
-- Conscious, documented choices replace implicit assumptions buried in code.
-- Reviewers see the **reasoning** behind the plan, not just the plan itself.
-
-Structure:
-
-- Each decision is a bolded label or heading, followed by the chosen approach and a brief rationale.
-- Alternatives considered are included when they help explain the choice.
-- Open decisions are marked with `Open:` and resolved before the implementation plan is written.
-- When a decision changes later, this section is updated and a comment documents the change.
-
-Typical decision areas:
-
-- Where new code lives (paths, modules).
-- Patterns or conventions followed (e.g., "follow the existing pattern in the release command").
-- Naming choices.
-- Whether to extend or create new.
-- Dependencies on other functions, modules, or APIs.
-- Error handling strategy.
-- Breaking changes and backward compatibility.
-- Test strategy (unit, integration, mocks).
-
-**Example:**
-
-```markdown
----
-
-## Technical decisions
-
-**Code placement:** New helper goes in `src/lib/` following the existing
-request-helper pattern. The public command stays in `src/commands/repository/`.
-
-**Pagination approach:** Use link-header-based pagination (`rel="next"`) rather than page-number incrementing.
-The REST API uses link headers consistently, and this avoids hardcoding page size assumptions.
-
-**Parameter naming:** Use `--limit` (consistent with common CLI convention) rather than
-`--max` or `--max-results`.
-
-**Breaking changes:** None. Default behavior changes from returning one page to returning all pages, but since the
-previous behavior was undocumented and returning incomplete data, this is treated as a bugfix rather than a breaking change.
-
-**Test approach:** Unit tests with mocked API responses. One test per scenario: single-page, multi-page, and `--limit` limiting.
-```
-
-## Section 3 — Implementation Plan
-
-The task-level roadmap. Implementers track progress here; reviewers use it to understand scope.
-
-Structure:
-
-- Every discrete piece of work is a checkbox: `- [ ]`.
-- Tasks are grouped under subheadings when work spans multiple behaviors or dependencies. Keep each behavior's tests with its implementation tasks.
-- Each task is specific and actionable — file paths, function names, modules.
-- All tasks start unchecked. Checking happens during implementation.
-- Order groups and tasks so scope and dependencies are clear; the checklist layout is not a mandatory execution sequence.
-- Follow [test-first development](../../../Coding-Standards/Testing.md#test-first): define and run a behavior's test before implementing that behavior, regardless of how its checkboxes are organized.
-
-For PBIs and Epics, Section 3 is **a list of links to child issues**, not inline tasks. See [Issue Hierarchy](../Types/Hierarchy.md).
-
-**Example:**
-
-```markdown
----
-
-## Implementation plan
-
-### Paged responses
-
-- [ ] Add unit test for single-page response
-- [ ] Add unit test for multi-page response
-- [ ] Add a paged-request helper in `src/lib/`
-- [ ] Update the `repo list` command to call the paged variant in `src/commands/repository/`
-
-### Result limiting
-
-- [ ] Add unit test for `--limit` option limiting results
-- [ ] Add a `--limit` option with integer type and validation
-
-### Documentation
-
-- [ ] Update command help with new option documentation
-- [ ] Add example showing pagination usage
-```
-
-## Comments
-
-Every description update is accompanied by a comment. Comments preserve the change history so reasoning is not lost when the description is overwritten.
-
-A comment contains:
-
-- A brief summary line.
-- Bullet points detailing what was added, changed, or removed.
-- Any gaps or open questions that need input.
-
-**Example:**
-
-```markdown
-Structured the issue description into the standard three-section format.
-
-- Rewrote the context and request to separate user-facing behavior from technical details
-- Added technical decisions section based on codebase research
-- Created implementation plan with 6 tasks covering core changes, tests, and documentation
-- Open question: should `-First` default to unlimited or require explicit opt-in? Marked as open in technical decisions.
-```
+Comments preserve the audit trail; they do not become a second current specification or plan.
 
 ## Formatting
 
-Issues use [GitHub Flavored Markdown](https://github.github.com/gfm/) with the full feature set:
+Use [GitHub Flavored Markdown](https://github.github.com/gfm/) to make the body easy to scan:
 
-- `- [ ]` / `- [x]` task lists.
-- Tables for comparisons, label definitions, decision matrices.
+- Headings for distinct concerns.
+- Task lists only where the type guidance calls for tracked work.
+- Tables only when comparison is clearer than prose.
 - Fenced code blocks with language identifiers.
-- `>` blockquotes for callouts.
-- `> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]` alerts.
-- `<details><summary>…</summary>…</details>` collapsible sections.
-- `#123`, `@user`, and commit SHA autolinks.
-- Backtick-wrapped inline code for identifiers.
-- `---` horizontal rules between sections.
-- `[text](url)` links for all external references.
-- **No hard line breaks within a paragraph.** GitHub renders mid-paragraph newlines as spaces, which creates inconsistent visual spacing.
+- Backticks for identifiers and commands.
+- Markdown links for external references rather than bare URLs.
+- Horizontal rules when they clarify the transition between intent, decisions, and plan.
 
-## Complete example
-
-A fully structured bugfix issue:
-
-**Title:** `Fix silent truncation of results in the repo list command`
-
-**Labels:** `Patch`, `Bug`
-
-**Body:**
-
-```markdown
-The `repo list` command is used in automation to sync all repositories for an account.
-The script relies on getting the full list so it can detect new or removed repositories.
-
-## Request
-
-When `repo list` is run on an account with more than 30 repositories, only
-30 results are returned. There is no indication that results are incomplete, so it appears
-as though the full list has been retrieved. The silent truncation causes scripts to miss
-repositories, which can go unnoticed for weeks.
-
-### Reproduction steps
-
-1. Create or use an account with more than 30 repositories
-2. Run `repo list`
-3. Count the returned objects — only 30 are returned regardless of total count
-
-### What is expected
-
-The command should return **all** repositories by default. If there is a way to limit
-results, it should be opt-in — not the default.
-
-### Environment
-
-- **Tool version:** 0.14.0
-- **OS:** Ubuntu 22.04 (Linux)
-
-### Regression
-
-This appears to have been the behavior since the initial release. Not a regression.
-
-### Workaround
-
-Calling the REST API directly with manual pagination returns all results.
-
-### Acceptance criteria
-
-- All repositories are returned by default, regardless of how many exist
-- Results can be limited with a parameter when only a subset is needed
-- No silent data loss — if something limits results, it should be explicit
-
----
-
-## Technical decisions
-
-**Code placement:** New helper goes in `src/lib/` following
-the existing request-helper pattern. The public command stays in
-`src/commands/repository/`.
-
-**Pagination approach:** Use link-header-based pagination (`rel="next"`) rather than page-number
-incrementing. The REST API uses link headers consistently, and this avoids hardcoding page
-size assumptions.
-
-**Parameter naming:** Use `--limit` (consistent with common CLI convention)
-rather than `--max` or `--max-results`.
-
-**Breaking changes:** None. Default behavior changes from returning one page to returning all pages,
-but since the previous behavior was undocumented and returning incomplete data, this is treated as a
-bug fix rather than a breaking change.
-
-**Test approach:** Unit tests with mocked API responses. One test per scenario: single-page,
-multi-page, and `--limit` limiting.
-
----
-
-## Implementation plan
-
-### Paged responses
-
-- [ ] Add unit test for single-page response
-- [ ] Add unit test for multi-page response
-- [ ] Add a paged-request helper in `src/lib/`
-- [ ] Update the `repo list` command to call the paged variant in `src/commands/repository/`
-
-### Result limiting
-
-- [ ] Add unit test for `--limit` option limiting results
-- [ ] Add a `--limit` option with integer type and validation
-
-### Documentation
-
-- [ ] Update command help with new option documentation
-- [ ] Add example showing pagination usage
-```
-
-## Labels
-
-Labels categorize. The category is never encoded in the title.
-
-| Label       | Use for                                              |
-| ----------- | ---------------------------------------------------- |
-| `Major`     | Breaking changes                                     |
-| `Minor`     | New features or enhancements                         |
-| `Patch`     | Small fixes or improvements                          |
-| `NoRelease` | Documentation, maintenance, CI/CD — no version bump  |
-| `Bug`       | Bug reports                                          |
-| `Feature`   | Feature requests                                     |
-| `Question`  | Questions or discussion                              |
-
-Issue **types** are GitHub-native and separate from labels. The operational types are Epic / PBI / Task / Bug; see [Issue Hierarchy](../Types/Hierarchy.md) for their roles and Feature's temporary retention.
+Write each paragraph as a single unbroken line. Prefer concise body content and link to the canonical source instead of restating it.
