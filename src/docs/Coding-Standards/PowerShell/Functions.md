@@ -56,15 +56,15 @@ function Get-UserData {
 When every parameter set returns the same type, one `[OutputType]` with no scoping is correct. When different parameter sets return different types, scope each `[OutputType]` to its parameter set using the `ParameterSetName` argument — `[OutputType]` may appear multiple times on the same function, once per type/set combination:
 
 ```powershell
-[OutputType([System.String],      ParameterSetName = 'ByName')]
-[OutputType([System.IO.FileInfo], ParameterSetName = 'ByPath')]
-[CmdletBinding(DefaultParameterSetName = 'ByName')]
+[OutputType([System.String],      ParameterSetName = 'By display name')]
+[OutputType([System.IO.FileInfo], ParameterSetName = 'From file path')]
+[CmdletBinding(DefaultParameterSetName = 'By display name')]
 param(
-    [Parameter(Mandatory, ParameterSetName = 'ByName')]
-    [string] $Name,
+    [Parameter(Mandatory, ParameterSetName = 'By display name')]
+    [string] $DisplayName,
 
-    [Parameter(Mandatory, ParameterSetName = 'ByPath')]
-    [string] $Path
+    [Parameter(Mandatory, ParameterSetName = 'From file path')]
+    [string] $FilePath
 )
 ```
 
@@ -77,7 +77,7 @@ The types listed in `[OutputType]` must match what `.OUTPUTS` documents in the c
 - **Attribute order**, each on its own line: `[Parameter()]`, then validation attributes, then `[ArgumentCompleter()]`, then `[Alias()]`, then the typed declaration.
 - **Separate parameters with a blank line**, so each one's inline doc comment, attributes, and typed declaration read as a single block.
 - **`[switch]` for boolean flags** — never a `[bool]` parameter.
-- **Name every parameter set** with a meaningful English phrase that describes the *scenario or input strategy* the caller is using — parameter set names appear verbatim in `Get-Help` syntax output and must be prose a caller can read without decoding. Names that describe what the caller provides (`ByName`, `ByPath`, `ByLiteralPath`, `ByGuid`) or how the call is made (`WithCredential`, `AsComputerName`, `AsSession`) work well. Never acceptable: `Default`, `__AllParameterSets`, `__DefaultParameterSet`, `ParameterSetA`, `Set1`, `Mode1`, or any name a caller would have to decode. `DefaultParameterSetName` on `[CmdletBinding()]` must name one of the declared parameter sets using the same prose convention and is never omitted when multiple sets exist.
+- **Name every parameter set** with a prose phrase that states the caller's scenario — parameter set names appear verbatim in `Get-Help` syntax output and must read naturally to anyone calling the command. **Spaces are supported** and encouraged: `'By display name'`, `'From file path'`, `'As computer name'`, `'With credential'`, `'As session'`. Single-word PascalCase names (`ByName`, `ByPath`, `ByGuid`) are acceptable when the scenario is self-evident, but multi-word names with spaces read even better in help output. Never acceptable: `Default`, `__AllParameterSets`, `__DefaultParameterSet`, `ParameterSetA`, `Set1`, `Mode1`, or any name a caller would have to decode. `DefaultParameterSetName` on `[CmdletBinding()]` must name one of the declared parameter sets using the same prose convention and is never omitted when multiple sets exist.
 
 ## State changes and the pipeline
 
