@@ -1,6 +1,6 @@
 ---
 title: Issue Hierarchy
-description: Epic, PBI, and Task — the three operational levels.
+description: Delivery (Task or Bug), PBI, and Epic — the three operational levels.
 ---
 
 # Issue Hierarchy

@@ -45,9 +45,9 @@ The description has three sections separated by horizontal rules (`---`), ordere
 
 | Section                   | Owner                 | Present in                                                    |
 | ------------------------- | --------------------- | ------------------------------------------------------------- |
-| 1 — Context and Request   | Ideator → Clarifier   | Every issue at every level (Task, PBI, Epic)                  |
-| 2 — Technical Decisions   | Planner               | Task always; PBI / Epic for decomposition rationale           |
-| 3 — Implementation Plan   | Planner               | Task always (task list); PBI / Epic (links to children)       |
+| 1 — Context and Request   | Ideator → Clarifier   | Every issue at every level (Task, Bug, PBI, Epic)              |
+| 2 — Technical Decisions   | Planner               | Task / Bug always; PBI / Epic for decomposition rationale     |
+| 3 — Implementation Plan   | Planner               | Task / Bug always (task list); PBI / Epic (links to children) |
 
 ## Section 1 — Context and Request
 
@@ -408,4 +408,4 @@ Labels categorize. The category is never encoded in the title.
 | `Feature`   | Feature requests                                     |
 | `Question`  | Questions or discussion                              |
 
-Issue **types** (Epic / PBI / Task) are GitHub-native and separate from labels — see [Issue Hierarchy](Issue-Hierarchy.md).
+Issue **types** are GitHub-native and separate from labels. The operational types are Epic / PBI / Task / Bug; see [Issue Hierarchy](Issue-Hierarchy.md) for their roles and Feature's temporary retention.
