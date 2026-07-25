@@ -144,6 +144,7 @@ The user record for the requested id.
 
 Rules that apply to both sections:
 
+- **Include a description for every entry** — the type name alone is not sufficient. The description should say what is actually piped in (for `.INPUTS`) or what is returned (for `.OUTPUTS`) in plain language, not just restate the type name.
 - Use the fully-qualified .NET type name (`System.String`, `System.Management.Automation.PSCustomObject`), not a PowerShell type accelerator (`[string]`, `[pscustomobject]`).
 - When no parameters accept pipeline input, write `None` as the type with `You can't pipe objects to <CommandName>.` as the description paragraph (use the actual command name).
 - Repeat the keyword once per type when multiple types are accepted or returned.
