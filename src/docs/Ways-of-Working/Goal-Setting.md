@@ -32,7 +32,7 @@ OKRs are tracked as sub-issues of the Mission issue in the org `.github` reposit
 
 ## From strategy to delivery
 
-Initiatives are the bridge between strategy and execution. An Initiative is a sub-issue of an OKR and maps directly to an **Epic** in the relevant repository. From there it decomposes into PBIs and Tasks through the [Issue Hierarchy](Issue-Hierarchy.md).
+Initiatives are the bridge between strategy and execution. An Initiative is a sub-issue of an OKR and maps directly to an **Epic** in the relevant repository. From there it decomposes into PBIs and Tasks through the [Issue Hierarchy](Issues/Types/Hierarchy.md).
 
 ```text
 Mission (org-level, evergreen)

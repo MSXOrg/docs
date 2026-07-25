@@ -30,8 +30,7 @@ This section documents the principles, processes, and norms that every contribut
 | [Engineering Taste](Engineering-Taste.md) | The judgment that takes over when the standards run out. |
 | [Goal-Setting Framework](Goal-Setting.md) | Mission, OKRs, and initiatives — strategy connected to delivery. |
 | [Definition of Ready and Done](Definition-of-Ready-and-Done.md) | The three gates that bracket every piece of work. |
-| [Issue Format](Issue-Format.md) | The three-section issue structure, formatting, and labels. |
-| [Issue Hierarchy](Issue-Hierarchy.md) | Delivery (Task or Bug), PBI, and Epic — the three operational levels. |
+| [Issues](Issues/index.md) | How issues are formatted and organized across the MSX ecosystem. |
 | [PR Format](PR-Format.md) | Pull request title, description, change types, and labels. |
 | [Commit Conventions](Commit-Conventions.md) | How commit messages are written. |
 | [Branching and Merging](Branching-and-Merging.md) | Topic branches, pull-request-only integration, and merge models. |

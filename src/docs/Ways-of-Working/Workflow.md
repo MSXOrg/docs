@@ -61,7 +61,7 @@ A desire for change enters the system. It can come from anywhere:
 The goal is to **write it down** — quickly, in a GitHub issue — so it exists for the world to see and "remember".
 At this stage, precision is less important than existence. The issue captures the current state, the pain or opportunity, and the desired outcome.
 
-See [Issue Format § Section 1](Issue-Format.md) for structure.
+See [Issue Format § Section 1](Issues/Process/Format.md) for structure.
 
 ### Refine
 
@@ -88,7 +88,7 @@ Turn the refined understanding into actionable work:
 
 The plan is the contract. It drives implementation.
 
-See [Documentation Model](Documentation-Model.md), [Issue Format § Sections 2–3](Issue-Format.md), [Issue Hierarchy](Issue-Hierarchy.md).
+See [Documentation Model](Documentation-Model.md), [Issue Format § Sections 2–3](Issues/Process/Format.md), [Issue Hierarchy](Issues/Types/Hierarchy.md).
 
 ### Build
 

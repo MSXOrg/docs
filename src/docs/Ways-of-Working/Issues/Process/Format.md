@@ -233,9 +233,9 @@ Structure:
 - Each task is specific and actionable — file paths, function names, modules.
 - All tasks start unchecked. Checking happens during implementation.
 - Order groups and tasks so scope and dependencies are clear; the checklist layout is not a mandatory execution sequence.
-- Follow [test-first development](../Coding-Standards/Testing.md#test-first): define and run a behavior's test before implementing that behavior, regardless of how its checkboxes are organized.
+- Follow [test-first development](../../../Coding-Standards/Testing.md#test-first): define and run a behavior's test before implementing that behavior, regardless of how its checkboxes are organized.
 
-For PBIs and Epics, Section 3 is **a list of links to child issues**, not inline tasks. See [Issue Hierarchy](Issue-Hierarchy.md).
+For PBIs and Epics, Section 3 is **a list of links to child issues**, not inline tasks. See [Issue Hierarchy](../Types/Hierarchy.md).
 
 **Example:**
 
@@ -408,4 +408,4 @@ Labels categorize. The category is never encoded in the title.
 | `Feature`   | Feature requests                                     |
 | `Question`  | Questions or discussion                              |
 
-Issue **types** are GitHub-native and separate from labels. The operational types are Epic / PBI / Task / Bug; see [Issue Hierarchy](Issue-Hierarchy.md) for their roles and Feature's temporary retention.
+Issue **types** are GitHub-native and separate from labels. The operational types are Epic / PBI / Task / Bug; see [Issue Hierarchy](../Types/Hierarchy.md) for their roles and Feature's temporary retention.

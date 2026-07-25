@@ -50,8 +50,17 @@ nav = [
     {"Engineering Taste" = "Ways-of-Working/Engineering-Taste.md"},
     {"Goal-Setting Framework" = "Ways-of-Working/Goal-Setting.md"},
     {"Definition of Ready and Done" = "Ways-of-Working/Definition-of-Ready-and-Done.md"},
-    {"Issue Format" = "Ways-of-Working/Issue-Format.md"},
-    {"Issue Hierarchy" = "Ways-of-Working/Issue-Hierarchy.md"},
+    {"Issues" = [
+      "Ways-of-Working/Issues/index.md",
+      {"Process" = [
+        "Ways-of-Working/Issues/Process/index.md",
+        {"Format" = "Ways-of-Working/Issues/Process/Format.md"},
+      ]},
+      {"Types" = [
+        "Ways-of-Working/Issues/Types/index.md",
+        {"Hierarchy" = "Ways-of-Working/Issues/Types/Hierarchy.md"},
+      ]},
+    ]},
     {"PR Format" = "Ways-of-Working/PR-Format.md"},
     {"Commit Conventions" = "Ways-of-Working/Commit-Conventions.md"},
     {"Branching and Merging" = "Ways-of-Working/Branching-and-Merging.md"},
