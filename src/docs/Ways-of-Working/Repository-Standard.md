@@ -27,11 +27,11 @@ Every repository must carry the files that make it understandable and governable
 | `CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
 | `AGENTS.md` | Cross-tool agent onboarding entry point that points to the initiative's canonical agent guidance. |
 | `CLAUDE.md` | Claude Code entry point that imports `AGENTS.md` so Claude reads the same guidance. |
-| `.github/dependabot.yml` | Configures dependency and supply-chain update pull requests. |
+| `.github/dependabot.yml` | Configures ecosystem-appropriate dependency-update pull requests. The `github-actions` ecosystem is expected in virtually every repository; add the language, package, container, or infrastructure ecosystems the repository actually develops in. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
-| `.github/pull_request_template.md` | Guides contributors to provide change type, impact, validation, and links. |
-| `.gitattributes` | Defines Git file handling defaults. |
-| `.gitignore` | Defines files that should not enter version control. |
+| `.github/pull_request_template.md` | Scaffolds pull requests in the MSX [PR Format](PR-Format.md) (PR Manager) style — an icon + change-type + user-facing-outcome title, user-facing description sections, an optional technical-details block, and a related-issues block. |
+| `.gitattributes` | Normalizes line endings and declares text/binary handling so the repository can be developed and built consistently on Linux, macOS, and Windows. |
+| `.gitignore` | Ignores files that must never be committed, tailored to the repository's ecosystem: operating-system files, editor and developer-tooling files, language and test-harness artifacts, and all local build outputs and files created during build and test. |
 
 Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
 
