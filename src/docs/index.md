@@ -47,7 +47,7 @@ Each area below carries its own index. Start here, read the descriptions, and fo
 | [Vision](Vision/index.md) | The mission and the philosophy of easy, fast, and safe. |
 | [Initiatives](Initiatives/index.md) | The products that make the vision real — PSModule, AzActions, TFActions, and the tools built along the way. |
 | [Ways of Working](Ways-of-Working/index.md) | How work happens across the ecosystem — for humans and agents alike. |
-| [Agent Workflow](Agents/index.md) | The stages agents follow to define, implement, and review work across the ecosystem. |
+| [Workflow Stages](Agents/index.md) | Procedures for each stage of the canonical Workflow, reached through indexes or direct task-language shortcuts. |
 | [Coding Standards](Coding-Standards/index.md) | The shared baseline every repository inherits, and the per-language standards that build on it. |
 | [Capabilities](Capabilities/index.md) | The capabilities the ecosystem builds, each documented by a spec (why and what) and a design (how and what). |
 | [Frameworks](Frameworks/index.md) | The complete, end-to-end frameworks the ecosystem ships — opinionated automation a project adopts wholesale to go from source to shipped. |

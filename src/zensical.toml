@@ -25,7 +25,17 @@ nav = [
   ]},
   {"Ways of Working" = [
     "Ways-of-Working/index.md",
-    {"Workflow" = "Ways-of-Working/Workflow.md"},
+    {"Workflow" = [
+      "Ways-of-Working/Workflow.md",
+      {"Stages" = [
+        "Agents/index.md",
+        {"Define" = "Agents/define.md"},
+        {"Implement" = "Agents/implement.md"},
+        {"Review" = "Agents/reviewer.md"},
+        {"Security Review" = "Agents/security-reviewer.md"},
+        {"Maintain Guidance" = "Agents/agent-author.md"},
+      ]},
+    ]},
     {"Contribution Workflow" = "Ways-of-Working/Contribution-Workflow.md"},
     {"Fleet Orchestration" = "Ways-of-Working/Fleet-Orchestration.md"},
     {"Documentation Model" = "Ways-of-Working/Documentation-Model.md"},
@@ -76,14 +86,6 @@ nav = [
     {"README-Driven Context" = "Ways-of-Working/Readme-Driven-Context.md"},
     {"Continuous Practices" = "Ways-of-Working/Continuous-Practices.md"},
     {"DevOps Reference" = "Ways-of-Working/DevOps-Reference.md"},
-  ]},
-  {"Agent Workflow" = [
-    "Agents/index.md",
-    {"Define" = "Agents/define.md"},
-    {"Implement" = "Agents/implement.md"},
-    {"Review" = "Agents/reviewer.md"},
-    {"Security Review" = "Agents/security-reviewer.md"},
-    {"Maintain Workflow" = "Agents/agent-author.md"},
   ]},
   {"Coding Standards" = [
     "Coding-Standards/index.md",

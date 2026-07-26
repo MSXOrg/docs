@@ -1,11 +1,11 @@
 ---
-title: Define Stage
-description: The workflow stage that captures, routes, refines, and plans work at the correct issue altitude.
+title: Define
+description: Procedure for the Workflow stage that captures, routes, refines, and plans work at the correct issue altitude.
 ---
 
-# Define Stage
+# Define
 
-Define is the first stage of the [Agent Workflow](index.md). It takes something someone wants — a feature, a bug, an improvement, external feedback, or a production signal — and routes it to the correct native issue type. The stage hands off an Epic or PBI ready to coordinate and decompose, or a Task or Bug ready for delivery. Define plans work; it does not build it.
+Define is the first stage of the canonical [Workflow](../Ways-of-Working/Workflow.md). It takes something someone wants — a feature, a bug, an improvement, external feedback, or a production signal — and routes it to the correct native issue type. The stage hands off an Epic or PBI ready to coordinate and decompose, or a Task or Bug ready for delivery. Define plans work; it does not build it.
 
 ## Enter this stage when
 

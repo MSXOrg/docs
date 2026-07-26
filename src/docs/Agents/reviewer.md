@@ -1,11 +1,11 @@
 ---
-title: Review Stage
-description: The workflow stage that independently reviews a pull request for delivery, taste, security, and decisions.
+title: Review
+description: Procedure for the Workflow stage that independently reviews a pull request for delivery, taste, security, and decisions.
 ---
 
-# Review Stage
+# Review
 
-Review is the independent-assessment stage of the [Agent Workflow](index.md). It verifies that a pull request delivers its closing Task or Bug, applies good taste, respects security, and does not quietly introduce decisions that were not discussed. This stage comments and approves; it does not change code, fix CI, or merge.
+Review is the independent-assessment stage of the canonical [Workflow](../Ways-of-Working/Workflow.md). It verifies that a pull request delivers its closing Task or Bug, applies good taste, respects security, and does not quietly introduce decisions that were not discussed. This stage comments and approves; it does not change code, fix CI, or merge.
 
 ## Enter this stage when
 

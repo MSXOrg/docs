@@ -1,15 +1,15 @@
 ---
-title: Maintain Agent Workflow
-description: Maintain the shared workflow stages and the thin repository pointers that reference them.
+title: Maintain Workflow Guidance
+description: Maintain the canonical Workflow stage procedures and the thin repository pointers that lead to them.
 ---
 
-# Maintain Agent Workflow
+# Maintain Workflow Guidance
 
-Maintain the workflow stages in this section and the per-repository pointer files that reference them. Every stage description is grounded in the [Ways of Working](../Ways-of-Working/index.md), and every pointer file stays thin. This maintenance path keeps the workflow and pointers honest; it does not encode standards into either.
+Maintain the canonical [Workflow](../Ways-of-Working/Workflow.md), the stage procedures in this section, and the per-repository pointer files that lead to the documentation root. Every pointer file stays thin. This maintenance path keeps the indexes, workflow, procedures, and pointers coherent; it does not encode process knowledge in configuration.
 
 ## Enter this maintenance path when
 
-Create a new workflow stage, update an existing stage, review workflow quality, or refactor a bloated agent file back into a thin pointer over the docs.
+Create a new workflow stage, update an existing stage, review workflow discoverability, or refactor a bloated agent file back into a thin pointer to the documentation root.
 
 ## Flow
 

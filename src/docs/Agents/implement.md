@@ -1,11 +1,11 @@
 ---
-title: Implement Stage
-description: The workflow stage that delivers one ready Task or Bug as a review-ready pull request.
+title: Implement
+description: Procedure for the Workflow stage that delivers one ready Task or Bug as a review-ready pull request.
 ---
 
-# Implement Stage
+# Implement
 
-Implement is the delivery stage of the [Agent Workflow](index.md). It takes one ready, unblocked Task or Bug and produces working software in a review-ready pull request. The stage owns branching, coding, committing, opening the pull request, tracking progress, running the automated review loop, responding to feedback, and finalizing the release note. Implement builds delivery leaves; it does not implement an Epic or PBI aggregate, plan from scratch, or supply the independent review.
+Implement is the delivery stage of the canonical [Workflow](../Ways-of-Working/Workflow.md). It takes one ready, unblocked Task or Bug and produces working software in a review-ready pull request. The stage owns branching, coding, committing, opening the pull request, tracking progress, running the automated review loop, responding to feedback, and finalizing the release note. Implement builds delivery leaves; it does not implement an Epic or PBI aggregate, plan from scratch, or supply the independent review.
 
 ## Enter this stage when
 
