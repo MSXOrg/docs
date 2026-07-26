@@ -125,7 +125,7 @@ The **Relevant issues (or links)** block is required and uses fully qualified re
 
 Use one bullet per linked issue. Exactly one bullet uses a [closing keyword](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue) (`Fixes`, `Closes`, or `Resolves`), and it closes the one Task or Bug delivered by the pull request. A parent PBI or Epic may appear as context without a closing keyword; never close an aggregate through a delivery pull request. Other supporting links are also non-closing.
 
-If there is not exactly one closing Task or Bug: **stop**. Route back to [Define](../Agents/define.md) to create or correctly route the delivery leaf. The [Issue Hierarchy](Issues/Types/Hierarchy.md) and [Issue Lifecycle](Issues/Process/Lifecycle.md) own type and closure semantics.
+If there is not exactly one closing Task or Bug: **stop**. Route back to [Define](Workflow-Stages/Define.md) to create or correctly route the delivery leaf. The [Issue Hierarchy](Issues/Types/Hierarchy.md) and [Issue Lifecycle](Issues/Process/Lifecycle.md) own type and closure semantics.
 
 ## Formatting
 

@@ -16,6 +16,7 @@ This section documents the principles, processes, and norms that every contribut
 | Page | Description |
 | --- | --- |
 | [Workflow](Workflow.md) | The canonical process from idea to delivery, including how to resolve and enter each workflow stage. |
+| [Workflow Stages](Workflow-Stages/index.md) | Procedures for each stage of the canonical Workflow, reached through indexes or direct task-language shortcuts. |
 | [Contribution Workflow](Contribution-Workflow.md) | How a change travels from a branch to a review-ready pull request — draft first, the Copilot review loop, then people. |
 | [Fleet Orchestration](Fleet-Orchestration.md) | How one change is rolled out across many repositories through Task or Bug delivery leaves tracked entirely on GitHub. |
 | [Documentation Model](Documentation-Model.md) | How every capability is documented — a spec for the why and a design for the how, colocated, concise, and kept evergreen for humans and agents alike. |

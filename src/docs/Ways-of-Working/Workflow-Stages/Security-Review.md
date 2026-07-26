@@ -5,7 +5,7 @@ description: Procedure for the specialized Workflow stage for defensive security
 
 # Security Review
 
-Security Review is a specialized path in the canonical [Workflow](../Ways-of-Working/Workflow.md). On behalf of the code owner, it identifies vulnerabilities and attack vectors in source code and documentation and produces a clear, actionable responsible-disclosure issue for each finding. It uses a defender's mindset, not an attacker's, and produces no working exploit code.
+Security Review is a specialized path in the canonical [Workflow](../Workflow.md). On behalf of the code owner, it identifies vulnerabilities and attack vectors in source code and documentation and produces a clear, actionable responsible-disclosure issue for each finding. It uses a defender's mindset, not an attacker's, and produces no working exploit code.
 
 ## Enter this stage when
 
@@ -43,5 +43,5 @@ After the review, open a security issue on the target repository titled `[Securi
 
 ## Where this connects
 
-- [Review Etiquette](../Ways-of-Working/Review-Etiquette.md) — how findings are communicated.
-- [Security](../Coding-Standards/Security.md) and [GitHub Actions](../Coding-Standards/GitHub-Actions.md) — the standards a finding cites.
+- [Review Etiquette](../Review-Etiquette.md) — how findings are communicated.
+- [Security](../../Coding-Standards/Security.md) and [GitHub Actions](../../Coding-Standards/GitHub-Actions.md) — the standards a finding cites.

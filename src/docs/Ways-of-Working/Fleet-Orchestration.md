@@ -150,7 +150,7 @@ flowchart TD
 3. **Apply the change and run the loop.** Make the change and take the pull
    request through the [Contribution Workflow](Contribution-Workflow.md) —
    the Copilot review loop — exactly as any single-repository change. The
-   [Implement](../Agents/implement.md) and [Review](../Agents/reviewer.md)
+   [Implement](Workflow-Stages/Implement.md) and [Review](Workflow-Stages/Review.md)
    workflow stages apply unchanged.
 4. **Flag blockers, don't stall the fleet.** If a delivery leaf needs a human decision or
    an off-platform action, set `stage:blocked` with a note and move on to the next

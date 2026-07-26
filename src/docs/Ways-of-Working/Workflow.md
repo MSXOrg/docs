@@ -47,15 +47,15 @@ flowchart TD
 
 ## Find the current stage
 
-Start from this page after following the documentation indexes: [Home](../index.md) → [Ways of Working](index.md) → Workflow. Infer the current stage from the work and its artifacts, then use the [stage procedure index](../Agents/index.md) or the direct links below. A stage is a part of this workflow, not a separate agent, skill, or instruction set.
+Start from this page after following the documentation indexes: [Home](../index.md) → [Ways of Working](index.md) → Workflow. Infer the current stage from the work and its artifacts, then use the [stage procedure index](Workflow-Stages/index.md) or the direct links below. A stage is a part of this workflow, not a separate agent, skill, or instruction set.
 
 | Current work or prompt | Enter | Continue until |
 | --- | --- | --- |
-| A request, signal, or issue needs to be captured, routed, refined, or planned. Prompts such as `Make this issue <description>` route here. | [Define](../Agents/define.md) | The issue meets the readiness gate for its altitude. |
-| A ready Task or Bug needs implementation, or a pull request needs author-side changes. Prompts such as `Implement <issue>` or `Fix <issue>` route here. | [Implement](../Agents/implement.md) | The pull request meets the ready-for-review gate. |
-| A pull request needs an independent assessment. Prompts such as `Review this PR <link>` route here. | [Review](../Agents/reviewer.md) | The change is approved or actionable feedback returns it to Implement. |
-| The requested assessment is explicitly security-focused. Prompts such as `Security review <scope>` route here. | [Security Review](../Agents/security-reviewer.md) | Findings are reported through the agreed channel and the review returns to its caller. |
-| The workflow pages or repository pointers themselves need to change. | [Maintain Workflow Guidance](../Agents/agent-author.md) | The canonical docs and thin pointers agree. |
+| A request, signal, or issue needs to be captured, routed, refined, or planned. Prompts such as `Make this issue <description>` route here. | [Define](Workflow-Stages/Define.md) | The issue meets the readiness gate for its altitude. |
+| A ready Task or Bug needs implementation, or a pull request needs author-side changes. Prompts such as `Implement <issue>` or `Fix <issue>` route here. | [Implement](Workflow-Stages/Implement.md) | The pull request meets the ready-for-review gate. |
+| A pull request needs an independent assessment. Prompts such as `Review this PR <link>` route here. | [Review](Workflow-Stages/Review.md) | The change is approved or actionable feedback returns it to Implement. |
+| The requested assessment is explicitly security-focused. Prompts such as `Security review <scope>` route here. | [Security Review](Workflow-Stages/Security-Review.md) | Findings are reported through the agreed channel and the review returns to its caller. |
+| The workflow pages or repository pointers themselves need to change. | [Maintain Workflow Guidance](Workflow-Stages/Maintain-Guidance.md) | The canonical docs and thin pointers agree. |
 
 Keywords are shortcuts, not a second routing system. When a prompt is ambiguous, use the current issue, pull request, branch, and completed work to identify the stage. When work crosses a stage boundary, follow the handoff and load the next procedure rather than carrying separate process instructions through the whole task.
 

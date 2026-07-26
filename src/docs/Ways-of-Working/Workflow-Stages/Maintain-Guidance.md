@@ -5,7 +5,7 @@ description: Maintain the canonical Workflow stage procedures and the thin repos
 
 # Maintain Workflow Guidance
 
-Maintain the canonical [Workflow](../Ways-of-Working/Workflow.md), the stage procedures in this section, and the per-repository pointer files that lead to the documentation root. Every pointer file stays thin. This maintenance path keeps the indexes, workflow, procedures, and pointers coherent; it does not encode process knowledge in configuration.
+Maintain the canonical [Workflow](../Workflow.md), the stage procedures in this section, and the per-repository pointer files that lead to the documentation root. Every pointer file stays thin. This maintenance path keeps the indexes, workflow, procedures, and pointers coherent; it does not encode process knowledge in configuration.
 
 ## Enter this maintenance path when
 
@@ -29,7 +29,7 @@ Write the stage as a page in this section, following the shape of its siblings: 
 
 ### 3. Keep pointers thin
 
-A repository never carries a copy of the workflow. Its `AGENTS.md` — and the `CLAUDE.md` that imports it — point to these pages and add only repo-specific nuance and the genuinely tool-specific settings (permission scopes, model choice) that cannot be expressed as a pointer. When a new runtime is adopted, add a thin pointer; do not move process knowledge into it. See [Agentic Development](../Ways-of-Working/Agentic-Development.md).
+A repository never carries a copy of the workflow. Its `AGENTS.md` — and the `CLAUDE.md` that imports it — point to these pages and add only repo-specific nuance and the genuinely tool-specific settings (permission scopes, model choice) that cannot be expressed as a pointer. When a new runtime is adopted, add a thin pointer; do not move process knowledge into it. See [Agentic Development](../Agentic-Development.md).
 
 ### 4. Validate
 
@@ -45,5 +45,5 @@ A repository never carries a copy of the workflow. Its `AGENTS.md` — and the `
 
 ## Where this connects
 
-- [Agentic Development](../Ways-of-Working/Agentic-Development.md) — the pointer model this maintains.
-- [Documentation Model](../Ways-of-Working/Documentation-Model.md) — how these pages stay evergreen.
+- [Agentic Development](../Agentic-Development.md) — the pointer model this maintains.
+- [Documentation Model](../Documentation-Model.md) — how these pages stay evergreen.

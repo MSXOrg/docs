@@ -39,7 +39,7 @@ flowchart TD
   context --> work["Act and follow stage handoffs"]
 ```
 
-The indexes are the default discovery mechanism. [Workflow](Workflow.md) owns the process and routes the work to a [stage procedure](../Agents/index.md); the stage page then points to the standards and artifacts it consumes. A clear prompt such as `Review this PR <link>` may shortcut directly through the Workflow routing table, but it does not create a second process definition. **Local files never replace central standards — they layer specifics on top.**
+The indexes are the default discovery mechanism. [Workflow](Workflow.md) owns the process and routes the work to a [stage procedure](Workflow-Stages/index.md); the stage page then points to the standards and artifacts it consumes. A clear prompt such as `Review this PR <link>` may shortcut directly through the Workflow routing table, but it does not create a second process definition. **Local files never replace central standards — they layer specifics on top.**
 
 ## Where documentation lives
 
@@ -68,7 +68,7 @@ There is no separate process surface for Define, Implement, or Review. If a clie
 
 The two non-documentation layers have different distribution models:
 
-- **The canonical process** lives in [Workflow](Workflow.md), which links to ordinary documentation pages for each [stage procedure](../Agents/index.md).
+- **The canonical process** lives in [Workflow](Workflow.md), which links to ordinary documentation pages for each [stage procedure](Workflow-Stages/index.md).
 - **Per-repository pointer files** — `AGENTS.md`, the `CLAUDE.md` that imports it, and any path-scoped local-rule adapters — are seeded from a template repository and kept current across existing repositories by a sync mechanism.
 
 Process knowledge is never added to a distributed config file. If an agent needs the branch strategy, it goes in [Branching and Merging](Branching-and-Merging.md) or the repo's `CONTRIBUTING.md`; if it needs a coding convention, it goes in the relevant [coding standard](../Coding-Standards/index.md). The config file only points — it never defines.

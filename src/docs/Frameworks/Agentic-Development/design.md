@@ -109,7 +109,7 @@ docs/
   index.md
   Ways-of-Working/index.md
   Ways-of-Working/Workflow.md
-  Agents/index.md
+  Ways-of-Working/Workflow-Stages/index.md
   Coding-Standards/index.md
   Frameworks/index.md
   Frameworks/Agentic-Development/index.md

@@ -32,7 +32,7 @@ Agents are trained to read documentation. That is their natural skill. By keepin
 Agent context is delivered through three layers, in priority order:
 
 1. **Documentation** — the primary source. Published docs at <https://msxorg.github.io/docs/>, READMEs, and issue bodies are written for humans and naturally consumable by agents.
-2. **Canonical workflow** — [Workflow](../Workflow.md) owns the process and links to ordinary documentation for each [stage procedure](../../Agents/index.md). Indexes provide the default discovery path; clear task language may shortcut stage selection without creating separate instructions.
+2. **Canonical workflow** — [Workflow](../Workflow.md) owns the process and links to ordinary documentation for each [stage procedure](../Workflow-Stages/index.md). Indexes provide the default discovery path; clear task language may shortcut stage selection without creating separate instructions.
 3. **Local pointer files** — each repository's `AGENTS.md` (and the `CLAUDE.md` that imports it), pointing to the canonical docs and memory root indexes and adding only repo-specific nuance and genuinely tool-specific settings.
 
 ## Augmentation, not replacement
