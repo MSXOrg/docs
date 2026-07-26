@@ -47,7 +47,7 @@ flowchart TD
 
 ## Find the current stage
 
-Start from this page after following the documentation indexes: [Home](../index.md) → [Ways of Working](index.md) → Workflow. Infer the current stage from the work and its artifacts, then read the matching [stage procedure](../Agents/index.md). A stage is a part of this workflow, not a separate agent, skill, or instruction set.
+Start from this page after following the documentation indexes: [Home](../index.md) → [Ways of Working](index.md) → Workflow. Infer the current stage from the work and its artifacts, then use the [stage procedure index](../Agents/index.md) or the direct links below. A stage is a part of this workflow, not a separate agent, skill, or instruction set.
 
 | Current work or prompt | Enter | Continue until |
 | --- | --- | --- |
