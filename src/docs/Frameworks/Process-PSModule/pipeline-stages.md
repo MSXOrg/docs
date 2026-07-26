@@ -19,8 +19,8 @@ situational awareness, it calculates the next module version.
 
 The user-facing settings file stays in `.github/PSModule.yml`. The workflow enriches that input into an internal runtime
 `Settings` object passed between jobs. In this runtime contract, execution decisions are phase-owned (`*.Enabled`), test
-suite matrices are defined under each owning test phase, and resolved version metadata is stored under
-`Settings.Publish.Module.Resolution`.
+suite matrices are computed under each owning test phase, and resolved version metadata is stored under
+`Settings.Publish.Module.Resolution`. The `*.Suites` values are workflow outputs, not authorable layout settings.
 
 ### Internal runtime settings contract
 
@@ -37,9 +37,9 @@ suite matrices are defined under each owning test phase, and resolved version me
 | `Settings.Test.CodeCoverage.Enabled` | Whether code coverage aggregation/enforcement runs. |
 | `Settings.Publish.Module.Enabled` | Whether module publication/release runs. |
 | `Settings.Publish.Site.Enabled` | Whether documentation publication runs. |
-| `Settings.Test.SourceCode.Suites` | Source-code test suite matrix. |
-| `Settings.Test.PSModule.Suites` | Framework test suite matrix. |
-| `Settings.Test.Module.Suites` | Module-local test suite matrix. |
+| `Settings.Test.SourceCode.Suites` | Computed source-code test suite matrix. |
+| `Settings.Test.PSModule.Suites` | Computed framework test suite matrix. |
+| `Settings.Test.Module.Suites` | Computed module-local test suite matrix. |
 | `Settings.Publish.Module.Resolution.Version` | Resolved semantic version used for build and publish. |
 | `Settings.Publish.Module.Resolution.Prerelease` | Whether the resolved version is prerelease. |
 | `Settings.Publish.Module.Resolution.FullVersion` | Resolved full version string. |
@@ -109,24 +109,40 @@ The [PSModule - SourceCode tests](https://github.com/PSModule/Process-PSModule/b
 
 [workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Test-ModuleLocal.yml)
 
-- Imports and tests the module in parallel (matrix) using Pester tests from the module repository.
+- Imports and tests the module in parallel (matrix) using module-local Pester tests.
+- Discovers module-local tests recursively under `tests/`, applying the [per-directory precedence](#module-local-test-discovery) independently at every level.
 - Module test files declare a Pester **6.x** requirement via `#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.0.0'; MaximumVersion = '6.*' }` — a convention module authors add to each `*.Tests.ps1`, not something this pipeline injects. The [Invoke-Pester](https://github.com/PSModule/Invoke-Pester) action installs a matching `6.x`, so minor and patch updates flow in automatically while a new major stays a deliberate, reviewed change.
 - Supports setup and teardown scripts executed via separate dedicated jobs:
-  - `BeforeAll`: Runs once before all test matrix jobs to set up the test environment (e.g., deploy infrastructure, download test data).
-  - `AfterAll`: Runs once after all test matrix jobs complete to clean up the test environment (e.g., remove test resources, clean up databases).
-- Setup/teardown scripts are automatically detected in test directories and executed with the same environment variables as the tests.
-- This produces a JSON-based report that is used by [Get-PesterTestResults](#get-test-results) evaluate the results of the tests.
+  - `BeforeAll`: Runs root `tests/BeforeAll.ps1` once before all test matrix jobs to set up the test environment (e.g., deploy infrastructure, download test data).
+  - `AfterAll`: Runs root `tests/AfterAll.ps1` once after all test matrix jobs complete to clean up the test environment (e.g., remove test resources, clean up databases).
+- Setup and teardown detection is not recursive; nested files with those names are not workflow phases.
+- This produces a JSON-based report that is used by [Get-PesterTestResults](#get-test-results) to evaluate the results of the tests.
+
+### Module-local test discovery
+
+Simple, Standard, and Advanced are [documentation profiles](../../Coding-Standards/PowerShell/Testing.md#module-test-profiles), not selectable workflow modes. The same discovery engine handles every profile. `.github/PSModule.yml` has no test-layout or suite-matrix setting; `Settings.Test.Module.Suites` is computed internally from the repository files.
+
+Process-PSModule inspects `tests/` recursively. Within each directory it uses the first matching form:
+
+1. Exactly one `*.Configuration.ps1`. Discovery fails when a directory contains more than one. When selected, sibling `*.Container.ps1` and `*.Tests.ps1` files are not independently selected.
+2. Otherwise, one or more `*.Container.ps1`. When selected, sibling `*.Tests.ps1` files are not independently selected.
+3. Otherwise, all `*.Tests.ps1`.
+
+The selected form takes precedence only in that directory. Child directories are still inspected independently, so a repository may mix configurations, containers, and ordinary test files across different directories.
+
+Every discovered artifact needs a unique prefix before its first dot because that prefix becomes `TestName`. For example, `Users.Unit.Tests.ps1` and `Users.Integration.Tests.ps1` both become `Users`; use distinct prefixes such as `UsersUnit` and `UsersIntegration`.
 
 ### Setup and Teardown Scripts
 
 The workflow supports automatic execution of setup and teardown scripts for module tests:
 
-- Scripts are automatically detected and executed if present.
+- The exact root paths `tests/BeforeAll.ps1` and `tests/AfterAll.ps1` are detected and executed if present.
 - If no scripts are found, the workflow continues normally.
+- Detection is not recursive.
 
 #### Setup - `BeforeAll.ps1`
 
-- Place in your test directories (`tests/BeforeAll.ps1`).
+- Place at the root test path `tests/BeforeAll.ps1`.
 - Runs once before all test matrix jobs to prepare the test environment.
 - Deploy test infrastructure, download test data, initialize databases, or configure services.
 - Has access to the same environment variables as your tests (secrets, GitHub token, etc.).
@@ -143,7 +159,7 @@ Write-Host "Test environment ready!"
 
 #### Teardown - `AfterAll.ps1`
 
-- Place in your test directories (`tests/AfterAll.ps1`).
+- Place at the root test path `tests/AfterAll.ps1`.
 - Runs once after all test matrix jobs complete to clean up the test environment.
 - Remove test resources, clean up databases, stop services, or upload artifacts.
 - Has access to the same environment variables as your tests.
