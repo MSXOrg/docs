@@ -26,19 +26,21 @@ Process-PSModule expects repositories to follow the staged layout produced by Te
 ├── icon/                                      # Icon assets linked from manifest and documentation
 │   └── icon.png                               # Default module icon (PNG format)
 ├── src/                                       # Module source, see "Module source code structure" below
-├── tests/                                     # Pester suites executed during validation
+├── tests/                                     # Pester suites; the Simple layout is shown
 │   ├── AfterAll.ps1 (optional)                # Cleanup script for ModuleLocal runs
 │   ├── BeforeAll.ps1 (optional)               # Setup script for ModuleLocal runs
-│   └── <ModuleName>.Tests.ps1                 # Primary test entry point
+│   └── <ModuleName>.Tests.ps1                 # Simple: one root-level module suite
 ├── .gitattributes                             # Normalizes line endings across platforms
 ├── .gitignore                                 # Excludes build artifacts from source control
 ├── LICENSE                                    # License text surfaced in manifest metadata
 └── README.md                                  # Repository overview rendered on GitHub and docs landing
 ```
 
+The tree shows the [Simple PowerShell test layout](../../Coding-Standards/PowerShell/Testing.md#simple), not an exclusive test-file shape. The [Standard layout](../../Coding-Standards/PowerShell/Testing.md#standard) instead keeps one root-level `tests/<Group>.Tests.ps1` file per public function group, with separate root-level suites for ungrouped functions or cross-cutting behavior where appropriate.
+
 Key expectations:
 
-- Keep at least one exported function under `src/functions/public/` and corresponding tests in `tests/`.
+- Keep at least one exported function under `src/functions/public/` and corresponding tests in `tests/` using the [Simple or Standard layout](../../Coding-Standards/PowerShell/Testing.md#module-test-layouts).
 - Keep documentation site configuration in `.github/zensical.toml`.
 - Optional folders (`assemblies`, `formats`, `types`, `variables`, and others) are processed automatically when present.
 - Markdown files in `src/functions/public` subfolders become documentation pages alongside generated help.
