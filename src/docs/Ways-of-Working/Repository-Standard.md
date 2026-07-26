@@ -25,6 +25,8 @@ Every repository must carry the files that make it understandable and governable
 | `SECURITY.md` | Explains supported versions and private vulnerability reporting. |
 | `SUPPORT.md` | Explains where users ask for help. |
 | `CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
+| `AGENTS.md` | Cross-tool agent onboarding entry point that points to the initiative's canonical agent guidance. |
+| `CLAUDE.md` | Claude Code entry point that imports `AGENTS.md` so Claude reads the same guidance. |
 | `.github/dependabot.yml` | Configures dependency and supply-chain update pull requests. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
 | `.github/pull_request_template.md` | Guides contributors to provide change type, impact, validation, and links. |
