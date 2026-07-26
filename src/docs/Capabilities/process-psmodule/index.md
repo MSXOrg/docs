@@ -1,15 +1,20 @@
 ---
 title: Process-PSModule
-description: The end-to-end GitHub Actions workflow that builds, tests, versions, and publishes every PSModule PowerShell module and documentation site — configured through a single settings file and zensical.toml for site generation.
+description: The end-to-end PowerShell module pipeline — what it must guarantee and how it is built, alongside reference documentation for configuration and deployment.
 ---
 
 # Process-PSModule
 
-Process-PSModule is the corner-stone of the PSModule framework. It is an end-to-end GitHub Actions workflow that automates the entire lifecycle of a
-PowerShell module. The workflow builds the PowerShell module, runs cross-platform tests, enforces code quality and coverage requirements, generates
-documentation, and publishes module to the PowerShell Gallery and its documentation site to GitHub Pages. It is the core workflow used across all
-PowerShell modules in the [PSModule organization](https://github.com/PSModule), ensuring reliable, automated, and maintainable delivery of PowerShell
-projects.
+An end-to-end PowerShell module pipeline that automates the entire lifecycle of a module: building from source, running cross-platform tests, enforcing code quality and coverage, generating documentation, and publishing the versioned module to the PowerShell Gallery and its documentation site to GitHub Pages. It is the core workflow used across all PowerShell modules in the [PSModule organization](https://github.com/PSModule), ensuring reliable, automated, and maintainable delivery of PowerShell projects.
+
+<!-- INDEX:START -->
+
+| Page | Description |
+| --- | --- |
+| [Spec](spec.md) | Requirements for Process-PSModule — what it must guarantee: build, cross-platform test, quality/coverage gates, docs generation, label-driven versioned publish to PowerShell Gallery and GitHub Pages. |
+| [Design](design.md) | How Process-PSModule is built — a single reusable GitHub Actions workflow composing sub-workflows, a settings file contract, the scenario matrix, and alternatives considered. |
+
+<!-- INDEX:END -->
 
 ## How to get started
 
@@ -45,12 +50,11 @@ Depending on the labels in the pull requests, the [workflow will result in diffe
 
 ![Process diagram](media/Process-PSModule.png)
 
-### Dependency tree
+## Reference
 
-Process-PSModule composes its work from reusable workflows, actions, a container image, PowerShell modules, and Python packages. For the full
-dependency tree, including diagrams and a reference of every dependency, see [DEPENDENCIES.md](https://github.com/PSModule/Process-PSModule/blob/main/DEPENDENCIES.md).
+The spec and design own the what and how. The pages below are reference documentation for those who implement, configure, and operate the workflow.
 
-For the stage-by-stage breakdown of every job, how to call and configure the workflow, and the principles behind it, see the pages below.
+Process-PSModule composes its work from reusable workflows, actions, a container image, PowerShell modules, and Python packages. For the full dependency tree, including diagrams and a reference of every dependency, see [DEPENDENCIES.md](https://github.com/PSModule/Process-PSModule/blob/main/DEPENDENCIES.md).
 
 <!-- INDEX:START -->
 
