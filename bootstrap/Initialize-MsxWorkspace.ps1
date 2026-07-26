@@ -273,6 +273,8 @@ $repositories = foreach ($projectDefinition in $Project) {
     $memoryPath = if ($projectPath) { Join-Path $projectPath 'memory' } else { 'memory' }
     [pscustomobject]@{
         Name = "$projectName/docs"
+        Project = $projectName
+        ProjectPath = $projectPath
         Kind = 'docs'
         RelativePath = $docsPath
         Url = [string] $projectDefinition.DocsUrl
@@ -280,6 +282,8 @@ $repositories = foreach ($projectDefinition in $Project) {
     }
     [pscustomobject]@{
         Name = "$projectName/memory"
+        Project = $projectName
+        ProjectPath = $projectPath
         Kind = 'memory'
         RelativePath = $memoryPath
         Url = [string] $projectDefinition.MemoryUrl
@@ -288,14 +292,37 @@ $repositories = foreach ($projectDefinition in $Project) {
 }
 
 $occupiedPaths = foreach ($repository in $repositories) {
-    [pscustomobject]@{ Repository = $repository.Name; Path = $repository.RelativePath }
+    [pscustomobject]@{
+        Project = $repository.Project
+        Repository = $repository.Name
+        Path = $repository.RelativePath
+    }
     if ($repository.Kind -eq 'docs') {
-        [pscustomobject]@{ Repository = "$($repository.Name) backing"; Path = "$($repository.RelativePath).git" }
+        if ($repository.ProjectPath) {
+            [pscustomobject]@{
+                Project = $repository.Project
+                Repository = "$($repository.Project) root"
+                Path = $repository.ProjectPath
+            }
+        }
+        [pscustomobject]@{
+            Project = $repository.Project
+            Repository = "$($repository.Name) backing"
+            Path = "$($repository.RelativePath).git"
+        }
+        [pscustomobject]@{
+            Project = $repository.Project
+            Repository = "$($repository.Name) migration backup"
+            Path = "$($repository.RelativePath).simple-clone-backup"
+        }
     }
 }
 for ($left = 0; $left -lt $occupiedPaths.Count; $left++) {
     $leftPath = ($occupiedPaths[$left].Path -replace '\\', '/').Trim('/').ToLowerInvariant()
     for ($right = $left + 1; $right -lt $occupiedPaths.Count; $right++) {
+        if ($occupiedPaths[$left].Project -eq $occupiedPaths[$right].Project) {
+            continue
+        }
         $rightPath = ($occupiedPaths[$right].Path -replace '\\', '/').Trim('/').ToLowerInvariant()
         $collision = (
             $leftPath -eq $rightPath -or

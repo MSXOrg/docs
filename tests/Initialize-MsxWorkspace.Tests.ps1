@@ -333,11 +333,19 @@ exit `$LASTEXITCODE
         $output | Should -Match 'workspace paths overlap'
     }
 
-    It 'rejects project paths nested inside canonical docs storage' -ForEach @(
+    It 'rejects project paths overlapping canonical context storage' -ForEach @(
         @{ UnsafePath = 'docs' }
         @{ UnsafePath = 'docs.git' }
+        @{ UnsafePath = 'memory' }
+        @{ UnsafePath = 'docs/child' }
+        @{ UnsafePath = 'docs.git/child' }
+        @{ UnsafePath = 'memory/child' }
+        @{ UnsafePath = 'docs.simple-clone-backup' }
+        @{ UnsafePath = 'docs.simple-clone-backup/child' }
     ) {
-        $runner = Join-Path $fixture.Root "invoke-overlap-$($UnsafePath.Replace('.', '-')).ps1"
+        $before = (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim()
+        $safeName = $UnsafePath -replace '[^A-Za-z0-9-]', '-'
+        $runner = Join-Path $fixture.Root "invoke-overlap-$safeName.ps1"
         $bootstrap = $script:bootstrap.Replace("'", "''")
         $workspace = $fixture.Workspace.Replace("'", "''")
         $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
@@ -365,6 +373,42 @@ exit `$LASTEXITCODE
 
         $LASTEXITCODE | Should -Not -Be 0
         $output | Should -Match 'workspace paths overlap'
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly $before
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('status', '--porcelain')) |
+            Should -BeNullOrEmpty
+    }
+
+    It 'rejects overlapping non-empty project roots before mutation' {
+        $runner = Join-Path $fixture.Root 'invoke-overlapping-roots.ps1'
+        $bootstrap = $script:bootstrap.Replace("'", "''")
+        $workspace = $fixture.Workspace.Replace("'", "''")
+        $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
+        $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
+        @"
+`$projects = @(
+    @{
+        Name = 'Parent'
+        Path = 'projects/Parent'
+        DocsUrl = '$docsRemote'
+        MemoryUrl = '$memoryRemote'
+    }
+    @{
+        Name = 'Child'
+        Path = 'projects/Parent/Child'
+        DocsUrl = '$docsRemote'
+        MemoryUrl = '$memoryRemote'
+    }
+)
+& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+exit `$LASTEXITCODE
+"@ | Set-Content -LiteralPath $runner
+
+        $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
+
+        $LASTEXITCODE | Should -Not -Be 0
+        $output | Should -Match 'workspace paths overlap'
+        Test-Path -LiteralPath (Join-Path $fixture.Workspace 'projects') | Should -BeFalse
     }
 
     It 'reuses a canonical docs worktree with a legacy bare backing path' {
