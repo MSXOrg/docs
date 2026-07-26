@@ -112,7 +112,8 @@ Execute one ready, unblocked Task or Bug. For repository delivery:
 4. **Test locally** — don't push known failures to CI. Push work as far inward as it can go.
 5. **Self-review with automation** — run the [Copilot review loop](Contribution-Workflow.md#the-copilot-review-loop) until it reports a clean round, fixing in-scope feedback and filing follow-up issues for the rest.
 6. **Standards and framework alignment pass** — once the change is complete, reconcile it against process, the applicable [Coding Standards](../Coding-Standards/index.md) chapters, and the repository's framework documentation, and record the result in the pull request. See [Implement](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass).
-7. **Ready and auto-merge** — when the change meets the [Definition of Ready for Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review), finalize the pull request per [PR Format](PR-Format.md), mark it ready, and enable auto-merge.
+7. **Issue convergence sweep** — in the same session-end window, sweep scoped open issues for asks the finished diff already satisfies and link fully convergent issues in the pull request with closing keywords. See [Implement](Workflow-Stages/Implement.md#6-issue-convergence-sweep).
+8. **Ready and auto-merge** — when the change meets the [Definition of Ready for Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review), finalize the pull request per [PR Format](PR-Format.md), mark it ready, and enable auto-merge.
 
 An audited operational Task follows its [operational completion path](Issues/Types/Task.md#operational-delivery) instead of creating a branch or pull request.
 
