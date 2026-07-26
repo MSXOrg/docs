@@ -27,7 +27,10 @@ The loaded `AGENTS.md` points to the roots; discovery happens in documentation. 
 Run the bootstrap:
 
 ```powershell
-$docs = Join-Path $HOME '.msx/docs'
+$workspaceRoot = if ($env:MSX_WORKSPACE_ROOT) { $env:MSX_WORKSPACE_ROOT } else { Join-Path $HOME '.msx' }
+$docsUrl = if ($env:MSX_DOCS_URL) { $env:MSX_DOCS_URL } else { 'https://github.com/MSXOrg/docs.git' }
+$memoryUrl = if ($env:MSX_MEMORY_URL) { $env:MSX_MEMORY_URL } else { 'https://github.com/MSXOrg/memory.git' }
+$docs = Join-Path $workspaceRoot 'docs'
 $docsBacking = "$docs.git"
 if ((Test-Path $docs) -and -not (Test-Path (Join-Path $docs '.git'))) {
     throw "$docs exists but is not a git repository. Remove it and re-run."
@@ -35,18 +38,45 @@ if ((Test-Path $docs) -and -not (Test-Path (Join-Path $docs '.git'))) {
 if (-not (Test-Path (Join-Path $docs '.git'))) {
     if (-not (Test-Path $docsBacking)) {
         New-Item -ItemType Directory -Force -Path (Split-Path -Parent $docs) | Out-Null
-        git clone --bare https://github.com/MSXOrg/docs.git $docsBacking
+        git clone --bare $docsUrl $docsBacking
         if ($LASTEXITCODE -ne 0) {
             throw "Bare clone of MSXOrg/docs failed (exit $LASTEXITCODE). Check network access and credentials."
         }
-        git --git-dir=$docsBacking config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
-        git --git-dir=$docsBacking fetch origin --prune --quiet
     }
     if ((git --git-dir=$docsBacking rev-parse --is-bare-repository) -ne 'true') {
         throw "$docsBacking exists but is not a bare repository."
     }
-    $defaultBranch = git --git-dir=$docsBacking symbolic-ref HEAD |
-        ForEach-Object { $_ -replace 'refs/heads/', '' }
+    $refspec = '+refs/heads/*:refs/remotes/origin/*'
+    if ($refspec -notin @(git --git-dir=$docsBacking config --get-all remote.origin.fetch)) {
+        git --git-dir=$docsBacking config --add remote.origin.fetch $refspec
+        if ($LASTEXITCODE -ne 0) { throw "Could not configure $docsBacking." }
+    }
+    git --git-dir=$docsBacking fetch origin --prune --quiet
+    if ($LASTEXITCODE -ne 0) { throw "Could not refresh $docsBacking. Do not use stale context." }
+    git --git-dir=$docsBacking remote set-head origin --auto | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Could not detect the MSXOrg/docs default branch." }
+    $defaultRef = (git --git-dir=$docsBacking symbolic-ref --short refs/remotes/origin/HEAD | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0) { throw "Could not resolve origin/HEAD in $docsBacking." }
+    $defaultBranch = $defaultRef -replace '^origin/', ''
+    $remoteHead = (git --git-dir=$docsBacking rev-parse $defaultRef | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0) { throw "Could not resolve $defaultRef in $docsBacking." }
+    $localRef = "refs/heads/$defaultBranch"
+    $localHead = (git --git-dir=$docsBacking rev-parse --verify $localRef 2>$null | Out-String).Trim()
+    if ($LASTEXITCODE -eq 128) {
+        git --git-dir=$docsBacking update-ref $localRef $remoteHead
+    } elseif ($LASTEXITCODE -ne 0) {
+        throw "Could not inspect $localRef in $docsBacking."
+    } elseif ($localHead -ne $remoteHead) {
+        git --git-dir=$docsBacking merge-base --is-ancestor $localHead $remoteHead
+        if ($LASTEXITCODE -ne 0) { throw "$localRef is ahead or diverged in $docsBacking." }
+        if ("branch $localRef" -in @(git --git-dir=$docsBacking worktree list --porcelain)) {
+            throw "$localRef is checked out elsewhere. Update that worktree first."
+        }
+        git --git-dir=$docsBacking update-ref $localRef $remoteHead $localHead
+    }
+    if ($LASTEXITCODE -ne 0 -or (git --git-dir=$docsBacking rev-parse $localRef) -ne $remoteHead) {
+        throw "$localRef is not exactly synchronized with $defaultRef."
+    }
     git --git-dir=$docsBacking worktree add $docs $defaultBranch
     if ($LASTEXITCODE -ne 0) {
         throw "Could not create the canonical MSXOrg/docs worktree at $docs."
@@ -78,7 +108,15 @@ if (-not (Test-Path (Join-Path $docs '.git'))) {
         throw "$docs is not exactly synchronized with origin/main. Reconcile local commits before using this context."
     }
 }
-pwsh (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1')
+$projects = @(
+    @{
+        Name = 'MSXOrg'
+        Path = ''
+        DocsUrl = $docsUrl
+        MemoryUrl = $memoryUrl
+    }
+)
+& (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1') -Root $workspaceRoot -Project $projects
 if ($LASTEXITCODE -ne 0) {
     throw "MSX workspace synchronization failed. Do not read context until every repository is current."
 }
@@ -109,6 +147,8 @@ $projects = @(
 Each plug-in uses the same fail-closed freshness validation. `Path` is relative to `~/.msx`, so projects can choose a collision-free location without forking the bootstrap.
 
 Existing clean simple docs clones are migrated automatically. The original clone is retained beside the new layout as `docs.simple-clone-backup` for manual verification and removal. Existing docs worktrees backed by another bare path are reused in place. Dirty, ahead, diverged, wrong-branch, conflicting-path, or otherwise unsafe layouts stop with actionable guidance before conversion.
+
+Docs changes use topic worktrees created from `~/.msx/docs.git`; never branch or work inside the canonical `~/.msx/docs` main worktree.
 
 Wire it into the tools so it runs as the first instruction:
 

@@ -182,6 +182,53 @@ function Sync-ContextCheckout {
     return $remote
 }
 
+function Sync-BareDefaultBranch {
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory)]
+        [string] $BackingPath,
+
+        [Parameter(Mandatory)]
+        [pscustomobject] $Remote
+    )
+
+    $localRef = "refs/heads/$($Remote.DefaultBranch)"
+    $localHead = (git --git-dir=$BackingPath rev-parse --verify $localRef 2>$null | Out-String).Trim()
+    if ($LASTEXITCODE -eq 128) {
+        if ($PSCmdlet.ShouldProcess($localRef, "Create at $($Remote.RemoteHead)")) {
+            git --git-dir=$BackingPath update-ref $localRef $Remote.RemoteHead
+            if ($LASTEXITCODE -ne 0) {
+                throw "Could not create bare docs branch '$localRef' in '$BackingPath'."
+            }
+        }
+        return
+    }
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not inspect bare docs branch '$localRef' in '$BackingPath'."
+    }
+    if ($localHead -eq $Remote.RemoteHead) {
+        return
+    }
+
+    git --git-dir=$BackingPath merge-base --is-ancestor $localHead $Remote.RemoteHead
+    if ($LASTEXITCODE -ne 0) {
+        throw "Bare docs branch '$localRef' is ahead or diverged. Reconcile '$BackingPath' before creating its canonical worktree."
+    }
+    $worktreeState = @(git --git-dir=$BackingPath worktree list --porcelain)
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not inspect worktrees for '$BackingPath'."
+    }
+    if ("branch $localRef" -in $worktreeState) {
+        throw "Bare docs branch '$localRef' is checked out in another worktree. Update that worktree before creating the canonical one."
+    }
+    if ($PSCmdlet.ShouldProcess($localRef, "Fast-forward to $($Remote.RemoteHead)")) {
+        git --git-dir=$BackingPath update-ref $localRef $Remote.RemoteHead $localHead
+        if ($LASTEXITCODE -ne 0) {
+            throw "Could not fast-forward bare docs branch '$localRef' in '$BackingPath'."
+        }
+    }
+}
+
 function Set-ContextIdentity {
     [CmdletBinding(SupportsShouldProcess)]
     param(
@@ -240,9 +287,25 @@ $repositories = foreach ($projectDefinition in $Project) {
     }
 }
 
-$duplicatePaths = $repositories | Group-Object RelativePath | Where-Object Count -gt 1
-if ($duplicatePaths) {
-    throw "Project definitions contain duplicate workspace paths: $($duplicatePaths.Name -join ', ')."
+$occupiedPaths = foreach ($repository in $repositories) {
+    [pscustomobject]@{ Repository = $repository.Name; Path = $repository.RelativePath }
+    if ($repository.Kind -eq 'docs') {
+        [pscustomobject]@{ Repository = "$($repository.Name) backing"; Path = "$($repository.RelativePath).git" }
+    }
+}
+for ($left = 0; $left -lt $occupiedPaths.Count; $left++) {
+    $leftPath = ($occupiedPaths[$left].Path -replace '\\', '/').Trim('/').ToLowerInvariant()
+    for ($right = $left + 1; $right -lt $occupiedPaths.Count; $right++) {
+        $rightPath = ($occupiedPaths[$right].Path -replace '\\', '/').Trim('/').ToLowerInvariant()
+        $collision = (
+            $leftPath -eq $rightPath -or
+            $leftPath.StartsWith("$rightPath/", [StringComparison]::Ordinal) -or
+            $rightPath.StartsWith("$leftPath/", [StringComparison]::Ordinal)
+        )
+        if ($collision) {
+            throw "Project workspace paths overlap: '$($occupiedPaths[$left].Path)' and '$($occupiedPaths[$right].Path)'."
+        }
+    }
 }
 
 if ($PSCmdlet.ShouldProcess($Root, 'Create workspace root')) {
@@ -290,15 +353,30 @@ $results = foreach ($repo in $repositories) {
             throw "Cannot migrate '$path': backup path '$backupPath' already exists. Reconcile it first."
         }
         if ($PSCmdlet.ShouldProcess($path, "Migrate simple clone to '$expectedBackingPath'")) {
-            git clone --bare --quiet $path $expectedBackingPath
+            $sourceRefs = @(git -C $path for-each-ref '--format=%(refname) %(objectname)' refs/heads refs/tags)
             if ($LASTEXITCODE -ne 0) {
-                throw "Could not create bare backing repository '$expectedBackingPath' (exit $LASTEXITCODE)."
+                throw "Could not inventory branches and tags in '$path' before migration."
             }
-            git --git-dir=$expectedBackingPath remote set-url origin $repo.Url
-            if ($LASTEXITCODE -ne 0) {
-                throw "Could not set origin on '$expectedBackingPath' (exit $LASTEXITCODE)."
+            try {
+                git clone --bare --quiet $path $expectedBackingPath
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Could not create bare backing repository '$expectedBackingPath' (exit $LASTEXITCODE)."
+                }
+                git --git-dir=$expectedBackingPath remote set-url origin $repo.Url
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Could not set origin on '$expectedBackingPath' (exit $LASTEXITCODE)."
+                }
+                Sync-ContextRemote -GitPath $expectedBackingPath -RepositoryUrl $repo.Url -Bare -Confirm:$false | Out-Null
+                $backingRefs = @(git --git-dir=$expectedBackingPath for-each-ref '--format=%(refname) %(objectname)' refs/heads refs/tags)
+                if ($LASTEXITCODE -ne 0 -or (Compare-Object $sourceRefs $backingRefs)) {
+                    throw "Bare backing repository '$expectedBackingPath' did not preserve every local branch and tag."
+                }
+            } catch {
+                if (Test-Path $expectedBackingPath) {
+                    Remove-Item -LiteralPath $expectedBackingPath -Recurse -Force
+                }
+                throw "Migration preparation failed for '$path'; the original clone is unchanged. $($_.Exception.Message)"
             }
-            Sync-ContextRemote -GitPath $expectedBackingPath -RepositoryUrl $repo.Url -Bare -Confirm:$false | Out-Null
 
             Move-Item -LiteralPath $path -Destination $backupPath
             try {
@@ -347,10 +425,7 @@ $results = foreach ($repo in $repositories) {
             throw "Docs backing path '$backingPath' is not a bare repository."
         }
         $remote = Sync-ContextRemote -GitPath $backingPath -RepositoryUrl $repo.Url -Bare -Confirm:$false
-        $localDefault = (git --git-dir=$backingPath rev-parse "refs/heads/$($remote.DefaultBranch)" | Out-String).Trim()
-        if ($LASTEXITCODE -ne 0 -or $localDefault -ne $remote.RemoteHead) {
-            throw "Bare docs branch '$($remote.DefaultBranch)' is not exactly synchronized. Repair '$backingPath' before creating its main worktree."
-        }
+        Sync-BareDefaultBranch -BackingPath $backingPath -Remote $remote -Confirm:$false
         if ($PSCmdlet.ShouldProcess($path, 'Create canonical docs worktree')) {
             git --git-dir=$backingPath worktree add --quiet $path $remote.DefaultBranch
             if ($LASTEXITCODE -ne 0) {
