@@ -191,7 +191,7 @@ own design under [Deployment](../index.md).
   review, merge, promotion with tests.
 - **Exercise the stale path** by mutating state between approval and deploy and
   confirming the apply fails closed.
-- **Exercise break-glass** end to end and confirm the reconciliation follow-up is
+- **Exercise break-glass** end-to-end and confirm the reconciliation follow-up is
   opened and attribution is recorded.
 
 ## Repository hardening
