@@ -1,18 +1,22 @@
 ---
 title: Frameworks
-description: The complete, end-to-end frameworks the ecosystem ships — opinionated automation a project adopts wholesale to go from source to shipped.
+description: Frameworks are capabilities whose design composes other capabilities — being absorbed into Capabilities, documented with the same spec and design.
 ---
 
 # Frameworks
 
-The complete, end-to-end frameworks a project adopts wholesale. Where a
-[capability](../Capabilities/index.md) is a single independently versioned thing
-the ecosystem builds, a framework composes many of them into one opinionated
-pipeline that takes a repository from source to shipped with a single
-configuration file.
+A *framework* is a [capability](../Capabilities/index.md) whose design **composes
+other capabilities** into one opinionated pipeline that takes a repository from
+source to shipped with a single configuration file. "Framework" is an adjective
+for that kind of capability, not a separate documentation model: each framework
+carries the same **spec** and **design** as any other capability.
 
-Each framework is documented as its own section — an overview plus the pages that
-cover how it works, how to use it, and how to configure it.
+This standalone section is being **absorbed into
+[Capabilities](../Capabilities/index.md)** — the evidence it should be is already
+here: `vscode-extension-framework` lives under Capabilities with a spec and a
+design, while the pages below still lack that pair. As each framework gains its
+spec and design it moves under Capabilities; until then it is documented as its
+own section here.
 
 <!-- INDEX:START -->
 

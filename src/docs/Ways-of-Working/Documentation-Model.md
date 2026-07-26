@@ -26,6 +26,13 @@ user (human or agent) can rely on. It never prescribes implementation. The
 mechanism, the moving parts, the configuration. Both are durable, and both
 evolve — neither is a one-time plan.
 
+Everything the ecosystem builds is documented this one way — there is no second
+shape. A capability whose **design composes other capabilities** is simply called
+a *framework*: "framework" is an adjective for that kind of capability, not a
+separate section or a different pair of documents. It carries the same spec and
+design as any other capability, and lives beside them under
+[Capabilities](../Capabilities/index.md).
+
 Only the detail of a *single change* — the paths touched, the trade-off taken
 this once — stays out of both, living in the [issue](Issues/Process/Format.md) and the
 pull request where it belongs.
