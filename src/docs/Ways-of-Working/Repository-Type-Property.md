@@ -99,7 +99,7 @@ Both current MSX initiative organizations use this pattern:
 | `PSModule` | `Action`, `Archive`, `Docs`, `Framework`, `FunctionApp`, `Memory`, `Module`, `Other`, `Template`, `Workflow` | `Memory` added to an existing, already-populated `Type` property; the ruleset condition changed from a repository-name allow-list (`~ALL`) to a `Type`-based exclude. |
 
 In both organizations, repositories with `Type: Memory` — the
-[Memory Repository Template](../Frameworks/Agentic-Development/memory-template.md)'s
+[Memory Repository Template](../Capabilities/agentic-development/memory-template.md)'s
 no-PR, direct-commit-to-`main` repositories — are excluded from the org-wide pull-request-
 required ruleset. That template's workflow only works because the ruleset stops matching
 `Memory`-typed repositories; without this, direct pushes to a memory repository's `main`
@@ -112,6 +112,6 @@ are rejected the same as on any other repository.
   rules attached to them.
 - [Repository Standard](Repository-Standard.md) — the mandatory/type-specific/
   repository-specific file-set distinction that `Type` also drives over time.
-- [Memory Repository Template](../Frameworks/Agentic-Development/memory-template.md) — the
+- [Memory Repository Template](../Capabilities/agentic-development/memory-template.md) — the
   concrete repository type whose no-PR workflow motivated excluding `Type: Memory` from the
   pull-request-required ruleset in both current organizations.
