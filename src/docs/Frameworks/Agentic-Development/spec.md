@@ -1,6 +1,6 @@
 ---
 title: Spec
-description: Requirements for the agentic development framework — org-scoped documentation, memory, and pointer files that make agents behave correctly per project.
+description: Requirements for index-first agentic development through org-scoped documentation, memory, and thin pointer files.
 ---
 
 # Agentic Development — Spec
@@ -33,7 +33,8 @@ Applies to any organization that wants a shared project knowledge base and memor
 
 - Organization-level `docs` and `memory` repositories.
 - Markdown documents with YAML frontmatter, following the [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) model.
-- Thin repository pointer files such as `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, and path-scoped instruction files.
+- Thin repository pointer files such as `AGENTS.md` and client adapters that import or follow it.
+- Index-first discovery from the organization docs root to the canonical Workflow and its stage procedures.
 - Deterministic context resolution by host, organization, repository, path, and task.
 - Human-reviewed changes to canonical knowledge through pull requests.
 - Durable agent memory that can be shared by every person and agent working in the organization.
@@ -52,9 +53,12 @@ Applies to any organization that wants a shared project knowledge base and memor
 - **Canonical memory repository.** Each adopting organization MUST have a `memory` repository that owns durable project memory and agent working knowledge.
 - **OKF-style documents.** Knowledge and memory documents MUST be Markdown files with YAML frontmatter, one primary concept per page, and stable paths that act as identity.
 - **Small pages and indexes.** Documentation and memory SHOULD prefer small pages, each folder SHOULD have an `index.md`, and indexes MUST let a human or agent navigate inward from the root.
-- **Thin pointer files.** Product repositories MUST carry pointer files that identify the organization context and link to the canonical docs and memory roots. Pointer files MUST NOT duplicate standards or process knowledge.
+- **Thin pointer files.** Product repositories MUST carry pointer files that identify the organization context and link to the canonical docs and memory root indexes. Pointer files MUST NOT duplicate standards, workflow stages, or process knowledge.
+- **Index-first workflow discovery.** From the docs root index, a human or agent MUST be able to reach Ways of Working, the canonical Workflow, and the procedure for the current stage by following page descriptions and links.
+- **Stage resolution from work.** Agents MUST infer the current stage from the prompt and current artifacts. Explicit task language MAY shortcut to the matching stage, but the shortcut MUST resolve to the canonical documentation.
+- **One process source.** Skills, commands, named agents, and tool-specific instruction files MUST NOT redefine Workflow stages. A client convenience MAY link to a stage procedure and add only runtime mechanics.
 - **Segmentation before loading.** Local agent files MUST instruct agents to segment work by host, organization, repository, path, and task before loading project standards or memory.
-- **Client adapters.** Tool-specific files such as `CLAUDE.md`, `.github/copilot-instructions.md`, and `.github/instructions/*.instructions.md` MAY add runtime-specific loading rules, but MUST point back to the same canonical docs and memory.
+- **Client adapters.** Tool-specific files such as `CLAUDE.md`, `.github/copilot-instructions.md`, and `.github/instructions/*.instructions.md` MAY add runtime-specific loading or path rules, but MUST point back to the same canonical roots and MUST NOT define workflow behavior.
 - **Deterministic context resolution.** Agents MUST resolve context in layers: system and client policy, user preferences, organization docs, organization memory, repository pointers, path-specific instructions, then current task context.
 - **Local-first availability.** The docs and memory repositories SHOULD be available locally in a predictable workspace so agents can read them without relying on search or web access.
 - **Reviewed knowledge changes.** Changes to the `docs` repository MUST happen through pull requests. Changes to memory MAY be lighter-weight, but MUST remain versioned in git.
@@ -68,6 +72,8 @@ Applies to any organization that wants a shared project knowledge base and memor
 - An agent working in `dnb.ghe.com/AI-Platform/<repo>` resolves `dnb.ghe.com/AI-Platform/docs` and `dnb.ghe.com/AI-Platform/memory` as the canonical project context.
 - A new product repository can adopt the framework by adding pointer files without copying standards or memory pages.
 - A human can start at `docs/index.md` or `memory/index.md` and navigate to the same context an agent uses.
+- A human or agent can follow `docs/index.md` → Ways of Working → Workflow → the current stage procedure without knowing a file path in advance.
+- A prompt such as `Review this PR <link>` reaches the Review procedure directly, while `Make this issue <description>` reaches Define, without a parallel process definition.
 - Updating a standard in `docs` changes the canonical guidance without editing every repository.
 - Capturing a recurring lesson in `memory` makes it available to later agents working in the same organization.
 
@@ -77,12 +83,12 @@ The framework uses this normative resolution order:
 
 1. **System and client policy** — non-project instructions imposed by the agent runtime.
 2. **User-global preferences** — the human operator's baseline style and risk posture.
-3. **Host and organization** — the project identity, derived from the current repository remote or explicit task.
-4. **Organization docs** — the organization `docs` repository root index, then relevant standards, workflows, specs, and designs.
-5. **Organization memory** — the organization `memory` repository root index, then relevant lessons, gotchas, and active context.
-6. **Repository pointer files** — `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md`, and related local instructions.
-7. **Path-specific instructions** — scoped rules that apply to the files being read, generated, reviewed, or edited.
-8. **Current task context** — issue, pull request, prompt, branch, diff, diagnostics, terminal output, and open files.
+3. **Repository pointer** — `AGENTS.md` identifies the host, organization, canonical docs root, memory root, and repository-local nuance.
+4. **Organization docs** — start at `docs/index.md`, traverse to Ways of Working and Workflow, resolve the current stage, then load the relevant standards, specs, and designs.
+5. **Organization memory** — start at `memory/index.md`, then load relevant lessons, gotchas, and active context.
+6. **Repository context** — README, CONTRIBUTING, local docs, and narrow repository exceptions.
+7. **Path-specific rules** — scoped local rules that apply to the files being read, generated, reviewed, or edited.
+8. **Current task context** — issue, pull request, prompt, branch, diff, diagnostics, terminal output, and open files; use these artifacts to re-evaluate the stage after each handoff.
 
 A lower layer MAY refine a higher layer, but MUST NOT contradict it unless the higher layer explicitly allows a local exception.
 

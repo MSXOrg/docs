@@ -32,8 +32,8 @@ Agents are trained to read documentation. That is their natural skill. By keepin
 Agent context is delivered through three layers, in priority order:
 
 1. **Documentation** — the primary source. Published docs at <https://msxorg.github.io/docs/>, READMEs, and issue bodies are written for humans and naturally consumable by agents.
-2. **Central agent workflow** — the stages agents follow, authored once as documentation in the [Agent Workflow](../../Agents/index.md) section. They reference the ways of working and define entry conditions, boundaries, procedures, and handoffs — never standards or conventions.
-3. **Local pointer files** — each repository's `AGENTS.md` (and the `CLAUDE.md` that imports it), pointing to the central descriptions and adding only repo-specific nuance and genuinely tool-specific settings.
+2. **Canonical workflow** — [Workflow](../Workflow.md) owns the process and links to ordinary documentation for each [stage procedure](../../Agents/index.md). Indexes provide the default discovery path; clear task language may shortcut stage selection without creating separate instructions.
+3. **Local pointer files** — each repository's `AGENTS.md` (and the `CLAUDE.md` that imports it), pointing to the canonical docs and memory root indexes and adding only repo-specific nuance and genuinely tool-specific settings.
 
 ## Augmentation, not replacement
 
@@ -78,7 +78,7 @@ See [README-Driven Context](../Readme-Driven-Context.md).
 The work of keeping context **right, evergreen, and declarative** runs alongside software delivery:
 
 - **Software delivery** produces code, tests, and releases using source control, CI/CD, and DevOps practices.
-- **Context maintenance** produces issues, decisions, READMEs, agent definitions, and documentation — and treats them as products that must be kept current.
+- **Context maintenance** produces issues, decisions, READMEs, pointer files, and documentation — and treats them as products that must be kept current.
 
 Both run continuously. Each iteration of software delivery produces context that needs maintenance; each iteration of context maintenance unblocks the next round of software work.
 

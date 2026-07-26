@@ -16,6 +16,8 @@ The single starting point for agents: a git-isolated local clone of the MSX cent
 
 Keeping the workspace separate and git-isolated means an agent reads the same docs and memory in every repository, and its commits there use the workspace identity rather than whatever the working repository or the global config happens to be set to.
 
+The loaded `AGENTS.md` points to the roots; discovery happens in documentation. Start at `~/.msx/docs/src/docs/index.md`, follow Ways of Working to Workflow, infer the current stage, and read the linked procedure. Clear task language can shortcut stage selection, but no skill or instruction file owns a separate copy of the process.
+
 ## Install (once per machine)
 
 Run the bootstrap:

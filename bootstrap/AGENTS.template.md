@@ -32,8 +32,12 @@ Each clone has repository-local git config only; it never modifies the global gi
 
 ## Then — read before acting
 
-1. Read the relevant pages under `~/.msx/docs` for the task at hand.
-2. Read `~/.msx/memory` for prior decisions, pitfalls, and context.
+1. Start at `~/.msx/docs/src/docs/index.md`.
+2. Follow the Ways of Working index to `Workflow.md`.
+3. Infer the current stage from the task and its artifacts, then read the linked stage procedure.
+4. Read the relevant standards, repository context, and `~/.msx/memory`.
+
+Clear task language may shortcut the index trail: `Review this PR <link>` enters Review, `Make this issue <description>` enters Define, and `Implement <issue>` enters Implement. The linked documentation owns each procedure; this file does not define a separate agent or skill.
 
 ## Two write rules
 

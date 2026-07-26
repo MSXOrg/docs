@@ -5,7 +5,7 @@ description: How ways of working, standards, and documentation are authored once
 
 # Agentic Development
 
-How the ecosystem's ways of working, coding standards, and documentation are authored — and how both humans and agents consume them. The documentation defines how work is done; agent configuration *references* that documentation. It never the other way around.
+How the ecosystem's ways of working, coding standards, and documentation are authored — and how both humans and agents consume them. The documentation defines how work is done; agent configuration *references* that documentation, never the other way around.
 
 ## Premise
 
@@ -24,20 +24,22 @@ This spec rests on the [Principles](Principles/index.md). Four apply directly:
 
 ## Architecture
 
-Agent configuration files are **pointers, not containers**. They tell the agent which human-readable files to read; they hold no process knowledge of their own. Documentation lives where it belongs — repo-specific docs in each repository's `README.md`, `CONTRIBUTING.md`, and `docs/`; cross-cutting standards in the org-level documentation site, referenced by canonical URL.
+Agent configuration files are **pointers, not containers**. They identify the canonical documentation root; they do not select a persona or contain workflow stages. Documentation lives where it belongs — repo-specific docs in each repository's `README.md`, `CONTRIBUTING.md`, and `docs/`; cross-cutting standards in the org-level documentation site.
 
-When an agent starts work in a repository, it discovers context in layers — local first, then central, then local nuance on top:
+When an agent receives work, it follows the same documentation trail a human can follow:
 
 ```mermaid
 flowchart TD
-  agent["Agent starts in a repository"] --> local["1 Read local context<br/>README.md · CONTRIBUTING.md · docs/"]
-  local --> index["2 Read the central indexes<br/>Ways of Working · Coding Standards · Capabilities"]
-  index --> pick["3 Pick up the relevant central docs<br/>e.g. the Terraform coding standard"]
-  pick --> nuance["4 Layer local overrides<br/>repo-specific instruction files"]
-  nuance --> work["Start work"]
+  task["Agent receives work"] --> pointer["1 Read AGENTS.md<br/>resolve project docs + memory roots"]
+  pointer --> root["2 Read docs/index.md"]
+  root --> ways["3 Follow Ways of Working index"]
+  ways --> workflow["4 Read Workflow"]
+  workflow --> stage["5 Infer the current stage<br/>read its procedure"]
+  stage --> context["6 Read relevant standards,<br/>repository context, and memory"]
+  context --> work["Act and follow stage handoffs"]
 ```
 
-The flow is sequential, not a decision. The agent reads local docs to understand the repository, reads the central indexes to see which shared standards exist, picks up the relevant ones, and finally checks for local overrides that add repo-specific nuance. **Local files never replace central standards — they layer specifics on top.** The docs are the stable core; every integration is a thin adapter that references them.
+The indexes are the default discovery mechanism. [Workflow](Workflow.md) owns the process and routes the work to a [stage procedure](../Agents/index.md); the stage page then points to the standards and artifacts it consumes. A clear prompt such as `Review this PR <link>` may shortcut directly through the Workflow routing table, but it does not create a second process definition. **Local files never replace central standards — they layer specifics on top.**
 
 ## Where documentation lives
 
@@ -52,32 +54,28 @@ This split follows [Repository Segmentation](Repository-Segmentation.md) and [RE
 
 ## How an agent runtime plugs in
 
-Agent context is delivered through three layers, in priority order — the same three layers the [Principles](Principles/AI-First-Development.md#human-agent-coexistence) describe:
-
-1. **Documentation.** The primary source. The published docs, READMEs, and issue bodies are written for humans and read natively by agents.
-2. **Central agent workflow.** The stages agents follow — Define, Implement, Review, and specialized paths — are authored once as documentation in the [Agent Workflow](../Agents/index.md) section. They describe entry conditions, boundaries, procedures, and handoffs, and they reference the ways of working; they never restate a standard or convention.
-3. **Local pointer files.** Each repository carries an `AGENTS.md` — read natively by most agent runtimes — and a `CLAUDE.md` that imports it, pointing to the central descriptions and adding only repo-specific nuance and the small amount of genuinely tool-specific configuration (permission scopes, path-scoped rules) that cannot be expressed as a pointer.
+Each repository carries an `AGENTS.md` that points to the organization documentation and memory root indexes. A `CLAUDE.md` or other client adapter may import that pointer and add only the small amount of genuinely tool-specific configuration, such as permission scopes or path matching, that cannot live in ordinary documentation.
 
 Any new runtime follows the same pattern, regardless of vendor:
 
-- A **context file** that links to the ways-of-working docs and the repository's own context.
-- **Workflow entry points** — named commands or agents — that reference those same docs and add the operational steps (branch creation, tool invocations, API calls).
+- A **context pointer** that identifies the canonical docs and memory root indexes.
+- Optional **keyword shortcuts** that route a clearly stated task to the matching [Workflow stage](Workflow.md#find-the-current-stage) without copying its procedure.
 - **Tool-specific settings** — permissions, model selection, and the like.
 
-The context file and the entry points are pointers; the settings are the only genuinely tool-specific surface. When a new runtime is adopted, only this integration layer is added — the documentation it points to is untouched.
+There is no separate process surface for Define, Implement, or Review. If a client exposes a skill, command, named agent, or other convenience, it links to the canonical stage page and adds no process knowledge. When a new runtime is adopted, only this thin integration layer is added.
 
 ## Distribution
 
 The two non-documentation layers have different distribution models:
 
-- **The central agent workflow** lives in the [Agent Workflow](../Agents/index.md) section of this site and is referenced by canonical URL — one process, available to every repository and runtime with no per-repo copy to maintain.
-- **Per-repository pointer files** — `AGENTS.md`, the `CLAUDE.md` that imports it, and any path-scoped instruction files — are seeded from a template repository and kept current across existing repositories by a sync mechanism.
+- **The canonical process** lives in [Workflow](Workflow.md), which links to ordinary documentation pages for each [stage procedure](../Agents/index.md).
+- **Per-repository pointer files** — `AGENTS.md`, the `CLAUDE.md` that imports it, and any path-scoped local-rule adapters — are seeded from a template repository and kept current across existing repositories by a sync mechanism.
 
 Process knowledge is never added to a distributed config file. If an agent needs the branch strategy, it goes in [Branching and Merging](Branching-and-Merging.md) or the repo's `CONTRIBUTING.md`; if it needs a coding convention, it goes in the relevant [coding standard](../Coding-Standards/index.md). The config file only points — it never defines.
 
 ## The workspace bootstrap
 
-The **user-global** entry file is a thin **bootstrap**, not a copy of the docs. Each runtime auto-loads its own user-level file — Copilot from its user instructions, Claude Code from `~/.claude/CLAUDE.md` (which imports the same instructions) — and its first instruction is to make the central workspace present locally, then read from it. This is distinct from the per-repository `AGENTS.md` and `CLAUDE.md`, which remain thin pointers to the central descriptions.
+The **user-global** entry file is a thin **bootstrap**, not a copy of the docs. Each runtime auto-loads its own user-level file — Copilot from its user instructions, Claude Code from `~/.claude/CLAUDE.md` (which imports the same instructions) — and its first instruction is to make the central workspace present locally, then start at the root indexes. This is distinct from the per-repository `AGENTS.md` and `CLAUDE.md`, which remain thin pointers to the same roots.
 
 The workspace is a git-isolated clone of the central repositories under `~/.msx`:
 
