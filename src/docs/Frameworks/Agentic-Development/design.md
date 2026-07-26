@@ -134,17 +134,14 @@ flowchart TD
 
   locate --> host{"Which project scope?"}
   host -->|"dnb.ghe.com / AI-Platform"| aip["AI-Platform context"]
-  host -->|"github.com / MSXOrg"| msx["MSXOrg context"]
-  host -->|"github.com / PSModule"| psmodule["PSModule context"]
+  host -->|"github.com/MSXOrg"| msx["MSXOrg context"]
+  host -->|"github.com/PSModule"| psmodule["PSModule context"]
 
-  aip --> aipdocs["Read AI-Platform/docs index"]
-  aipdocs --> workflow["Follow indexes to Workflow"]
-
-  msx --> msxdocs["Read MSXOrg/docs index"]
-  msxdocs --> workflow
-
-  psmodule --> psdocs["Read PSModule/docs index"]
-  psdocs --> workflow
+  aip --> refresh["Refresh selected docs + memory<br/>stop unless exactly synchronized"]
+  msx --> refresh
+  psmodule --> refresh
+  refresh --> docs["Read selected docs index"]
+  docs --> workflow["Follow indexes to Workflow"]
 
   workflow --> stage["Infer current stage<br/>read canonical procedure"]
   stage --> memory["Read organization memory index"]
@@ -177,10 +174,11 @@ Canonical project context:
 Before changing files:
 
 1. Segment the work by host, organization, repository, path, and task.
-2. Start at the resolved project `docs/index.md`.
-3. Follow the Ways of Working index to Workflow, infer the current stage, and read that stage procedure.
-4. Read the relevant project standards, repository README and local docs, and organization memory.
-5. Apply path-specific local rules for the files being changed.
+2. Refresh every canonical context repository and stop unless each exactly matches its remote default branch.
+3. Start at the resolved project `docs/index.md`.
+4. Follow the Ways of Working index to Workflow, infer the current stage, and read that stage procedure.
+5. Read the relevant project standards, repository README and local docs, and organization memory.
+6. Apply path-specific local rules for the files being changed.
 
 This file points; it does not define process knowledge.
 ```
@@ -200,7 +198,7 @@ The index trail is the default. A clear prompt can shortcut stage discovery: `Re
 ```markdown
 Follow `AGENTS.md`.
 
-Segment the work by host, organization, repository, path, and task. Start at the resolved organization docs root index and follow its Workflow before editing. Use path-specific instruction files only for local path rules when their `applyTo` pattern matches a file being read, generated, reviewed, or edited.
+Segment the work by host, organization, repository, path, and task. Refresh the resolved canonical context repositories and stop on any synchronization failure. Only then start at the organization docs root index and follow its Workflow. Use path-specific instruction files only for local path rules when their `applyTo` pattern matches a file being read, generated, reviewed, or edited.
 ```
 
 Path-specific instruction files are reserved for local rules that cannot live centrally because they apply only to a repository path. They never define workflow stages.
@@ -242,10 +240,10 @@ Different clients load different files, but the framework keeps the same depende
 
 | Client | Adapter | Behavior |
 | --- | --- | --- |
-| Cross-client agents | `AGENTS.md` | Resolve the shared docs and memory roots, then traverse indexes to Workflow and the current stage. |
+| Cross-client agents | `AGENTS.md` | Resolve and synchronize the shared docs and memory roots, then traverse indexes to Workflow and the current stage. |
 | Claude Code | `CLAUDE.md` | Import `AGENTS.md`; add no duplicated process knowledge. |
-| GitHub Copilot in VS Code | `.github/copilot-instructions.md` and `.github/instructions/*.instructions.md` | Follow `AGENTS.md`, then apply path-specific local rules when files match. |
-| Copilot coding agent | `AGENTS.md`, `.github/copilot-instructions.md`, setup workflow | Prepare the local roots, traverse the canonical indexes, and follow the resolved stage procedure. |
+| GitHub Copilot in VS Code | `.github/copilot-instructions.md` and `.github/instructions/*.instructions.md` | Follow `AGENTS.md`, including its freshness gate, then apply path-specific local rules when files match. |
+| Copilot coding agent | `AGENTS.md`, `.github/copilot-instructions.md`, setup workflow | Synchronize the local roots, traverse the canonical indexes, and follow the resolved stage procedure. |
 | Copilot code review | Base-branch instructions | Review using trusted base-branch instructions rather than instructions changed by the PR under review. |
 
 ## Failure modes
@@ -253,7 +251,7 @@ Different clients load different files, but the framework keeps the same depende
 | Failure | Design response |
 | --- | --- |
 | Repository does not identify its organization context | Infer from remote URL; ask when ambiguous. |
-| Docs or memory clone is missing | Bootstrap it before work; if unavailable, continue only with explicit warning. |
+| A docs or memory clone is missing or cannot synchronize | Bootstrap or repair it, then retry. Stop context resolution until every canonical context repository passes the freshness gate. |
 | Pointer file duplicates central standards | Replace duplicated content with links during review. |
 | A skill, command, named agent, or instruction file defines a workflow stage | Delete the duplicate procedure and link to Workflow or its stage page. |
 | Memory conflicts with docs | Docs win; memory is corrected or removed. |
@@ -268,7 +266,7 @@ Different clients load different files, but the framework keeps the same depende
 4. Add the canonical Workflow and linked stage procedures to `docs`.
 5. Add starter memory sections to `memory`.
 6. Add thin pointer files to each product repository.
-7. Add a bootstrap that keeps local docs and memory clones present.
+7. Add a bootstrap that keeps local docs and memory clones present and exactly synchronized before use.
 8. Review new work for pointer discipline: facts live once, links point to them.
 
 ## Where this connects

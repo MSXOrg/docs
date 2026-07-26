@@ -31,15 +31,16 @@ When an agent receives work, it follows the same documentation trail a human can
 ```mermaid
 flowchart TD
   task["Agent receives work"] --> pointer["1 Read AGENTS.md<br/>resolve project docs + memory roots"]
-  pointer --> root["2 Read docs/index.md"]
-  root --> ways["3 Follow Ways of Working index"]
-  ways --> workflow["4 Read Workflow"]
-  workflow --> stage["5 Infer the current stage<br/>read its procedure"]
-  stage --> context["6 Read relevant standards,<br/>repository context, and memory"]
+  pointer --> refresh["2 Refresh every context repository<br/>stop unless exactly synchronized"]
+  refresh --> root["3 Read docs/index.md"]
+  root --> ways["4 Follow Ways of Working index"]
+  ways --> workflow["5 Read Workflow"]
+  workflow --> stage["6 Infer the current stage<br/>read its procedure"]
+  stage --> context["7 Read relevant standards,<br/>repository context, and memory"]
   context --> work["Act and follow stage handoffs"]
 ```
 
-The indexes are the default discovery mechanism. [Workflow](Workflow.md) owns the process and routes the work to a [stage procedure](Workflow-Stages/index.md); the stage page then points to the standards and artifacts it consumes. A clear prompt such as `Review this PR <link>` may shortcut directly through the Workflow routing table, but it does not create a second process definition. **Local files never replace central standards — they layer specifics on top.**
+Refresh is a gate before traversal, not a best-effort background step. After it passes, the indexes are the default discovery mechanism. [Workflow](Workflow.md) owns the process and routes the work to a [stage procedure](Workflow-Stages/index.md); the stage page then points to the standards and artifacts it consumes. A clear prompt such as `Review this PR <link>` may shortcut directly through the Workflow routing table, but it does not create a second process definition. **Local files never replace central standards — they layer specifics on top.**
 
 ## Where documentation lives
 
