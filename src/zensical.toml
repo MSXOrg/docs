@@ -161,9 +161,6 @@ nav = [
       {"Memory Repository Template" = "Capabilities/agentic-development/memory-template.md"},
     ]},
   ]},
-  {"Frameworks" = [
-    "Frameworks/index.md",
-  ]},
   {"Dictionary" = "Dictionary/index.md"},
 ]
 
