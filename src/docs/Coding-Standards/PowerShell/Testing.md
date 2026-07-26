@@ -67,7 +67,7 @@ The selected form takes precedence only within its directory; discovery continue
 
 ## Unique test names
 
-Process-PSModule derives `TestName` from the file name before the first dot. Give every discovered test artifact a unique first-dot prefix. For example, `Users.Unit.Tests.ps1` and `Users.Integration.Tests.ps1` both produce `Users` and collide; use distinct names such as `UsersUnit.Tests.ps1` and `UsersIntegration.Tests.ps1`.
+Process-PSModule derives `TestName` from the filename before the first dot. Give every discovered test artifact a unique first-dot prefix. For example, `Users.Unit.Tests.ps1` and `Users.Integration.Tests.ps1` both produce `Users` and collide; use distinct names such as `UsersUnit.Tests.ps1` and `UsersIntegration.Tests.ps1`.
 
 ## Root workflow phases
 
