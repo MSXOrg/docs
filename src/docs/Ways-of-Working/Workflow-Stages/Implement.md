@@ -68,7 +68,18 @@ A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link that justi
 
 **Stop rule.** Fix what is in scope for the closing Task or Bug and small enough to keep the pull request reviewable. When a finding is out of scope, systemic across the repository, or would change the shape of the pull request, file a follow-up issue through [Define](Define.md), link it in the table as an exception, and leave the change as it is. The pass improves alignment; it does not turn into a second delivery.
 
-### 6. Finalize and hand off
+### 6. Issue convergence sweep
+
+Run this once per implementation session, at the same timing as the standards/framework pass: when the change is otherwise complete and before the pull request is marked ready.
+
+1. Search for already-open issues whose asks the finished diff now satisfies, not only the issue originally linked when the branch was opened.
+2. Scope the sweep deliberately so it scales: prioritize the delivery leaf's parent and siblings in the [Issue Hierarchy](../Issues/Types/Hierarchy.md), then narrow by affected component, labels, keywords, or code paths. Do not read every open issue serially in large repositories.
+3. Treat convergence as outcome-based:
+   - **Fully satisfied** — the diff already delivers the issue's ask. Add it to the pull request's Relevant issues block with a closing keyword (`Fixes`, `Closes`, or `Resolves`) so merge closes it.
+   - **Partially satisfied** — the diff helps but does not fully deliver the ask. Link it as non-closing context and keep or create a follow-up delivery leaf for the remaining gap.
+4. Keep this pass focused on convergence and linkage. It does **not** rewrite, reformat, or otherwise "fix up" issue bodies to match issue templates; issue quality edits are separate work routed through [Define](Define.md).
+
+### 7. Finalize and hand off
 
 When the change meets the [Definition of Ready for Review](../Definition-of-Ready-and-Done.md):
 
@@ -82,12 +93,13 @@ When the change meets the [Definition of Ready for Review](../Definition-of-Read
 3. Draft pull request from the start; stay in the issue's scope.
 4. Mark ready only when the change meets the Definition of Ready for Review — never with open plan steps.
 5. Run the standards and framework alignment pass once at session end, before marking the pull request ready, and record its result in the pull request.
-6. Return unplanned work to [Define](Define.md) and hand review-ready work to [Review](Review.md).
+6. Run the issue convergence sweep once at session end, before marking the pull request ready, and link every fully convergent issue in the pull request with closing keywords.
+7. Return unplanned work to [Define](Define.md) and hand review-ready work to [Review](Review.md).
 
 ## Where this connects
 
 - [Contribution Workflow](../Contribution-Workflow.md) — the draft-first loop this runs.
 - [Coding Standards](../../Coding-Standards/index.md) — the standards layer the alignment pass reconciles against.
-- [Issue Lifecycle](../Issues/Process/Lifecycle.md) and [Issue Relationships](../Issues/Process/Relationships.md) — delivery-leaf eligibility and blockers.
+- [Issue Hierarchy](../Issues/Types/Hierarchy.md), [Issue Lifecycle](../Issues/Process/Lifecycle.md), and [Issue Relationships](../Issues/Process/Relationships.md) — delivery-leaf eligibility, convergence sweep targeting, and blockers.
 - [Definition of Ready and Done](../Definition-of-Ready-and-Done.md) — the gate this hands off at.
 - [PR Format](../PR-Format.md) and [Branching and Merging](../Branching-and-Merging.md) — packaging and landing.
