@@ -252,7 +252,7 @@ ImportantFilePatterns:
 When configured, the provided list fully replaces the defaults. Include the default patterns in your list if you still
 want them to trigger the build, test, and publish path.
 
-Recursive [module-local test discovery](pipeline-stages.md#repository-test-discovery) does not change this trigger.
+Recursive [module-local test discovery](pipeline-stages.md#module-local-test-discovery) does not change this trigger.
 With the defaults, a test-only change does not run the important-change build, test, and publish stages because
 `^tests/` is not matched. Add `^tests/` when those changes must exercise the path, plus each settings, workflow, or
 other automation path whose changes need the same validation. Include only paths that should trigger all three stages.

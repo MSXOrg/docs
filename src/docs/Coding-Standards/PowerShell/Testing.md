@@ -9,7 +9,7 @@ PowerShell tests build on the [testing baseline](../Testing.md): they are test-f
 
 ## Module test profiles
 
-Simple, Standard, and Advanced are documentation profiles: conventions for arranging module-local tests, not selectable Process-PSModule modes. There is no layout setting in `.github/PSModule.yml`; Process-PSModule discovers the files present under `./tests/`.
+Simple, Standard, and Advanced are documentation profiles: conventions for arranging module-local tests, not selectable Process-PSModule modes. All three feed the same filesystem discovery engine; there is no layout setting in `.github/PSModule.yml`.
 
 Choose the smallest profile that keeps the suite easy to navigate.
 
@@ -41,34 +41,18 @@ Ungrouped public functions and cross-cutting module behavior may use separate ro
 
 ### Advanced
 
-Use subdirectories when parts of the suite need independent Pester configurations, containers, or ordinary test files:
+The Advanced profile is recommended when parts of the suite need independent Pester configurations, containers, or ordinary test files. Organize those parts in subdirectories:
 
 ```text
 tests/
 ├── Unit/                                  # No configuration or containers: all test files
 │   ├── GroupOne.Tests.ps1
 │   └── GroupTwo.Tests.ps1
-├── Integration/                           # The configuration takes precedence
-│   ├── Integration.Configuration.ps1
-│   ├── Read.Container.ps1
-│   └── Write.Container.ps1
-└── Compatibility/                         # No configuration: all containers
+├── Integration/
+│   └── Integration.Configuration.ps1
+└── Compatibility/
     ├── Linux.Container.ps1
     └── Windows.Container.ps1
 ```
 
-Process-PSModule discovers tests recursively. Each directory independently uses the first matching form:
-
-1. Exactly one `*.Configuration.ps1`. More than one configuration in the same directory is an error.
-2. Otherwise, one or more `*.Container.ps1`.
-3. Otherwise, all `*.Tests.ps1`.
-
-The selected form takes precedence only within its directory; discovery continues into child directories.
-
-## Unique test names
-
-Process-PSModule derives `TestName` from the filename before the first dot. Give every discovered test artifact a unique first-dot prefix. For example, `Users.Unit.Tests.ps1` and `Users.Integration.Tests.ps1` both produce `Users` and collide; use distinct names such as `UsersUnit.Tests.ps1` and `UsersIntegration.Tests.ps1`.
-
-## Root workflow phases
-
-`tests/BeforeAll.ps1` and `tests/AfterAll.ps1` are optional Process-PSModule workflow phases that run before and after the module test matrix. Detection is not recursive: files with those names in nested directories are not workflow setup or teardown phases.
+Different directories may use different forms. Process-PSModule recursively applies its [per-directory discovery precedence](../../Frameworks/Process-PSModule/pipeline-stages.md#module-local-test-discovery), including sibling suppression, unique test-name requirements, and root-only workflow phases.

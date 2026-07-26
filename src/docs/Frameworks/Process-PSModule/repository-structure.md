@@ -36,7 +36,7 @@ Process-PSModule expects repositories to follow the staged layout produced by Te
 └── README.md                                  # Repository overview rendered on GitHub and docs landing
 ```
 
-The tree shows the [Simple PowerShell test profile](../../Coding-Standards/PowerShell/Testing.md#simple), not an exclusive test-file shape. Standard keeps one root-level `tests/<Group>.Tests.ps1` file per public function group. Advanced uses subdirectories that Process-PSModule discovers recursively, with each directory independently selecting one configuration, one or more containers, or ordinary test files by [documented precedence](../../Coding-Standards/PowerShell/Testing.md#advanced).
+The tree shows the [Simple PowerShell test profile](../../Coding-Standards/PowerShell/Testing.md#simple), not an exclusive test-file shape. Standard keeps one root-level `tests/<Group>.Tests.ps1` file per public function group. Advanced uses recursively discovered subdirectories, and layouts may mix across directories. Process-PSModule defines the exact [per-directory precedence and sibling suppression](pipeline-stages.md#module-local-test-discovery).
 
 These names describe repository conventions, not settings. `.github/PSModule.yml` does not select a test profile. The optional `tests/BeforeAll.ps1` and `tests/AfterAll.ps1` files are root-only workflow phases and are not discovered recursively.
 

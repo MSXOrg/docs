@@ -14,7 +14,8 @@ consume. Internal runtime paths in workflow docs (for example, `Settings.Publish
 enriched inter-workflow contract, not a different authoring format for repository settings files.
 
 Simple, Standard, and Advanced test profiles are repository conventions, not settings. `.github/PSModule.yml` has no
-layout selector; Process-PSModule [discovers the files under `tests/` recursively](pipeline-stages.md#repository-test-discovery).
+layout or suite-matrix selector; Process-PSModule [discovers the files under `tests/` recursively](pipeline-stages.md#module-local-test-discovery)
+and computes its internal `Settings.Test.Module.Suites` matrix from them.
 
 Test discovery and change triggering are separate. The default `ImportantFilePatterns` match only `^src/` and
 `^README\.md$`, so a test-only change does not enter the important-change build, test, and publish path. Repositories
