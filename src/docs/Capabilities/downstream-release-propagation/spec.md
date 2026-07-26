@@ -37,13 +37,13 @@ Two shapes occur; both are the same mechanism with a different artifact:
 
 - **Automatic on stable release.** A stable producer release MUST trigger propagation to every declared dependent. Prereleases MUST NOT propagate.
 - **Full context, not just a number.** Each dependent receives the new version, the immutable reference (commit SHA or image digest), the release notes, and any related-change context the update implies.
-- **A PR per dependent, opened by an agent.** The mechanical work — the bump plus the fixes that make it work — is delegated to a cloud agent *in the dependent*, which opens the pull request directly. No tracking issue is created.
+- **A Task and PR per dependent, opened by an agent.** The mechanical work — the bump plus the fixes that make it work — is delegated to a cloud agent *in the dependent*. The agent creates or reuses one Task delivery leaf and opens a pull request that closes exactly that Task.
 - **Humans decide.** A human reviews and merges each PR; the agent applies what it can safely do now and calls out larger or riskier work as follow-up.
 - **Backfill on demand.** Propagation MUST be re-runnable for a specific release — for a missed event, or a dependent added after the release.
 
 ## Success criteria
 
-- A stable release yields one PR in each declared dependent, carrying the immutable reference and an impact summary, with no manual tracking.
+- A stable release yields one Task and closing PR in each declared dependent, carrying the immutable reference and an impact summary without manual coordination.
 - A prerelease yields none.
 - A dependent added after a release can be back-filled without cutting a new release.
 
@@ -52,3 +52,4 @@ Two shapes occur; both are the same mechanism with a different artifact:
 - [Design](design.md) — how these requirements are delivered.
 - [Release Management](../release-management/spec.md) — the release this propagates.
 - [Dependency Updates](../dependency-updates/spec.md) — the inbound counterpart, for external dependencies.
+- [Issue Hierarchy](../../Ways-of-Working/Issues/Types/Hierarchy.md) and [PR Format](../../Ways-of-Working/PR-Format.md) — the delivery leaf and closure rules this automation follows.
