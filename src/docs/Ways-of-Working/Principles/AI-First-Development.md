@@ -39,9 +39,9 @@ Agent context is delivered through three layers, in priority order:
 
 Agents amplify the team. They make us faster, more consistent, and free us from work that is mechanical. **Human in the loop** remains the default for decisions that matter.
 
-## Persona, not swarm
+## One workflow, not a swarm
 
-Treat the agent ecosystem as one team mate. Many specialized roles, one cohesive bank of knowledge, one consistent voice.
+Treat the agent ecosystem as one teammate following one shared workflow. Stages and specialized review paths divide responsibility while preserving one cohesive bank of knowledge and one consistent voice.
 
 ## Self-improving agents
 

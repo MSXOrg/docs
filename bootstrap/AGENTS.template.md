@@ -23,7 +23,7 @@ pwsh (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1')
 
 This produces:
 
-- `~/.msx/docs` — how work is done: ways of working, coding standards, and agent roles. The same content published at <https://msxorg.github.io/docs/>.
+- `~/.msx/docs` — how work is done: ways of working, coding standards, and the agent workflow. The same content published at <https://msxorg.github.io/docs/>.
 - `~/.msx/memory` — what has been learned before: durable notes and prior session context.
 
 Each clone has repository-local git config only; it never modifies the global git config or the repository being worked in (git still reads them, but only repository-local config is written).
