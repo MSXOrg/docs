@@ -28,12 +28,12 @@ This section documents the principles, processes, and norms that every contribut
 | [Repository Type Property](Repository-Type-Property.md) | How a single "Type" custom property classifies every repository in an initiative organization and drives which org-wide controls apply to it. |
 | [Principles](Principles/index.md) | The foundational beliefs and product mindset behind every decision. |
 | [Engineering Taste](Engineering-Taste.md) | The judgment that takes over when the standards run out. |
-| [Goal-Setting Framework](Goal-Setting.md) | Mission, OKRs, and initiatives — strategy connected to delivery. |
+| [Goal-Setting Framework](Goal-Setting.md) | Mission, OKRs, and Initiatives — the strategy above repository Epics. |
 | [Definition of Ready and Done](Definition-of-Ready-and-Done.md) | The three gates that bracket every piece of work. |
 | [Issues](Issues/index.md) | How issues are formatted and organized across the MSX ecosystem. |
 | [PR Format](PR-Format.md) | Pull request title, description, change types, and labels. |
 | [Commit Conventions](Commit-Conventions.md) | How commit messages are written. |
-| [Branching and Merging](Branching-and-Merging.md) | Topic branches, pull-request-only integration, and merge models. |
+| [Branching and Merging](Branching-and-Merging.md) | Delivery-leaf topic branches, pull-request-only integration, and merge models. |
 | [Review Etiquette](Review-Etiquette.md) | Tone, scope, severity, and how to disagree well. |
 | [Repository Segmentation](Repository-Segmentation.md) | What belongs in a repository, and when to split or combine. |
 | [README-Driven Context](Readme-Driven-Context.md) | Why the README is the front door and the source of truth. |

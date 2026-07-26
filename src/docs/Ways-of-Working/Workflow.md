@@ -26,9 +26,9 @@ flowchart TD
 
     subgraph CM["Context maintenance"]
         Cap[Capture] --> Ref[Refine] --> Pl[Plan]
-        Pl --> T[simple task]
-        Pl --> S[sub-issues]
-        Pl --> CL[checklist]
+        Pl --> Agg["Epic / PBI<br/>decompose and aggregate"]
+        Agg --> Pl
+        Pl --> Leaf["Ready Task / Bug<br/>delivery leaf"]
     end
 
     subgraph SD["Software delivery"]
@@ -38,9 +38,7 @@ flowchart TD
         Rsp --> Rev
     end
 
-    T --> Bld
-    S --> Bld
-    CL --> Bld
+    Leaf --> Bld
     Rev --> Ops["Run and operate (DevOps + SRE loop)"]
     Ops --> Sig["Signals, errors, feedback"]
     Sig --> Cap
@@ -61,7 +59,7 @@ A desire for change enters the system. It can come from anywhere:
 The goal is to **write it down** — quickly, in a GitHub issue — so it exists for the world to see and "remember".
 At this stage, precision is less important than existence. The issue captures the current state, the pain or opportunity, and the desired outcome.
 
-See [Issue Format § Section 1](Issues/Process/Format.md) for structure.
+See the [Issue Lifecycle](Issues/Process/Lifecycle.md) for how the issue evolves during Capture.
 
 ### Refine
 
@@ -82,24 +80,26 @@ The goal is **shared understanding** — everyone (humans and agents) agrees on 
 Turn the refined understanding into actionable work:
 
 - **Gap analysis** — diff the [evergreen specification](Documentation-Model.md#evergreen-and-evolutionary) for the affected capability against the current implementation. The gap is the work.
-- **Decisions** — what approach will we take? What trade-offs are we making? Document them in the issue.
-- **Decomposition** — if the work is large, break it into sub-issues. Each sub-issue should be deliverable in a single pull request.
-- **Checklist** — for a single task, list the concrete steps in the issue body.
+- **Route and decide** — assign the native type and add decisions at its [planning altitude](Issues/Process/Planning.md).
+- **Decompose aggregates** — use native sub-issues for Epic and PBI children, and native dependency edges only where execution is genuinely gated.
+- **Prepare delivery leaves** — refine Task and Bug children until they satisfy their type-specific readiness gate.
 
-The plan is the contract. It drives implementation.
+The issue graph is the delivery plan. Only a ready Task or Bug is eligible for Build; Epic and PBI remain in Plan while their children deliver and their aggregate criteria stay current.
 
-See [Documentation Model](Documentation-Model.md), [Issue Format § Sections 2–3](Issues/Process/Format.md), [Issue Hierarchy](Issues/Types/Hierarchy.md).
+See [Documentation Model](Documentation-Model.md), [Issue Planning](Issues/Process/Planning.md), [Issue Relationships](Issues/Process/Relationships.md), and [Issue Hierarchy](Issues/Types/Hierarchy.md).
 
 ### Build
 
-Execute the plan:
+Execute one ready, unblocked Task or Bug. For repository delivery:
 
-1. **Branch** — create a branch (and [worktree](Git-Worktrees.md)) for the issue.
-2. **Draft PR** — push early and open a draft pull request. Link it to the issue. This makes progress visible and attaches CI from the start.
+1. **Branch** — create a branch (and [worktree](Git-Worktrees.md)) for the delivery leaf.
+2. **Draft PR** — push early and open a draft pull request that closes exactly that Task or Bug. This makes progress visible and attaches CI from the start.
 3. **Implement** — work through the checklist. One logical change per commit. Update the issue as each task completes.
 4. **Test locally** — don't push known failures to CI. Push work as far inward as it can go.
 5. **Self-review with automation** — run the [Copilot review loop](Contribution-Workflow.md#the-copilot-review-loop) until it reports a clean round, fixing in-scope feedback and filing follow-up issues for the rest.
 6. **Ready and auto-merge** — when the change meets the [Definition of Ready for Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review), finalize the pull request per [PR Format](PR-Format.md), mark it ready, and enable auto-merge.
+
+An audited operational Task follows its [operational completion path](Issues/Types/Task.md#operational-delivery) instead of creating a branch or pull request.
 
 See [Commit Conventions](Commit-Conventions.md), [PR Format](PR-Format.md), [Contribution Workflow](Contribution-Workflow.md).
 
@@ -118,11 +118,11 @@ See [Review Etiquette](Review-Etiquette.md).
 
 ### Ship
 
-Human review approves the ready pull request and the required checks stay green, so auto-merge lands the change — squash-merged into the protected branch, its branch deleted. Where the project releases from the trunk, the merge cuts the release.
+Human review approves the ready pull request and the required checks stay green, so auto-merge lands the change — squash-merged into the protected branch, its branch deleted — and closes its Task or Bug. Where the project releases from the trunk, the merge cuts the release.
 
 The pull request description becomes the release note. Write it for end users, not reviewers.
 
-See [PR Format](PR-Format.md), [Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge).
+Parent PBI and Epic issues close separately when their native children and aggregate acceptance criteria are complete. See [PR Format](PR-Format.md), [Issue Lifecycle](Issues/Process/Lifecycle.md), and [Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge).
 
 ### Operate
 
@@ -146,7 +146,7 @@ Planning happens at different time horizons and levels of detail:
 Detail increases as work moves from Later toward Now.
 
 - A single task lives in **Now / Detailed**.
-- A product backlog item lives between **Now / Logical** and **Next / Detailed**.
-- An epic spans **Now → Next → Later** at **Conceptual / Logical** fidelity.
+- A PBI lives between **Now / Logical** and **Next / Detailed**.
+- An Epic spans **Now → Next → Later** at **Conceptual / Logical** fidelity.
 
 This workflow follows the [Human–agent coexistence](Principles/AI-First-Development.md#human-agent-coexistence) principle — it is designed for humans first, with agents joining the same process rather than running a parallel one.
