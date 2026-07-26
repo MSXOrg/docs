@@ -276,6 +276,79 @@ exit `$LASTEXITCODE
             Should -BeExactly $before
     }
 
+    It 'rejects a non-canonical bare docs origin before mutation' {
+        (Invoke-BootstrapFixture -Fixture $fixture).ExitCode | Should -Be 0
+        $backing = Join-Path $fixture.Workspace 'docs.git'
+        Invoke-Git -Arguments @(
+            "--git-dir=$backing",
+            'remote',
+            'set-url',
+            'origin',
+            $fixture.Remotes.memory
+        ) | Out-Null
+        $before = (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim()
+
+        $result = Invoke-BootstrapFixture -Fixture $fixture
+
+        $result.ExitCode | Should -Not -Be 0
+        $result.Output | Should -Match 'not canonical'
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly $before
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('status', '--porcelain')) |
+            Should -BeNullOrEmpty
+    }
+
+    It 'rejects a non-canonical memory origin before docs migration' {
+        Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @(
+            'remote',
+            'set-url',
+            'origin',
+            $fixture.Remotes.docs
+        ) | Out-Null
+        $docsBefore = (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim()
+        $memoryBefore = (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('rev-parse', 'HEAD')).Trim()
+
+        $result = Invoke-BootstrapFixture -Fixture $fixture
+
+        $result.ExitCode | Should -Not -Be 0
+        $result.Output | Should -Match 'not canonical'
+        Test-Path -LiteralPath (Join-Path $fixture.Workspace 'docs.git') | Should -BeFalse
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly $docsBefore
+        (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly $memoryBefore
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('status', '--porcelain')) |
+            Should -BeNullOrEmpty
+        (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('status', '--porcelain')) |
+            Should -BeNullOrEmpty
+    }
+
+    It 'rejects a memory worktree before docs migration' {
+        Remove-Item -LiteralPath $fixture.Memory -Recurse -Force
+        $memoryBacking = Join-Path $fixture.Root 'memory-backing.git'
+        Invoke-Git -Arguments @('clone', '--bare', '--quiet', $fixture.Remotes.memory, $memoryBacking) | Out-Null
+        Invoke-Git -Arguments @(
+            "--git-dir=$memoryBacking",
+            'worktree',
+            'add',
+            '--quiet',
+            $fixture.Memory,
+            'main'
+        ) | Out-Null
+        $docsBefore = (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim()
+        $memoryBefore = (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('rev-parse', 'HEAD')).Trim()
+
+        $result = Invoke-BootstrapFixture -Fixture $fixture
+
+        $result.ExitCode | Should -Not -Be 0
+        $result.Output | Should -Match 'memory requires a simple checkout'
+        Test-Path -LiteralPath (Join-Path $fixture.Workspace 'docs.git') | Should -BeFalse
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly $docsBefore
+        (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly $memoryBefore
+    }
+
     It 'installs additional project context through plug-in coordinates' {
         $runner = Join-Path $fixture.Root 'invoke-project-bootstrap.ps1'
         $bootstrap = $script:bootstrap.Replace("'", "''")
@@ -351,6 +424,51 @@ exit `$LASTEXITCODE
         $output | Should -Match 'workspace paths overlap'
     }
 
+    It 'rejects duplicate project names before mutation' -ForEach @(
+        @{ SecondPath = '' }
+        @{ SecondPath = 'docs' }
+    ) {
+        $beforeDocs = (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim()
+        $beforeMemory = (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('rev-parse', 'HEAD')).Trim()
+        $runner = Join-Path $fixture.Root "invoke-duplicate-name-$($SecondPath -replace '[^A-Za-z0-9]', '-').ps1"
+        $bootstrap = $script:bootstrap.Replace("'", "''")
+        $workspace = $fixture.Workspace.Replace("'", "''")
+        $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
+        $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
+        @"
+`$projects = @(
+    @{
+        Name = 'Duplicate'
+        Path = ''
+        DocsUrl = '$docsRemote'
+        MemoryUrl = '$memoryRemote'
+    }
+    @{
+        Name = 'Duplicate'
+        Path = '$SecondPath'
+        DocsUrl = '$docsRemote'
+        MemoryUrl = '$memoryRemote'
+    }
+)
+& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+exit `$LASTEXITCODE
+"@ | Set-Content -LiteralPath $runner
+
+        $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
+
+        $LASTEXITCODE | Should -Not -Be 0
+        $output | Should -Match 'unique names'
+        Test-Path -LiteralPath (Join-Path $fixture.Workspace 'docs.git') | Should -BeFalse
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly $beforeDocs
+        (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly $beforeMemory
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('status', '--porcelain')) |
+            Should -BeNullOrEmpty
+        (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('status', '--porcelain')) |
+            Should -BeNullOrEmpty
+    }
+
     It 'rejects project paths overlapping canonical context storage' -ForEach @(
         @{ UnsafePath = 'docs' }
         @{ UnsafePath = 'docs.git' }
@@ -361,7 +479,8 @@ exit `$LASTEXITCODE
         @{ UnsafePath = 'docs.simple-clone-backup' }
         @{ UnsafePath = 'docs.simple-clone-backup/child' }
     ) {
-        $before = (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim()
+        $beforeDocs = (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim()
+        $beforeMemory = (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('rev-parse', 'HEAD')).Trim()
         $safeName = $UnsafePath -replace '[^A-Za-z0-9-]', '-'
         $runner = Join-Path $fixture.Root "invoke-overlap-$safeName.ps1"
         $bootstrap = $script:bootstrap.Replace("'", "''")
@@ -391,9 +510,17 @@ exit `$LASTEXITCODE
 
         $LASTEXITCODE | Should -Not -Be 0
         $output | Should -Match 'workspace paths overlap'
+        $unsafeRoot = Join-Path $fixture.Workspace $UnsafePath
+        foreach ($child in @('docs', 'docs.git', 'memory', 'docs.simple-clone-backup')) {
+            Test-Path -LiteralPath (Join-Path $unsafeRoot $child) | Should -BeFalse
+        }
         (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() |
-            Should -BeExactly $before
+            Should -BeExactly $beforeDocs
+        (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly $beforeMemory
         (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('status', '--porcelain')) |
+            Should -BeNullOrEmpty
+        (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('status', '--porcelain')) |
             Should -BeNullOrEmpty
     }
 
@@ -489,12 +616,28 @@ exit `$LASTEXITCODE
             Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.docs -Arguments @('rev-parse', 'HEAD')).Trim()
         Test-Path -LiteralPath (Join-Path $memory '.git') -PathType Container |
             Should -BeTrue -Because $output
+        (Invoke-Git -WorkingDirectory $memory -Arguments @('branch', '--show-current')).Trim() |
+            Should -BeExactly 'main'
+        (Invoke-Git -WorkingDirectory $memory -Arguments @('status', '--porcelain')) |
+            Should -BeNullOrEmpty
+        (Invoke-Git -WorkingDirectory $memory -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.memory -Arguments @('rev-parse', 'HEAD')).Trim()
+        foreach ($repository in @($docs, $memory)) {
+            (Invoke-Git -WorkingDirectory $repository -Arguments @('config', '--local', 'user.name')).Trim() |
+                Should -BeExactly 'Fixture User'
+            (Invoke-Git -WorkingDirectory $repository -Arguments @('config', '--local', 'user.email')).Trim() |
+                Should -BeExactly 'fixture@example.invalid'
+        }
         $emptyFixture = [pscustomobject]@{
             Root = $fixture.Root
             Workspace = $emptyRoot
             Remotes = $fixture.Remotes
         }
         (Invoke-BootstrapFixture -Fixture $emptyFixture).ExitCode | Should -Be 0
+        (Invoke-Git -WorkingDirectory $docs -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.docs -Arguments @('rev-parse', 'HEAD')).Trim()
+        (Invoke-Git -WorkingDirectory $memory -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.memory -Arguments @('rev-parse', 'HEAD')).Trim()
     }
 
     It 'fast-forwards an existing bare backing before creating its missing main worktree' {
@@ -559,6 +702,40 @@ exit `$LASTEXITCODE
         Test-Path -LiteralPath (Join-Path $fixture.Workspace 'docs.git') | Should -BeFalse
         Test-Path -LiteralPath (Join-Path $fixture.Workspace 'docs.simple-clone-backup') | Should -BeFalse
         (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() | Should -BeExactly $before
+    }
+
+    It 'removes prepared backing when moving the simple clone fails' {
+        $before = (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim()
+        $runner = Join-Path $fixture.Root 'invoke-failed-move.ps1'
+        $bootstrap = $script:bootstrap.Replace("'", "''")
+        $workspace = $fixture.Workspace.Replace("'", "''")
+        $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
+        $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
+        @"
+`$env:MSX_BOOTSTRAP_TEST_FAIL_DOCS_MOVE = '1'
+`$projects = @(
+    @{
+        Name = 'Fixture'
+        Path = ''
+        DocsUrl = '$docsRemote'
+        MemoryUrl = '$memoryRemote'
+    }
+)
+& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+exit `$LASTEXITCODE
+"@ | Set-Content -LiteralPath $runner
+
+        $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
+
+        $LASTEXITCODE | Should -Not -Be 0
+        $output | Should -Match 'Migration activation failed'
+        Test-Path -LiteralPath (Join-Path $fixture.Docs '.git') -PathType Container | Should -BeTrue
+        Test-Path -LiteralPath (Join-Path $fixture.Workspace 'docs.git') | Should -BeFalse
+        Test-Path -LiteralPath (Join-Path $fixture.Workspace 'docs.simple-clone-backup') | Should -BeFalse
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly $before
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('status', '--porcelain')) |
+            Should -BeNullOrEmpty
     }
 
     It 'installs canonical topology from the <Name> seed block' -ForEach @(

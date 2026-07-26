@@ -87,6 +87,28 @@ if ((-not $PSBoundParameters.ContainsKey('UserName')) -or (-not $PSBoundParamete
     Write-Warning "Using part of the default maintainer identity ($UserName <$UserEmail>). Pass both -UserName and -UserEmail to set your own repository-local author identity."
 }
 
+function Assert-ContextOrigin {
+    param(
+        [Parameter(Mandatory)]
+        [string] $GitPath,
+
+        [Parameter(Mandatory)]
+        [string] $RepositoryUrl,
+
+        [Parameter()]
+        [switch] $Bare
+    )
+
+    [string[]] $gitRoot = if ($Bare) { @("--git-dir=$GitPath") } else { @('-C', $GitPath) }
+    $originUrl = (& git @gitRoot remote get-url origin | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0) {
+        throw "Cannot resolve origin for '$GitPath'. Configure it as '$RepositoryUrl'."
+    }
+    if ($originUrl -ne $RepositoryUrl) {
+        throw "Origin for '$GitPath' is '$originUrl', not canonical '$RepositoryUrl'. Repair it before using this context."
+    }
+}
+
 function Sync-ContextRemote {
     [CmdletBinding(SupportsShouldProcess)]
     param(
@@ -105,13 +127,7 @@ function Sync-ContextRemote {
     }
 
     [string[]] $gitRoot = if ($Bare) { @("--git-dir=$GitPath") } else { @('-C', $GitPath) }
-    $originUrl = (& git @gitRoot remote get-url origin | Out-String).Trim()
-    if ($LASTEXITCODE -ne 0) {
-        throw "Cannot resolve origin for '$GitPath'. Configure it as '$RepositoryUrl'."
-    }
-    if ($originUrl -ne $RepositoryUrl) {
-        throw "Origin for '$GitPath' is '$originUrl', not canonical '$RepositoryUrl'. Repair it before using this context."
-    }
+    Assert-ContextOrigin -GitPath $GitPath -RepositoryUrl $RepositoryUrl -Bare:$Bare
     $allBranchesRefspec = '+refs/heads/*:refs/remotes/origin/*'
     $fetchRefspecs = @(& git @gitRoot config --get-all remote.origin.fetch)
     if ($LASTEXITCODE -notin @(0, 1)) {
@@ -137,10 +153,14 @@ function Sync-ContextRemote {
     if ($LASTEXITCODE -ne 0) {
         throw "Cannot resolve the remote default branch for '$GitPath'. Repair origin/HEAD before using this context."
     }
+    $remoteHead = (& git @gitRoot rev-parse $defaultRef | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0 -or -not $remoteHead) {
+        throw "Cannot resolve remote head '$defaultRef' for '$GitPath'."
+    }
     return [pscustomobject]@{
         DefaultRef = $defaultRef
         DefaultBranch = $defaultRef -replace '^origin/', ''
-        RemoteHead = (& git @gitRoot rev-parse $defaultRef | Out-String).Trim()
+        RemoteHead = $remoteHead
     }
 }
 
@@ -258,6 +278,7 @@ function Set-ContextIdentity {
     if ($LASTEXITCODE -ne 0) { throw "git config user.email failed for '$Path' (exit $LASTEXITCODE)." }
 }
 
+$projectNames = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 $repositories = foreach ($projectDefinition in $Project) {
     foreach ($key in @('Name', 'Path', 'DocsUrl', 'MemoryUrl')) {
         if (-not $projectDefinition.ContainsKey($key) -or $null -eq $projectDefinition[$key]) {
@@ -269,6 +290,10 @@ $repositories = foreach ($projectDefinition in $Project) {
     $projectPath = ([string] $projectDefinition.Path).Trim()
     if (-not $projectName.Trim()) {
         throw 'Project Name must not be empty.'
+    }
+    $projectName = $projectName.Trim()
+    if (-not $projectNames.Add($projectName)) {
+        throw "Project definitions require unique names. Duplicate: '$projectName'."
     }
     $pathSegments = @($projectPath -split '[\\/]' | Where-Object { $_ -and $_ -ne '.' })
     if ([IO.Path]::IsPathRooted($projectPath) -or '..' -in $pathSegments) {
@@ -342,6 +367,37 @@ for ($left = 0; $left -lt $occupiedPaths.Count; $left++) {
     }
 }
 
+foreach ($repository in $repositories | Where-Object Kind -eq 'memory') {
+    $memoryPath = Join-Path $Root $repository.RelativePath
+    $memoryGitEntry = Join-Path $memoryPath '.git'
+    if (Test-Path $memoryGitEntry -PathType Leaf) {
+        throw "Memory context '$memoryPath' is a worktree, but memory requires a simple checkout with a .git directory."
+    }
+    if ((Test-Path $memoryPath) -and -not (Test-Path $memoryGitEntry -PathType Container)) {
+        throw "Memory context '$memoryPath' is not a supported simple git checkout."
+    }
+}
+
+foreach ($repository in $repositories) {
+    $contextPath = Join-Path $Root $repository.RelativePath
+    $gitEntry = Join-Path $contextPath '.git'
+    if ($repository.Kind -eq 'memory' -and (Test-Path $gitEntry -PathType Container)) {
+        Assert-ContextOrigin -GitPath $contextPath -RepositoryUrl $repository.Url
+    } elseif ($repository.Kind -eq 'docs') {
+        if (Test-Path $gitEntry -PathType Container) {
+            Assert-ContextOrigin -GitPath $contextPath -RepositoryUrl $repository.Url
+        } elseif (Test-Path $gitEntry -PathType Leaf) {
+            $commonDir = (git -C $contextPath rev-parse --path-format=absolute --git-common-dir | Out-String).Trim()
+            if ($LASTEXITCODE -ne 0) {
+                throw "Cannot resolve docs backing repository for '$contextPath'."
+            }
+            Assert-ContextOrigin -GitPath $commonDir -RepositoryUrl $repository.Url -Bare
+        } elseif (Test-Path "$contextPath.git") {
+            Assert-ContextOrigin -GitPath "$contextPath.git" -RepositoryUrl $repository.Url -Bare
+        }
+    }
+}
+
 if ($PSCmdlet.ShouldProcess($Root, 'Create workspace root')) {
     New-Item -ItemType Directory -Force -Path $Root | Out-Null
 }
@@ -349,9 +405,13 @@ if ($PSCmdlet.ShouldProcess($Root, 'Create workspace root')) {
 $results = foreach ($repo in $repositories) {
     $path = Join-Path $Root $repo.RelativePath
     if ($repo.Kind -eq 'memory') {
-        if (-not (Test-Path (Join-Path $path '.git'))) {
+        $memoryGitEntry = Join-Path $path '.git'
+        if (Test-Path $memoryGitEntry -PathType Leaf) {
+            throw "Memory context '$path' is a worktree, but memory requires a simple checkout with a .git directory."
+        }
+        if (-not (Test-Path $memoryGitEntry -PathType Container)) {
             if (Test-Path $path) {
-                throw "Cannot clone memory into '$path': it exists but is not a git repository."
+                throw "Cannot clone memory into '$path': it exists but is not a supported simple git checkout."
             }
             if ($PSCmdlet.ShouldProcess($repo.Url, "Clone memory into '$path'")) {
                 New-Item -ItemType Directory -Path (Split-Path -Parent $path) -Force | Out-Null
@@ -412,8 +472,13 @@ $results = foreach ($repo in $repositories) {
                 throw "Migration preparation failed for '$path'; the original clone is unchanged. $($_.Exception.Message)"
             }
 
-            Move-Item -LiteralPath $path -Destination $backupPath
+            $moved = $false
             try {
+                if ($env:MSX_BOOTSTRAP_TEST_FAIL_DOCS_MOVE -eq '1') {
+                    throw 'Injected migration move failure.'
+                }
+                Move-Item -LiteralPath $path -Destination $backupPath -ErrorAction Stop
+                $moved = $true
                 if ($env:MSX_BOOTSTRAP_TEST_FAIL_AFTER_DOCS_MOVE -eq '1') {
                     throw 'Injected post-move migration failure.'
                 }
@@ -423,17 +488,37 @@ $results = foreach ($repo in $repositories) {
                 }
                 Sync-ContextCheckout -Path $path -RepositoryUrl $repo.Url -Confirm:$false | Out-Null
             } catch {
-                if (Test-Path $path) {
+                $activationError = $_
+                $rollbackErrors = [Collections.Generic.List[string]]::new()
+                if ($moved -and (Test-Path $path)) {
                     git --git-dir=$expectedBackingPath worktree remove --force $path 2>$null
-                    Remove-Item -LiteralPath $path -Recurse -Force -ErrorAction SilentlyContinue
+                    if ($LASTEXITCODE -ne 0) {
+                        $rollbackErrors.Add("git worktree remove failed for '$path'.")
+                    }
+                    try {
+                        Remove-Item -LiteralPath $path -Recurse -Force -ErrorAction Stop
+                    } catch {
+                        $rollbackErrors.Add("Could not remove partial worktree '$path': $($_.Exception.Message)")
+                    }
                 }
-                if (-not (Test-Path $path) -and (Test-Path $backupPath)) {
-                    Move-Item -LiteralPath $backupPath -Destination $path
+                if ($moved -and -not (Test-Path $path) -and (Test-Path $backupPath)) {
+                    try {
+                        Move-Item -LiteralPath $backupPath -Destination $path -ErrorAction Stop
+                    } catch {
+                        $rollbackErrors.Add("Could not restore '$backupPath' to '$path': $($_.Exception.Message)")
+                    }
                 }
                 if (Test-Path $expectedBackingPath) {
-                    Remove-Item -LiteralPath $expectedBackingPath -Recurse -Force
+                    try {
+                        Remove-Item -LiteralPath $expectedBackingPath -Recurse -Force -ErrorAction Stop
+                    } catch {
+                        $rollbackErrors.Add("Could not remove partial backing '$expectedBackingPath': $($_.Exception.Message)")
+                    }
                 }
-                throw "Migration activation failed for '$path'; the original clone was restored and partial backing removed. $($_.Exception.Message)"
+                if ($rollbackErrors.Count -gt 0) {
+                    throw "Migration activation and rollback both failed. $($rollbackErrors -join ' ') Original error: $($activationError.Exception.Message)"
+                }
+                throw "Migration activation failed for '$path'; the original clone is usable and partial backing removed. $($activationError.Exception.Message)"
             }
             Write-Warning "Migrated '$path' to bare+worktree layout. Verify it, then remove retained backup '$backupPath'."
         }
