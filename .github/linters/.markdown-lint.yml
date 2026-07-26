@@ -21,6 +21,7 @@ MD029: false                  # Ordered list item prefix
 MD033: false                  # Allow inline HTML
 MD036: false                  # Emphasis used instead of a heading
 MD041: false                  # First line in file should be a top level heading, PULL_REQUEST_TEMPLATE.md is an exception
+MD051: false                  # Link fragments: docs use python-markdown attr_list anchors ({ #fr1 }) that markdownlint can't resolve; Test-DocumentationLink.ps1 validates fragments instead
 MD060: false                  # Table column style — content mixes compact and aligned tables
 
 #################
