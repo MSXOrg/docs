@@ -10,8 +10,9 @@ The single starting point for agents: a git-isolated local clone of the MSX cent
 ## The model
 
 - `~/.msx/docs` is **read context** — the ways of working, coding standards, and agent workflow. Changes to it go through **pull requests**.
+- `~/.msx/docs.git` is the bare backing repository for the readable, clean `~/.msx/docs` main worktree.
 - `~/.msx/memory` is **durable context** — notes and session history governed by that repository's contribution policy.
-- `~/.msx/projects/<project>/{docs,memory}` holds optional project-specific context added through bootstrap plug-ins.
+- `~/.msx/projects/<project>/docs.git` and `docs/` provide the same bare+main-worktree model for optional project docs; `memory/` remains a simple checkout.
 
 > **Prerequisite:** `MSXOrg/memory` is a private repository — the bootstrap needs access to it (and working github.com credentials) to clone or update memory.
 
@@ -27,14 +28,28 @@ Run the bootstrap:
 
 ```powershell
 $docs = Join-Path $HOME '.msx/docs'
+$docsBacking = "$docs.git"
 if ((Test-Path $docs) -and -not (Test-Path (Join-Path $docs '.git'))) {
     throw "$docs exists but is not a git repository. Remove it and re-run."
 }
 if (-not (Test-Path (Join-Path $docs '.git'))) {
-    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $docs) | Out-Null
-    git clone https://github.com/MSXOrg/docs.git $docs
+    if (-not (Test-Path $docsBacking)) {
+        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $docs) | Out-Null
+        git clone --bare https://github.com/MSXOrg/docs.git $docsBacking
+        if ($LASTEXITCODE -ne 0) {
+            throw "Bare clone of MSXOrg/docs failed (exit $LASTEXITCODE). Check network access and credentials."
+        }
+        git --git-dir=$docsBacking config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
+        git --git-dir=$docsBacking fetch origin --prune --quiet
+    }
+    if ((git --git-dir=$docsBacking rev-parse --is-bare-repository) -ne 'true') {
+        throw "$docsBacking exists but is not a bare repository."
+    }
+    $defaultBranch = git --git-dir=$docsBacking symbolic-ref HEAD |
+        ForEach-Object { $_ -replace 'refs/heads/', '' }
+    git --git-dir=$docsBacking worktree add $docs $defaultBranch
     if ($LASTEXITCODE -ne 0) {
-        throw "git clone of MSXOrg/docs failed (exit $LASTEXITCODE). Check network access and github.com credentials, then re-run."
+        throw "Could not create the canonical MSXOrg/docs worktree at $docs."
     }
 } else {
     $refspec = '+refs/heads/*:refs/remotes/origin/*'
@@ -92,6 +107,8 @@ $projects = @(
 ```
 
 Each plug-in uses the same fail-closed freshness validation. `Path` is relative to `~/.msx`, so projects can choose a collision-free location without forking the bootstrap.
+
+Existing clean simple docs clones are migrated automatically. The original clone is retained beside the new layout as `docs.simple-clone-backup` for manual verification and removal. Existing docs worktrees backed by another bare path are reused in place. Dirty, ahead, diverged, wrong-branch, conflicting-path, or otherwise unsafe layouts stop with actionable guidance before conversion.
 
 Wire it into the tools so it runs as the first instruction:
 

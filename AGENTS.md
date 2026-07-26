@@ -12,8 +12,8 @@ The agent workspace lives under `~/.msx`:
 
 | Repository | Local path | Purpose | Change model |
 | --- | --- | --- | --- |
-| `MSXOrg/docs` | `~/.msx/docs` | Reviewed organization context: workflow, standards, capabilities, and framework guidance. | Pull requests only. |
-| `MSXOrg/memory` | `~/.msx/memory` | Durable organization memory: prior decisions, gotchas, and reusable working knowledge. | Follow the repository's own contribution policy. |
+| `MSXOrg/docs` | `~/.msx/docs.git` + `~/.msx/docs` | Bare backing repository plus clean readable main worktree for reviewed organization context. | Pull requests through topic worktrees only. |
+| `MSXOrg/memory` | `~/.msx/memory` | Durable organization memory: prior decisions, gotchas, and reusable working knowledge. | Commit and push directly to `main`, per that repository's policy. |
 
 From this repository, install missing context repositories and synchronize every existing clone before use:
 
@@ -67,6 +67,6 @@ Use a dedicated worktree for every topic branch. Follow [Git Worktrees](src/docs
 2. Use [CONTRIBUTING.md](CONTRIBUTING.md) for its contribution and review contract.
 3. Keep work reviewable with small, descriptive micro-commits.
 4. Push every commit so the remote branch, CI, and draft pull request reflect current work.
-5. Improve organization memory when a verified lesson is likely to matter again; follow the memory repository's own instructions before writing.
+5. Improve organization memory when a verified lesson is likely to matter again; commit and push MSXOrg memory directly to `main`.
 
 This file owns bootstrap and repository-specific operating instructions. The linked documentation owns reusable process knowledge; this file does not redefine a workflow stage, coding standard, or review convention.

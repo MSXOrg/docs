@@ -12,14 +12,28 @@ The workspace is a git-isolated clone of the central repositories under `~/.msx`
 
 ```powershell
 $docs = Join-Path $HOME '.msx/docs'
+$docsBacking = "$docs.git"
 if ((Test-Path $docs) -and -not (Test-Path (Join-Path $docs '.git'))) {
     throw "$docs exists but is not a git repository. Remove it and re-run."
 }
 if (-not (Test-Path (Join-Path $docs '.git'))) {
-    New-Item -ItemType Directory -Force -Path (Split-Path -Parent $docs) | Out-Null
-    git clone https://github.com/MSXOrg/docs.git $docs
+    if (-not (Test-Path $docsBacking)) {
+        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $docs) | Out-Null
+        git clone --bare https://github.com/MSXOrg/docs.git $docsBacking
+        if ($LASTEXITCODE -ne 0) {
+            throw "Bare clone of MSXOrg/docs failed (exit $LASTEXITCODE). Check network access and credentials."
+        }
+        git --git-dir=$docsBacking config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
+        git --git-dir=$docsBacking fetch origin --prune --quiet
+    }
+    if ((git --git-dir=$docsBacking rev-parse --is-bare-repository) -ne 'true') {
+        throw "$docsBacking exists but is not a bare repository."
+    }
+    $defaultBranch = git --git-dir=$docsBacking symbolic-ref HEAD |
+        ForEach-Object { $_ -replace 'refs/heads/', '' }
+    git --git-dir=$docsBacking worktree add $docs $defaultBranch
     if ($LASTEXITCODE -ne 0) {
-        throw "git clone of MSXOrg/docs failed (exit $LASTEXITCODE). Check network access and github.com credentials, then re-run."
+        throw "Could not create the canonical MSXOrg/docs worktree at $docs."
     }
 } else {
     $refspec = '+refs/heads/*:refs/remotes/origin/*'
@@ -73,7 +87,8 @@ Keep the MSXOrg entry and add only the additional project coordinates required b
 
 This produces:
 
-- `~/.msx/docs` — how work is done: ways of working, coding standards, and the agent workflow. The same content published at <https://msxorg.github.io/docs/>.
+- `~/.msx/docs.git` — bare backing repository for central docs.
+- `~/.msx/docs` — clean, readable main worktree containing ways of working, standards, and workflow guidance.
 - `~/.msx/memory` — what has been learned before: durable notes and prior session context.
 
 Each clone has repository-local git config only; it never modifies the global git config or the repository being worked in (git still reads them, but only repository-local config is written).

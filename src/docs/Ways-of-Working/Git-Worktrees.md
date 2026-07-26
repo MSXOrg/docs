@@ -14,7 +14,7 @@ All repositories are set up as **bare clones with worktrees**. Each repository-d
 The reason this layout is the default — not the occasional convenience it is in most projects — is **parallelism**. [Agentic development](Agentic-Development.md) does not proceed one delivery leaf at a time. A single developer can have several agents working at once, each on a different Task or Bug, alongside their own hands-on changes. Worktrees are what make running many streams at once safe instead of chaotic:
 
 - **One worktree per repository-delivery Task or Bug, one agent per worktree.** Each agent gets its own working directory, its own branch, and its own uncommitted state. Two agents never write to the same checkout, so their edits cannot corrupt one another.
-- **No stashing, no branch-switching, no waiting.** Because the worktrees are independent, the agent finishing Task #42 never disturbs the one still working on Bug #99 — and neither touches the clean `<default>/` reference you read from. Nobody has to reach a clean tree before anyone else can move.
+- **No stashing, no branch-switching, no waiting.** Because the worktrees are independent, the agent finishing Task #42 never disturbs the one still working on Bug #99 — and neither touches the clean canonical `<repo>/` worktree you read from. Nobody has to reach a clean tree before anyone else can move.
 - **Fan out, then integrate.** A batch of independent delivery leaves can be started together — one worktree each — worked concurrently, and merged back one at a time through the normal [branch-and-PR flow](Branching-and-Merging.md) as each finishes.
 
 In a single ordinary clone the opposite is forced: one branch checked out at a time, every human and agent contending for the same files, constant stashing and switching. Worktrees turn "several issues at once" from a hazard into the default working mode — which is what makes local agentic development practical at all.
@@ -26,23 +26,23 @@ In a single ordinary clone the opposite is forced: one branch checked out at a t
 | Only one branch checked out at a time        | Each delivery leaf gets a worktree — parallel by default  |
 | Switching branches requires clean state      | Worktrees are independent — no stashing or committing WIP |
 | Agent work blocks human work on same repo    | Different worktrees, no interference                      |
-| Default branch gets dirty during development | `<default>/` worktree is always a clean reference         |
+| Default branch gets dirty during development | Canonical `<repo>/` worktree is always a clean reference   |
 
 ## Repository layout
 
 ```text
-<repo-root>/
-├── .bare/              # bare git data (the actual repository)
-├── .git                # file containing: gitdir: ./.bare
-├── <default>/          # worktree: default branch (always clean, never worked in directly)
+<workspace>/
+├── <repo>.git/         # bare backing repository
+├── <repo>/             # canonical default-branch worktree (always clean)
 ├── 42-add-pagination/  # worktree folder; branch: feat/42-add-pagination
 └── 99-null-ref/        # worktree folder; branch: fix/99-null-ref
 ```
 
-- **`.bare/`** — the shared git object store. All worktrees share this.
-- **`.git`** — a file (not a directory) that points git tooling to `.bare/`.
-- **`<default>/`** — the default branch worktree (e.g. `main` or `master`). Kept as a clean reference. Used for diffing, reading docs, running comparisons. Never directly committed to.
+- **`<repo>.git/`** — the shared bare object store. All worktrees use this backing repository.
+- **`<repo>/`** — the canonical default-branch worktree. Kept clean and exactly synchronized for reading, diffing, and comparisons. Never directly committed to.
 - **`<N>-<slug>/`** — one worktree folder per repository-delivery Task or Bug in flight, named by issue number and a short slug. The folder is a concise local path; its branch uses the required `<type>/<issue>-<slug>` name, so the two names do not need to match.
+
+For the central MSX context, this becomes `~/.msx/docs.git` plus the readable `~/.msx/docs` main worktree. Memory remains a simple checkout at `~/.msx/memory`.
 
 ## Remotes
 
@@ -75,27 +75,26 @@ Both remotes are configured with full refspecs so `git fetch --all --prune` keep
 ## Setup (one-time per repository)
 
 ```powershell
-# Clone as bare into .bare/
-git clone --bare https://github.com/<owner>/<repo>.git .bare
-
-# Create the .git pointer file
-Set-Content .git "gitdir: ./.bare" -NoNewline
+# From the workspace root, clone the bare backing repository.
+$repo = '<repo>'
+git clone --bare "https://github.com/<owner>/$repo.git" "$repo.git"
 
 # Configure fetch refspec (bare clones don't set this automatically)
-git -C .bare config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
+git --git-dir="$repo.git" config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*'
 
 # Fetch remote branches
-git -C .bare fetch origin
+git --git-dir="$repo.git" fetch origin
 
 # Determine the default branch
-$defaultBranch = git -C .bare symbolic-ref HEAD | ForEach-Object { $_ -replace 'refs/heads/', '' }
+$defaultBranch = git --git-dir="$repo.git" symbolic-ref HEAD |
+    ForEach-Object { $_ -replace 'refs/heads/', '' }
 
-# Create the default branch worktree
-git -C .bare worktree add "../$defaultBranch" $defaultBranch
+# Create the canonical default-branch worktree at the repository name.
+git --git-dir="$repo.git" worktree add $repo $defaultBranch
 
 # Set upstream tracking (prevents "Publish Branch" prompt in VS Code)
-git -C .bare config "branch.$defaultBranch.remote" origin
-git -C .bare config "branch.$defaultBranch.merge" "refs/heads/$defaultBranch"
+git --git-dir="$repo.git" config "branch.$defaultBranch.remote" origin
+git --git-dir="$repo.git" config "branch.$defaultBranch.merge" "refs/heads/$defaultBranch"
 ```
 
 > The [Checkout-GitHubRepo](https://github.com/MariusStorhaug/.dev/blob/main/.github/Checkout-GitHubRepo.ps1) script automates this for all repositories.
@@ -103,15 +102,17 @@ git -C .bare config "branch.$defaultBranch.merge" "refs/heads/$defaultBranch"
 ## Working on a delivery leaf
 
 ```powershell
-# From the repo root (where .bare/ lives)
-$defaultBranch = git -C .bare symbolic-ref HEAD | ForEach-Object { $_ -replace 'refs/heads/', '' }
+# From the workspace root (where <repo>.git lives)
+$repo = '<repo>'
+$defaultBranch = git --git-dir="$repo.git" symbolic-ref HEAD |
+    ForEach-Object { $_ -replace 'refs/heads/', '' }
 $worktreeName = '42-add-pagination'
 $branchName = 'feat/42-add-pagination'
-git -C .bare worktree add "../$worktreeName" -b $branchName $defaultBranch
+git --git-dir="$repo.git" worktree add $worktreeName -b $branchName $defaultBranch
 
 # Set upstream tracking (prevents "Publish Branch" prompt in VS Code)
-git -C .bare config "branch.$branchName.remote" origin
-git -C .bare config "branch.$branchName.merge" "refs/heads/$branchName"
+git --git-dir="$repo.git" config "branch.$branchName.remote" origin
+git --git-dir="$repo.git" config "branch.$branchName.merge" "refs/heads/$branchName"
 
 # Open in VS Code
 code $worktreeName
@@ -123,13 +124,13 @@ Then follow the normal Implement flow: initial commit → push → draft PR → 
 
 ```powershell
 # Remove the worktree
-git -C .bare worktree remove 42-add-pagination
+git --git-dir="<repo>.git" worktree remove 42-add-pagination
 
 # Delete the local branch ref
-git -C .bare branch -D feat/42-add-pagination
+git --git-dir="<repo>.git" branch -D feat/42-add-pagination
 
 # Prune if needed (removes stale worktree references)
-git -C .bare worktree prune
+git --git-dir="<repo>.git" worktree prune
 ```
 
 ## Where this connects

@@ -87,10 +87,24 @@ Describe 'Initialize-MsxWorkspace context freshness' {
         function Invoke-BootstrapFixture {
             param([Parameter(Mandatory)] $Fixture)
 
-            $output = & $script:pwsh -NoProfile -File $script:bootstrap `
-                -Root $Fixture.Workspace `
-                -UserName 'Fixture User' `
-                -UserEmail 'fixture@example.invalid' 2>&1 | Out-String
+            $runner = Join-Path $Fixture.Root 'invoke-bootstrap.ps1'
+            $bootstrap = $script:bootstrap.Replace("'", "''")
+            $workspace = $Fixture.Workspace.Replace("'", "''")
+            $docsRemote = $Fixture.Remotes.docs.Replace("'", "''")
+            $memoryRemote = $Fixture.Remotes.memory.Replace("'", "''")
+            @"
+`$projects = @(
+    @{
+        Name = 'Fixture'
+        Path = ''
+        DocsUrl = '$docsRemote'
+        MemoryUrl = '$memoryRemote'
+    }
+)
+& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+exit `$LASTEXITCODE
+"@ | Set-Content -LiteralPath $runner
+            $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
 
             return [pscustomobject]@{
                 ExitCode = $LASTEXITCODE
@@ -120,11 +134,18 @@ Describe 'Initialize-MsxWorkspace context freshness' {
 
         $result = Invoke-BootstrapFixture -Fixture $fixture
 
-        $result.ExitCode | Should -Be 0
+        $result.ExitCode | Should -Be 0 -Because $result.Output
         (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() | Should -BeExactly $docsHead
         (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'origin/main')).Trim() | Should -BeExactly $docsHead
         (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('rev-parse', 'HEAD')).Trim() | Should -BeExactly $memoryHead
         (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('rev-parse', 'origin/main')).Trim() | Should -BeExactly $memoryHead
+        Test-Path -LiteralPath (Join-Path $fixture.Docs '.git') -PathType Leaf | Should -BeTrue
+        Test-Path -LiteralPath (Join-Path $fixture.Workspace 'docs.git') -PathType Container | Should -BeTrue
+        (Invoke-Git -Arguments @("--git-dir=$(Join-Path $fixture.Workspace 'docs.git')", 'rev-parse', '--is-bare-repository')).Trim() |
+            Should -BeExactly 'true'
+        Test-Path -LiteralPath (Join-Path $fixture.Workspace 'docs.simple-clone-backup') | Should -BeTrue
+        Test-Path -LiteralPath (Join-Path $fixture.Memory '.git') -PathType Container | Should -BeTrue
+        (Invoke-BootstrapFixture -Fixture $fixture).ExitCode | Should -Be 0
     }
 
     It 'rejects a dirty checkout without updating it' {
@@ -216,6 +237,12 @@ exit `$LASTEXITCODE
         $projectMemory = Join-Path $fixture.Workspace 'projects/Project/memory'
         Test-Path -LiteralPath (Join-Path $projectDocs '.git') | Should -BeTrue
         Test-Path -LiteralPath (Join-Path $projectMemory '.git') | Should -BeTrue
+        Test-Path -LiteralPath (Join-Path $fixture.Workspace 'projects/Project/docs.git') | Should -BeTrue
+        (Invoke-Git -Arguments @(
+            "--git-dir=$(Join-Path $fixture.Workspace 'projects/Project/docs.git')",
+            'rev-parse',
+            '--is-bare-repository'
+        )).Trim() | Should -BeExactly 'true'
         (Invoke-Git -WorkingDirectory $projectDocs -Arguments @('rev-parse', 'HEAD')).Trim() |
             Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.docs -Arguments @('rev-parse', 'HEAD')).Trim()
         (Invoke-Git -WorkingDirectory $projectMemory -Arguments @('rev-parse', 'HEAD')).Trim() |
@@ -251,5 +278,31 @@ exit `$LASTEXITCODE
 
         $LASTEXITCODE | Should -Not -Be 0
         $output | Should -Match 'duplicate workspace paths'
+    }
+
+    It 'reuses a canonical docs worktree with a legacy bare backing path' {
+        Remove-Item -LiteralPath $fixture.Docs -Recurse -Force
+        $legacyBacking = Join-Path $fixture.Root 'legacy-docs-backing.git'
+        Invoke-Git -Arguments @('clone', '--bare', '--quiet', $fixture.Remotes.docs, $legacyBacking) | Out-Null
+        Invoke-Git -Arguments @(
+            "--git-dir=$legacyBacking",
+            'config',
+            '--add',
+            'remote.origin.fetch',
+            '+refs/heads/*:refs/remotes/origin/*'
+        ) | Out-Null
+        Invoke-Git -Arguments @("--git-dir=$legacyBacking", 'fetch', '--quiet', 'origin') | Out-Null
+        Invoke-Git -Arguments @("--git-dir=$legacyBacking", 'worktree', 'add', '--quiet', $fixture.Docs, 'main') | Out-Null
+
+        $result = Invoke-BootstrapFixture -Fixture $fixture
+
+        $result.ExitCode | Should -Be 0 -Because $result.Output
+        $commonDir = (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @(
+                'rev-parse',
+                '--path-format=absolute',
+                '--git-common-dir'
+            )).Trim()
+        [IO.Path]::GetFullPath($commonDir) | Should -BeExactly ([IO.Path]::GetFullPath($legacyBacking))
+        Test-Path -LiteralPath (Join-Path $fixture.Workspace 'docs.git') | Should -BeFalse
     }
 }

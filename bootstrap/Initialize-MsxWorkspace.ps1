@@ -14,13 +14,12 @@
     The workspace is deliberately kept separate from the repositories an agent
     works in:
 
-    - Each clone gets repository-local git config only. Nothing here modifies the
-      global git config or the working repository's config; git still reads global
-      and system config as usual, but this script writes only repository-local config.
-    - Documentation is reviewed context and changes through pull requests; this
-      script never pushes a docs repository.
-    - Memory is durable context and follows its owning repository's contribution
-      policy; this script never writes or pushes memory content.
+    - Each docs repository uses a bare backing repository plus a canonical clean
+      default-branch worktree. Topic branches use separate worktrees.
+    - Each memory repository remains a simple default-branch checkout.
+    - Every checkout gets repository-local git config only. Nothing here modifies
+      global git config or the working product repository.
+    - The script synchronizes context but never writes or pushes repository content.
 
     The script is idempotent: it clones what is missing and synchronizes every
     existing context repository to the exact remote default-branch head. It stops
@@ -48,7 +47,8 @@
     Installs a project's docs and memory under a project-specific workspace path.
 
 .OUTPUTS
-    [pscustomobject] with Repository, Path, and Changes for each workspace repository.
+    [pscustomobject] with Repository, Path, BackingPath, and Changes for each
+    workspace repository.
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
@@ -87,6 +87,123 @@ if ((-not $PSBoundParameters.ContainsKey('UserName')) -or (-not $PSBoundParamete
     Write-Warning "Using part of the default maintainer identity ($UserName <$UserEmail>). Pass both -UserName and -UserEmail to set your own repository-local author identity."
 }
 
+function Sync-ContextRemote {
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory)]
+        [string] $GitPath,
+
+        [Parameter(Mandatory)]
+        [string] $RepositoryUrl,
+
+        [Parameter()]
+        [switch] $Bare
+    )
+
+    if (-not $PSCmdlet.ShouldProcess($GitPath, 'Fetch canonical remote state')) {
+        return
+    }
+
+    [string[]] $gitRoot = if ($Bare) { @("--git-dir=$GitPath") } else { @('-C', $GitPath) }
+    $allBranchesRefspec = '+refs/heads/*:refs/remotes/origin/*'
+    $fetchRefspecs = @(& git @gitRoot config --get-all remote.origin.fetch)
+    if ($LASTEXITCODE -notin @(0, 1)) {
+        throw "git config remote.origin.fetch failed for '$GitPath' (exit $LASTEXITCODE)."
+    }
+    if ($allBranchesRefspec -notin $fetchRefspecs) {
+        & git @gitRoot config --add remote.origin.fetch $allBranchesRefspec
+        if ($LASTEXITCODE -ne 0) {
+            throw "Could not configure remote tracking branches for '$GitPath' (exit $LASTEXITCODE)."
+        }
+    }
+
+    & git @gitRoot fetch origin --prune --quiet
+    if ($LASTEXITCODE -ne 0) {
+        throw "git fetch failed for '$GitPath' (exit $LASTEXITCODE). Check access to $RepositoryUrl."
+    }
+    & git @gitRoot remote set-head origin --auto | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Cannot detect the remote default branch for '$GitPath'. Check origin before using this context."
+    }
+
+    $defaultRef = (& git @gitRoot symbolic-ref --quiet --short refs/remotes/origin/HEAD | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0) {
+        throw "Cannot resolve the remote default branch for '$GitPath'. Repair origin/HEAD before using this context."
+    }
+    return [pscustomobject]@{
+        DefaultRef = $defaultRef
+        DefaultBranch = $defaultRef -replace '^origin/', ''
+        RemoteHead = (& git @gitRoot rev-parse $defaultRef | Out-String).Trim()
+    }
+}
+
+function Sync-ContextCheckout {
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory)]
+        [string] $Path,
+
+        [Parameter(Mandatory)]
+        [string] $RepositoryUrl
+    )
+
+    $remote = Sync-ContextRemote -GitPath $Path -RepositoryUrl $RepositoryUrl -Confirm:$false
+    if (-not $remote -or -not $PSCmdlet.ShouldProcess($Path, "Synchronize $($remote.DefaultBranch)")) {
+        return $remote
+    }
+
+    $currentBranch = (git -C $Path branch --show-current | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0) {
+        throw "git branch --show-current failed for '$Path' (exit $LASTEXITCODE)."
+    }
+    if ($currentBranch -ne $remote.DefaultBranch) {
+        throw "'$Path' is on '$currentBranch', not the default branch '$($remote.DefaultBranch)'. Switch branches before using this context."
+    }
+
+    $status = @(git -C $Path status --porcelain)
+    if ($LASTEXITCODE -ne 0) {
+        throw "git status failed for '$Path' (exit $LASTEXITCODE)."
+    }
+    if ($status.Count -gt 0) {
+        throw "'$Path' has uncommitted changes. Commit, push, or remove them before using this context."
+    }
+
+    git -C $Path merge --ff-only --quiet $remote.DefaultRef
+    if ($LASTEXITCODE -ne 0) {
+        throw "Could not fast-forward '$Path' to '$($remote.DefaultRef)'. Resolve its diverged history before using this context."
+    }
+    $localHead = (git -C $Path rev-parse HEAD | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0) {
+        throw "git rev-parse HEAD failed for '$Path' (exit $LASTEXITCODE)."
+    }
+    if ($localHead -ne $remote.RemoteHead) {
+        throw "'$Path' is not exactly synchronized with '$($remote.DefaultRef)'. Push or reconcile local commits before using this context."
+    }
+    return $remote
+}
+
+function Set-ContextIdentity {
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory)]
+        [string] $Path,
+
+        [Parameter(Mandatory)]
+        [string] $Name,
+
+        [Parameter(Mandatory)]
+        [string] $Email
+    )
+
+    if (-not $PSCmdlet.ShouldProcess($Path, 'Set repository-local git identity')) {
+        return
+    }
+    git -C $Path config user.name $Name
+    if ($LASTEXITCODE -ne 0) { throw "git config user.name failed for '$Path' (exit $LASTEXITCODE)." }
+    git -C $Path config user.email $Email
+    if ($LASTEXITCODE -ne 0) { throw "git config user.email failed for '$Path' (exit $LASTEXITCODE)." }
+}
+
 $repositories = foreach ($projectDefinition in $Project) {
     foreach ($key in @('Name', 'Path', 'DocsUrl', 'MemoryUrl')) {
         if (-not $projectDefinition.ContainsKey($key) -or $null -eq $projectDefinition[$key]) {
@@ -109,12 +226,14 @@ $repositories = foreach ($projectDefinition in $Project) {
     $memoryPath = if ($projectPath) { Join-Path $projectPath 'memory' } else { 'memory' }
     [pscustomobject]@{
         Name = "$projectName/docs"
+        Kind = 'docs'
         RelativePath = $docsPath
         Url = [string] $projectDefinition.DocsUrl
         Changes = 'pull requests'
     }
     [pscustomobject]@{
         Name = "$projectName/memory"
+        Kind = 'memory'
         RelativePath = $memoryPath
         Url = [string] $projectDefinition.MemoryUrl
         Changes = 'repository policy'
@@ -132,92 +251,122 @@ if ($PSCmdlet.ShouldProcess($Root, 'Create workspace root')) {
 
 $results = foreach ($repo in $repositories) {
     $path = Join-Path $Root $repo.RelativePath
-    if (Test-Path (Join-Path $path '.git')) {
-        if ($PSCmdlet.ShouldProcess($path, 'Fetch and synchronize default branch')) {
-            Write-Verbose "Updating $path"
-            $allBranchesRefspec = '+refs/heads/*:refs/remotes/origin/*'
-            $fetchRefspecs = @(git -C $path config --get-all remote.origin.fetch)
-            if ($LASTEXITCODE -notin @(0, 1)) {
-                throw "git config remote.origin.fetch failed for '$path' (exit $LASTEXITCODE)."
+    if ($repo.Kind -eq 'memory') {
+        if (-not (Test-Path (Join-Path $path '.git'))) {
+            if (Test-Path $path) {
+                throw "Cannot clone memory into '$path': it exists but is not a git repository."
             }
-            if ($allBranchesRefspec -notin $fetchRefspecs) {
-                git -C $path config --add remote.origin.fetch $allBranchesRefspec
+            if ($PSCmdlet.ShouldProcess($repo.Url, "Clone memory into '$path'")) {
+                New-Item -ItemType Directory -Path (Split-Path -Parent $path) -Force | Out-Null
+                git clone --quiet $repo.Url $path
                 if ($LASTEXITCODE -ne 0) {
-                    throw "Could not configure remote tracking branches for '$path' (exit $LASTEXITCODE)."
+                    throw "git clone failed for $($repo.Url) (exit $LASTEXITCODE). Check access and credentials."
                 }
             }
-
-            git -C $path fetch origin --prune --quiet
-            if ($LASTEXITCODE -ne 0) {
-                throw "git fetch failed for '$path' (exit $LASTEXITCODE). Check network access and credentials for $($repo.Url)."
-            }
-
-            git -C $path remote set-head origin --auto | Out-Null
-            if ($LASTEXITCODE -ne 0) {
-                throw "Cannot detect the remote default branch for '$path'. Check origin before using this context."
-            }
-            $defaultRef = (git -C $path symbolic-ref --quiet --short refs/remotes/origin/HEAD | Out-String).Trim()
-            if ($LASTEXITCODE -ne 0) {
-                throw "Cannot resolve the remote default branch for '$path'. Repair origin/HEAD before using this context."
-            }
-            $defaultBranch = $defaultRef -replace '^origin/', ''
-            $currentBranch = (git -C $path branch --show-current | Out-String).Trim()
-            if ($LASTEXITCODE -ne 0) {
-                throw "git branch --show-current failed for '$path' (exit $LASTEXITCODE)."
-            }
-            if ($currentBranch -ne $defaultBranch) {
-                throw "'$path' is on '$currentBranch', not the default branch '$defaultBranch'. Switch branches before using this context."
-            }
-
-            $status = @(git -C $path status --porcelain)
-            if ($LASTEXITCODE -ne 0) {
-                throw "git status failed for '$path' (exit $LASTEXITCODE)."
-            }
-            if ($status.Count -gt 0) {
-                throw "'$path' has uncommitted changes. Commit, push, or remove them before using this context."
-            }
-
-            git -C $path merge --ff-only --quiet $defaultRef
-            if ($LASTEXITCODE -ne 0) {
-                throw "Could not fast-forward '$path' to '$defaultRef'. Resolve its diverged history before using this context."
-            }
-
-            $localHead = (git -C $path rev-parse HEAD | Out-String).Trim()
-            if ($LASTEXITCODE -ne 0) {
-                throw "git rev-parse HEAD failed for '$path' (exit $LASTEXITCODE)."
-            }
-            $remoteHead = (git -C $path rev-parse $defaultRef | Out-String).Trim()
-            if ($LASTEXITCODE -ne 0) {
-                throw "git rev-parse '$defaultRef' failed for '$path' (exit $LASTEXITCODE)."
-            }
-            if ($localHead -ne $remoteHead) {
-                throw "'$path' is not exactly synchronized with '$defaultRef'. Push or reconcile local commits before using this context."
-            }
         }
+        Sync-ContextCheckout -Path $path -RepositoryUrl $repo.Url -Confirm:$false | Out-Null
+        Set-ContextIdentity -Path $path -Name $UserName -Email $UserEmail -Confirm:$false
+        [pscustomobject]@{
+            Repository = $repo.Name
+            Path = $path
+            BackingPath = $null
+            Changes = $repo.Changes
+        }
+        continue
+    }
+
+    $expectedBackingPath = "$path.git"
+    $backingPath = $null
+    $gitEntry = Join-Path $path '.git'
+    if (Test-Path $gitEntry -PathType Container) {
+        # Safe simple-clone migration: synchronize first, preserve all refs in a
+        # new bare backing repository, and retain the old clone as a backup.
+        $remote = Sync-ContextCheckout -Path $path -RepositoryUrl $repo.Url -Confirm:$false
+        if (Test-Path $expectedBackingPath) {
+            throw "Cannot migrate '$path': backing path '$expectedBackingPath' already exists."
+        }
+        $backupPath = "$path.simple-clone-backup"
+        if (Test-Path $backupPath) {
+            throw "Cannot migrate '$path': backup path '$backupPath' already exists. Reconcile it first."
+        }
+        if ($PSCmdlet.ShouldProcess($path, "Migrate simple clone to '$expectedBackingPath'")) {
+            git clone --bare --quiet $path $expectedBackingPath
+            if ($LASTEXITCODE -ne 0) {
+                throw "Could not create bare backing repository '$expectedBackingPath' (exit $LASTEXITCODE)."
+            }
+            git --git-dir=$expectedBackingPath remote set-url origin $repo.Url
+            if ($LASTEXITCODE -ne 0) {
+                throw "Could not set origin on '$expectedBackingPath' (exit $LASTEXITCODE)."
+            }
+            Sync-ContextRemote -GitPath $expectedBackingPath -RepositoryUrl $repo.Url -Bare -Confirm:$false | Out-Null
+
+            Move-Item -LiteralPath $path -Destination $backupPath
+            try {
+                git --git-dir=$expectedBackingPath worktree add --quiet $path $remote.DefaultBranch
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Could not create canonical docs worktree '$path' (exit $LASTEXITCODE)."
+                }
+                Sync-ContextCheckout -Path $path -RepositoryUrl $repo.Url -Confirm:$false | Out-Null
+            } catch {
+                if (Test-Path $path) {
+                    git --git-dir=$expectedBackingPath worktree remove --force $path 2>$null
+                    Remove-Item -LiteralPath $path -Recurse -Force -ErrorAction SilentlyContinue
+                }
+                if (-not (Test-Path $path) -and (Test-Path $backupPath)) {
+                    Move-Item -LiteralPath $backupPath -Destination $path
+                }
+                throw
+            }
+            Write-Warning "Migrated '$path' to bare+worktree layout. Verify it, then remove retained backup '$backupPath'."
+        }
+        $backingPath = $expectedBackingPath
+    } elseif (Test-Path $gitEntry -PathType Leaf) {
+        $backingPath = (git -C $path rev-parse --path-format=absolute --git-common-dir | Out-String).Trim()
+        if ($LASTEXITCODE -ne 0) {
+            throw "Cannot resolve the backing repository for docs worktree '$path'."
+        }
+        $isBare = (git --git-dir=$backingPath rev-parse --is-bare-repository | Out-String).Trim()
+        if ($LASTEXITCODE -ne 0 -or $isBare -ne 'true') {
+            throw "Docs worktree '$path' is not backed by a bare repository. Repair it before using context."
+        }
+    } elseif (Test-Path $path) {
+        throw "Cannot install docs at '$path': it exists but is not a supported git checkout."
     } else {
-        if (Test-Path $path) {
-            throw "Cannot clone into '$path': it exists but is not a git repository. Remove it or choose a different -Root."
+        $backingPath = $expectedBackingPath
+        if (-not (Test-Path $backingPath)) {
+            if ($PSCmdlet.ShouldProcess($repo.Url, "Clone bare docs backing into '$backingPath'")) {
+                New-Item -ItemType Directory -Path (Split-Path -Parent $backingPath) -Force | Out-Null
+                git clone --bare --quiet $repo.Url $backingPath
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Bare clone failed for $($repo.Url) (exit $LASTEXITCODE)."
+                }
+            }
         }
-        if ($PSCmdlet.ShouldProcess($repo.Url, "Clone into '$path'")) {
-            Write-Verbose "Cloning $($repo.Url) into $path"
-            New-Item -ItemType Directory -Path (Split-Path -Parent $path) -Force | Out-Null
-            git clone --quiet $repo.Url $path
+        $isBare = (git --git-dir=$backingPath rev-parse --is-bare-repository | Out-String).Trim()
+        if ($LASTEXITCODE -ne 0 -or $isBare -ne 'true') {
+            throw "Docs backing path '$backingPath' is not a bare repository."
+        }
+        $remote = Sync-ContextRemote -GitPath $backingPath -RepositoryUrl $repo.Url -Bare -Confirm:$false
+        $localDefault = (git --git-dir=$backingPath rev-parse "refs/heads/$($remote.DefaultBranch)" | Out-String).Trim()
+        if ($LASTEXITCODE -ne 0 -or $localDefault -ne $remote.RemoteHead) {
+            throw "Bare docs branch '$($remote.DefaultBranch)' is not exactly synchronized. Repair '$backingPath' before creating its main worktree."
+        }
+        if ($PSCmdlet.ShouldProcess($path, 'Create canonical docs worktree')) {
+            git --git-dir=$backingPath worktree add --quiet $path $remote.DefaultBranch
             if ($LASTEXITCODE -ne 0) {
-                throw "git clone failed for $($repo.Url) (exit $LASTEXITCODE). Check access and credentials (MSXOrg/memory is private)."
+                throw "Could not create canonical docs worktree '$path' (exit $LASTEXITCODE)."
             }
         }
     }
 
-    # Isolated identity: write repository-local config only. Git still reads
-    # global and system config; the script never writes to them.
-    if ($PSCmdlet.ShouldProcess($path, 'Set repository-local git identity')) {
-        git -C $path config user.name $UserName
-        if ($LASTEXITCODE -ne 0) { throw "git config user.name failed for '$path' (exit $LASTEXITCODE)." }
-        git -C $path config user.email $UserEmail
-        if ($LASTEXITCODE -ne 0) { throw "git config user.email failed for '$path' (exit $LASTEXITCODE)." }
+    Sync-ContextCheckout -Path $path -RepositoryUrl $repo.Url -Confirm:$false | Out-Null
+    Set-ContextIdentity -Path $path -Name $UserName -Email $UserEmail -Confirm:$false
+    [pscustomobject]@{
+        Repository = $repo.Name
+        Path = $path
+        BackingPath = $backingPath
+        Changes = $repo.Changes
     }
-
-    [pscustomobject]@{ Repository = $repo.Name; Path = $path; Changes = $repo.Changes }
 }
 
 $results
