@@ -72,7 +72,7 @@ A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link that justi
 
 Run this once per implementation session, at the same timing as the standards/framework pass: when the change is otherwise complete and before the pull request is marked ready.
 
-1. Search for already-open issues whose asks the finished diff now satisfies, not only the issue originally linked when the branch was opened.
+1. Search for already-open issues whose asks are already satisfied by the finished diff, not only the issue originally linked when the branch was opened.
 2. Scope the sweep deliberately so it scales: prioritize the delivery leaf's parent and siblings in the [Issue Hierarchy](../Issues/Types/Hierarchy.md), then narrow by affected component, labels, keywords, or code paths. Do not read every open issue serially in large repositories.
 3. Treat convergence as outcome-based:
    - **Fully satisfied** — the diff already delivers the issue's ask. Add it to the pull request's Relevant issues block with a closing keyword (`Fixes`, `Closes`, or `Resolves`) so merge closes it.
