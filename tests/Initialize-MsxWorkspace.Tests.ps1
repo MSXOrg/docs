@@ -40,7 +40,13 @@ Describe 'Initialize-MsxWorkspace context freshness' {
         }
 
         function New-ContextFixture {
+            [CmdletBinding(SupportsShouldProcess)]
+            param()
+
             $root = Join-Path ([IO.Path]::GetTempPath()) "msx-bootstrap-$([guid]::NewGuid().ToString('N'))"
+            if (-not $PSCmdlet.ShouldProcess($root, 'Create context fixture')) {
+                return
+            }
             $workspace = Join-Path $root 'workspace'
             $remotes = Join-Path $root 'remotes'
             $writers = Join-Path $root 'writers'
@@ -91,6 +97,7 @@ Describe 'Initialize-MsxWorkspace context freshness' {
 
     BeforeEach {
         $fixture = New-ContextFixture
+        $fixture | Should -Not -BeNullOrEmpty
     }
 
     AfterEach {
