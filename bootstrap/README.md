@@ -10,7 +10,7 @@ The single starting point for agents: a git-isolated local clone of the MSX cent
 ## The model
 
 - `~/.msx/docs` is **read context** — the ways of working, coding standards, and agent workflow. Changes to it go through **pull requests**.
-- `~/.msx/memory` is **append-only context** — durable notes and session history. Changes to it are **pushed to main**.
+- `~/.msx/memory` is **durable context** — notes and session history governed by that repository's contribution policy.
 - `~/.msx/projects/<project>/{docs,memory}` holds optional project-specific context added through bootstrap plug-ins.
 
 > **Prerequisite:** `MSXOrg/memory` is a private repository — the bootstrap needs access to it (and working github.com credentials) to clone or update memory.

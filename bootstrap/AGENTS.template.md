@@ -100,4 +100,4 @@ Clear task language may shortcut the index trail: `Review this PR <link>` enters
 ## Two write rules
 
 - **Docs change through pull requests.** Branch inside `~/.msx/docs` and open a pull request; never push its `main`.
-- **Memory pushes to main.** Commit and push notes directly inside `~/.msx/memory`; no pull request.
+- **Memory follows repository policy.** Read the selected memory repository's `AGENTS.md` and `CONTRIBUTING.md` before writing.
