@@ -12,11 +12,12 @@ for that kind of capability, not a separate documentation model: each framework
 carries the same **spec** and **design** as any other capability.
 
 This standalone section is being **absorbed into
-[Capabilities](../Capabilities/index.md)** — the evidence it should be is already
-here: `vscode-extension-framework` lives under Capabilities with a spec and a
-design, while the pages below still lack that pair. As each framework gains its
-spec and design it moves under Capabilities; until then it is documented as its
-own section here.
+[Capabilities](../Capabilities/index.md)** and will be **removed** once empty —
+the consolidation runs one direction, because `capability` is the noun and
+`framework` is only an adjective. The evidence it should move is already here:
+`vscode-extension-framework` lives under Capabilities with a spec and a design.
+As each framework below gains its spec and design it moves under Capabilities;
+when both have moved, this section and its navigation entry are deleted.
 
 <!-- INDEX:START -->
 
