@@ -60,7 +60,7 @@ of deployments whose deployed effect equals their approved effect (target 100%).
 
 Out of scope:
 
-- The choice of deployment platform, service provider, and change engine — each
+- The choice of CI/CD platform, service provider, and change engine — each
   combination is a **[design](index.md)**, not part of this contract.
 - Application or runtime release — this capability governs managed resources.
 - Provisioning of the state, identity, and trust the deployment relies on, which
@@ -220,13 +220,13 @@ Feature: Deployment approves and applies the effect, not just the code
   effect.
 - A **record of state** for each environment exists, against which an effect is
   computed and whose change can invalidate a previously approved effect.
-- The specifics of **how** — the deployment platform, the service provider, the
+- The specifics of **how** — the CI/CD platform, the service provider, the
   change engine, and the identity mechanism — are supplied by a
   [design](index.md), not this spec.
 
 ## Where this connects
 
 - [Designs](index.md) — how these requirements are delivered for a specific
-  deployment platform and service provider.
+  service provider and CI/CD platform.
 - [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — why this spec holds only the why and the what.
 - [PR Format](../../Ways-of-Working/PR-Format.md) — the review that approves the change and its effect.

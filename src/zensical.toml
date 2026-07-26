@@ -136,7 +136,7 @@ nav = [
     {"Deployment" = [
       "Capabilities/deployment/index.md",
       {"Spec" = "Capabilities/deployment/spec.md"},
-      {"GitHub + Azure design" = "Capabilities/deployment/designs/github-azure.md"},
+      {"Deploying Azure from GitHub" = "Capabilities/deployment/designs/azure-from-github.md"},
     ]},
     {"VS Code Extension Framework" = [
       "Capabilities/vscode-extension-framework/index.md",

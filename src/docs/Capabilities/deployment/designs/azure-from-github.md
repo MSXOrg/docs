@@ -1,18 +1,19 @@
 ---
-title: GitHub + Azure design
-description: How the deployment spec is delivered with GitHub as the deployment platform and Azure as the service provider, using Terraform to compute and apply the approved effect.
+title: Deploying Azure from GitHub
+description: How the deployment spec is delivered with Azure as the service provider and GitHub as the CI/CD platform, using Terraform to compute and apply the approved effect.
 ---
 
-# Deployment — GitHub + Azure design
+# Deploying Azure from GitHub
 
 This design delivers the [Deployment spec](../spec.md) for one combination:
-**GitHub** as the deployment platform and **Azure** (including Microsoft Entra
-ID) as the service provider, with **Terraform (open source)** as the change
+**Azure** (including Microsoft Entra ID) as the service provider and **GitHub**
+as the CI/CD platform, with **Terraform (open source)** as the change
 engine. The computed effect the spec speaks of is a **saved Terraform plan**;
 the record of state is a remote Terraform state per environment.
 
-Another design covers another combination — Azure DevOps with Azure, GitHub with
-AWS, GitHub with GitHub — without changing the spec.
+Another design covers another combination — deploying Azure from Azure DevOps,
+deploying AWS from GitHub, deploying GitHub from GitHub — without changing the
+spec.
 
 ## Approach
 
@@ -166,7 +167,7 @@ on:
 ```
 
 The core is provider-agnostic; the Azure sign-in is the single service-provider
-step. A different service provider (AWS) or deployment platform (Azure DevOps)
+step. A different service provider (AWS) or CI/CD platform (Azure DevOps)
 reuses this design's shape with its own identity step and is documented as its
 own design under [Deployment](../index.md).
 
