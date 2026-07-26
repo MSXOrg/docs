@@ -23,7 +23,7 @@ Consider each of the following dimensions when reviewing a PR:
 
 ### Stay in scope
 
-The PR delivers a specific issue. Suggestions that go beyond that issue are **new issues**, not blocking review comments. File the follow-up and link it from the comment.
+The PR delivers one Task or Bug. Suggestions that go beyond that delivery leaf are **new issues**, not blocking review comments. File the follow-up and link it from the comment.
 
 ### One concern per comment
 
@@ -40,7 +40,7 @@ Use explicit prefixes so the author knows what is blocking:
 
 ### Reason from evidence
 
-Cite the docs, the linter rule, the security advisory, the linked issue's Section 2. "It feels off" is rarely actionable. "This contradicts the decision in #N's Section 2" is.
+Cite the docs, the linter rule, the security advisory, or a recorded decision in the closing delivery issue. "It feels off" is rarely actionable. "This contradicts the decision recorded in Owner/Repo#N" is.
 
 ### Don't review your own PR publicly
 

@@ -1,6 +1,6 @@
 ---
 title: Branching and Merging
-description: Topic branches, pull-request-only integration, and merge models.
+description: Delivery-leaf topic branches, pull-request-only integration, and merge models.
 ---
 
 # Branching and Merging
@@ -9,7 +9,7 @@ How changes move from a working branch into a protected branch. The model is sma
 
 ## Topic branches
 
-- Work happens on short-lived branches — one per issue, each in its own [worktree](Git-Worktrees.md). A branch is cut from the default branch unless a different base is explicitly given; an agent follows the same default.
+- Repository delivery happens on short-lived branches — one per Task or Bug, each in its own [worktree](Git-Worktrees.md). Epic and PBI aggregates do not own branches, and an operational Task has no branch. A branch is cut from the default branch unless a different base is explicitly given; an agent follows the same default.
 - Name branches `<type>/<issue>-<short-slug>`, e.g. `feat/42-pagination` or `fix/99-null-context`. The type matches the change type.
 - Branches stay short-lived. The longer a branch lives, the further it diverges and the harder it is to merge.
 
@@ -22,7 +22,7 @@ How changes move from a working branch into a protected branch. The model is sma
 
 ## Stacked pull requests
 
-Use a stack when several reviewable changes depend on one another and cannot land independently. Each layer remains one Task issue, one branch, and one pull request; the stack only records their dependency and order. Independent changes use separate branches from the default branch instead.
+Use a stack when several reviewable changes depend on one another and cannot land independently. Each layer remains one Task or Bug, one branch, and one pull request; the stack only records their dependency and order. Independent changes use separate branches from the default branch instead.
 
 Build the stack from its destination upward:
 
@@ -33,9 +33,9 @@ Build the stack from its destination upward:
 
 Every layer follows the ordinary [Contribution Workflow](Contribution-Workflow.md):
 
-1. **Plan the dependency.** Give each layer its own Task issue. Record `Blocked by: #N` on dependent issues as described in [Issue Hierarchy](Issues/Types/Hierarchy.md#how-to-express-the-hierarchy), and order the implementation so the shared foundation is the first layer.
+1. **Plan the dependency.** Give each layer its own Task or Bug issue. Add a native blocked-by edge from every dependent leaf to its prerequisite as described in [Issue Relationships](Issues/Process/Relationships.md#execution-order); prose, sub-issue order, and stack position do not create the gate.
 2. **Open every layer as a draft.** After the initial commit, push the branch and open its pull request immediately. Use the standard user-facing title and description from [PR Format](PR-Format.md); do not add stack position or an internal branch name to the title.
-3. **Link the stack in Technical Details.** Add fully qualified pull request links for the immediate dependency and dependent, using `Depends on Owner/Repo#N` and `Followed by Owner/Repo#N`. Each pull request closes only its own Task issue.
+3. **Link the stack in Technical Details.** Add fully qualified pull request links for the immediate dependency and dependent, using `Depends on Owner/Repo#N` and `Followed by Owner/Repo#N`. Each pull request closes only its own Task or Bug.
 4. **Keep each delta isolated.** The pull request diff against its current base contains only that layer's change. Run its tests, checks, and automated review even when an earlier layer already exercised the combined code.
 5. **Make one layer ready at a time.** Only the lowest unmerged layer is marked ready and given auto-merge. Every later layer stays draft, even when its current checks are green.
 6. **Advance after merge.** When the lowest layer lands, refresh the next branch against the landed target, retarget its pull request to that target, and verify that the diff still contains only its intended change. Run CI and the automated review loop again before marking it ready.

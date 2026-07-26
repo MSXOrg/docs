@@ -27,7 +27,7 @@ memory/
 ├── knowledge/        # durable facts about the ecosystem, tools, cross-repo relationships
 │   ├── index.md
 │   └── repos/        # one file per repo worth remembering repo-specific facts about (created lazily as needed)
-└── agents/           # per-agent-role working knowledge; empty stub until agent roles are formally defined
+└── agents/           # per-workflow-stage knowledge; empty stub until stage-specific lessons exist
     └── index.md
 ```
 
@@ -43,7 +43,7 @@ top-level folder is one of those responsibilities made concrete:
 | --- | --- |
 | `gotchas/` | Recurring gotchas and lessons learned. |
 | `knowledge/` | Active project context that should survive a single chat session, project-specific preferences that are factual rather than private user preference, and issue/PR/incident notes worth reusing. |
-| `agents/` | Agent role working knowledge. |
+| `agents/` | Agent workflow-stage working knowledge. |
 
 `index.md` is the root map described in [Design's indexes section](design.md#indexes-as-the-mindmap):
 it links to `gotchas/index.md`, `knowledge/index.md`, and `agents/index.md` so a human or

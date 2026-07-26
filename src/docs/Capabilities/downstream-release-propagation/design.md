@@ -9,7 +9,9 @@ The notification runs in the **producer** when a release is cut. It resolves the
 release coordinates, builds a self-contained prompt per dependent, and delegates
 the change to a cloud agent **in the dependent** via the
 [Agent Tasks API](https://docs.github.com/rest/agent-tasks/agent-tasks). The
-brief travels entirely in the prompt; the agent opens the pull request directly.
+brief travels entirely in the prompt. The agent first creates or reuses the
+dependent's Task delivery issue, then opens the pull request with that Task as
+its one closing reference.
 
 ```mermaid
 flowchart TD
@@ -17,7 +19,8 @@ flowchart TD
   notify --> resolve["Resolve version + immutable ref (SHA / digest) + notes"]
   resolve --> fan{"For each dependent"}
   fan --> delegate["Create agent task in dependent<br/>self-contained prompt with full context"]
-  delegate --> pr["Agent opens PR: bump + related fixes + impact"]
+  delegate --> issue["Create or reuse Task delivery issue"]
+  issue --> pr["Agent opens closing PR: bump + related fixes + impact"]
   pr --> review["Human review + merge"]
 ```
 
@@ -71,11 +74,12 @@ a single configured `notify_repo` (published-artifact shape), with
 
 ## Agent instructions
 
-The agent is told to: **apply the bump** (every matching reference, bringing any
+The agent is told to: **create or reuse one Task delivery issue** for the
+dependent's slice; **apply the bump** (every matching reference, bringing any
 mutable-tag pins into SHA-pinned compliance); **apply the related changes it can
 make safely**; **call out** larger or riskier work under a follow-up section
 rather than forcing it into the bump; **summarise impact** in the PR body; and
-**open the pull request**.
+**open the pull request** with exactly that Task as its closing issue.
 
 ## Permissions and credentials
 
@@ -107,3 +111,4 @@ and a release it publishes cannot trigger a `release:` workflow. So the job:
 - [Release Management](../release-management/design.md) — produces the release and note this consumes.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md) — SHA pinning, least-privilege permissions, explicit secret passing.
 - [Security](../../Coding-Standards/Security.md#supply-chain) — the supply-chain rationale for immutable references.
+- [PR Format](../../Ways-of-Working/PR-Format.md) — the delivery-leaf closure contract used by the agent.

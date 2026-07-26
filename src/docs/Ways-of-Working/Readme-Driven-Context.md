@@ -53,9 +53,9 @@ The README is updated **in the same pull request** that introduces the change. D
 - CI/CD changes that do not affect usage.
 - Dependency updates that do not change behavior.
 
-## Agent workflow
+## Using repository context
 
-When an agent works on a repository, the README sequence is:
+When a human or agent works on a repository, the README sequence is:
 
 1. **Read the README first** — before reading source code, understand the project context.
 2. **Use the README as a guide** — let documented scope and architecture inform where and how to make changes.
