@@ -112,10 +112,11 @@ The [PSModule - SourceCode tests](https://github.com/PSModule/Process-PSModule/b
 - Imports and tests the module in parallel (matrix) using module-local Pester tests.
 - Discovers module-local tests recursively under `tests/`, applying the [per-directory precedence](#module-local-test-discovery) independently at every level.
 - Module test files declare a Pester **6.x** requirement via `#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.0.0'; MaximumVersion = '6.*' }` — a convention module authors add to each `*.Tests.ps1`, not something this pipeline injects. The [Invoke-Pester](https://github.com/PSModule/Invoke-Pester) action installs a matching `6.x`, so minor and patch updates flow in automatically while a new major stays a deliberate, reviewed change.
-- Supports setup and teardown scripts executed via separate dedicated jobs:
-  - `BeforeAll`: Runs root `tests/BeforeAll.ps1` once before all test matrix jobs to set up the test environment (e.g., deploy infrastructure, download test data).
-  - `AfterAll`: Runs root `tests/AfterAll.ps1` once after all test matrix jobs complete to clean up the test environment (e.g., remove test resources, clean up databases).
-- Setup and teardown detection is not recursive; nested files with those names are not workflow phases.
+- Supports two special workflow phase scripts executed via separate dedicated jobs:
+  - `tests/BeforeAll.ps1`: Runs once before all module-local test matrix jobs to set up the test environment (e.g., deploy infrastructure, download test data).
+  - `tests/AfterAll.ps1`: Runs once after all module-local test matrix jobs complete to clean up the test environment (e.g., remove test resources, clean up databases).
+- The workflow checks only those exact repository-root paths; phase detection is non-recursive. This is separate from the recursive discovery of ordinary module-local test entries described below; nested files named `BeforeAll.ps1` or `AfterAll.ps1` do not create workflow phases.
+- The two phase scripts run with the same environment variables as the tests.
 - This produces a JSON-based report that is used by [Get-PesterTestResults](#get-test-results) to evaluate the results of the tests.
 
 ### Module-local test discovery
@@ -136,13 +137,13 @@ Every discovered artifact needs a unique prefix before its first dot because tha
 
 The workflow supports automatic execution of setup and teardown scripts for module tests:
 
-- The exact root paths `tests/BeforeAll.ps1` and `tests/AfterAll.ps1` are detected and executed if present.
-- If no scripts are found, the workflow continues normally.
-- Detection is not recursive.
+- `tests/BeforeAll.ps1` and `tests/AfterAll.ps1` are special workflow phase files, not ordinary recursively discovered test entries.
+- Each phase is enabled only when its exact file exists at the root of `tests/`.
+- If either file is absent, the workflow skips that phase and continues normally.
 
 #### Setup - `BeforeAll.ps1`
 
-- Place at the root test path `tests/BeforeAll.ps1`.
+- Place at the exact repository-root path `tests/BeforeAll.ps1`.
 - Runs once before all test matrix jobs to prepare the test environment.
 - Deploy test infrastructure, download test data, initialize databases, or configure services.
 - Has access to the same environment variables as your tests (secrets, GitHub token, etc.).
@@ -159,7 +160,7 @@ Write-Host "Test environment ready!"
 
 #### Teardown - `AfterAll.ps1`
 
-- Place at the root test path `tests/AfterAll.ps1`.
+- Place at the exact repository-root path `tests/AfterAll.ps1`.
 - Runs once after all test matrix jobs complete to clean up the test environment.
 - Remove test resources, clean up databases, stop services, or upload artifacts.
 - Has access to the same environment variables as your tests.
