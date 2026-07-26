@@ -33,11 +33,11 @@ Use [git worktrees](../Ways-of-Working/Git-Worktrees.md) for every repository-de
 
 ### 3. Build
 
-For each checklist item in the delivery plan:
+For each step in the delivery plan:
 
 1. Implement the change and self-review the staged diff.
 2. Commit per [Commit Conventions](../Ways-of-Working/Commit-Conventions.md) — one logical change per commit.
-3. Update the issue as each checklist item completes — do not batch.
+3. Update the issue as each plan step completes — do not batch.
 4. Push regularly so CI runs against current work.
 
 When the plan is wrong, stop and document the conflict in a comment, then update the plan before resuming. Out-of-scope problems go to [Define](define.md).
@@ -57,9 +57,9 @@ When the change meets the [Definition of Ready for Review](../Ways-of-Working/De
 ## Operating rules
 
 1. Micro-commits, one logical change each, with descriptive messages.
-2. Progress is visible — the delivery issue is updated as checklist items complete, not in bulk.
+2. Progress is visible — the delivery issue is updated as plan steps complete, not in bulk.
 3. Draft pull request from the start; stay in the issue's scope.
-4. Mark ready only when the change meets the Definition of Ready for Review — never with open checklist items.
+4. Mark ready only when the change meets the Definition of Ready for Review — never with open plan steps.
 5. Return unplanned work to [Define](define.md) and hand review-ready work to [Review](reviewer.md).
 
 ## Where this connects

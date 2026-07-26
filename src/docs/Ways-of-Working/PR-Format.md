@@ -119,7 +119,7 @@ The **Technical details** block is for reviewers and maintainers. Include intern
 - Which internal functions, classes, or files were changed.
 - Implementation approach and design decisions.
 - Backward compatibility notes for developers.
-- **Implementation plan progress** — cross-reference the closing Task or Bug's plan. Which checklist items does this PR complete? Which were moved to follow-up delivery issues?
+- **Implementation plan progress** — cross-reference the closing Task or Bug's plan. Which plan steps does this PR complete? Which were moved to follow-up delivery issues?
 
 The **Relevant issues (or links)** block is required and uses fully qualified references (`Owner/Repo#N`) so links work across repositories.
 
