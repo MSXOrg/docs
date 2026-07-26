@@ -53,7 +53,7 @@ Run this once per implementation session, when the change is otherwise complete 
 
 1. **Process** — the [Ways of Working](../index.md) pages that govern this stage, including [Commit Conventions](../Commit-Conventions.md), [PR Format](../PR-Format.md), and [Branching and Merging](../Branching-and-Merging.md).
 2. **Standards** — the [Coding Standards](../../Coding-Standards/index.md) chapters that apply to the languages and file types actually changed.
-3. **Framework and domain documentation** — the documentation the repository's framework or product owns, published under [Frameworks](../../Frameworks/index.md) or in the repository itself; for example the module-pipeline documentation for a module repository, or the action contract for an action repository.
+3. **Framework and domain documentation** — the documentation the repository's framework or product owns, published under the Frameworks section or in the repository itself; for example the module-pipeline documentation for a module repository, or the action contract for an action repository.
 
 Process defines the method; standards and framework documentation define correctness details. Where the layers overlap, the narrower layer supplies the detail and the broader layer supplies the method — a framework page never overrides a process rule it does not own. Read the canonical pages instead of recalling them; that is what keeps guidance written once and referenced everywhere.
 
