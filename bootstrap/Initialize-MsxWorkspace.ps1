@@ -95,13 +95,15 @@ $repositories = foreach ($projectDefinition in $Project) {
     }
 
     $projectName = [string] $projectDefinition.Name
-    $projectPath = [string] $projectDefinition.Path
+    $projectPath = ([string] $projectDefinition.Path).Trim()
     if (-not $projectName.Trim()) {
         throw 'Project Name must not be empty.'
     }
-    if ([IO.Path]::IsPathRooted($projectPath) -or '..' -in ($projectPath -split '[\\/]')) {
+    $pathSegments = @($projectPath -split '[\\/]' | Where-Object { $_ -and $_ -ne '.' })
+    if ([IO.Path]::IsPathRooted($projectPath) -or '..' -in $pathSegments) {
         throw "Project Path '$projectPath' must be a safe path relative to the workspace root."
     }
+    $projectPath = $pathSegments -join [IO.Path]::DirectorySeparatorChar
 
     $docsPath = if ($projectPath) { Join-Path $projectPath 'docs' } else { 'docs' }
     $memoryPath = if ($projectPath) { Join-Path $projectPath 'memory' } else { 'memory' }

@@ -200,7 +200,7 @@ Describe 'Initialize-MsxWorkspace context freshness' {
     }
     @{
         Name = 'Project'
-        Path = 'projects/Project'
+        Path = './projects/Project/'
         DocsUrl = '$docsRemote'
         MemoryUrl = '$memoryRemote'
     }
@@ -220,5 +220,36 @@ exit `$LASTEXITCODE
             Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.docs -Arguments @('rev-parse', 'HEAD')).Trim()
         (Invoke-Git -WorkingDirectory $projectMemory -Arguments @('rev-parse', 'HEAD')).Trim() |
             Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.memory -Arguments @('rev-parse', 'HEAD')).Trim()
+    }
+
+    It 'rejects duplicate project paths after normalization' {
+        $runner = Join-Path $fixture.Root 'invoke-duplicate-bootstrap.ps1'
+        $bootstrap = $script:bootstrap.Replace("'", "''")
+        $workspace = $fixture.Workspace.Replace("'", "''")
+        $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
+        $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
+        @"
+`$projects = @(
+    @{
+        Name = 'One'
+        Path = ''
+        DocsUrl = '$docsRemote'
+        MemoryUrl = '$memoryRemote'
+    }
+    @{
+        Name = 'Two'
+        Path = '.'
+        DocsUrl = '$docsRemote'
+        MemoryUrl = '$memoryRemote'
+    }
+)
+& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+exit `$LASTEXITCODE
+"@ | Set-Content -LiteralPath $runner
+
+        $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
+
+        $LASTEXITCODE | Should -Not -Be 0
+        $output | Should -Match 'duplicate workspace paths'
     }
 }
