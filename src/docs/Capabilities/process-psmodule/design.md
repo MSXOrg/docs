@@ -128,7 +128,7 @@ The Plan job reads this settings file, enriches it with computed values (phase e
 
 - **Major** — breaking change; bump `MAJOR` in SemVer
 - **Minor** — new feature; bump `MINOR`
-- **Patch** — bug fix; bump `PATCH` (default if no label)
+- **Patch** — bugfix; bump `PATCH` (default if no label)
 - **Prerelease** — publish as prerelease, not promoted to latest
 - **NoRelease** — run pipeline, skip publication
 
