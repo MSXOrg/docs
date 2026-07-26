@@ -77,6 +77,7 @@ Describe 'Initialize-MsxWorkspace context freshness' {
                 Workspace = $workspace
                 Writers = $writerMap
                 Docs = Join-Path $workspace 'docs'
+                Memory = Join-Path $workspace 'memory'
             }
         }
 
@@ -109,13 +110,18 @@ Describe 'Initialize-MsxWorkspace context freshness' {
     It 'fast-forwards a clean behind checkout to the exact remote head' {
         Add-TestCommit -Repository $fixture.Writers.docs -Name 'Advance docs'
         Invoke-Git -WorkingDirectory $fixture.Writers.docs -Arguments @('push', '--quiet') | Out-Null
-        $remoteHead = (Invoke-Git -WorkingDirectory $fixture.Writers.docs -Arguments @('rev-parse', 'HEAD')).Trim()
+        Add-TestCommit -Repository $fixture.Writers.memory -Name 'Advance memory'
+        Invoke-Git -WorkingDirectory $fixture.Writers.memory -Arguments @('push', '--quiet') | Out-Null
+        $docsHead = (Invoke-Git -WorkingDirectory $fixture.Writers.docs -Arguments @('rev-parse', 'HEAD')).Trim()
+        $memoryHead = (Invoke-Git -WorkingDirectory $fixture.Writers.memory -Arguments @('rev-parse', 'HEAD')).Trim()
 
         $result = Invoke-BootstrapFixture -Fixture $fixture
 
         $result.ExitCode | Should -Be 0
-        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() | Should -BeExactly $remoteHead
-        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'origin/main')).Trim() | Should -BeExactly $remoteHead
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() | Should -BeExactly $docsHead
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'origin/main')).Trim() | Should -BeExactly $docsHead
+        (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('rev-parse', 'HEAD')).Trim() | Should -BeExactly $memoryHead
+        (Invoke-Git -WorkingDirectory $fixture.Memory -Arguments @('rev-parse', 'origin/main')).Trim() | Should -BeExactly $memoryHead
     }
 
     It 'rejects a dirty checkout without updating it' {
