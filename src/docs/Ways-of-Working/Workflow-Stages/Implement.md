@@ -64,7 +64,7 @@ Record the outcome as one row per changed surface:
 | `src/functions/**` (PowerShell) | Naming, Functions, Error Handling | Module source layout | Aligned |
 | `.github/workflows/**` | GitHub Actions | Reusable workflow contract | Exception — Owner/Repo#123 |
 
-A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link that justifies it. Carry the table into the pull request's Technical details block per [PR Format](../PR-Format.md), so [Review](Review.md) can verify the pass instead of guessing whether it happened.
+A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link that justifies it. Where a changed surface has no framework or domain documentation of its own, write `None (no framework-specific docs)` rather than inventing a pseudo-link. Carry the table into the pull request's Technical details block per [PR Format](../PR-Format.md), so [Review](Review.md) can verify the pass instead of guessing whether it happened.
 
 **Stop rule.** Fix what is in scope for the closing Task or Bug and small enough to keep the pull request reviewable. When a finding is out of scope, systemic across the repository, or would change the shape of the pull request, file a follow-up issue through [Define](Define.md), link it in the table as an exception, and leave the change as it is. The pass improves alignment; it does not turn into a second delivery.
 

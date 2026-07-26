@@ -127,7 +127,7 @@ The **Technical details** block is for reviewers and maintainers. Include intern
     | `src/**` (PowerShell) | Naming, Functions | Module source layout | Aligned |
     | `.github/workflows/**` | GitHub Actions | Reusable workflow contract | Exception — Owner/Repo#123 |
 
-    A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link to the follow-up issue that carries it.
+    A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link to the follow-up issue that carries it. A surface with no framework or domain documentation of its own is recorded as `None (no framework-specific docs)`.
 
 The **Relevant issues (or links)** block is required and uses fully qualified references (`Owner/Repo#N`) so links work across repositories.
 
