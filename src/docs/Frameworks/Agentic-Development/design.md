@@ -37,7 +37,7 @@ The `docs` repository is the canonical knowledge base. It owns:
 - coding standards and documentation standards;
 - framework and capability specs and designs;
 - project glossary and onboarding;
-- agent role descriptions and integration guidance.
+- agent workflow stages and integration guidance.
 
 Changes to `docs` happen through pull requests because this repository defines durable project intent.
 
@@ -47,7 +47,7 @@ The `memory` repository is the durable working-memory store. It owns:
 
 - recurring gotchas and lessons learned;
 - active project context that should survive a single chat session;
-- agent role working knowledge;
+- workflow-stage working knowledge;
 - issue, PR, and incident notes worth reusing;
 - project-specific preferences that are factual rather than private user preference.
 
@@ -260,7 +260,7 @@ Different clients load different files, but the framework keeps the same depende
 1. Create or identify the organization `docs` repository.
 2. Create or identify the organization `memory` repository, using the [Memory Repository Template](memory-template.md) as the starting scaffold.
 3. Add `docs/index.md` and `memory/index.md` as the two root maps.
-4. Add framework docs, standards, and agent role descriptions to `docs`.
+4. Add framework docs, standards, and agent workflow stages to `docs`.
 5. Add starter memory sections to `memory`.
 6. Add thin pointer files to each product repository.
 7. Add a bootstrap that keeps local docs and memory clones present.

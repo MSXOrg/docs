@@ -1,13 +1,13 @@
 ---
-title: Define
-description: Capture, route, refine, and plan work at the correct native issue altitude.
+title: Define Stage
+description: The workflow stage that captures, routes, refines, and plans work at the correct issue altitude.
 ---
 
-# Define
+# Define Stage
 
-Take something someone wants — a feature, a bug, an improvement, external feedback, or a production signal — and route it to the correct native issue type. The output is an Epic or PBI ready to coordinate and decompose, or a Task or Bug ready for delivery. Define plans work; it does not build it.
+Define is the first stage of the [Agent Workflow](index.md). It takes something someone wants — a feature, a bug, an improvement, external feedback, or a production signal — and routes it to the correct native issue type. The stage hands off an Epic or PBI ready to coordinate and decompose, or a Task or Bug ready for delivery. Define plans work; it does not build it.
 
-## When to use
+## Enter this stage when
 
 Capture a desire for change, write an issue, plan work, decompose an epic, refine a bug report, create sub-issues, structure a feature request, or turn feedback into a task.
 
@@ -50,7 +50,7 @@ Decide how the work will happen and record the decisions.
 1. Tone is impersonal. The issue description is the source of truth; comments record what changed.
 2. External references are hyperlinks.
 3. Do not modify a feedback issue from a non-contributor — create an internal issue and cross-link.
-4. Stop when the issue meets the readiness gate for its altitude. Do not build, branch, or open pull requests — that is [Implement](implement.md).
+4. Stop when the issue meets the readiness gate for its altitude. Hand a ready delivery leaf to the [Implement stage](implement.md); do not build, branch, or open pull requests here.
 
 ## Where this connects
 

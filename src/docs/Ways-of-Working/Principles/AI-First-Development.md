@@ -32,7 +32,7 @@ Agents are trained to read documentation. That is their natural skill. By keepin
 Agent context is delivered through three layers, in priority order:
 
 1. **Documentation** — the primary source. Published docs at <https://msxorg.github.io/docs/>, READMEs, and issue bodies are written for humans and naturally consumable by agents.
-2. **Central agent descriptions** — the roles agents play, authored once as documentation in the [Agents](../../Agents/index.md) section. They reference the ways of working and define roles, boundaries, and procedural steps — never standards or conventions.
+2. **Central agent workflow** — the stages agents follow, authored once as documentation in the [Agent Workflow](../../Agents/index.md) section. They reference the ways of working and define entry conditions, boundaries, procedures, and handoffs — never standards or conventions.
 3. **Local pointer files** — each repository's `AGENTS.md` (and the `CLAUDE.md` that imports it), pointing to the central descriptions and adding only repo-specific nuance and genuinely tool-specific settings.
 
 ## Augmentation, not replacement
@@ -45,7 +45,7 @@ Treat the agent ecosystem as one team mate. Many specialized roles, one cohesive
 
 ## Self-improving agents
 
-Agents need feedback and a way to process it. Every agent definition should evolve as we learn. Capture lessons in the agent definitions and in this docs section — don't let them live only in someone's head.
+Agents need feedback and a way to process it. Every workflow stage should evolve as we learn. Capture lessons in the stage descriptions and in this docs section — don't let them live only in someone's head.
 
 ## Integration and sensoring
 

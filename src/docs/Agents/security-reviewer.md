@@ -1,13 +1,13 @@
 ---
-title: Security Reviewer
-description: A structured, defensive security review that reports vulnerabilities as an actionable responsible-disclosure issue.
+title: Security Review Stage
+description: A specialized workflow stage for defensive security review and responsible disclosure.
 ---
 
-# Security Reviewer
+# Security Review Stage
 
-A defensive security review on behalf of the code owner: identify vulnerabilities and attack vectors in source code and documentation, and produce a clear, actionable responsible-disclosure issue that remediates each finding. A defender's mindset, not an attacker's — and no working exploit code.
+Security Review is a specialized path in the [Agent Workflow](index.md). On behalf of the code owner, it identifies vulnerabilities and attack vectors in source code and documentation and produces a clear, actionable responsible-disclosure issue for each finding. It uses a defender's mindset, not an attacker's, and produces no working exploit code.
 
-## When to use
+## Enter this stage when
 
 Perform a security review, audit code for vulnerabilities, threat-model a change, or review OWASP Top 10 risks — injection, secrets exposure, path traversal, privilege escalation, supply-chain risk, information disclosure.
 

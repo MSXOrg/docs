@@ -1,13 +1,13 @@
 ---
-title: Implement
-description: Take one ready Task or Bug and deliver it as a review-ready pull request.
+title: Implement Stage
+description: The workflow stage that delivers one ready Task or Bug as a review-ready pull request.
 ---
 
-# Implement
+# Implement Stage
 
-Take one ready, unblocked Task or Bug and deliver working software in a review-ready pull request. Owns the full delivery loop: branching, coding, committing, opening the pull request, tracking progress, running the automated review loop, responding to feedback, and finalizing the release note. Implement builds delivery leaves; it does not implement an Epic or PBI aggregate, plan from scratch, or review others' work.
+Implement is the delivery stage of the [Agent Workflow](index.md). It takes one ready, unblocked Task or Bug and produces working software in a review-ready pull request. The stage owns branching, coding, committing, opening the pull request, tracking progress, running the automated review loop, responding to feedback, and finalizing the release note. Implement builds delivery leaves; it does not implement an Epic or PBI aggregate, plan from scratch, or supply the independent review.
 
-## When to use
+## Enter this stage when
 
 Implement a Task, fix a Bug, create a branch, open a pull request, respond to review feedback, or finalize a pull request. Given an Initiative, Epic, or PBI, follow native containment and blocked-by relationships to a ready delivery leaf; do not treat list order as execution order.
 
@@ -60,7 +60,7 @@ When the change meets the [Definition of Ready for Review](../Ways-of-Working/De
 2. Progress is visible — the delivery issue is updated as checklist items complete, not in bulk.
 3. Draft pull request from the start; stay in the issue's scope.
 4. Mark ready only when the change meets the Definition of Ready for Review — never with open checklist items.
-5. No planning from scratch (that is [Define](define.md)); no reviewing others' pull requests (that is [Reviewer](reviewer.md)).
+5. Return unplanned work to [Define](define.md) and hand review-ready work to [Review](reviewer.md).
 
 ## Where this connects
 

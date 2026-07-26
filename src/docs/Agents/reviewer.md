@@ -1,15 +1,15 @@
 ---
-title: Reviewer
-description: Review someone else's pull request for delivery, taste, security, and undiscussed decisions.
+title: Review Stage
+description: The workflow stage that independently reviews a pull request for delivery, taste, security, and decisions.
 ---
 
-# Reviewer
+# Review Stage
 
-Look at a pull request as the person on the other side of the contribution. Verify the work delivers its closing Task or Bug, applies good taste, respects security, and does not quietly introduce decisions that were not discussed. The Reviewer comments and approves; it does not change code, fix CI, or merge.
+Review is the independent-assessment stage of the [Agent Workflow](index.md). It verifies that a pull request delivers its closing Task or Bug, applies good taste, respects security, and does not quietly introduce decisions that were not discussed. This stage comments and approves; it does not change code, fix CI, or merge.
 
-## When to use
+## Enter this stage when
 
-Review a pull request, check a change for delivery, verify acceptance criteria, or assess taste and standards. For a security-focused pass, use [Security Reviewer](security-reviewer.md).
+Review a pull request, check a change for delivery, verify acceptance criteria, or assess taste and standards. For a security-focused pass, enter [Security Review](security-reviewer.md).
 
 ## Input
 
@@ -31,7 +31,7 @@ Check each dimension per [Review Etiquette](../Ways-of-Working/Review-Etiquette.
 
 - **Delivery** — does the diff meet the acceptance criteria, without scope it did not ask for?
 - **Taste** — readability, naming, structure, tests that exercise behaviour.
-- **Security** — input validation, no secrets in logs, SHA-pinned actions, least privilege. Escalate a deep pass to [Security Reviewer](security-reviewer.md).
+- **Security** — input validation, no secrets in logs, SHA-pinned actions, least privilege. Escalate a deep pass to [Security Review](security-reviewer.md).
 - **Documentation** — updated where user-facing behaviour changed.
 - **Tests** — new behaviour has tests; bugs get regression tests.
 
@@ -50,11 +50,11 @@ An approval co-signs the change, so approve once the blocking concerns are resol
 3. One concern per comment.
 4. Apply repo standards; linter rules win where a standard is silent.
 5. Security is non-negotiable.
-6. No code changes, no CI fixing, and no merging from the Reviewer.
+6. No code changes, CI fixes, or merging in the Review stage; required changes return to [Implement](implement.md).
 
 ## Where this connects
 
 - [Review Etiquette](../Ways-of-Working/Review-Etiquette.md) — tone, severity, and how to disagree well.
 - [PR Format](../Ways-of-Working/PR-Format.md) — delivery-leaf closure and contextual aggregate links.
 - [Branching and Merging](../Ways-of-Working/Branching-and-Merging.md) — who approves and how a change lands.
-- [Security Reviewer](security-reviewer.md) — the dedicated security pass.
+- [Security Review](security-reviewer.md) — the specialized security path.

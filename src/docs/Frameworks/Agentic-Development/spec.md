@@ -12,7 +12,7 @@ An agent does useful work only when it knows which project it is serving, which 
 Each organization owns two canonical repositories:
 
 - `docs` — the reviewed knowledge base: vision, standards, workflows, specs, designs, glossary, onboarding, and project-wide rules.
-- `memory` — the durable agent working memory: lessons learned, recurring gotchas, active context, agent role knowledge, and project-specific operating notes.
+- `memory` — the durable agent working memory: lessons learned, recurring gotchas, active context, workflow-stage knowledge, and project-specific operating notes.
 
 Product repositories do not copy that knowledge. They carry thin pointer files that identify the organization context and direct agents to the relevant `docs` and `memory` roots before acting.
 

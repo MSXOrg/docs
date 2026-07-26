@@ -77,13 +77,13 @@ nav = [
     {"Continuous Practices" = "Ways-of-Working/Continuous-Practices.md"},
     {"DevOps Reference" = "Ways-of-Working/DevOps-Reference.md"},
   ]},
-  {"Agents" = [
+  {"Agent Workflow" = [
     "Agents/index.md",
     {"Define" = "Agents/define.md"},
     {"Implement" = "Agents/implement.md"},
-    {"Reviewer" = "Agents/reviewer.md"},
-    {"Security Reviewer" = "Agents/security-reviewer.md"},
-    {"Agent Author" = "Agents/agent-author.md"},
+    {"Review" = "Agents/reviewer.md"},
+    {"Security Review" = "Agents/security-reviewer.md"},
+    {"Maintain Workflow" = "Agents/agent-author.md"},
   ]},
   {"Coding Standards" = [
     "Coding-Standards/index.md",

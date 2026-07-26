@@ -1,26 +1,43 @@
 ---
-title: Agents
-description: The roles agents play across the ecosystem — authored once as documentation and pointed to from each repository.
+title: Agent Workflow
+description: The stages agents follow to define, implement, and review work across the ecosystem.
 ---
 
-# Agents
+# Agent Workflow
 
-The roles agents play across the MSX ecosystem, authored once as documentation. Each page describes one role — its job, when to use it, and the steps it follows — grounded in the [Ways of Working](../Ways-of-Working/index.md) rather than restating them.
+This is the workflow agents follow across the MSX ecosystem. Each page describes one stage: its entry condition, boundary, procedure, and handoff. The stages apply the [Ways of Working](../Ways-of-Working/index.md) without restating the standards they consume.
 
-These descriptions are the **single source for agent behaviour**. A repository does not carry its own copy; its `AGENTS.md` and `CLAUDE.md` are thin pointers to these pages ([Agentic Development](../Ways-of-Working/Agentic-Development.md)). Humans read the same pages a new teammate would.
+These stage descriptions are the **single source for agent workflow behavior**. A repository does not carry its own copy; its `AGENTS.md` and `CLAUDE.md` are thin pointers to these pages ([Agentic Development](../Ways-of-Working/Agentic-Development.md)). Humans can follow the same workflow.
 
-The lifecycle runs **Define → Implement → Review**: capture and plan the work, build it in a pull request, then review it. Two supporting roles — Security Reviewer and Agent Author — run alongside.
+## The workflow
 
-## Contents
+```mermaid
+flowchart LR
+    D[Define] --> I[Implement]
+    I --> R[Review]
+    R -->|changes required| I
+    R -->|approved| Done[Merge gate]
+    R -->|specialized security pass| S[Security Review]
+    S --> R
+```
+
+- **Define** captures, routes, refines, and plans work until it meets the readiness gate for its issue altitude.
+- **Implement** takes one ready Task or Bug through delivery and hands off a review-ready pull request.
+- **Review** supplies the independent perspective and either returns actionable feedback or approves the change.
+- **Security Review** is a specialized review path entered when the requested scope requires a defensive security assessment.
+
+[Maintain Agent Workflow](agent-author.md) is not a delivery stage. It updates these stage descriptions and the thin repository pointers when the workflow itself changes.
+
+## Stages and maintenance
 
 <!-- INDEX:START -->
 
 | Page | Description |
 | --- | --- |
-| [Define](define.md) | Capture, route, refine, and plan work at the correct native issue altitude. |
-| [Implement](implement.md) | Take one ready Task or Bug and deliver it as a review-ready pull request. |
-| [Reviewer](reviewer.md) | Review someone else's pull request for delivery, taste, security, and undiscussed decisions. |
-| [Security Reviewer](security-reviewer.md) | A structured, defensive security review that reports vulnerabilities as an actionable responsible-disclosure issue. |
-| [Agent Author](agent-author.md) | Create and maintain the agent role descriptions and the per-repository pointer files that reference them. |
+| [Define Stage](define.md) | The workflow stage that captures, routes, refines, and plans work at the correct issue altitude. |
+| [Implement Stage](implement.md) | The workflow stage that delivers one ready Task or Bug as a review-ready pull request. |
+| [Review Stage](reviewer.md) | The workflow stage that independently reviews a pull request for delivery, taste, security, and decisions. |
+| [Security Review Stage](security-reviewer.md) | A specialized workflow stage for defensive security review and responsible disclosure. |
+| [Maintain Agent Workflow](agent-author.md) | Maintain the shared workflow stages and the thin repository pointers that reference them. |
 
 <!-- INDEX:END -->
