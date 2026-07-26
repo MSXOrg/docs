@@ -89,7 +89,7 @@ See [Dependency Updates](../Capabilities/dependency-updates/spec.md) for the cen
 
 ## Linter configuration defaults
 
-Linter configuration must be repository-local when the CI job reads it from the repository. Most shared linter configs live under `.github/linters/`.
+Linter configuration is applied only when the repository actually uses the linter; it is not a mandatory baseline file. Where a linter is used and its CI job reads configuration from the repository, that configuration must be repository-local. Most shared linter configs live under `.github/linters/`.
 
 Examples:
 
