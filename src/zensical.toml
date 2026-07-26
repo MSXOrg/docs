@@ -33,7 +33,7 @@ nav = [
         {"Implement" = "Agents/implement.md"},
         {"Review" = "Agents/reviewer.md"},
         {"Security Review" = "Agents/security-reviewer.md"},
-        {"Maintain Guidance" = "Agents/agent-author.md"},
+        {"Maintain Workflow Guidance" = "Agents/agent-author.md"},
       ]},
     ]},
     {"Contribution Workflow" = "Ways-of-Working/Contribution-Workflow.md"},
