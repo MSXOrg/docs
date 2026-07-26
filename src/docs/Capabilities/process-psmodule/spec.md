@@ -53,7 +53,7 @@ Each publication MUST produce a GitHub Release, a git tag, and a PowerShell Gall
 
 ### NFR1 — Semantic versioning compliance { #nfr1 }
 
-Versions MUST follow [SemVer 2.0.0](https://semver.org/) (`vMAJOR.MINOR.PATCH` or `vMAJOR.MINOR.PATCH-prerelease.N`). Breaking changes MUST increment `MAJOR`; new functionality MUST increment `MINOR`; bug fixes MUST increment `PATCH`. Prerelease versions MUST be obtainable but not promoted as the latest stable release.
+Versions MUST follow [SemVer 2.0.0](https://semver.org/) (`vMAJOR.MINOR.PATCH` or `vMAJOR.MINOR.PATCH-prerelease.N`). Breaking changes MUST increment `MAJOR`; new functionality MUST increment `MINOR`; bugfixes MUST increment `PATCH`. Prerelease versions MUST be obtainable but not promoted as the latest stable release.
 
 ### NFR2 — Serialized releases { #nfr2 }
 
