@@ -133,7 +133,7 @@ Managed-file pull requests should clearly say:
 
 ## Initiative implementation guidance
 
-The central standard deliberately stops at the requirement level. Initiative repositories own implementation design.
+The central standard deliberately stops at the requirement level, and initiative standards operate at the same altitude rather than beneath it: an initiative adds to and adjusts these defaults for its repository types, and a repository inherits every rule this standard sets unless its initiative explicitly changes it. Where an initiative standard adds or overrides a rule, the initiative standard governs that initiative's repositories. Within that relationship, initiative repositories own implementation design.
 
 An initiative should document:
 
