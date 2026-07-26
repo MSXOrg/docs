@@ -109,8 +109,8 @@ The [PSModule - SourceCode tests](https://github.com/PSModule/Process-PSModule/b
 
 [workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Test-ModuleLocal.yml)
 
-- Imports and tests the module in parallel (matrix) using Pester tests from the module repository.
-- Discovers repository-owned tests recursively under `tests/`, applying the [per-directory precedence](#repository-test-discovery) independently at every level.
+- Imports and tests the module in parallel (matrix) using module-local Pester tests.
+- Discovers module-local tests recursively under `tests/`, applying the [per-directory precedence](#repository-test-discovery) independently at every level.
 - Module test files declare a Pester **6.x** requirement via `#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.0.0'; MaximumVersion = '6.*' }` — a convention module authors add to each `*.Tests.ps1`, not something this pipeline injects. The [Invoke-Pester](https://github.com/PSModule/Invoke-Pester) action installs a matching `6.x`, so minor and patch updates flow in automatically while a new major stays a deliberate, reviewed change.
 - Supports setup and teardown scripts executed via separate dedicated jobs:
   - `BeforeAll`: Runs root `tests/BeforeAll.ps1` once before all test matrix jobs to set up the test environment (e.g., deploy infrastructure, download test data).

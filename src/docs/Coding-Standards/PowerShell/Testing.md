@@ -9,7 +9,7 @@ PowerShell tests build on the [testing baseline](../Testing.md): they are test-f
 
 ## Module test profiles
 
-Simple, Standard, and Advanced are documentation profiles: conventions for arranging repository-owned tests, not selectable Process-PSModule modes. There is no layout setting in `.github/PSModule.yml`; Process-PSModule discovers the files present under `./tests/`.
+Simple, Standard, and Advanced are documentation profiles: conventions for arranging module-local tests, not selectable Process-PSModule modes. There is no layout setting in `.github/PSModule.yml`; Process-PSModule discovers the files present under `./tests/`.
 
 Choose the smallest profile that keeps the suite easy to navigate.
 

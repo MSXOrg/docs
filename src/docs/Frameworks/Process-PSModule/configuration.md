@@ -16,6 +16,11 @@ enriched inter-workflow contract, not a different authoring format for repositor
 Simple, Standard, and Advanced test profiles are repository conventions, not settings. `.github/PSModule.yml` has no
 layout selector; Process-PSModule [discovers the files under `tests/` recursively](pipeline-stages.md#repository-test-discovery).
 
+Test discovery and change triggering are separate. The default `ImportantFilePatterns` match only `^src/` and
+`^README\.md$`, so a test-only change does not enter the important-change build, test, and publish path. Repositories
+that need test or automation changes to exercise that path must [add `^tests/` and any relevant settings or workflow
+paths](usage.md#customizing-important-file-patterns) while retaining every default they still need.
+
 The following settings are available in the settings file:
 
 | Name                                      | Type      | Description                                                                                                                                                          | Default             |
