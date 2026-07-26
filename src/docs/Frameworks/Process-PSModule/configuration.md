@@ -13,6 +13,15 @@ Plan phase, Process-PSModule enriches this input into an internal runtime `Setti
 consume. Internal runtime paths in workflow docs (for example, `Settings.Publish.Module.Resolution.*`) describe that
 enriched inter-workflow contract, not a different authoring format for repository settings files.
 
+Simple, Standard, and Advanced test profiles are repository conventions, not settings. `.github/PSModule.yml` has no
+layout or suite-matrix selector; Process-PSModule [discovers the files under `tests/` recursively](pipeline-stages.md#module-local-test-discovery)
+and computes its internal `Settings.Test.Module.Suites` matrix from them.
+
+Test discovery and change triggering are separate. The default `ImportantFilePatterns` match only `^src/` and
+`^README\.md$`, so a test-only change does not enter the important-change build, test, and publish path. Repositories
+that need test or automation changes to exercise that path must [add `^tests/` and any relevant settings or workflow
+paths](usage.md#customizing-important-file-patterns) while retaining every default they still need.
+
 The following settings are available in the settings file:
 
 | Name                                      | Type      | Description                                                                                                                                                          | Default             |
