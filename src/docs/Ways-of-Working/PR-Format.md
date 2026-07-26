@@ -123,12 +123,12 @@ The **Technical details** block is for reviewers and maintainers. Include intern
 - **Standards and framework alignment** — the result of the [alignment pass](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass), as one row per changed surface. The stage procedure owns when and how the pass is run; this block only carries its evidence.
 - **Issue convergence sweep** — the scope used for the [session-end sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) and which additional open issues (if any) the finished diff fully satisfied.
 
-    | Changed surface | Standards checked | Framework docs checked | Result |
-    | --- | --- | --- | --- |
-    | `src/**` (PowerShell) | Naming, Functions | Module source layout | Aligned |
-    | `.github/workflows/**` | GitHub Actions | Reusable workflow contract | Exception — Owner/Repo#123 |
+| Changed surface | Standards checked | Framework docs checked | Result |
+| --- | --- | --- | --- |
+| `src/**` (PowerShell) | Naming, Functions | Module source layout | Aligned |
+| `.github/workflows/**` | GitHub Actions | Reusable workflow contract | Exception — Owner/Repo#123 |
 
-    A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link to the follow-up issue that carries it. A surface with no framework or domain documentation of its own is recorded as `None (no framework-specific docs)`.
+A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link to the follow-up issue that carries it. A surface with no framework or domain documentation of its own is recorded as `None (no framework-specific docs)`.
 
 The **Relevant issues (or links)** block is required and uses fully qualified references (`Owner/Repo#N`) so links work across repositories.
 
