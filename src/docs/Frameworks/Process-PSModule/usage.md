@@ -137,11 +137,11 @@ $env:CONFLUENCE_SITE          # from the "variables" map (not masked)
 
 The same `TestData` keys are exported before every module-local phase runs:
 
-- `BeforeAll-ModuleLocal` runs `tests/BeforeAll.ps1` before the module-local test matrix.
-- `Test-ModuleLocal` runs the module's Pester tests.
-- `AfterAll-ModuleLocal` runs `tests/AfterAll.ps1` after the module-local test matrix, including cleanup paths.
+- `BeforeAll-ModuleLocal` runs root `tests/BeforeAll.ps1` before the module-local test matrix.
+- `Test-ModuleLocal` discovers and runs the module's Pester tests recursively.
+- `AfterAll-ModuleLocal` runs root `tests/AfterAll.ps1` after the module-local test matrix, including cleanup paths.
 
-Setup scripts, tests, and teardown scripts should therefore use the same environment variable names.
+Setup and teardown detection is not recursive. These root scripts and the discovered tests should use the same environment variable names.
 If `$env:<name>` is available in one phase but missing in another, treat that as a Process-PSModule
 propagation bug rather than a caller contract difference.
 

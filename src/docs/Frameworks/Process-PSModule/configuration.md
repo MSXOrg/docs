@@ -13,6 +13,9 @@ Plan phase, Process-PSModule enriches this input into an internal runtime `Setti
 consume. Internal runtime paths in workflow docs (for example, `Settings.Publish.Module.Resolution.*`) describe that
 enriched inter-workflow contract, not a different authoring format for repository settings files.
 
+Simple, Standard, and Advanced test profiles are repository conventions, not settings. `.github/PSModule.yml` has no
+layout selector; Process-PSModule [discovers the files under `tests/` recursively](pipeline-stages.md#repository-test-discovery).
+
 The following settings are available in the settings file:
 
 | Name                                      | Type      | Description                                                                                                                                                          | Default             |

@@ -36,11 +36,13 @@ Process-PSModule expects repositories to follow the staged layout produced by Te
 └── README.md                                  # Repository overview rendered on GitHub and docs landing
 ```
 
-The tree shows the [Simple PowerShell test layout](../../Coding-Standards/PowerShell/Testing.md#simple), not an exclusive test-file shape. The [Standard layout](../../Coding-Standards/PowerShell/Testing.md#standard) instead keeps one root-level `tests/<Group>.Tests.ps1` file per public function group, with separate root-level suites for ungrouped functions or cross-cutting behavior where appropriate.
+The tree shows the [Simple PowerShell test profile](../../Coding-Standards/PowerShell/Testing.md#simple), not an exclusive test-file shape. Standard keeps one root-level `tests/<Group>.Tests.ps1` file per public function group. Advanced uses subdirectories that Process-PSModule discovers recursively, with each directory independently selecting one configuration, one or more containers, or ordinary test files by [documented precedence](../../Coding-Standards/PowerShell/Testing.md#advanced).
+
+These names describe repository conventions, not settings. `.github/PSModule.yml` does not select a test profile. The optional `tests/BeforeAll.ps1` and `tests/AfterAll.ps1` files are root-only workflow phases and are not discovered recursively.
 
 Key expectations:
 
-- Keep at least one exported function under `src/functions/public/` and corresponding tests in `tests/` using the [Simple or Standard layout](../../Coding-Standards/PowerShell/Testing.md#module-test-layouts).
+- Keep at least one exported function under `src/functions/public/` and corresponding tests in `tests/` using a [documented test profile](../../Coding-Standards/PowerShell/Testing.md#module-test-profiles).
 - Keep documentation site configuration in `.github/zensical.toml`.
 - Optional folders (`assemblies`, `formats`, `types`, `variables`, and others) are processed automatically when present.
 - Markdown files in `src/functions/public` subfolders become documentation pages alongside generated help.
