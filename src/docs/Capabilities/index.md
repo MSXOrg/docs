@@ -23,6 +23,7 @@ and design relate and evolve.
 | [VS Code Extension Framework](vscode-extension-framework/index.md) | How a VS Code extension is built, tested, versioned, packaged, and published — one GitHub-native pipeline, opt-in from a template and a single settings file. |
 | [PowerShell on GitHub](powershell-on-github/index.md) | How we make GitHub a first-class platform for PowerShell through reusable modules, actions, and capability gaps we close over time. |
 | [Process-PSModule](process-psmodule/index.md) | The end-to-end PowerShell module pipeline — what it must guarantee and how it is built, alongside reference documentation for configuration and deployment. |
+| [Agentic Development](agentic-development/index.md) | The framework for org-scoped docs and memory repositories that give agents project-specific standards, working knowledge, and behavior. |
 
 <!-- INDEX:END -->
 

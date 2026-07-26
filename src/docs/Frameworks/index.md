@@ -16,9 +16,8 @@ cover how it works, how to use it, and how to configure it.
 
 <!-- INDEX:START -->
 
-| Section | Description |
+| Page | Description |
 | --- | --- |
-| [Agentic Development](Agentic-Development/index.md) | The framework for org-scoped docs and memory repositories that give agents project-specific standards, working knowledge, and behavior. |
 
 <!-- INDEX:END -->
 
