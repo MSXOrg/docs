@@ -110,7 +110,7 @@ Default title pattern:
 <Icon> [<Change type>]: <User-facing outcome>
 ```
 
-The description should lead with user-facing impact, continue with user-facing change sections, include optional technical details after those sections, and end with the related-issues block. It closes exactly one Task or Bug as required by [PR Format](PR-Format.md).
+The description should lead with user-facing impact, continue with user-facing change sections, include optional technical details after those sections, and end with the related-issues block. It closes one scoped Task or Bug as required by [PR Format](PR-Format.md), with any additional closing links limited to issues the session-end convergence sweep shows are fully delivered by the same diff.
 
 Repository templates may be simpler than the full PR Manager body, but they must gather enough information to reconstruct it.
 

@@ -27,10 +27,12 @@ A pull request stays a **draft** until it is genuinely ready for other people to
 
 A pull request is ready for review when:
 
-- It closes exactly one Task or Bug, and every item in that delivery leaf's implementation plan is complete or explicitly moved to a follow-up issue.
+- It closes one scoped Task or Bug delivery leaf, and every item in that leaf's implementation plan is complete or explicitly moved to a follow-up issue. Additional issues may be closed only when the [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) confirms the finished diff already delivers them.
 - Native dependencies are current and every prerequisite the change relies on has landed; the pull request is not used to bypass a blocked-by edge.
 - All required checks are green — not just tests that pass locally. CI is complete, not in progress.
 - The automated review loop has converged — a clean [Copilot round](Contribution-Workflow.md#the-copilot-review-loop) with no unresolved review threads.
+- The [standards and framework alignment pass](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass) has run against the finished change, its result covers every changed surface in the pull request, and every exception links a follow-up issue.
+- The [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) has run against scoped open issues, and every fully convergent issue is linked in the pull request with a closing keyword.
 - The title, release-note description, and exactly one change-type label are finalized. See [PR Format](PR-Format.md).
 
 If any item is open, the pull request stays a draft. Marking it ready with known-open work shifts the author's unfinished job onto reviewers — the opposite of what the signal means.

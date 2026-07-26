@@ -64,3 +64,5 @@ Change type when decomposition reveals the issue is at the wrong altitude:
 Update the issue body for its new type, rebuild native containment, and add an audit comment explaining what changed and why. Promotion or demotion preserves the original issue whenever practical so its discussion and decisions remain traceable.
 
 See the [Goal-Setting Framework](../../Goal-Setting.md) for the Initiative boundary and the [Issue Format](../Process/Format.md) for the universal body structure.
+
+For pull requests, this hierarchy also guides where to look first during the session-end [issue convergence sweep](../../Workflow-Stages/Implement.md#6-issue-convergence-sweep) (parent and sibling delivery leaves before wider searches).
