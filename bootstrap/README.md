@@ -4,7 +4,7 @@ The single starting point for agents: a git-isolated local clone of the MSX cent
 
 ## Contents
 
-- `Initialize-MsxWorkspace.ps1` — idempotent setup. Clones `MSXOrg/docs` and `MSXOrg/memory` under `~/.msx`, attempts to fast-forward them if present, and writes a repository-local git identity so the workspace never modifies the global git config.
+- `Initialize-MsxWorkspace.ps1` — idempotent setup. Clones `MSXOrg/docs` and `MSXOrg/memory` under `~/.msx`, requires existing clones to exactly match their remote default branches, and writes a repository-local git identity so the workspace never modifies the global git config.
 - `AGENTS.template.md` — the user-global entry instruction. It bootstraps the workspace, then points the agent at the docs and memory. Install it once per machine (below).
 
 ## The model
@@ -13,6 +13,8 @@ The single starting point for agents: a git-isolated local clone of the MSX cent
 - `~/.msx/memory` is **append-only context** — durable notes and session history. Changes to it are **pushed to main**.
 
 > **Prerequisite:** `MSXOrg/memory` is a private repository — the bootstrap needs access to it (and working github.com credentials) to clone or update memory.
+
+Before either repository is used, bootstrap fetches it and requires a clean checkout on the remote default branch at the exact remote head. A dirty, locally ahead, diverged, wrong-branch, or unreachable context repository stops bootstrap; stale context is never treated as a successful fallback.
 
 Keeping the workspace separate and git-isolated means an agent reads the same docs and memory in every repository, and its commits there use the workspace identity rather than whatever the working repository or the global config happens to be set to.
 
@@ -33,8 +35,37 @@ if (-not (Test-Path (Join-Path $docs '.git'))) {
     if ($LASTEXITCODE -ne 0) {
         throw "git clone of MSXOrg/docs failed (exit $LASTEXITCODE). Check network access and github.com credentials, then re-run."
     }
+} else {
+    $refspec = '+refs/heads/*:refs/remotes/origin/*'
+    if ($refspec -notin @(git -C $docs config --get-all remote.origin.fetch)) {
+        git -C $docs config --add remote.origin.fetch $refspec
+        if ($LASTEXITCODE -ne 0) {
+            throw "Could not configure remote tracking branches for MSXOrg/docs (exit $LASTEXITCODE)."
+        }
+    }
+    git -C $docs fetch origin --prune --quiet
+    if ($LASTEXITCODE -ne 0) {
+        throw "git fetch of MSXOrg/docs failed (exit $LASTEXITCODE). Do not use stale context."
+    }
+    $branch = (git -C $docs branch --show-current | Out-String).Trim()
+    if ($branch -ne 'main') {
+        throw "$docs is on '$branch', not 'main'. Switch branches before using this context."
+    }
+    if (@(git -C $docs status --porcelain).Count -gt 0) {
+        throw "$docs has uncommitted changes. Resolve them before using this context."
+    }
+    git -C $docs merge --ff-only --quiet origin/main
+    if ($LASTEXITCODE -ne 0) {
+        throw "MSXOrg/docs cannot fast-forward to origin/main. Do not use stale context."
+    }
+    if ((git -C $docs rev-parse HEAD) -ne (git -C $docs rev-parse origin/main)) {
+        throw "$docs is not exactly synchronized with origin/main. Reconcile local commits before using this context."
+    }
 }
 pwsh (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1')
+if ($LASTEXITCODE -ne 0) {
+    throw "MSX workspace synchronization failed. Do not read context until every repository is current."
+}
 ```
 
 Wire it into the tools so it runs as the first instruction:

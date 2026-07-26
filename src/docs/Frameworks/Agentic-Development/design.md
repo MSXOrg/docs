@@ -222,7 +222,7 @@ A local bootstrap makes central context predictable:
     memory/
 ```
 
-The bootstrap clones missing repositories and fast-forwards existing clones when possible. It writes repository-local git configuration only. If a context repository cannot update, the agent uses the local copy and reports that it may be stale.
+The bootstrap clones missing repositories and fetches every existing context repository before use. Each clone must be clean, checked out on the remote default branch, and exactly equal to the fetched remote head. A dirty, locally ahead, diverged, wrong-branch, or unreachable clone stops context resolution; the agent does not use a possibly stale local copy. Bootstrap writes repository-local git configuration only.
 
 ## Memory writing rules
 

@@ -4,7 +4,7 @@ The single starting point for any agent, in any repository. Before doing anythin
 
 ## First — bootstrap the workspace
 
-The workspace is a git-isolated clone of the central repositories under `~/.msx`. Set it up (idempotent — clones what is missing, attempts to fast-forward the rest):
+The workspace is a git-isolated clone of the central repositories under `~/.msx`. Set it up before reading context. Existing context repositories must be clean, on their default branch, and exactly synchronized with the remote:
 
 ```powershell
 $docs = Join-Path $HOME '.msx/docs'
@@ -17,8 +17,37 @@ if (-not (Test-Path (Join-Path $docs '.git'))) {
     if ($LASTEXITCODE -ne 0) {
         throw "git clone of MSXOrg/docs failed (exit $LASTEXITCODE). Check network access and github.com credentials, then re-run."
     }
+} else {
+    $refspec = '+refs/heads/*:refs/remotes/origin/*'
+    if ($refspec -notin @(git -C $docs config --get-all remote.origin.fetch)) {
+        git -C $docs config --add remote.origin.fetch $refspec
+        if ($LASTEXITCODE -ne 0) {
+            throw "Could not configure remote tracking branches for MSXOrg/docs (exit $LASTEXITCODE)."
+        }
+    }
+    git -C $docs fetch origin --prune --quiet
+    if ($LASTEXITCODE -ne 0) {
+        throw "git fetch of MSXOrg/docs failed (exit $LASTEXITCODE). Do not use stale context."
+    }
+    $branch = (git -C $docs branch --show-current | Out-String).Trim()
+    if ($branch -ne 'main') {
+        throw "$docs is on '$branch', not 'main'. Switch branches before using this context."
+    }
+    if (@(git -C $docs status --porcelain).Count -gt 0) {
+        throw "$docs has uncommitted changes. Resolve them before using this context."
+    }
+    git -C $docs merge --ff-only --quiet origin/main
+    if ($LASTEXITCODE -ne 0) {
+        throw "MSXOrg/docs cannot fast-forward to origin/main. Do not use stale context."
+    }
+    if ((git -C $docs rev-parse HEAD) -ne (git -C $docs rev-parse origin/main)) {
+        throw "$docs is not exactly synchronized with origin/main. Reconcile local commits before using this context."
+    }
 }
 pwsh (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1')
+if ($LASTEXITCODE -ne 0) {
+    throw "MSX workspace synchronization failed. Do not read context until every repository is current."
+}
 ```
 
 This produces:

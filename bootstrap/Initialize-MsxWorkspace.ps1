@@ -22,13 +22,14 @@
     - Memory (MSXOrg/memory) is append-only context; notes are committed and
       pushed to main directly, without a pull request.
 
-    The script is idempotent: it clones what is missing and attempts to
-    fast-forward what is already present, leaving a repository unchanged (with a
-    warning) when it cannot fast-forward.
+    The script is idempotent: it clones what is missing and synchronizes every
+    existing context repository to the exact remote default-branch head. It stops
+    before context is read when a repository is dirty, on another branch, locally
+    ahead, diverged, or unavailable.
 
 .EXAMPLE
     ./Initialize-MsxWorkspace.ps1
-    Clones missing repositories and attempts to fast-forward existing ones under ~/.msx.
+    Clones missing repositories and exactly synchronizes existing ones under ~/.msx.
 
 .EXAMPLE
     ./Initialize-MsxWorkspace.ps1 -Root /work/.msx -Verbose
@@ -74,15 +75,65 @@ if ($PSCmdlet.ShouldProcess($Root, 'Create workspace root')) {
 $results = foreach ($repo in $repositories) {
     $path = Join-Path $Root $repo.Name
     if (Test-Path (Join-Path $path '.git')) {
-        if ($PSCmdlet.ShouldProcess($path, 'Fetch and fast-forward')) {
+        if ($PSCmdlet.ShouldProcess($path, 'Fetch and synchronize default branch')) {
             Write-Verbose "Updating $path"
-            git -C $path fetch origin --quiet
+            $allBranchesRefspec = '+refs/heads/*:refs/remotes/origin/*'
+            $fetchRefspecs = @(git -C $path config --get-all remote.origin.fetch)
+            if ($LASTEXITCODE -notin @(0, 1)) {
+                throw "git config remote.origin.fetch failed for '$path' (exit $LASTEXITCODE)."
+            }
+            if ($allBranchesRefspec -notin $fetchRefspecs) {
+                git -C $path config --add remote.origin.fetch $allBranchesRefspec
+                if ($LASTEXITCODE -ne 0) {
+                    throw "Could not configure remote tracking branches for '$path' (exit $LASTEXITCODE)."
+                }
+            }
+
+            git -C $path fetch origin --prune --quiet
             if ($LASTEXITCODE -ne 0) {
                 throw "git fetch failed for '$path' (exit $LASTEXITCODE). Check network access and credentials for $($repo.Url)."
             }
-            git -C $path pull --ff-only --quiet
+
+            git -C $path remote set-head origin --auto | Out-Null
             if ($LASTEXITCODE -ne 0) {
-                Write-Warning "Could not fast-forward '$path' (local changes or diverged history). Left as-is."
+                throw "Cannot detect the remote default branch for '$path'. Check origin before using this context."
+            }
+            $defaultRef = (git -C $path symbolic-ref --quiet --short refs/remotes/origin/HEAD | Out-String).Trim()
+            if ($LASTEXITCODE -ne 0) {
+                throw "Cannot resolve the remote default branch for '$path'. Repair origin/HEAD before using this context."
+            }
+            $defaultBranch = $defaultRef -replace '^origin/', ''
+            $currentBranch = (git -C $path branch --show-current | Out-String).Trim()
+            if ($LASTEXITCODE -ne 0) {
+                throw "git branch --show-current failed for '$path' (exit $LASTEXITCODE)."
+            }
+            if ($currentBranch -ne $defaultBranch) {
+                throw "'$path' is on '$currentBranch', not the default branch '$defaultBranch'. Switch branches before using this context."
+            }
+
+            $status = @(git -C $path status --porcelain)
+            if ($LASTEXITCODE -ne 0) {
+                throw "git status failed for '$path' (exit $LASTEXITCODE)."
+            }
+            if ($status.Count -gt 0) {
+                throw "'$path' has uncommitted changes. Commit, push, or remove them before using this context."
+            }
+
+            git -C $path merge --ff-only --quiet $defaultRef
+            if ($LASTEXITCODE -ne 0) {
+                throw "Could not fast-forward '$path' to '$defaultRef'. Resolve its diverged history before using this context."
+            }
+
+            $localHead = (git -C $path rev-parse HEAD | Out-String).Trim()
+            if ($LASTEXITCODE -ne 0) {
+                throw "git rev-parse HEAD failed for '$path' (exit $LASTEXITCODE)."
+            }
+            $remoteHead = (git -C $path rev-parse $defaultRef | Out-String).Trim()
+            if ($LASTEXITCODE -ne 0) {
+                throw "git rev-parse '$defaultRef' failed for '$path' (exit $LASTEXITCODE)."
+            }
+            if ($localHead -ne $remoteHead) {
+                throw "'$path' is not exactly synchronized with '$defaultRef'. Push or reconcile local commits before using this context."
             }
         }
     } else {
