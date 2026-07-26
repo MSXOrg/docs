@@ -55,10 +55,17 @@ nav = [
       {"Process" = [
         "Ways-of-Working/Issues/Process/index.md",
         {"Format" = "Ways-of-Working/Issues/Process/Format.md"},
+        {"Lifecycle" = "Ways-of-Working/Issues/Process/Lifecycle.md"},
+        {"Planning" = "Ways-of-Working/Issues/Process/Planning.md"},
+        {"Relationships" = "Ways-of-Working/Issues/Process/Relationships.md"},
       ]},
       {"Types" = [
         "Ways-of-Working/Issues/Types/index.md",
         {"Hierarchy" = "Ways-of-Working/Issues/Types/Hierarchy.md"},
+        {"Epic" = "Ways-of-Working/Issues/Types/Epic.md"},
+        {"PBI" = "Ways-of-Working/Issues/Types/PBI.md"},
+        {"Task" = "Ways-of-Working/Issues/Types/Task.md"},
+        {"Bug" = "Ways-of-Working/Issues/Types/Bug.md"},
       ]},
     ]},
     {"PR Format" = "Ways-of-Working/PR-Format.md"},

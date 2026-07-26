@@ -11,7 +11,7 @@ Guidance for how issues are formatted and organized across the MSX ecosystem.
 
 | Section | Description |
 | --- | --- |
-| [Issue Process](Process/index.md) | How issue bodies are structured and formatted. |
+| [Issue Process](Process/index.md) | How issue bodies, planning, lifecycle, and native relationships support delivery. |
 | [Issue Types](Types/index.md) | The operational issue hierarchy from delivery work to strategic aggregation. |
 
 <!-- INDEX:END -->
