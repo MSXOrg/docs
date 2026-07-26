@@ -380,6 +380,9 @@ $results = foreach ($repo in $repositories) {
 
             Move-Item -LiteralPath $path -Destination $backupPath
             try {
+                if ($env:MSX_BOOTSTRAP_TEST_FAIL_AFTER_DOCS_MOVE -eq '1') {
+                    throw 'Injected post-move migration failure.'
+                }
                 git --git-dir=$expectedBackingPath worktree add --quiet $path $remote.DefaultBranch
                 if ($LASTEXITCODE -ne 0) {
                     throw "Could not create canonical docs worktree '$path' (exit $LASTEXITCODE)."
@@ -393,7 +396,10 @@ $results = foreach ($repo in $repositories) {
                 if (-not (Test-Path $path) -and (Test-Path $backupPath)) {
                     Move-Item -LiteralPath $backupPath -Destination $path
                 }
-                throw
+                if (Test-Path $expectedBackingPath) {
+                    Remove-Item -LiteralPath $expectedBackingPath -Recurse -Force
+                }
+                throw "Migration activation failed for '$path'; the original clone was restored and partial backing removed. $($_.Exception.Message)"
             }
             Write-Warning "Migrated '$path' to bare+worktree layout. Verify it, then remove retained backup '$backupPath'."
         }

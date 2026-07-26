@@ -426,7 +426,7 @@ exit `$LASTEXITCODE
         (Invoke-Git -WorkingDirectory $docs -Arguments @('rev-parse', 'HEAD')).Trim() |
             Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.docs -Arguments @('rev-parse', 'HEAD')).Trim()
         Test-Path -LiteralPath (Join-Path $memory '.git') -PathType Container |
-            Should -BeTrue -Because $result.Output
+            Should -BeTrue -Because $output
         $emptyFixture = [pscustomobject]@{
             Root = $fixture.Root
             Workspace = $emptyRoot
@@ -468,19 +468,20 @@ exit `$LASTEXITCODE
         (Invoke-Git -Arguments @("--git-dir=$backing", 'rev-parse', 'main')).Trim() | Should -BeExactly $remoteHead
     }
 
-    It 'rolls back migration preparation failure without changing the simple clone' {
+    It 'rolls back a post-move migration failure without changing the simple clone' {
         $before = (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim()
         $runner = Join-Path $fixture.Root 'invoke-failed-migration.ps1'
         $bootstrap = $script:bootstrap.Replace("'", "''")
         $workspace = $fixture.Workspace.Replace("'", "''")
-        $missingDocs = (Join-Path $fixture.Root 'missing-docs.git').Replace("'", "''")
+        $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
         $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
         @"
+`$env:MSX_BOOTSTRAP_TEST_FAIL_AFTER_DOCS_MOVE = '1'
 `$projects = @(
     @{
         Name = 'Fixture'
         Path = ''
-        DocsUrl = '$missingDocs'
+        DocsUrl = '$docsRemote'
         MemoryUrl = '$memoryRemote'
     }
 )
@@ -491,9 +492,10 @@ exit `$LASTEXITCODE
         $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
 
         $LASTEXITCODE | Should -Not -Be 0
-        $output | Should -Match 'Migration preparation failed'
+        $output | Should -Match 'Migration activation failed'
         Test-Path -LiteralPath (Join-Path $fixture.Docs '.git') -PathType Container | Should -BeTrue
         Test-Path -LiteralPath (Join-Path $fixture.Workspace 'docs.git') | Should -BeFalse
+        Test-Path -LiteralPath (Join-Path $fixture.Workspace 'docs.simple-clone-backup') | Should -BeFalse
         (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() | Should -BeExactly $before
     }
 

@@ -124,13 +124,13 @@ Then follow the normal Implement flow: initial commit → push → draft PR → 
 
 ```powershell
 # Remove the worktree
-git --git-dir="<repo>.git" worktree remove 42-add-pagination
+git --git-dir="${repo}.git" worktree remove 42-add-pagination
 
 # Delete the local branch ref
-git --git-dir="<repo>.git" branch -D feat/42-add-pagination
+git --git-dir="${repo}.git" branch -D feat/42-add-pagination
 
 # Prune if needed (removes stale worktree references)
-git --git-dir="<repo>.git" worktree prune
+git --git-dir="${repo}.git" worktree prune
 ```
 
 ## Where this connects
