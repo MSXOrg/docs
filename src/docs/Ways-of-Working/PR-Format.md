@@ -121,6 +121,7 @@ The **Technical details** block is for reviewers and maintainers. Include intern
 - Backward compatibility notes for developers.
 - **Implementation plan progress** — cross-reference the closing Task or Bug's plan. Which plan steps does this PR complete? Which were moved to follow-up delivery issues?
 - **Standards and framework alignment** — the result of the [alignment pass](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass), as one row per changed surface. The stage procedure owns when and how the pass is run; this block only carries its evidence.
+- **Issue convergence sweep** — the scope used for the [session-end sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) and which additional open issues (if any) the finished diff fully satisfied.
 
     | Changed surface | Standards checked | Framework docs checked | Result |
     | --- | --- | --- | --- |
@@ -131,9 +132,9 @@ The **Technical details** block is for reviewers and maintainers. Include intern
 
 The **Relevant issues (or links)** block is required and uses fully qualified references (`Owner/Repo#N`) so links work across repositories.
 
-Use one bullet per linked issue. Exactly one bullet uses a [closing keyword](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue) (`Fixes`, `Closes`, or `Resolves`), and it closes the one Task or Bug delivered by the pull request. A parent PBI or Epic may appear as context without a closing keyword; never close an aggregate through a delivery pull request. Other supporting links are also non-closing.
+Use one bullet per linked issue. One bullet uses a [closing keyword](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue) (`Fixes`, `Closes`, or `Resolves`) for the scoped Task or Bug delivered by the pull request. Additional bullets may also use closing keywords only for issues the [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) confirms are fully satisfied by the same finished diff. A parent PBI or Epic may appear as context without a closing keyword; never close an aggregate through a delivery pull request. Partially convergent or supporting issues are linked as non-closing context.
 
-If there is not exactly one closing Task or Bug: **stop**. Route back to [Define](Workflow-Stages/Define.md) to create or correctly route the delivery leaf. The [Issue Hierarchy](Issues/Types/Hierarchy.md) and [Issue Lifecycle](Issues/Process/Lifecycle.md) own type and closure semantics.
+If there is not one scoped closing Task or Bug: **stop**. Route back to [Define](Workflow-Stages/Define.md) to create or correctly route the delivery leaf. If additional closing keywords are used, include sweep evidence in Technical details that shows those issues are fully satisfied. The [Issue Hierarchy](Issues/Types/Hierarchy.md) and [Issue Lifecycle](Issues/Process/Lifecycle.md) own type and closure semantics.
 
 ## Formatting
 
