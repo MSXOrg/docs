@@ -19,7 +19,7 @@ A pull request number or URL. If the pull request was authored by the reviewing 
 
 ### 1. Read the delivery issue
 
-Confirm the pull request closes exactly one Task or Bug, then review against that delivery leaf's acceptance criteria, decisions, and plan. Parent PBI or Epic links provide context but do not expand the pull request's scope or close the aggregate.
+Confirm the pull request closes one scoped Task or Bug delivery leaf, then review against that leaf's acceptance criteria, decisions, and plan. Parent PBI or Epic links provide context but do not expand the pull request's scope or close the aggregate. Additional closing links are valid only when the [issue convergence sweep](Implement.md#6-issue-convergence-sweep) shows the diff fully satisfies those issues.
 
 ### 2. Read the README
 
