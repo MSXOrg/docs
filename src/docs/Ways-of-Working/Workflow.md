@@ -107,7 +107,7 @@ See [Documentation Model](Documentation-Model.md), [Issue Planning](Issues/Proce
 Execute one ready, unblocked Task or Bug. For repository delivery:
 
 1. **Branch** — create a branch (and [worktree](Git-Worktrees.md)) for the delivery leaf.
-2. **Draft PR** — push early and open a draft pull request that closes exactly that Task or Bug. This makes progress visible and attaches CI from the start.
+2. **Draft PR** — push early and open a draft pull request scoped to one Task or Bug delivery leaf. The pull request closes that scoped leaf; any additional convergent issues are linked separately through the session-end issue convergence sweep. This makes progress visible and attaches CI from the start.
 3. **Implement** — work through the implementation plan. One logical change per commit. Update the issue as each plan step completes.
 4. **Test locally** — don't push known failures to CI. Push work as far inward as it can go.
 5. **Self-review with automation** — run the [Copilot review loop](Contribution-Workflow.md#the-copilot-review-loop) until it reports a clean round, fixing in-scope feedback and filing follow-up issues for the rest.
