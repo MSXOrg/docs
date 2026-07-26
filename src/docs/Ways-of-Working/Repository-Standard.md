@@ -30,8 +30,6 @@ Every repository must carry the files that make it understandable and governable
 | `.github/dependabot.yml` | Configures dependency and supply-chain update pull requests. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
 | `.github/pull_request_template.md` | Guides contributors to provide change type, impact, validation, and links. |
-| `.github/release.yml` | Defines release-note categories where GitHub releases are generated. |
-| `.github/linters/*` | Stores linter configuration derived from the written standards. |
 | `.gitattributes` | Defines Git file handling defaults. |
 | `.gitignore` | Defines files that should not enter version control. |
 
