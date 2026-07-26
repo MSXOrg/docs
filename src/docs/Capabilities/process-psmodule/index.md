@@ -11,8 +11,14 @@ An end-to-end PowerShell module pipeline that automates the entire lifecycle of 
 
 | Page | Description |
 | --- | --- |
-| [Spec](spec.md) | Requirements for Process-PSModule — what it must guarantee: build, cross-platform test, quality/coverage gates, docs generation, label-driven versioned publish to PowerShell Gallery and GitHub Pages. |
-| [Design](design.md) | How Process-PSModule is built — a single reusable GitHub Actions workflow composing sub-workflows, a settings file contract, the scenario matrix, and alternatives considered. |
+| [Spec](spec.md) | Requirements for Process-PSModule — an end-to-end PowerShell module pipeline that guarantees build, testing, quality gates, documentation generation, and versioned publication to package and docs registries. |
+| [Design](design.md) | How Process-PSModule delivers the spec — a single reusable GitHub Actions workflow composing sub-workflows, a settings file contract, and the scenario matrix. |
+| [Pipeline stages](pipeline-stages.md) | The job-by-job breakdown of the Process-PSModule workflow, from Plan through Publish Docs. |
+| [Usage](usage.md) | How to call the Process-PSModule workflow — inputs, secrets, permissions, the scenario matrix, and important-file change detection. |
+| [Configuration](configuration.md) | The Process-PSModule settings file — every available setting, the full defaults, and worked examples for coverage, rapid testing, linting, and release notes. |
+| [Skipping framework tests](skipping-framework-tests.md) | How to skip individual PSModule framework tests on a per-file basis, the available test IDs, and the broader configuration alternatives. |
+| [Repository structure](repository-structure.md) | The repository and module source layout Process-PSModule expects, and how to declare module dependencies with #Requires -Modules. |
+| [Principles and practices](principles-and-practices.md) | The versioning, branching, and colocation principles behind Process-PSModule, and the development practices it is compatible with. |
 
 <!-- INDEX:END -->
 
