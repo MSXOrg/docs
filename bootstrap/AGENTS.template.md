@@ -83,19 +83,24 @@ if (-not (Test-Path (Join-Path $docs '.git'))) {
     if ($LASTEXITCODE -ne 0) {
         throw "git fetch of MSXOrg/docs failed (exit $LASTEXITCODE). Do not use stale context."
     }
+    git -C $docs remote set-head origin --auto | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "Could not detect the MSXOrg/docs default branch." }
+    $defaultRef = (git -C $docs symbolic-ref --short refs/remotes/origin/HEAD | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0) { throw "Could not resolve origin/HEAD in $docs." }
+    $defaultBranch = $defaultRef -replace '^origin/', ''
     $branch = (git -C $docs branch --show-current | Out-String).Trim()
-    if ($branch -ne 'main') {
-        throw "$docs is on '$branch', not 'main'. Switch branches before using this context."
+    if ($branch -ne $defaultBranch) {
+        throw "$docs is on '$branch', not '$defaultBranch'. Switch branches before using this context."
     }
     if (@(git -C $docs status --porcelain).Count -gt 0) {
         throw "$docs has uncommitted changes. Resolve them before using this context."
     }
-    git -C $docs merge --ff-only --quiet origin/main
+    git -C $docs merge --ff-only --quiet $defaultRef
     if ($LASTEXITCODE -ne 0) {
-        throw "MSXOrg/docs cannot fast-forward to origin/main. Do not use stale context."
+        throw "MSXOrg/docs cannot fast-forward to $defaultRef. Do not use stale context."
     }
-    if ((git -C $docs rev-parse HEAD) -ne (git -C $docs rev-parse origin/main)) {
-        throw "$docs is not exactly synchronized with origin/main. Reconcile local commits before using this context."
+    if ((git -C $docs rev-parse HEAD) -ne (git -C $docs rev-parse $defaultRef)) {
+        throw "$docs is not exactly synchronized with $defaultRef. Reconcile local commits before using this context."
     }
 }
 $projects = @(
