@@ -67,7 +67,7 @@ Exactly one branch (typically `main`) MUST be authorized to publish stable relea
 
 Pipeline failures MUST be visible in the pull request and block merge. Contributors MUST know within minutes whether their changes pass quality and test gates, not hours or days later.
 
-### NFR5 — Reproducible and auditable {{ #nfr5 }
+### NFR5 — Reproducible and auditable { #nfr5 }
 
 The entire pipeline and its decisions MUST be stored in git, so the build is reproducible and auditable from the commit alone. No external configuration, API calls, or out-of-band decisions.
 
