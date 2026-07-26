@@ -37,7 +37,7 @@ The `docs` repository is the canonical knowledge base. It owns:
 - coding standards and documentation standards;
 - framework and capability specs and designs;
 - project glossary and onboarding;
-- agent role descriptions and integration guidance.
+- the canonical Workflow and its linked stage procedures.
 
 Changes to `docs` happen through pull requests because this repository defines durable project intent.
 
@@ -47,7 +47,7 @@ The `memory` repository is the durable working-memory store. It owns:
 
 - recurring gotchas and lessons learned;
 - active project context that should survive a single chat session;
-- agent role working knowledge;
+- workflow-stage working knowledge;
 - issue, PR, and incident notes worth reusing;
 - project-specific preferences that are factual rather than private user preference.
 
@@ -69,7 +69,7 @@ Product repositories carry local context and thin pointers:
   docs/
 ```
 
-The repository owns only repository-specific nuance: build commands, architecture notes, local exceptions, and path-scoped rules. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`.
+The repository owns only repository-specific nuance: bootstrap entry points, build commands, contribution mechanics, architecture notes, local exceptions, and path-scoped rules. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract."
 
 ## OKF page model
 
@@ -108,6 +108,8 @@ Indexes are the navigation layer. An agent starts at the root index, reads descr
 docs/
   index.md
   Ways-of-Working/index.md
+  Ways-of-Working/Workflow.md
+  Ways-of-Working/Workflow-Stages/index.md
   Coding-Standards/index.md
   Frameworks/index.md
   Frameworks/Agentic-Development/index.md
@@ -127,29 +129,26 @@ Every index describes what sits below it. Generated indexes are preferred where 
 flowchart TD
   start["Agent receives task"] --> policy["System and client policy"]
   policy --> user["User-global preferences"]
-  user --> locate["Detect host, org, and repo"]
+  user --> pointer["Read AGENTS.md pointer"]
+  pointer --> locate["Resolve host, org, docs, and memory roots"]
 
   locate --> host{"Which project scope?"}
   host -->|"dnb.ghe.com / AI-Platform"| aip["AI-Platform context"]
-  host -->|"github.com / MSXOrg"| msx["MSXOrg context"]
-  host -->|"github.com / PSModule"| psmodule["PSModule context"]
+  host -->|"github.com/MSXOrg"| msx["MSXOrg context"]
+  host -->|"github.com/PSModule"| psmodule["PSModule context"]
 
-  aip --> aipdocs["Read AI-Platform/docs index"]
-  aipdocs --> aipmemory["Read AI-Platform/memory index"]
+  aip --> refresh["Refresh selected docs + memory<br/>stop unless exactly synchronized"]
+  msx --> refresh
+  psmodule --> refresh
+  refresh --> docs["Read selected docs index"]
+  docs --> workflow["Follow indexes to Workflow"]
 
-  msx --> msxdocs["Read MSXOrg/docs index"]
-  msxdocs --> msxmemory["Read MSXOrg/memory index"]
-
-  psmodule --> psdocs["Read PSModule/docs index"]
-  psdocs --> psmemory["Read PSModule/memory index"]
-
-  aipmemory --> repo["Read repository pointer files"]
-  msxmemory --> repo
-  psmemory --> repo
-
-  repo --> path["Apply path-specific instructions"]
+  workflow --> stage["Infer current stage<br/>read canonical procedure"]
+  stage --> memory["Read organization memory index"]
+  memory --> repo["Read README and repository docs"]
+  repo --> path["Apply path-specific local rules"]
   path --> task["Read issue, PR, branch, diff, diagnostics, and open files"]
-  task --> act["Plan and act with the selected project personality"]
+  task --> act["Act and follow stage handoffs"]
 
   act --> newpath{"New file path touched?"}
   newpath -->|"Yes"| path
@@ -160,7 +159,7 @@ Resolution is deterministic. If the active repository remote is `github.com/PSMo
 
 ## Pointer files
 
-`AGENTS.md` is the cross-runtime pointer file. It identifies the project, names the canonical docs and memory roots, and lists local nuance.
+`AGENTS.md` is the cross-runtime pointer file. It identifies the project, names the canonical docs and memory root indexes, and lists local nuance. It points to the discovery trail, not to a stage-specific tool file.
 
 ```markdown
 # Agent Instructions
@@ -175,15 +174,18 @@ Canonical project context:
 Before changing files:
 
 1. Segment the work by host, organization, repository, path, and task.
-2. Read this repository's README and local docs (front door first).
-3. Read the relevant index in the resolved project docs repository.
-4. Read relevant project memory for the resolved organization.
-5. Apply path-specific instructions for the files being changed.
+2. Refresh every canonical context repository and stop unless each exactly matches its remote default branch.
+3. Start at the resolved project `docs/index.md`.
+4. Follow the Ways of Working index to Workflow, infer the current stage, and read that stage procedure.
+5. Read the relevant project standards, repository README and local docs, and organization memory.
+6. Apply path-specific local rules for the files being changed.
 
 This file points; it does not define process knowledge.
 ```
 
-> **Discovery order vs. conflict precedence** — agents read local repository context first so they understand what a repository is and does before consulting cross-cutting standards. That discovery order does not invert authority: organization standards remain authoritative for cross-org practices. Local pointer files and `docs/` add repo-specific nuance and narrow exceptions; they never silently override an organization standard unless the standard explicitly permits a local exception.
+The index trail is the default. A clear prompt can shortcut stage discovery: `Review this PR <link>` enters Review, `Make this issue <description>` enters Define, and `Implement <issue>` enters Implement. These phrases are routing hints interpreted by [Workflow](../../Ways-of-Working/Workflow.md#find-the-current-stage), not commands with independent procedures.
+
+> **Discovery order vs. conflict precedence** — the pointer resolves organization context first, then the agent uses the stage procedure to select relevant organization and repository pages. Local pointer files and repository docs add nuance and narrow exceptions; they never silently override an organization standard unless the standard explicitly permits a local exception.
 
 `CLAUDE.md` stays a thin import:
 
@@ -196,10 +198,10 @@ This file points; it does not define process knowledge.
 ```markdown
 Follow `AGENTS.md`.
 
-Segment the work by host, organization, repository, path, and task before loading project standards or memory. Resolve organization docs and memory before editing. Use path-specific instruction files when their `applyTo` pattern matches a file being read, generated, reviewed, or edited.
+Segment the work by host, organization, repository, path, and task. Refresh the resolved canonical context repositories and stop on any synchronization failure. Only then start at the organization docs root index and follow its Workflow. Use path-specific instruction files only for local path rules when their `applyTo` pattern matches a file being read, generated, reviewed, or edited.
 ```
 
-Path-specific instruction files are reserved for local rules that cannot live centrally because they apply only to a repository path.
+Path-specific instruction files are reserved for local rules that cannot live centrally because they apply only to a repository path. They never define workflow stages.
 
 ## Local workspace
 
@@ -207,18 +209,19 @@ A local bootstrap makes central context predictable:
 
 ```text
 ~/.msx/
-  AI-Platform/
-    docs/
-    memory/
-  MSXOrg/
-    docs/
-    memory/
-  PSModule/
-    docs/
-    memory/
+  docs.git/                    # MSXOrg/docs bare backing repository
+  docs/                        # clean MSXOrg/docs main worktree
+  memory/                      # simple MSXOrg/memory checkout
+  projects/
+    PSModule/
+      docs.git/                # optional project docs backing repository
+      docs/                    # optional project docs main worktree
+      memory/                  # optional project memory checkout
 ```
 
-The bootstrap clones missing repositories and fast-forwards existing clones when possible. It writes repository-local git configuration only. If a context repository cannot update, the agent uses the local copy and reports that it may be stale.
+The bootstrap clones missing repositories and fetches every existing context repository before use. Each clone must be clean, checked out on the remote default branch, and exactly equal to the fetched remote head. A dirty, locally ahead, diverged, wrong-branch, or unreachable clone stops context resolution; the agent does not use a possibly stale local copy. Bootstrap writes repository-local git configuration only.
+
+MSXOrg is the default project. Additional projects plug in a name, relative workspace path, docs URL, and memory URL. For example, PSModule can use `projects/PSModule/{docs,memory}` beneath the same workspace while reusing the identical synchronization and validation path. Repository agent files retain this small coordinate block because it is required before project documentation can be reached; the reusable bootstrap behavior remains central.
 
 ## Memory writing rules
 
@@ -238,10 +241,10 @@ Different clients load different files, but the framework keeps the same depende
 
 | Client | Adapter | Behavior |
 | --- | --- | --- |
-| Cross-client agents | `AGENTS.md` | Read the shared project pointer and local nuance. |
+| Cross-client agents | `AGENTS.md` | Resolve and synchronize the shared docs and memory roots, then traverse indexes to Workflow and the current stage. |
 | Claude Code | `CLAUDE.md` | Import `AGENTS.md`; add no duplicated process knowledge. |
-| GitHub Copilot in VS Code | `.github/copilot-instructions.md` and `.github/instructions/*.instructions.md` | Read project pointers, then apply path-specific instructions when files match. |
-| Copilot coding agent | `AGENTS.md`, `.github/copilot-instructions.md`, setup workflow | Prepare the local context before implementation and follow the same project roots. |
+| GitHub Copilot in VS Code | `.github/copilot-instructions.md` and `.github/instructions/*.instructions.md` | Follow `AGENTS.md`, including its freshness gate, then apply path-specific local rules when files match. |
+| Copilot coding agent | `AGENTS.md`, `.github/copilot-instructions.md`, setup workflow | Synchronize the local roots, traverse the canonical indexes, and follow the resolved stage procedure. |
 | Copilot code review | Base-branch instructions | Review using trusted base-branch instructions rather than instructions changed by the PR under review. |
 
 ## Failure modes
@@ -249,8 +252,9 @@ Different clients load different files, but the framework keeps the same depende
 | Failure | Design response |
 | --- | --- |
 | Repository does not identify its organization context | Infer from remote URL; ask when ambiguous. |
-| Docs or memory clone is missing | Bootstrap it before work; if unavailable, continue only with explicit warning. |
+| A docs or memory clone is missing or cannot synchronize | Bootstrap or repair it, then retry. Stop context resolution until every canonical context repository passes the freshness gate. |
 | Pointer file duplicates central standards | Replace duplicated content with links during review. |
+| A skill, command, named agent, or instruction file defines a workflow stage | Delete the duplicate procedure and link to Workflow or its stage page. |
 | Memory conflicts with docs | Docs win; memory is corrected or removed. |
 | Two organizations are open in one workspace | Select by active repository; ask before cross-project changes. |
 | A client ignores one pointer format | Add a thin adapter for that client that points to the same canonical roots. |
@@ -260,10 +264,10 @@ Different clients load different files, but the framework keeps the same depende
 1. Create or identify the organization `docs` repository.
 2. Create or identify the organization `memory` repository, using the [Memory Repository Template](memory-template.md) as the starting scaffold.
 3. Add `docs/index.md` and `memory/index.md` as the two root maps.
-4. Add framework docs, standards, and agent role descriptions to `docs`.
+4. Add the canonical Workflow and linked stage procedures to `docs`.
 5. Add starter memory sections to `memory`.
 6. Add thin pointer files to each product repository.
-7. Add a bootstrap that keeps local docs and memory clones present.
+7. Add a bootstrap that keeps local docs and memory clones present and exactly synchronized before use.
 8. Review new work for pointer discipline: facts live once, links point to them.
 
 ## Where this connects

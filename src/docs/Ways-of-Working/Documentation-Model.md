@@ -34,8 +34,8 @@ design as any other capability, and lives beside them under
 [Capabilities](../Capabilities/index.md).
 
 Only the detail of a *single change* — the paths touched, the trade-off taken
-this once — stays out of both, living in the [issue](Issues/Process/Format.md) and the
-pull request where it belongs.
+this once — stays out of both, living at the delivery leaf's canonical
+[issue planning altitude](Issues/Process/Planning.md) and in its pull request.
 
 ## Capabilities live in folders
 
@@ -64,7 +64,7 @@ two documents live with the code.
 | **How / what** we build to deliver it | the capability's **design** |
 | **How we work** — process, principles, conventions | [Ways of Working](index.md) |
 | **How code looks** — style applied to code | [Coding Standards](../Coding-Standards/index.md) |
-| **How this one change is implemented** — paths, trade-offs | the [issue](Issues/Process/Format.md) and the PR |
+| **How this one change is implemented** — paths, trade-offs | the Task or Bug delivery leaf and its PR; see [Issue Planning](Issues/Process/Planning.md) |
 
 Keeping implementation out of the spec is what makes the spec durable:
 implementation detail rots fastest, so the spec leaves it to the design, and the
@@ -79,8 +79,8 @@ then code — and loops:
 2. **Spec** — agree the next version's requirements: why it matters and what it
    must do. Nothing is committed to building yet.
 3. **Design** — once committed to deliver, describe how and what we will build.
-4. **Build** — implement, evolving the design *and* the spec as development
-   teaches you things.
+4. **Build** — ready Task and Bug leaves implement the gap, evolving the design
+   *and* the spec as development teaches you things.
 5. **Operate** — running the system surfaces new needs, and the loop returns.
 
 ```mermaid
