@@ -59,7 +59,7 @@ Vision (this site)            the why — stable, evergreen
                 └── Agents    read the same docs as context before acting
 ```
 
-Each layer references the one above instead of restating it. A repository's README does not re-explain the principles — it links to them. An agent definition does not embed a style guide — it points to one. This keeps a single source of truth and lets the whole system evolve without drifting out of sync.
+Each layer references the one above instead of restating it. A repository's README does not re-explain the principles — it links to them. An agent pointer does not embed a style guide or workflow stage — it leads into the documentation indexes. This keeps a single source of truth and lets the whole system evolve without drifting out of sync.
 
 ## Where it comes to life
 
