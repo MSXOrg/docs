@@ -249,6 +249,7 @@ exit `$LASTEXITCODE
     It 'rejects an unreachable remote without using local context' {
         $missing = Join-Path $fixture.Root 'missing.git'
         Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('remote', 'set-url', 'origin', $missing) | Out-Null
+        $fixture.Remotes.docs = $missing
         $before = (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim()
 
         $result = Invoke-BootstrapFixture -Fixture $fixture
@@ -256,6 +257,23 @@ exit `$LASTEXITCODE
         $result.ExitCode | Should -Not -Be 0
         $result.Output | Should -Match 'git fetch failed'
         (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() | Should -BeExactly $before
+    }
+
+    It 'rejects a non-canonical origin before fetching context' {
+        Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @(
+            'remote',
+            'set-url',
+            'origin',
+            $fixture.Remotes.memory
+        ) | Out-Null
+        $before = (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim()
+
+        $result = Invoke-BootstrapFixture -Fixture $fixture
+
+        $result.ExitCode | Should -Not -Be 0
+        $result.Output | Should -Match 'not canonical'
+        (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly $before
     }
 
     It 'installs additional project context through plug-in coordinates' {

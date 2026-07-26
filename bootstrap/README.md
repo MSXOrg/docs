@@ -46,6 +46,9 @@ if (-not (Test-Path (Join-Path $docs '.git'))) {
     if ((git --git-dir=$docsBacking rev-parse --is-bare-repository) -ne 'true') {
         throw "$docsBacking exists but is not a bare repository."
     }
+    if ((git --git-dir=$docsBacking remote get-url origin) -ne $docsUrl) {
+        throw "$docsBacking origin does not match canonical $docsUrl."
+    }
     $refspec = '+refs/heads/*:refs/remotes/origin/*'
     if ($refspec -notin @(git --git-dir=$docsBacking config --get-all remote.origin.fetch)) {
         git --git-dir=$docsBacking config --add remote.origin.fetch $refspec
@@ -82,6 +85,9 @@ if (-not (Test-Path (Join-Path $docs '.git'))) {
         throw "Could not create the canonical MSXOrg/docs worktree at $docs."
     }
 } else {
+    if ((git -C $docs remote get-url origin) -ne $docsUrl) {
+        throw "$docs origin does not match canonical $docsUrl."
+    }
     $refspec = '+refs/heads/*:refs/remotes/origin/*'
     if ($refspec -notin @(git -C $docs config --get-all remote.origin.fetch)) {
         git -C $docs config --add remote.origin.fetch $refspec

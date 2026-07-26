@@ -105,6 +105,13 @@ function Sync-ContextRemote {
     }
 
     [string[]] $gitRoot = if ($Bare) { @("--git-dir=$GitPath") } else { @('-C', $GitPath) }
+    $originUrl = (& git @gitRoot remote get-url origin | Out-String).Trim()
+    if ($LASTEXITCODE -ne 0) {
+        throw "Cannot resolve origin for '$GitPath'. Configure it as '$RepositoryUrl'."
+    }
+    if ($originUrl -ne $RepositoryUrl) {
+        throw "Origin for '$GitPath' is '$originUrl', not canonical '$RepositoryUrl'. Repair it before using this context."
+    }
     $allBranchesRefspec = '+refs/heads/*:refs/remotes/origin/*'
     $fetchRefspecs = @(& git @gitRoot config --get-all remote.origin.fetch)
     if ($LASTEXITCODE -notin @(0, 1)) {
