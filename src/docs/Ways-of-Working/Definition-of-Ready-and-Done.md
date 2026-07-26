@@ -31,6 +31,7 @@ A pull request is ready for review when:
 - Native dependencies are current and every prerequisite the change relies on has landed; the pull request is not used to bypass a blocked-by edge.
 - All required checks are green — not just tests that pass locally. CI is complete, not in progress.
 - The automated review loop has converged — a clean [Copilot round](Contribution-Workflow.md#the-copilot-review-loop) with no unresolved review threads.
+- The [standards and framework alignment pass](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass) has run against the finished change, its result covers every changed surface in the pull request, and every exception links a follow-up issue.
 - The title, release-note description, and exactly one change-type label are finalized. See [PR Format](PR-Format.md).
 
 If any item is open, the pull request stays a draft. Marking it ready with known-open work shifts the author's unfinished job onto reviewers — the opposite of what the signal means.

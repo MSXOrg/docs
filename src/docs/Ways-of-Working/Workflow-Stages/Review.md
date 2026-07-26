@@ -33,6 +33,7 @@ Check each dimension per [Review Etiquette](../Review-Etiquette.md):
 - **Taste** — readability, naming, structure, tests that exercise behaviour.
 - **Security** — input validation, no secrets in logs, SHA-pinned actions, least privilege. Escalate a deep pass to [Security Review](Security-Review.md).
 - **Documentation** — updated where user-facing behaviour changed.
+- **Standards and framework alignment** — the pull request records the author's [alignment pass](Implement.md#5-standards-and-framework-alignment-pass), the result covers every changed surface, and each exception links a real follow-up issue. Spot-check at least one row against the canonical standard or framework page rather than trusting the summary; a missing or hollow pass is a blocking finding.
 - **Tests** — new behaviour has tests; bugs get regression tests.
 
 ### 4. Post the review
@@ -55,6 +56,7 @@ An approval co-signs the change, so approve once the blocking concerns are resol
 ## Where this connects
 
 - [Review Etiquette](../Review-Etiquette.md) — tone, severity, and how to disagree well.
+- [Implement](Implement.md#5-standards-and-framework-alignment-pass) — the author-side alignment pass this stage verifies.
 - [PR Format](../PR-Format.md) — delivery-leaf closure and contextual aggregate links.
 - [Branching and Merging](../Branching-and-Merging.md) — who approves and how a change lands.
 - [Security Review](Security-Review.md) — the specialized security path.

@@ -120,6 +120,14 @@ The **Technical details** block is for reviewers and maintainers. Include intern
 - Implementation approach and design decisions.
 - Backward compatibility notes for developers.
 - **Implementation plan progress** — cross-reference the closing Task or Bug's plan. Which plan steps does this PR complete? Which were moved to follow-up delivery issues?
+- **Standards and framework alignment** — the result of the [alignment pass](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass), as one row per changed surface. The stage procedure owns when and how the pass is run; this block only carries its evidence.
+
+    | Changed surface | Standards checked | Framework docs checked | Result |
+    | --- | --- | --- | --- |
+    | `src/**` (PowerShell) | Naming, Functions | Module source layout | Aligned |
+    | `.github/workflows/**` | GitHub Actions | Reusable workflow contract | Exception — Owner/Repo#123 |
+
+    A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link to the follow-up issue that carries it.
 
 The **Relevant issues (or links)** block is required and uses fully qualified references (`Owner/Repo#N`) so links work across repositories.
 
