@@ -11,9 +11,9 @@ Every piece of work — at every level — should be groundable in three concent
 
 - **Why** — what change in the world are we trying to make? Vision.
 - **How** — what approach do we take to make that change happen? Mission.
-- **What** — what concrete thing are we delivering right now? OKRs → initiatives → tasks.
+- **What** — what concrete thing are we delivering right now?
 
-When an issue is being written, the **Why** belongs in the Context part of Section 1. The **How** belongs in Section 2 (Technical Decisions). The **What** belongs in Section 3 (Implementation Plan).
+[Goal Setting](../Goal-Setting.md) owns the strategy path from Mission through OKR and Initiative. [Issue Planning](../Issues/Process/Planning.md) applies Why, How, and What progressively from Epic and PBI aggregates to Task and Bug delivery leaves; this principle does not assign them to copied body sections.
 
 ## Product / service mindset
 

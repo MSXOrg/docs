@@ -10,10 +10,7 @@ puts an automated Copilot review *before* human review: the author iterates with
 Copilot on a **draft** pull request until it has no more feedback, then opens the
 pull request for people.
 
-This is the operational "how". The conventions it builds on live in the ways of
-working — [Issue Format](Issue-Format.md), [PR Format](PR-Format.md),
-[Branching and Merging](Branching-and-Merging.md), and
-[Review Etiquette](Review-Etiquette.md).
+This is the operational "how" for a repository-delivery Task or Bug. The conventions it builds on live in the ways of working — [Issue Lifecycle](Issues/Process/Lifecycle.md), [PR Format](PR-Format.md), [Branching and Merging](Branching-and-Merging.md), and [Review Etiquette](Review-Etiquette.md). Epic and PBI aggregates stay in planning and coordination rather than entering this branch-and-pull-request flow.
 
 ## The flow
 
@@ -32,9 +29,10 @@ flowchart TD
     H --> M[Auto-merge lands it on approval + green checks]
 ```
 
-1. **Branch and implement.** Work on a `<type>/<description>` branch and keep the
-   per-change implementation detail in the issue and the pull request, not in the
-   spec or design.
+1. **Branch and implement.** Pull one ready, unblocked Task or Bug into work on a
+   `<type>/<issue>-<description>` branch. Keep per-change implementation detail in
+   that delivery issue and the pull request, not in the spec, design, or parent
+   aggregate.
 2. **Open the pull request as a draft.** A draft attaches CI and keeps the change
    out of people's review queues while you iterate.
 3. **Run the Copilot review loop** (below) until Copilot reports a clean round —
@@ -87,8 +85,8 @@ For each piece of feedback, decide:
 - **In scope** — it concerns the change under review. Address it in this pull
   request and push; the next round re-checks it.
 - **Out of scope** — it points at a pre-existing gap or an adjacent improvement.
-  File an issue ([Issue Format](Issue-Format.md)) capturing the gap and reference
-  it; do not grow the pull request to cover it.
+  Route a follow-up through the [Issue Hierarchy](Issues/Types/Hierarchy.md) and
+  reference it; do not grow the pull request to cover it.
 - **Not actionable** — a false positive, or a matter of taste you disagree with.
   Reply with the reason and resolve the thread; a documented dismissal counts as
   handled ([Review Etiquette](Review-Etiquette.md)).
@@ -122,6 +120,7 @@ the approval identity that satisfies the gate.
 ## Where this connects
 
 - [Workflow](Workflow.md) — the spec-led loop this operates within.
+- [Issue Lifecycle](Issues/Process/Lifecycle.md) — why only ready Task and Bug leaves enter this flow.
 - [PR Format](PR-Format.md) — the pull request title, description, and labels.
 - [Definition of Ready and Done](Definition-of-Ready-and-Done.md#definition-of-ready-for-review) — the readiness gate this hands off at.
 - [Branching and Merging](Branching-and-Merging.md) — the branch model a pull request builds on.

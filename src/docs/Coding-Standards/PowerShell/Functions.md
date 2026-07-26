@@ -115,6 +115,8 @@ Send each kind of message to the stream built for it, so a caller can capture, r
 
 Every function carries comment-based help — including internal and private helpers, not only the public surface. It is what lets a reader or an agent understand what the function does and how to call it without reading its body, and a private helper needs that as much as a public command does. Put it first inside the body, with sections in this order: `.SYNOPSIS` (one imperative sentence), `.DESCRIPTION`, at least one `.EXAMPLE` per behaviour, then `.INPUTS`, `.OUTPUTS` (matching `[OutputType()]`), `.NOTES`, `.LINK`. Document each parameter with an inline comment above it rather than a `.PARAMETER` block, and let comments explain *why*, not *what*.
 
+Every public function in a module built with the PSModule framework uses its generated online reference URL as the first `.LINK` entry. The canonical URL always ends in `/`: `https://psmodule.io/<ModuleName>/Functions/<Function-Name>/` or, for a grouped command, `https://psmodule.io/<ModuleName>/Functions/<Group>/<Function-Name>/`. A private helper links to the published public function it supports.
+
 ### `.INPUTS` and `.OUTPUTS`
 
 **`.INPUTS`** documents **pipeline input only** — types accepted via `ValueFromPipeline` or `ValueFromPipelineByPropertyName` parameters. It does not document ordinary parameters.
@@ -144,6 +146,7 @@ The user record for the requested id.
 
 Rules that apply to both sections:
 
+- **Include a description for every entry** — the type name alone is not sufficient. The description should say what is actually piped in (for `.INPUTS`) or what is returned (for `.OUTPUTS`) in plain language, not just restate the type name.
 - Use the fully-qualified .NET type name (`System.String`, `System.Management.Automation.PSCustomObject`), not a PowerShell type accelerator (`[string]`, `[pscustomobject]`).
 - When no parameters accept pipeline input, write `None` as the type with `You can't pipe objects to <CommandName>.` as the description paragraph (use the actual command name).
 - Repeat the keyword once per type when multiple types are accepted or returned.

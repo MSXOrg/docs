@@ -5,7 +5,7 @@ description: The specification is the source of truth — the spec (why and what
 
 # Spec-Driven Development
 
-Spec-driven development treats the specification as the source of truth: the spec captures *why* a change matters and *what* it must do, and everything downstream — design, tasks, code, tests — serves it. When intent changes, the spec changes first and the rest follows.
+Spec-driven development treats the specification as the source of truth: the spec captures *why* a change matters and *what* it must do, and everything downstream — design, delivery issues, code, tests — serves it. When intent changes, the spec changes first and the rest follows.
 
 This standard is the shape of a spec. It defines the artifacts of the method — the **specification** and its **design** — what each contains, at what level of detail, and how they move through the life of a change. It builds on the [evergreen documentation](Principles/Engineering-Practices.md#evergreen-documentation) principle (how a spec is written) and the [engineering practices](Principles/Engineering-Practices.md) (how we plan, build, ship, and measure).
 
@@ -18,15 +18,15 @@ A change moves down a ladder of artifacts. Each sits at a fixed altitude, is ver
 | **Need** | Is this worth doing? | one line | the request or issue | — |
 | **Spec** | Why, what, for whom, and what "done" means | implementation-agnostic | the capability folder, in the owning repo | intent changes |
 | **Design** | How it is built | technical, still readable | beside its spec (`design.md`) | the approach changes |
-| **Tasks** | In what steps | actionable | issues, at the levels of the [issue hierarchy](Issue-Hierarchy.md) | the plan changes |
+| **Delivery issues** | In what tracked outcomes and deliverables | progressively actionable | Epic and PBI aggregates, then Task and Bug leaves | the delivery plan changes |
 | **Code & tests** | The working expression | concrete | the codebase | continuously |
 
 ```mermaid
 flowchart LR
   need["Need\nrequest · incident · gap"] --> spec["Spec\nwhy · what · impact"]
   spec --> design["Design\nhow"]
-  design --> tasks["Tasks\nepic → item → task"]
-  tasks --> code["Code & tests\nthe expression"]
+  design --> issues["Delivery issues\nEpic → PBI → Task / Bug"]
+  issues --> code["Code & tests\nthe expression"]
   code -. "production feedback" .-> spec
 ```
 
@@ -56,7 +56,7 @@ A spec **excludes** — this is the design's job:
 - The task breakdown and rollout sequence.
 - Links to the code that fulfils it — implementations come and go.
 
-The altitude test: push detail *down* into the design, and push scope *up* into the epic. If a sentence would change when the team picks a different library, it belongs in the design, not the spec. This is the same rule the [Issue Format](Issue-Format.md) applies to issues — describe the *what* and *why*, never the *how*.
+The altitude test: push implementation detail *down* into the design, and keep delivery scope at the appropriate [issue planning altitude](Issues/Process/Planning.md). If a sentence would change when the team picks a different library, it belongs in the design, not the spec.
 
 ## Specify the minimum
 
@@ -111,9 +111,9 @@ The method is requirements-first. Work does not start from a solution; it starts
 1. **A need surfaces.** A stakeholder request, an incident, or a platform gap — or the team authors one when it sees the opportunity.
 2. **Draft the spec.** Capture the why, the outcome, and the requirements collaboratively. Agents draft, research context, and check the spec for ambiguity and gaps; humans supply the intent and make the calls ([AI-first development](Principles/AI-First-Development.md)). Unknowns are marked, not guessed (see [Authoring conventions](#authoring-conventions)).
 3. **Review the spec as a pull request.** The spec is versioned and reviewed like any change, following [PR Format](PR-Format.md) and [Review Etiquette](Review-Etiquette.md). Review argues about intent while it is still cheap to change.
-4. **Pass the readiness bar.** The spec is ready when it meets the [Definition of Ready](Definition-of-Ready-and-Done.md#definition-of-ready) — clear intent, testable acceptance criteria, no open questions that would change the approach.
-5. **Design and decompose.** Write the design, then break the work into the levels of the [issue hierarchy](Issue-Hierarchy.md) — an epic into smaller, independently deliverable items.
-6. **Build against the spec.** Implement in thin vertical slices, test-first where it pays, to the [Definition of Done](Definition-of-Ready-and-Done.md#definition-of-done) ([engineering practices](Principles/Engineering-Practices.md)). [Test-driven development](Principles/Engineering-Practices.md#test-driven-development) is an implementation practice governed by the coding standards and the Definition of Done, not something each spec re-specifies.
+4. **Accept the spec.** Resolve clarification markers, confirm testable requirements and acceptance criteria, and review the intent before committing to delivery.
+5. **Design and decompose.** Write the design, then use the canonical [Issue Planning](Issues/Process/Planning.md) and [Issue Hierarchy](Issues/Types/Hierarchy.md) guidance to create Epic or PBI aggregates and ready Task or Bug delivery leaves.
+6. **Build against the spec.** Pull only a ready Task or Bug into Build, implement in thin vertical slices, and finish through its applicable [Definition of Done](Definition-of-Ready-and-Done.md#definition-of-done) ([engineering practices](Principles/Engineering-Practices.md)). [Test-driven development](Principles/Engineering-Practices.md#test-driven-development) is an implementation practice governed by the coding standards and the Definition of Done, not something each spec re-specifies.
 7. **Feed reality back.** Metrics and incidents update the spec, and the cycle repeats.
 
 ## Where specs and designs live
@@ -134,7 +134,7 @@ Splitting the spec from the design is what lets the spec stay stable across refa
 - **Self-review against a checklist.** Before review, confirm the spec is complete: no clarification markers remain, every requirement is testable, and the success criteria are measurable — a checklist is a unit test for the English.
 - **Keep it navigable.** The spec is readable in one sitting. Heavy detail moves into the design or a linked note, not the body.
 - **Reference, do not restate.** Point at the canonical standard or guide rather than copying it, so there is one source of truth and no drift.
-- **Links, not bare URLs.** Every external reference is a Markdown link, scoped the same way as in the [Issue Format](Issue-Format.md).
+- **Links, not bare URLs.** Every external reference is a Markdown link, scoped the same way as in the [Issue Format](Issues/Process/Format.md).
 
 ## Templates
 

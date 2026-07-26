@@ -94,6 +94,7 @@ Agent files are allowed when they point to, summarize, or operationalize the cen
 ## Where this connects
 
 - [Repository Standard](Repository-Standard.md) — the repository-level contract every repository must satisfy.
+- [Repository Type Property](Repository-Type-Property.md) — the concrete `Type` custom-property mechanism that implements "repository types" and "required custom properties, branch protection" from this page.
 - [Documentation Model](Documentation-Model.md) — why specs own why and what, while designs own implementation.
 - [Dependency Updates](../Capabilities/dependency-updates/spec.md) — the supply-chain update capability every repository inherits.
 - [GitHub Actions](../Coding-Standards/GitHub-Actions.md) — workflow authoring and enforcement rules.

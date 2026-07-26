@@ -1,13 +1,14 @@
 ---
 title: Fleet Orchestration
-description: How one change is rolled out across many repositories — a campaign of branches, pull requests, and review loops tracked entirely on GitHub.
+description: How one change is rolled out across many repositories through Task or Bug delivery leaves tracked entirely on GitHub.
 ---
 
 # Fleet Orchestration
 
 How a single change is applied across many repositories at once — a *campaign*.
-Each repository gets its own branch, pull request, and review loop; the campaign
-is the coordination layer that keeps them moving and visible.
+Each repository gets its own Task or Bug delivery leaf, branch, pull request,
+and review loop; the campaign is the coordination layer that keeps them moving
+and visible.
 
 This is the multi-repository "how". Inside each repository the change follows the
 ordinary [Contribution Workflow](Contribution-Workflow.md) — draft first, the
@@ -30,18 +31,16 @@ tool, can read and drive a campaign with the GitHub CLI alone.
 ## The campaign
 
 A campaign is one change rolled out across a set of repositories. Each
-repository's slice of the change is a **work item**: a tracking issue, a pull
-request, or both. A campaign has a short, stable **slug** (for example
-`process-psmodule-v6`) that names it everywhere.
+repository's slice is one Task or Bug delivery leaf and its pull request. A
+campaign has a short, stable **slug** (for example `process-psmodule-v6`) that
+names both artifacts everywhere.
 
-A work item is usually created for the campaign, but an **existing open pull
-request can be adopted** as one. When a repository already has a pull request
-that does part of the change, add the remaining change to that branch and prefix
-its title with the same bracketed slug (`[<slug>]`) instead of opening a duplicate — the existing pull request
-*is* the work item. A separate tracking issue is optional in this case (a work
-item may be a pull request alone); if one already exists, link it with
-`Fixes #n` so merging still closes it. Reusing what is already open avoids two
-competing pull requests touching the same files.
+An **existing open pull request can be adopted** when its scope matches the
+campaign slice. Ensure it closes exactly one correctly typed Task or Bug,
+creating that delivery issue first when it is missing, then add the remaining
+change to the existing branch instead of opening a duplicate. Reusing what is
+already open avoids competing pull requests without bypassing the canonical
+[Issue Hierarchy](Issues/Types/Hierarchy.md) or [PR Format](PR-Format.md).
 
 ## State lives on GitHub
 
@@ -55,15 +54,15 @@ copied into another state-bearing field, because duplicated state drifts.
 
 | Fact | GitHub property |
 | --- | --- |
-| Work item exists | the issue or pull request itself |
+| Delivery exists | its Task or Bug issue |
 | Who holds it | `assignees` |
 | Work in progress | pull request is a **draft** |
 | Ready for a human | pull request is **not** a draft |
 | CI health | the status-check rollup |
 | Review outcome | `reviewDecision` and unresolved review threads |
 | Mergeability | `mergeable` / merge-state status |
-| Done | pull request **merged**; tracking issue **closed** |
-| Issue ↔ PR link | the pull request's closing references (`Fixes #n`) |
+| Done | pull request **merged**; Task or Bug **closed** |
+| Issue ↔ PR link | the pull request's one closing reference |
 
 "Ready for review" is the draft flag flipping off; "done" is the merge. The two
 signals people care about most are native, and are set by the same act that does
@@ -71,9 +70,10 @@ the work — [marking ready](Contribution-Workflow.md) and merging.
 
 ### Campaign identity lives in the title
 
-Campaign membership is carried in a stable square-bracket prefix on every work
-item title, for example `[process-psmodule-v6]`. The prefix is the cross-
-repository join key; labels stay reserved for mutable workflow state.
+Campaign membership is carried in a stable square-bracket prefix on every
+delivery issue and pull request title, for example `[process-psmodule-v6]`. The
+prefix is the cross-repository join key; labels stay reserved for mutable
+workflow state.
 
 ### Process labels fill the gap
 
@@ -84,11 +84,11 @@ same way.
 
 | Label | Purpose |
 | --- | --- |
-| `stage:queued` | Identified, not started (typically a tracking issue with no pull request yet). |
+| `stage:queued` | Delivery issue exists; no pull request has started. |
 | `stage:in-progress` | Actively being changed; the assignee owns it. |
 | `stage:blocked` | Needs a human decision or a manual, off-platform action before it can proceed. |
 
-Rules: the campaign prefix is mandatory on every work item; at most one
+Rules: the campaign prefix is mandatory on every delivery issue and pull request; at most one
 `stage:*` label applies at a time; and `stage:*` may be dropped once a pull
 request carries the signal itself (a ready pull request needs no `stage` label,
 but `stage:blocked` stays explicit because "a human must act" has no built-in
@@ -96,7 +96,7 @@ equivalent). The slug inside the prefix is lowercase and hyphenated.
 
 ## Effective status
 
-A campaign view shows one **effective status** per work item, derived purely from
+A campaign view shows one **effective status** per repository delivery, derived purely from
 the two layers above — no guessing. The first matching rule wins.
 
 | # | Effective status | Condition |
@@ -108,7 +108,7 @@ the two layers above — no guessing. The first matching rule wins.
 | 5 | CI failing | checks are failing on a draft |
 | 6 | In review | draft with at least one review and CI not failing |
 | 7 | In progress | draft with no review yet, or `stage:in-progress` |
-| 8 | Queued | tracking issue open, no pull request yet |
+| 8 | Queued | Task or Bug open, no pull request yet |
 
 Terminal and attention states (merged, blocked, changes requested, ready) rank
 above transient progress states, because an explicit act — marking ready, or
@@ -121,49 +121,46 @@ GitHub action, so the resulting state is always re-derivable.
 
 ```mermaid
 flowchart TD
-    Q[Queued: tracking issue] --> P[Open PR as draft]
+    Q[Queued: Task or Bug] --> P[Open PR as draft]
     A[Adopt existing PR: return to draft] --> R
     P --> R[Contribution Workflow: Copilot review loop]
     R -->|needs a human decision| B[Blocked]
     B -->|unblocked| R
     R -->|loop clean| Y[Mark ready for review]
     Y --> M[Human review and merge]
-    M --> D[Close tracking issue if linked]
+    M --> D[Close Task or Bug]
 ```
 
-1. **Queue the work.** Create a tracking issue per repository, with the campaign
-  prefix in the title and `stage:queued`, following the [Issue Format](Issue-Format.md).
-  The whole fleet starts as *Queued*. Skip this for any repository whose work
-  item will be an **adopted pull request** (see step 2): that pull request is
-  the work item and needs no tracking issue.
+1. **Queue the work.** Create one Task or Bug delivery issue per repository, with
+  the campaign prefix in the title and `stage:queued`. Route it through the
+  [Issue Hierarchy](Issues/Types/Hierarchy.md) and follow its canonical type
+  page. The whole fleet starts as *Queued*.
 2. **Branch and open a draft.** Create a worktree and branch
    ([Git Worktrees](Git-Worktrees.md)), then open a **draft** pull request that
-  closes the tracking issue, per [PR Format](PR-Format.md). Use the same
+  closes exactly that delivery issue, per [PR Format](PR-Format.md). Use the same
   campaign prefix in the pull request title and move the stage to
-  `stage:in-progress`, clearing the tracking issue's `stage:queued` so the work
-  item never carries two stages at once. If the repository already has an open
+  `stage:in-progress`, clearing the issue's `stage:queued` so the repository
+  delivery never carries two stages at once. If the repository already has an open
   pull request that covers part of the change, adopt it instead of opening a
   new one: add the remaining change to its branch, return it to **draft** while
   work is in progress, and give it the same campaign prefix and
-  `stage:in-progress` label (clearing `stage:*` from any linked issue). The
-  adopted pull request is the work item, so a separate tracking issue is
-  optional — link one with `Fixes #n` if it exists; when there is none, the
-  tracking-issue steps (1 and the close-on-merge in 6) simply do not apply, and
-  the pull request's own draft and merge state carry the signal.
+  `stage:in-progress` label (clearing `stage:*` from its closing issue). Add the
+  one closing Task or Bug reference before continuing if the adopted pull
+  request did not already have it.
 3. **Apply the change and run the loop.** Make the change and take the pull
    request through the [Contribution Workflow](Contribution-Workflow.md) —
    the Copilot review loop — exactly as any single-repository change. The
-   [Implement](../Agents/implement.md) and [Reviewer](../Agents/reviewer.md)
-   agent roles apply unchanged.
-4. **Flag blockers, don't stall the fleet.** If an item needs a human decision or
+   [Implement](Workflow-Stages/Implement.md) and [Review](Workflow-Stages/Review.md)
+   workflow stages apply unchanged.
+4. **Flag blockers, don't stall the fleet.** If a delivery leaf needs a human decision or
    an off-platform action, set `stage:blocked` with a note and move on to the next
    repository.
 5. **Mark ready only when the loop is clean.** When Copilot has no more feedback
    and CI is green, mark the pull request ready for review per the
    [Definition of Ready and Done](Definition-of-Ready-and-Done.md). The draft
-   flag flips and the item becomes *Ready for review*.
-6. **Human review and merge land it.** Merging lands the change and, where the
-   pull request links a tracking issue, closes it via the `Fixes #n` reference.
+   flag flips and the repository delivery becomes *Ready for review*.
+6. **Human review and merge land it.** Merging lands the change and closes its
+   Task or Bug through the pull request's one closing reference.
    The campaign's job is to get every pull request to *Ready*;
    [Branching and Merging](Branching-and-Merging.md) governs how it merges.
 
@@ -193,19 +190,20 @@ concern that is invalid on one repository is usually invalid on the rest,
 barring a repository where the change genuinely differs.
 
 Discovery can also surface a repository where the change applies differently, or
-not at all. Adapt that work item — its change and its pull request description —
-to what the repository actually needs, rather than forcing an identical diff.
+not at all. Adapt that delivery leaf — its scope, change, and pull request
+description — to what the repository actually needs, rather than forcing an
+identical diff.
 
 ## The dashboard
 
 A campaign is watched through a **dashboard** — a deterministic projection of
-GitHub state, not a store of its own. A script enumerates the campaign's work
-items by title prefix (`[<slug>]` across the owners), reads each pull request's
+GitHub state, not a store of its own. A script enumerates the campaign's
+repository deliveries by title prefix (`[<slug>]` across the owners), reads each pull request's
 built-in properties, computes the effective status, and renders a page. It can
 regenerate on an interval so the view refreshes as GitHub changes; deleting it
 loses nothing, because GitHub is the source of truth.
 
-Typical columns: effective status, repository, work item (linked), draft/ready,
+Typical columns: effective status, repository, delivery issue and pull request, draft/ready,
 CI, review decision and open-thread count, assignee, the latest progress note,
 and last-updated. Rows sort by status then repository name, so the items needing
 attention group together. *Ready for review* appears the instant a pull request
@@ -219,8 +217,8 @@ source of truth that drifts.
 ## Progress notes
 
 To record *what* is being done — narration, not a state change — post a comment
-on the work item and, when the pipeline stage changes, move the `stage:*` label.
-The dashboard surfaces the latest comment as the item's note. Setting a status is
+on the delivery issue and, when the pipeline stage changes, move the `stage:*` label.
+The dashboard surfaces the latest comment as the delivery's note. Setting a status is
 a deterministic label-and-comment write, so it is scripted; the judgement of
 *which* status applies is the only human or agent decision.
 
@@ -233,7 +231,7 @@ Because all state is on GitHub and the workflow labels are generic:
   `stage:*` labels, and merge.
 - **An automated system** — a scheduled workflow, a different agent framework, or
   a teammate's tooling — can enumerate the work with one query and pick up any
-  item. The state is portable and self-describing.
+  delivery. The state is portable and self-describing.
 
 If an automated run stops midway, nothing is lost: the board is complete, every
 in-flight pull request shows its true state, and anyone can finish the job. This
@@ -271,7 +269,7 @@ the Pester version requirement to the test files, and migrate the tests.
 
 - **Slug:** `process-psmodule-v6`.
 - **Discover the fleet:** find consumers of the reusable workflow with a code
-  search for its `uses:` reference, then queue a tracking issue in each.
+  search for its `uses:` reference, then queue a Task delivery issue in each.
 - **Per repository:** bump the workflow pin, add the
   `#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.0.0'; MaximumVersion = '6.*' }`
   requirement to each `*.Tests.ps1`, migrate the tests, and take the pull request

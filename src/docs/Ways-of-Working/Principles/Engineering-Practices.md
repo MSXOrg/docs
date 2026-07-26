@@ -17,7 +17,7 @@ If something is only in your head:
 
 ## Everything as code
 
-Everything — workflows, configuration, infrastructure, processes, agent definitions, even the docs you are reading — lives in source control. This is the bedrock of human-agent interaction. An agent can read code, change code, propose code. It cannot read what's only in someone's memory.
+Everything — workflows, configuration, infrastructure, processes, pointer files, even the docs you are reading — lives in source control. This is the bedrock of human-agent interaction. An agent can read code, change code, propose code. It cannot read what's only in someone's memory.
 
 ## Code in code files
 

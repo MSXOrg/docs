@@ -137,11 +137,11 @@ $env:CONFLUENCE_SITE          # from the "variables" map (not masked)
 
 The same `TestData` keys are exported before every module-local phase runs:
 
-- `BeforeAll-ModuleLocal` runs `tests/BeforeAll.ps1` before the module-local test matrix.
-- `Test-ModuleLocal` runs the module's Pester tests.
-- `AfterAll-ModuleLocal` runs `tests/AfterAll.ps1` after the module-local test matrix, including cleanup paths.
+- `BeforeAll-ModuleLocal` runs root `tests/BeforeAll.ps1` before the module-local test matrix.
+- `Test-ModuleLocal` discovers and runs module-local Pester tests recursively.
+- `AfterAll-ModuleLocal` runs root `tests/AfterAll.ps1` after the module-local test matrix, including cleanup paths.
 
-Setup scripts, tests, and teardown scripts should therefore use the same environment variable names.
+Setup and teardown detection is not recursive. These root scripts and the discovered tests should use the same environment variable names.
 If `$env:<name>` is available in one phase but missing in another, treat that as a Process-PSModule
 propagation bug rather than a caller contract difference.
 
@@ -223,11 +223,11 @@ This table shows when each job runs based on the trigger scenario:
 
 ## Important file change detection
 
-The workflow automatically detects whether a pull request contains changes to "important" files that warrant a new
-release. This prevents unnecessary releases when only non-functional files (such as workflow configurations, linter
-settings, or test files) are modified.
+The workflow automatically detects whether a pull request contains changes to "important" files that should enter the
+build, test, and publish path. This prevents unnecessary work and releases when only files outside the configured
+patterns are modified.
 
-### Files that trigger releases
+### Files that trigger the important-change path
 
 By default, the following regular expression patterns identify important files:
 
@@ -244,11 +244,18 @@ To override the default patterns, set `ImportantFilePatterns` in your settings f
 ImportantFilePatterns:
   - '^src/'
   - '^README\.md$'
-  - '^examples/'
+  - '^tests/'
+  - '^\.github/PSModule\.yml$'
+  - '^\.github/workflows/'
 ```
 
 When configured, the provided list fully replaces the defaults. Include the default patterns in your list if you still
-want them to trigger releases.
+want them to trigger the build, test, and publish path.
+
+Recursive [module-local test discovery](pipeline-stages.md#module-local-test-discovery) does not change this trigger.
+With the defaults, a test-only change does not run the important-change build, test, and publish stages because
+`^tests/` is not matched. Add `^tests/` when those changes must exercise the path, plus each settings, workflow, or
+other automation path whose changes need the same validation. Include only paths that should trigger all three stages.
 
 To disable file-change triggering entirely (so that no file changes ever trigger a release), set an empty list in the
 settings file:

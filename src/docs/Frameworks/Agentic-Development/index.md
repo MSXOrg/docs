@@ -13,7 +13,8 @@ A repository adopts the framework by carrying thin agent pointer files and by le
 
 | Page | Description |
 | --- | --- |
-| [Spec](spec.md) | Requirements for the agentic development framework — org-scoped documentation, memory, and pointer files that make agents behave correctly per project. |
+| [Spec](spec.md) | Requirements for refresh-first, index-first agentic development through canonical documentation, memory, and thin pointers. |
 | [Design](design.md) | How the agentic development framework is built — OKF documentation, org memory, thin repo pointers, and deterministic context resolution. |
+| [Memory Repository Template](memory-template.md) | The concrete, copy-pasteable scaffold every organization's memory repository instantiates, and why it deliberately breaks from the Repository Standard. |
 
 <!-- INDEX:END -->

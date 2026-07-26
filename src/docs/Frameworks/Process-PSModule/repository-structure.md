@@ -26,19 +26,23 @@ Process-PSModule expects repositories to follow the staged layout produced by Te
 ├── icon/                                      # Icon assets linked from manifest and documentation
 │   └── icon.png                               # Default module icon (PNG format)
 ├── src/                                       # Module source, see "Module source code structure" below
-├── tests/                                     # Pester suites executed during validation
+├── tests/                                     # Pester suites; the Simple layout is shown
 │   ├── AfterAll.ps1 (optional)                # Cleanup script for ModuleLocal runs
 │   ├── BeforeAll.ps1 (optional)               # Setup script for ModuleLocal runs
-│   └── <ModuleName>.Tests.ps1                 # Primary test entry point
+│   └── <ModuleName>.Tests.ps1                 # Simple: one root-level module suite
 ├── .gitattributes                             # Normalizes line endings across platforms
 ├── .gitignore                                 # Excludes build artifacts from source control
 ├── LICENSE                                    # License text surfaced in manifest metadata
 └── README.md                                  # Repository overview rendered on GitHub and docs landing
 ```
 
+The tree shows the [Simple PowerShell test profile](../../Coding-Standards/PowerShell/Testing.md#simple), not an exclusive test-file shape. Standard keeps one root-level `tests/<Group>.Tests.ps1` file per public function group. Advanced uses recursively discovered subdirectories, and layouts may mix across directories. Process-PSModule defines the exact [per-directory precedence and sibling suppression](pipeline-stages.md#module-local-test-discovery).
+
+These names describe repository conventions, not settings. `.github/PSModule.yml` does not select a test profile. The optional `tests/BeforeAll.ps1` and `tests/AfterAll.ps1` files are root-only workflow phases and are not discovered recursively.
+
 Key expectations:
 
-- Keep at least one exported function under `src/functions/public/` and corresponding tests in `tests/`.
+- Keep at least one exported function under `src/functions/public/` and corresponding tests in `tests/` using a [documented test profile](../../Coding-Standards/PowerShell/Testing.md#module-test-profiles).
 - Keep documentation site configuration in `.github/zensical.toml`.
 - Optional folders (`assemblies`, `formats`, `types`, `variables`, and others) are processed automatically when present.
 - Markdown files in `src/functions/public` subfolders become documentation pages alongside generated help.
