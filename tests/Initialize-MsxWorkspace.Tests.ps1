@@ -53,6 +53,7 @@ Describe 'Initialize-MsxWorkspace context freshness' {
             New-Item -ItemType Directory -Path $workspace, $remotes, $writers -Force | Out-Null
 
             $writerMap = @{}
+            $remoteMap = @{}
             foreach ($name in @('docs', 'memory')) {
                 $remote = Join-Path $remotes "$name.git"
                 $writer = Join-Path $writers $name
@@ -70,12 +71,14 @@ Describe 'Initialize-MsxWorkspace context freshness' {
                 Invoke-Git -WorkingDirectory $checkout -Arguments @('config', 'user.name', 'Fixture Local') | Out-Null
                 Invoke-Git -WorkingDirectory $checkout -Arguments @('config', 'user.email', 'fixture-local@example.invalid') | Out-Null
                 $writerMap[$name] = $writer
+                $remoteMap[$name] = $remote
             }
 
             return [pscustomobject]@{
                 Root = $root
                 Workspace = $workspace
                 Writers = $writerMap
+                Remotes = $remoteMap
                 Docs = Join-Path $workspace 'docs'
                 Memory = Join-Path $workspace 'memory'
             }
@@ -179,5 +182,43 @@ Describe 'Initialize-MsxWorkspace context freshness' {
         $result.ExitCode | Should -Not -Be 0
         $result.Output | Should -Match 'git fetch failed'
         (Invoke-Git -WorkingDirectory $fixture.Docs -Arguments @('rev-parse', 'HEAD')).Trim() | Should -BeExactly $before
+    }
+
+    It 'installs additional project context through plug-in coordinates' {
+        $runner = Join-Path $fixture.Root 'invoke-project-bootstrap.ps1'
+        $bootstrap = $script:bootstrap.Replace("'", "''")
+        $workspace = $fixture.Workspace.Replace("'", "''")
+        $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
+        $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
+        @"
+`$projects = @(
+    @{
+        Name = 'MSXOrg'
+        Path = ''
+        DocsUrl = '$docsRemote'
+        MemoryUrl = '$memoryRemote'
+    }
+    @{
+        Name = 'Project'
+        Path = 'projects/Project'
+        DocsUrl = '$docsRemote'
+        MemoryUrl = '$memoryRemote'
+    }
+)
+& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+exit `$LASTEXITCODE
+"@ | Set-Content -LiteralPath $runner
+
+        $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
+
+        $LASTEXITCODE | Should -Be 0 -Because $output
+        $projectDocs = Join-Path $fixture.Workspace 'projects/Project/docs'
+        $projectMemory = Join-Path $fixture.Workspace 'projects/Project/memory'
+        Test-Path -LiteralPath (Join-Path $projectDocs '.git') | Should -BeTrue
+        Test-Path -LiteralPath (Join-Path $projectMemory '.git') | Should -BeTrue
+        (Invoke-Git -WorkingDirectory $projectDocs -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.docs -Arguments @('rev-parse', 'HEAD')).Trim()
+        (Invoke-Git -WorkingDirectory $projectMemory -Arguments @('rev-parse', 'HEAD')).Trim() |
+            Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.memory -Arguments @('rev-parse', 'HEAD')).Trim()
     }
 }

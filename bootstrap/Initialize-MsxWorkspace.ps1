@@ -3,13 +3,13 @@
 
 <#
 .SYNOPSIS
-    Clone or update the MSX central workspace (docs + memory) in a git-isolated location under $HOME.
+    Clone or update canonical project context repositories in a git-isolated workspace under $HOME.
 
 .DESCRIPTION
     The single starting point for every agent. It ensures the central
-    documentation and memory repositories exist locally under one dedicated
-    workspace, so an agent reads the same evergreen docs and the same prior
-    memory regardless of which repository it is working in.
+    documentation and memory repositories for each configured project exist
+    locally under one dedicated workspace, so an agent reads current canonical
+    context regardless of which repository it is working in.
 
     The workspace is deliberately kept separate from the repositories an agent
     works in:
@@ -17,10 +17,10 @@
     - Each clone gets repository-local git config only. Nothing here modifies the
       global git config or the working repository's config; git still reads global
       and system config as usual, but this script writes only repository-local config.
-    - Documentation (MSXOrg/docs) is context and is changed through pull requests
-      only; this script never pushes its main branch.
-    - Memory (MSXOrg/memory) is append-only context; notes are committed and
-      pushed to main directly, without a pull request.
+    - Documentation is reviewed context and changes through pull requests; this
+      script never pushes a docs repository.
+    - Memory is durable context and follows its owning repository's contribution
+      policy; this script never writes or pushes memory content.
 
     The script is idempotent: it clones what is missing and synchronizes every
     existing context repository to the exact remote default-branch head. It stops
@@ -34,6 +34,18 @@
 .EXAMPLE
     ./Initialize-MsxWorkspace.ps1 -Root /work/.msx -Verbose
     Uses a custom workspace root and logs each step.
+
+.EXAMPLE
+    $projects = @(
+        @{
+            Name = 'PSModule'
+            Path = 'projects/PSModule'
+            DocsUrl = 'https://github.com/PSModule/docs.git'
+            MemoryUrl = 'https://github.com/PSModule/memory.git'
+        }
+    )
+    ./Initialize-MsxWorkspace.ps1 -Project $projects
+    Installs a project's docs and memory under a project-specific workspace path.
 
 .OUTPUTS
     [pscustomobject] with Repository, Path, and Changes for each workspace repository.
@@ -53,7 +65,19 @@ param(
     # The git author email written to each clone's local config.
     [Parameter()]
     [ValidateNotNullOrEmpty()]
-    [string] $UserEmail = 'MariusStorhaug@users.noreply.github.com'
+    [string] $UserEmail = 'MariusStorhaug@users.noreply.github.com',
+
+    # Projects whose canonical docs and memory repositories must be synchronized.
+    [Parameter()]
+    [ValidateNotNullOrEmpty()]
+    [hashtable[]] $Project = @(
+        @{
+            Name = 'MSXOrg'
+            Path = ''
+            DocsUrl = 'https://github.com/MSXOrg/docs.git'
+            MemoryUrl = 'https://github.com/MSXOrg/memory.git'
+        }
+    )
 )
 
 Set-StrictMode -Version Latest
@@ -63,17 +87,49 @@ if ((-not $PSBoundParameters.ContainsKey('UserName')) -or (-not $PSBoundParamete
     Write-Warning "Using part of the default maintainer identity ($UserName <$UserEmail>). Pass both -UserName and -UserEmail to attribute your own commits (memory pushes to main)."
 }
 
-$repositories = @(
-    [pscustomobject]@{ Name = 'docs'; Url = 'https://github.com/MSXOrg/docs.git'; Changes = 'pull requests' }
-    [pscustomobject]@{ Name = 'memory'; Url = 'https://github.com/MSXOrg/memory.git'; Changes = 'push to main' }
-)
+$repositories = foreach ($projectDefinition in $Project) {
+    foreach ($key in @('Name', 'Path', 'DocsUrl', 'MemoryUrl')) {
+        if (-not $projectDefinition.ContainsKey($key) -or $null -eq $projectDefinition[$key]) {
+            throw "Project definitions require Name, Path, DocsUrl, and MemoryUrl. Missing '$key'."
+        }
+    }
+
+    $projectName = [string] $projectDefinition.Name
+    $projectPath = [string] $projectDefinition.Path
+    if (-not $projectName.Trim()) {
+        throw 'Project Name must not be empty.'
+    }
+    if ([IO.Path]::IsPathRooted($projectPath) -or '..' -in ($projectPath -split '[\\/]')) {
+        throw "Project Path '$projectPath' must be a safe path relative to the workspace root."
+    }
+
+    $docsPath = if ($projectPath) { Join-Path $projectPath 'docs' } else { 'docs' }
+    $memoryPath = if ($projectPath) { Join-Path $projectPath 'memory' } else { 'memory' }
+    [pscustomobject]@{
+        Name = "$projectName/docs"
+        RelativePath = $docsPath
+        Url = [string] $projectDefinition.DocsUrl
+        Changes = 'pull requests'
+    }
+    [pscustomobject]@{
+        Name = "$projectName/memory"
+        RelativePath = $memoryPath
+        Url = [string] $projectDefinition.MemoryUrl
+        Changes = 'repository policy'
+    }
+}
+
+$duplicatePaths = $repositories | Group-Object RelativePath | Where-Object Count -gt 1
+if ($duplicatePaths) {
+    throw "Project definitions contain duplicate workspace paths: $($duplicatePaths.Name -join ', ')."
+}
 
 if ($PSCmdlet.ShouldProcess($Root, 'Create workspace root')) {
     New-Item -ItemType Directory -Force -Path $Root | Out-Null
 }
 
 $results = foreach ($repo in $repositories) {
-    $path = Join-Path $Root $repo.Name
+    $path = Join-Path $Root $repo.RelativePath
     if (Test-Path (Join-Path $path '.git')) {
         if ($PSCmdlet.ShouldProcess($path, 'Fetch and synchronize default branch')) {
             Write-Verbose "Updating $path"
@@ -142,6 +198,7 @@ $results = foreach ($repo in $repositories) {
         }
         if ($PSCmdlet.ShouldProcess($repo.Url, "Clone into '$path'")) {
             Write-Verbose "Cloning $($repo.Url) into $path"
+            New-Item -ItemType Directory -Path (Split-Path -Parent $path) -Force | Out-Null
             git clone --quiet $repo.Url $path
             if ($LASTEXITCODE -ne 0) {
                 throw "git clone failed for $($repo.Url) (exit $LASTEXITCODE). Check access and credentials (MSXOrg/memory is private)."

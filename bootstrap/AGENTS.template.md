@@ -2,6 +2,10 @@
 
 The single starting point for any agent, in any repository. Before doing anything else, make sure the central workspace exists locally, then read from it.
 
+## Main directive
+
+Everything is a work in progress and can be updated and improved. Fix a small problem when it is directly in scope; register a larger or unrelated problem as an issue in the repository that owns it.
+
 ## First — bootstrap the workspace
 
 The workspace is a git-isolated clone of the central repositories under `~/.msx`. Set it up before reading context. Existing context repositories must be clean, on their default branch, and exactly synchronized with the remote:
@@ -44,11 +48,28 @@ if (-not (Test-Path (Join-Path $docs '.git'))) {
         throw "$docs is not exactly synchronized with origin/main. Reconcile local commits before using this context."
     }
 }
-pwsh (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1')
+$projects = @(
+    @{
+        Name = 'MSXOrg'
+        Path = ''
+        DocsUrl = 'https://github.com/MSXOrg/docs.git'
+        MemoryUrl = 'https://github.com/MSXOrg/memory.git'
+    }
+    # Add project-specific entries when this template is adopted there:
+    # @{
+    #     Name = 'PSModule'
+    #     Path = 'projects/PSModule'
+    #     DocsUrl = 'https://github.com/PSModule/docs.git'
+    #     MemoryUrl = 'https://github.com/PSModule/memory.git'
+    # }
+)
+& (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1') -Project $projects
 if ($LASTEXITCODE -ne 0) {
-    throw "MSX workspace synchronization failed. Do not read context until every repository is current."
+    throw "Context synchronization failed. Do not read context until every project is current."
 }
 ```
+
+Keep the MSXOrg entry and add only the additional project coordinates required by repositories that inherit this template. Every project reuses the same synchronization and validation implementation.
 
 This produces:
 
@@ -67,6 +88,14 @@ Each clone has repository-local git config only; it never modifies the global gi
 4. Read the relevant standards, repository context, and `~/.msx/memory`.
 
 Clear task language may shortcut the index trail: `Review this PR <link>` enters Review, `Make this issue <description>` enters Define, and `Implement <issue>` enters Implement. The linked documentation owns each procedure; this file does not define a separate agent or skill.
+
+## Work in the selected repository
+
+1. Read its `README.md` to understand the repository and its build.
+2. Read its `CONTRIBUTING.md` for the contribution and review contract.
+3. Use a dedicated worktree and the branch naming defined by the canonical Ways of Working.
+4. Make small, descriptive micro-commits and push every commit so remote state, CI, and the draft pull request stay current.
+5. Capture verified reusable lessons in organization memory, following that repository's own instructions.
 
 ## Two write rules
 

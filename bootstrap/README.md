@@ -11,6 +11,7 @@ The single starting point for agents: a git-isolated local clone of the MSX cent
 
 - `~/.msx/docs` is **read context** — the ways of working, coding standards, and agent workflow. Changes to it go through **pull requests**.
 - `~/.msx/memory` is **append-only context** — durable notes and session history. Changes to it are **pushed to main**.
+- `~/.msx/projects/<project>/{docs,memory}` holds optional project-specific context added through bootstrap plug-ins.
 
 > **Prerequisite:** `MSXOrg/memory` is a private repository — the bootstrap needs access to it (and working github.com credentials) to clone or update memory.
 
@@ -67,6 +68,30 @@ if ($LASTEXITCODE -ne 0) {
     throw "MSX workspace synchronization failed. Do not read context until every repository is current."
 }
 ```
+
+## Add project context
+
+The default project is MSXOrg. A repository in another project declares additional docs and memory coordinates in its agent installation chapter and passes them to the same bootstrap:
+
+```powershell
+$projects = @(
+    @{
+        Name = 'MSXOrg'
+        Path = ''
+        DocsUrl = 'https://github.com/MSXOrg/docs.git'
+        MemoryUrl = 'https://github.com/MSXOrg/memory.git'
+    }
+    @{
+        Name = 'PSModule'
+        Path = 'projects/PSModule'
+        DocsUrl = 'https://github.com/PSModule/docs.git'
+        MemoryUrl = 'https://github.com/PSModule/memory.git'
+    }
+)
+& (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1') -Project $projects
+```
+
+Each plug-in uses the same fail-closed freshness validation. `Path` is relative to `~/.msx`, so projects can choose a collision-free location without forking the bootstrap.
 
 Wire it into the tools so it runs as the first instruction:
 
