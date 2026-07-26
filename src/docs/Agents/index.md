@@ -17,8 +17,8 @@ The lifecycle runs **Define → Implement → Review**: capture and plan the wor
 
 | Page | Description |
 | --- | --- |
-| [Define](define.md) | Capture, refine, and plan a change into an actionable issue ready for implementation. |
-| [Implement](implement.md) | Take a planned issue and deliver it as a review-ready pull request — branch, build, self-review, and finalize. |
+| [Define](define.md) | Capture, route, refine, and plan work at the correct native issue altitude. |
+| [Implement](implement.md) | Take one ready Task or Bug and deliver it as a review-ready pull request. |
 | [Reviewer](reviewer.md) | Review someone else's pull request for delivery, taste, security, and undiscussed decisions. |
 | [Security Reviewer](security-reviewer.md) | A structured, defensive security review that reports vulnerabilities as an actionable responsible-disclosure issue. |
 | [Agent Author](agent-author.md) | Create and maintain the agent role descriptions and the per-repository pointer files that reference them. |

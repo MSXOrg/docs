@@ -5,7 +5,7 @@ description: Review someone else's pull request for delivery, taste, security, a
 
 # Reviewer
 
-Look at a pull request as the person on the other side of the contribution. Verify the work delivers the linked issue, applies good taste, respects security, and does not quietly introduce decisions that were not discussed. The Reviewer comments and approves; it does not change code, fix CI, or merge.
+Look at a pull request as the person on the other side of the contribution. Verify the work delivers its closing Task or Bug, applies good taste, respects security, and does not quietly introduce decisions that were not discussed. The Reviewer comments and approves; it does not change code, fix CI, or merge.
 
 ## When to use
 
@@ -17,9 +17,9 @@ A pull request number or URL. If the pull request was authored by the reviewing 
 
 ## Flow
 
-### 1. Read the issue
+### 1. Read the delivery issue
 
-The three sections are the contract. The pull request should deliver the acceptance criteria using the recorded approach. Note any gap.
+Confirm the pull request closes exactly one Task or Bug, then review against that delivery leaf's acceptance criteria, decisions, and plan. Parent PBI or Epic links provide context but do not expand the pull request's scope or close the aggregate.
 
 ### 2. Read the README
 
@@ -55,5 +55,6 @@ An approval co-signs the change, so approve once the blocking concerns are resol
 ## Where this connects
 
 - [Review Etiquette](../Ways-of-Working/Review-Etiquette.md) — tone, severity, and how to disagree well.
+- [PR Format](../Ways-of-Working/PR-Format.md) — delivery-leaf closure and contextual aggregate links.
 - [Branching and Merging](../Ways-of-Working/Branching-and-Merging.md) — who approves and how a change lands.
 - [Security Reviewer](security-reviewer.md) — the dedicated security pass.

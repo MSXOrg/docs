@@ -107,7 +107,7 @@ See [Commit Conventions](Commit-Conventions.md), [PR Format](PR-Format.md), [Con
 
 Every change gets a second perspective:
 
-- Does the PR deliver what the linked issue asks for?
+- Does the PR deliver what its closing Task or Bug asks for?
 - Does it follow the project's standards and conventions?
 - Are there security concerns or undiscussed decisions?
 - Is the code clear and maintainable?

@@ -1,11 +1,11 @@
 ---
 title: Define
-description: Capture, refine, and plan a change into an actionable issue ready for implementation.
+description: Capture, route, refine, and plan work at the correct native issue altitude.
 ---
 
 # Define
 
-Take something someone wants — a feature, a bug, an improvement, external feedback, or a production signal — and turn it into a planned, actionable issue. The output is either a single Task with its three sections populated, or a decomposed initiative with structured sub-issues. Define plans work; it does not build it.
+Take something someone wants — a feature, a bug, an improvement, external feedback, or a production signal — and route it to the correct native issue type. The output is an Epic or PBI ready to coordinate and decompose, or a Task or Bug ready for delivery. Define plans work; it does not build it.
 
 ## When to use
 
@@ -19,10 +19,10 @@ A description of a desired change, a feedback issue from a non-contributor (trea
 
 ### 1. Capture
 
-Turn the input into an issue with Section 1 (context and request).
+Turn the input into an issue with a provisional native type and enough local context to refine it.
 
 1. Search for duplicates first — propose consolidation rather than creating a new issue.
-2. Frame from the user's perspective per [Issue Format](../Ways-of-Working/Issues/Process/Format.md).
+2. Follow the universal [Issue Format](../Ways-of-Working/Issues/Process/Format.md) and the selected type page for its body.
 3. Acceptance criteria must be user-observable and testable.
 
 ### 2. Refine
@@ -38,21 +38,22 @@ Ground the issue so anyone reading it agrees on what "done" means, up to the [De
 
 Decide how the work will happen and record the decisions.
 
-1. **Task** — one deliverable, one pull request. Populate the technical decisions and the implementation plan per [Issue Format](../Ways-of-Working/Issues/Process/Format.md).
-2. **Larger work** — decompose into child issues per [Issue Hierarchy](../Ways-of-Working/Issues/Types/Hierarchy.md).
-3. Find the minimum viable path — spike, then proof of concept, then minimum viable product, then improve.
-4. Record decisions with their rationale and the alternatives considered.
-5. Resolve open questions before finishing; defer anything that does not block this slice to a follow-up issue.
+1. Route the work through the [Issue Hierarchy](../Ways-of-Working/Issues/Types/Hierarchy.md); do not infer altitude from effort, priority, or a legacy label.
+2. For an Epic or PBI, establish native containment and dependency relationships and refine the first required children to their own readiness gates.
+3. For a Task or Bug, produce one executable delivery plan sized for one pull request. Use the audited operational Task path only when no repository artifact exists.
+4. Find the minimum viable path — spike, then proof of concept, then minimum viable product, then improve.
+5. Record decisions at the issue's [planning altitude](../Ways-of-Working/Issues/Process/Planning.md), with rationale and alternatives where they matter.
+6. Resolve open questions before finishing; defer anything that does not block this slice to a follow-up issue.
 
 ## Operating rules
 
 1. Tone is impersonal. The issue description is the source of truth; comments record what changed.
 2. External references are hyperlinks.
 3. Do not modify a feedback issue from a non-contributor — create an internal issue and cross-link.
-4. Stop when the issue is plannable. Do not build, branch, or open pull requests — that is [Implement](implement.md).
+4. Stop when the issue meets the readiness gate for its altitude. Do not build, branch, or open pull requests — that is [Implement](implement.md).
 
 ## Where this connects
 
 - [Workflow](../Ways-of-Working/Workflow.md) — the loop this opens.
-- [Issue Format](../Ways-of-Working/Issues/Process/Format.md) and [Issue Hierarchy](../Ways-of-Working/Issues/Types/Hierarchy.md) — issue structure and levels.
+- [Issue Format](../Ways-of-Working/Issues/Process/Format.md), [Issue Planning](../Ways-of-Working/Issues/Process/Planning.md), [Issue Relationships](../Ways-of-Working/Issues/Process/Relationships.md), and [Issue Hierarchy](../Ways-of-Working/Issues/Types/Hierarchy.md) — canonical issue ownership.
 - [Definition of Ready and Done](../Ways-of-Working/Definition-of-Ready-and-Done.md) — the readiness bar this aims for.

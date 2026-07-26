@@ -22,7 +22,7 @@ How changes move from a working branch into a protected branch. The model is sma
 
 ## Stacked pull requests
 
-Use a stack when several reviewable changes depend on one another and cannot land independently. Each layer remains one Task issue, one branch, and one pull request; the stack only records their dependency and order. Independent changes use separate branches from the default branch instead.
+Use a stack when several reviewable changes depend on one another and cannot land independently. Each layer remains one Task or Bug, one branch, and one pull request; the stack only records their dependency and order. Independent changes use separate branches from the default branch instead.
 
 Build the stack from its destination upward:
 
