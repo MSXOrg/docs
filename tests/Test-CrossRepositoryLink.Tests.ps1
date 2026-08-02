@@ -75,6 +75,7 @@ Describe 'Test-CrossRepositoryLink' {
                     Write-StubResponse -Context $context -Status 404 -Body '{"message":"Not Found"}'
                 } catch {
                     # A stub that dies takes the whole suite with it; keep serving.
+                    Write-Verbose "Stub API request failed: $($_.Exception.Message)"
                 }
             }
         }
@@ -97,7 +98,7 @@ Describe 'Test-CrossRepositoryLink' {
                 .OUTPUTS
                 [pscustomobject]
             #>
-            [CmdletBinding()]
+            [CmdletBinding(SupportsShouldProcess)]
             param(
                 # The Markdown body written to 'src/docs/Page.md'.
                 [Parameter(Mandatory)]
@@ -113,6 +114,9 @@ Describe 'Test-CrossRepositoryLink' {
             )
 
             $base = Join-Path ([System.IO.Path]::GetTempPath()) "xrepo-link-$([guid]::NewGuid().ToString('N'))"
+            if (-not $PSCmdlet.ShouldProcess($base, 'Create cross-repository link fixture')) {
+                return
+            }
             $scripts = New-Item -ItemType Directory -Path (Join-Path $base 'repo/.github/scripts')
             $docs = New-Item -ItemType Directory -Path (Join-Path $base 'repo/src/docs')
             $store = New-Item -ItemType Directory -Path (Join-Path $base 'api')
@@ -181,7 +185,7 @@ Describe 'Test-CrossRepositoryLink' {
                 [psobject] $Fixture
             )
 
-            $output = & $script:pwsh -NoProfile -File $Fixture.ScriptPath -ApiBaseUri $Fixture.ApiBaseUri 2>&1 | Out-String
+            $output = & $script:pwsh -NoProfile -File $Fixture.ScriptPath -ApiBaseUri $Fixture.ApiBaseUri -SelfRepository 'MSXOrg/docs' 2>&1 | Out-String
 
             return [pscustomobject]@{
                 ExitCode = $LASTEXITCODE
@@ -463,32 +467,6 @@ See the [guide](https://github.com/PSModule/Private/blob/main/docs/Guide.md).
 }
 
 Describe 'ConvertTo-GitHubSlug' {
-    # Discovery-time, because '-ForEach' is expanded before 'BeforeAll' ever runs.
-    #
-    # The expected values are a recorded fixture, not a second derivation: each one was
-    # produced by running github-slugger 2.0.0 - the library GitHub's own anchors come
-    # from - over the heading on the left. Regenerate with:
-    #   npm install github-slugger
-    #   node -e "import('github-slugger').then(m=>{const s=new m.default();console.log(s.slug('Hello, world!'))})"
-    BeforeDiscovery {
-        $slugOracle = @(
-            @{ Heading = 'Hello, world!'; Slug = 'hello-world' }
-            @{ Heading = 'Prefer .NET for the actual work'; Slug = 'prefer-net-for-the-actual-work' }
-            @{ Heading = "Don't mock what you don't own"; Slug = 'dont-mock-what-you-dont-own' }
-            @{ Heading = "Hello $([char]0x2014) world"; Slug = 'hello--world' }
-            @{ Heading = "Gr$([char]0x00FC)nanlage"; Slug = "gr$([char]0x00FC)nanlage" }
-            @{ Heading = 'CI/CD pipeline'; Slug = 'cicd-pipeline' }
-            @{ Heading = "Bruksordning for veg - $([char]0x00A7) 3-8"; Slug = 'bruksordning-for-veg----3-8' }
-            @{ Heading = 'A heading with  double  spaces'; Slug = 'a-heading-with--double--spaces' }
-            @{ Heading = 'snake_case and kebab-case'; Slug = 'snake_case-and-kebab-case' }
-            @{ Heading = '100% coverage?'; Slug = '100-coverage' }
-            @{ Heading = "$([char]0x041F)$([char]0x0440)$([char]0x0438)$([char]0x0432)$([char]0x0435)$([char]0x0442) non-latin $([char]0x4F60)$([char]0x597D)"; Slug = "$([char]0x043F)$([char]0x0440)$([char]0x0438)$([char]0x0432)$([char]0x0435)$([char]0x0442)-non-latin-$([char]0x4F60)$([char]0x597D)" }
-            @{ Heading = 'env vars & secrets'; Slug = 'env-vars--secrets' }
-            @{ Heading = 'parens (like this)'; Slug = 'parens-like-this' }
-            @{ Heading = "emoji $([char]::ConvertFromUtf32(0x1F680)) heading"; Slug = 'emoji--heading' }
-        )
-    }
-
     BeforeAll {
         # Load the function without running the script: a script that did work merely by
         # being dot-sourced would violate the Scripts standard, and parsing keeps the test
@@ -502,7 +480,28 @@ Describe 'ConvertTo-GitHubSlug' {
         . ([scriptblock]::Create($definition.Extent.Text))
     }
 
-    It "slugs '<Heading>' as '<Slug>'" -ForEach $slugOracle {
+    # The expected values are a recorded fixture, not a second derivation: each one was
+    # produced by running github-slugger 2.0.0 - the library GitHub's own anchors come
+    # from - over the heading on the left. The cases are written inline because '-ForEach'
+    # is expanded at discovery, before any 'BeforeAll' has run. Regenerate with:
+    #   npm install github-slugger
+    #   node -e "import('github-slugger').then(m=>{const s=new m.default();console.log(s.slug('Hello, world!'))})"
+    It "slugs '<Heading>' as '<Slug>'" -ForEach @(
+        @{ Heading = 'Hello, world!'; Slug = 'hello-world' }
+        @{ Heading = 'Prefer .NET for the actual work'; Slug = 'prefer-net-for-the-actual-work' }
+        @{ Heading = "Don't mock what you don't own"; Slug = 'dont-mock-what-you-dont-own' }
+        @{ Heading = "Hello $([char]0x2014) world"; Slug = 'hello--world' }
+        @{ Heading = "Gr$([char]0x00FC)nanlage"; Slug = "gr$([char]0x00FC)nanlage" }
+        @{ Heading = 'CI/CD pipeline'; Slug = 'cicd-pipeline' }
+        @{ Heading = "Bruksordning for veg - $([char]0x00A7) 3-8"; Slug = 'bruksordning-for-veg----3-8' }
+        @{ Heading = 'A heading with  double  spaces'; Slug = 'a-heading-with--double--spaces' }
+        @{ Heading = 'snake_case and kebab-case'; Slug = 'snake_case-and-kebab-case' }
+        @{ Heading = '100% coverage?'; Slug = '100-coverage' }
+        @{ Heading = "$([char]0x041F)$([char]0x0440)$([char]0x0438)$([char]0x0432)$([char]0x0435)$([char]0x0442) non-latin $([char]0x4F60)$([char]0x597D)"; Slug = "$([char]0x043F)$([char]0x0440)$([char]0x0438)$([char]0x0432)$([char]0x0435)$([char]0x0442)-non-latin-$([char]0x4F60)$([char]0x597D)" }
+        @{ Heading = 'env vars & secrets'; Slug = 'env-vars--secrets' }
+        @{ Heading = 'parens (like this)'; Slug = 'parens-like-this' }
+        @{ Heading = "emoji $([char]::ConvertFromUtf32(0x1F680)) heading"; Slug = 'emoji--heading' }
+    ) {
         ConvertTo-GitHubSlug -Text $Heading | Should -BeExactly $Slug
     }
 }
