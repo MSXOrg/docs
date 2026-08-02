@@ -14,7 +14,7 @@
     - A heading anchor ('target.md#section', or a same-page '#section') must match
       a heading in the target file. Slugs are computed the same way the site's
       Markdown processor does, including the '_1', '_2' suffixes for duplicate
-      headings; an explicit attr_list id ('## Heading { #id }') is recognised as
+      headings; an explicit attr_list id ('## Heading {#id}') is recognised as
       the heading's anchor.
 
     External links (http, https, mailto, tel), absolute paths, links inside fenced
@@ -80,7 +80,7 @@ function Get-HeadingSlug {
         .DESCRIPTION
         Return each heading's anchor, matching the duplicate-slug suffixing
         ('_1', '_2', ...) the Markdown processor applies to repeated headings. A
-        heading may also carry an explicit attr_list id ('## Heading { #id }'),
+        heading may also carry an explicit attr_list id ('## Heading {#id}'),
         which the site renderer uses as the anchor verbatim, overriding the text
         slug; those are recognised so links to '#id' validate. Fenced code blocks
         are skipped.
@@ -106,7 +106,7 @@ function Get-HeadingSlug {
         if ($inFence) { continue }
         if ($line -match '^#{1,6}\s+(.+?)\s*$') {
             $text = $matches[1]
-            # An explicit attr_list id ('{ #id }' or '{: #id ... }') wins over
+            # An explicit attr_list id ('{#id}' or '{: #id ... }') wins over
             # the text slug, exactly as python-markdown's attr_list assigns it.
             if ($text -match '\{\s*:?\s*#([-\w]+)[^}]*\}\s*$') {
                 $slugs.Add($matches[1])

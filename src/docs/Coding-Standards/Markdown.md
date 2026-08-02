@@ -31,8 +31,11 @@ These overrides and defaults are active, so author to them:
 | MD026 | Headings do not end with trailing punctuation (`. , ; : !`). |
 | MD046 | Code blocks are **fenced** (` ``` `), never indented. |
 | MD048 | Code fences use **backticks**, not tildes. |
+| MD051 | Link fragments resolve — a `#anchor` must match a real heading. A heading's custom anchor is written `{#id}`, with no spaces inside the braces. |
 
 Beyond these the linter runs the default ruleset, so also honour its common defaults: headings tagged with a language on every code fence, no trailing whitespace, and a single trailing newline.
+
+MD051 validates **same-file** fragments only. A cross-file fragment such as `spec.md#fr1` is never examined by the linter, so a clean lint run is not evidence that cross-file anchors resolve — a repository that relies on them needs its own link checker as well (in this repository, `.github/scripts/Test-DocumentationLink.ps1`).
 
 ## Relaxed on purpose
 
@@ -54,6 +57,7 @@ These rules are disabled or widened so they do not flag valid documentation — 
 - **Surround headings, lists, and fenced blocks with a blank line** for readability, even though the linter no longer enforces it.
 - **Prefer relative links** within a repository; use the canonical published URL for cross-repository references.
 - **Give a repeated or long link a reference-style definition** (`[text][ref]`, with `[ref]: url` listed below) so the prose stays readable and one edit updates every use.
+- **Write a heading's custom anchor as `{#id}`** when it must stay linkable under a stable identifier. [`attr_list`](https://python-markdown.github.io/extensions/attr_list/) also accepts `{ #id }` and `{: #id }` and renders all three identically, but markdownlint reads only the unspaced form — the others leave the heading on its slugified anchor, so same-page references to the identifier are reported as broken fragments and cross-file ones break silently. [Spec-Driven Development](../Ways-of-Working/Spec-Driven-Development.md#requirements) owns the FR/NFR identifiers themselves; the syntax applies to any page.
 - **Tag every code fence with a language** (` ```bash `, ` ```yaml `) so it is highlighted and converts cleanly when published.
 - **Wrap code, commands, filenames, and identifiers in backticks** rather than bold or italic, so they read as code and do not lean on the emphasis the linter now allows freely.
 - **Give every image descriptive alt text** — `![what the image shows](diagram.png)` — so it serves screen readers and still says something when the image fails to load; use a relative path for images kept in the repository.
