@@ -59,7 +59,7 @@ Each repository carries an `AGENTS.md` that routes an agent from the repository'
 
 Any new runtime follows the same pattern, regardless of vendor:
 
-- A **context pointer** that identifies the canonical docs and memory root indexes.
+- A **route to the router** — a file under the name that runtime reads, pointing at `AGENTS.md`. It does not name the docs and memory roots itself; the router already does.
 - Optional **keyword shortcuts** that route a clearly stated task to the matching [Workflow stage](Workflow.md#find-the-current-stage) without copying its procedure.
 - **Tool-specific settings** — permissions, model selection, and the like.
 
