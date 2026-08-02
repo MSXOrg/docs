@@ -144,8 +144,8 @@ flowchart TD
   psmodule --> refresh
   refresh --> repo["Read README, CONTRIBUTING,<br/>and local docs"]
   repo --> path["Apply path-scoped local rules"]
-  path --> initiative["Read the initiative's<br/>governing documentation"]
-  initiative --> docs["Read central docs index"]
+  path --> orgdocs["Read organization<br/>documentation"]
+  orgdocs --> docs["Read inherited<br/>ecosystem documentation"]
   docs --> workflow["Follow indexes to Workflow"]
 
   workflow --> stage["Infer current stage<br/>read canonical procedure"]
