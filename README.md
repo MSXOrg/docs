@@ -35,7 +35,3 @@ src/
   overrides/           # theme overrides
 bootstrap/             # the user-global agent workspace setup
 ```
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) — it covers the authoring conventions, the local build, and how a change reaches `main`.
