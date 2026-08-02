@@ -25,7 +25,7 @@ Every repository must carry the files that make it understandable and governable
 | `SECURITY.md` | Explains supported versions and private vulnerability reporting. |
 | `SUPPORT.md` | Explains where users ask for help. |
 | `CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
-| `AGENTS.md` | Cross-tool agent router at the repository root: it carries local operating nuance and sends an agent outward to the initiative and central documentation, then to memory. |
+| `AGENTS.md` | Cross-tool agent router at the repository root: a short ordered list of where to read, from this repository's own files outward to the initiative and central documentation, then to memory. |
 | `.claude/CLAUDE.md` | Routes Claude Code to the router by importing `../AGENTS.md`. |
 | `.github/copilot-instructions.md` | Routes the Copilot surfaces that do not read `AGENTS.md` to the router. |
 | `.github/dependabot.yml` | Configures ecosystem-appropriate dependency-update pull requests. The `github-actions` ecosystem is expected in virtually every repository; add the language, package, container, or infrastructure ecosystems the repository actually develops in. |
