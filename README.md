@@ -75,7 +75,3 @@ cd src
 zensical serve    # live preview at http://localhost:8000
 zensical build    # output to src/site
 ```
-
-## Contributing
-
-Every change lands through a pull request — nothing goes directly to `main`. Branch, build, open a draft PR, and let CI validate it. See the [Ways of Working](https://msxorg.github.io/docs/Ways-of-Working/) for the full workflow.
