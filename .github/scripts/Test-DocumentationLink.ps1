@@ -18,7 +18,8 @@
       the heading's anchor.
 
     External links (http, https, mailto, tel), absolute paths, links inside fenced
-    code blocks, and links inside inline code spans are ignored on purpose.
+    code blocks, links inside inline code spans, and the prose body of a GFM
+    footnote definition ('[^1]: ...') are ignored on purpose.
 
     The script changes nothing. It exits 0 when every link resolves and exits 1,
     listing each broken link, otherwise - so it can gate a pull request and a push
@@ -209,9 +210,13 @@ function Get-LinkTargetIssue {
 # The inline target may carry an optional title ("...", '...', or (...)); the
 # nested-paren alternative keeps a parenthesised title from being truncated. The
 # definition destination is either an angle-bracketed path (which may contain
-# spaces) or a bare non-whitespace token.
+# spaces) or a bare non-whitespace token. A label starting with '^' is a footnote
+# definition ('[^1]: some prose'), whose body is prose rather than a destination,
+# so it is excluded - otherwise the footnote's first word is validated as a
+# relative path and every footnote on the page is reported as a broken link. An
+# inline link inside that prose is still caught by $linkPattern.
 $linkPattern = '\[[^\]]*\]\(([^()]*(?:\([^()]*\)[^()]*)*)\)'
-$refDefPattern = '^\s*\[[^\]]+\]:\s+(<[^>]+>|\S+)'
+$refDefPattern = '^\s*\[(?!\^)[^\]]+\]:\s+(<[^>]+>|\S+)'
 $broken = [System.Collections.Generic.List[string]]::new()
 $scanned = 0
 
