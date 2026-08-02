@@ -159,14 +159,14 @@ Canonical context is read from the clones the gate validated. A **working checko
 
 The reason is that a working checkout has no freshness gate. Nothing fetches it, nothing fails when it falls behind, and a superseded page in it is still present and still readable — so the failure is silent and self-confirming. A working checkout of this repository was found 26 commits behind its remote head, clean and zero commits ahead, simply neglected; it predated the Ways of Working restructure and so still carried a page that had been replaced upstream. A task prompt authored from that checkout named the replaced page as the authority for its format, citing a path that had not existed for 26 commits. The agent that received the prompt could not tell, because the page it was sent to opened.
 
-One command settles it for any checkout, and it changes nothing in the working tree:
+Whether a given checkout is current is decided by a fetch and a count, neither of which changes anything in the working tree:
 
 ```powershell
 git -C <path> fetch origin --quiet
-git -C <path> rev-list --left-right --count HEAD...origin/main
+git -C <path> rev-list --left-right --count HEAD...origin/<default-branch>
 ```
 
-The two numbers are the commits the checkout is ahead of, and behind, the remote head — substitute the repository's own default branch where it is not `main`. Anything other than zero behind means it is not fit to be read as guidance: read the validated clone instead, or bring the checkout to the remote head before trusting a word of it. Editing documentation through a working checkout is unchanged by this — the checkout is where a change is written, not where the rules are read.
+The two numbers are the commits the checkout is ahead of, and behind, the remote head. Both must be zero — the same bar the gate applies, where being ahead or diverged fails just as being behind does. Anything else means the checkout is not fit to be read as guidance: read the validated clone instead, or bring the checkout to the remote head before trusting a word of it. Editing documentation through a working checkout is unchanged by this — the checkout is where a change is written, not where the rules are read.
 
 ## Where this connects
 
