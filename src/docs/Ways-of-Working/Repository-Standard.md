@@ -13,6 +13,8 @@ Initiative standards operate at the same altitude as this standard, not beneath 
 
 This page defines the repository-level contract. Initiative documentation defines implementation details such as exact file templates, managed-file source paths, and rollout automation.
 
+Which natural language each repository artifact is written in follows [Natural Language](../Coding-Standards/Natural-Language.md).
+
 ## Required files
 
 Every repository must carry the files that make it understandable and governable on its own.
@@ -71,6 +73,8 @@ Default expectations by repository type:
 | GitHub Actions | The README is the main documentation surface because GitHub Actions users expect inputs, outputs, permissions, and examples next to `action.yml`. |
 | Reusable workflows | The README is the main documentation surface because callers need workflow interface, permissions, secrets, and examples in the repository. |
 | Documentation repositories | The published site is the product. The repository README explains what the source repository is and how it is laid out, and points to `CONTRIBUTING.md` for the authoring conventions and the local build. |
+
+Documentation content lives in one folder, never spread across the repository root. A repository whose product is content — a documentation site, a reference collection, an archive of external material — keeps that content under a single documentation root: `docs/` by default, or a generator's source root such as `src/docs/` when the site tooling needs one. The repository root stays reserved for the README, the tooling, and the governance files, so a reader can tell content from machinery without opening a folder.
 
 Initiative docs define the implementation: exact folder layout, publishing workflow, URL convention, and which repositories are exceptions. MSX defines the expectation that product docs have an owner and that README pages stay small.
 
@@ -157,5 +161,6 @@ For example, PSModule can define its module-specific managed files in `PSModule/
 - [Repository Type Property](Repository-Type-Property.md) — the `Type` custom property that classifies a repository and drives which type-specific files and controls apply.
 - [README-Driven Context](Readme-Driven-Context.md) — why the README is the front door.
 - [PR Format](PR-Format.md) — the PR Manager-style title and description format.
+- [Natural Language](../Coding-Standards/Natural-Language.md) — which language each artifact is written in, and how English prose is written.
 - [GitHub Actions](../Coding-Standards/GitHub-Actions.md) — workflow and automation standards.
 - [Dependency Updates](../Capabilities/dependency-updates/spec.md) — supply-chain update requirements.
