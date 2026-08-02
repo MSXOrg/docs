@@ -36,7 +36,7 @@ Every repository must carry the files that make it understandable and governable
 
 Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
 
-The agent files are the one row this table does not spell out. [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries) owns that set — one router at the repository root, plus a route for every client that reads a different filename — and the [agentic development spec](../Capabilities/agentic-development/spec.md) limits what a route may contain: a pointer to the router and, at most, genuinely runtime-specific configuration such as permission scopes, never a reading order, a workflow, or a standard. A repository is audited against that one list, so a second copy here would be a second list to keep in step.
+The agent-file row is the one entry this table does not spell out in full. [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries) owns that set — one router at the repository root, plus a route for every client that reads a different filename — and the [agentic development spec](../Capabilities/agentic-development/spec.md) limits what a route may contain: a pointer to the router and, at most, genuinely runtime-specific configuration such as permission scopes, never a reading order, a workflow, or a standard. A repository is audited against that one list, so a second copy here would be a second list to keep in step.
 
 ## README defaults
 
