@@ -125,7 +125,7 @@ A `.github/instructions/*.instructions.md` file earns its place only when a rule
 
 What survives that test is a genuine local caveat, which is the narrow case these files exist for. They never restate a standard and never define workflow behaviour.
 
-The [agentic development capability](../Capabilities/agentic-development/spec.md) is deliberately broader than this page: it permits any client adapter that points back to the same canonical roots, so an organization adopting the framework can support a runtime this one does not use. This page states what an MSX repository carries.
+The [agentic development capability](../Capabilities/agentic-development/spec.md) is deliberately broader than this page: it permits a route for any client that points back to the same router, so an organization adopting the framework can support a runtime this one does not use. This page states what an MSX repository carries.
 
 ## Distribution
 
