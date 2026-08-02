@@ -314,7 +314,8 @@ explicit result check.
 # Correct — tolerates a skipped optional dependency, still refuses a failed one
 deploy:
   needs: [build, integration-tests]
-  if: ${{ !cancelled() && needs.build.result == 'success' }}
+  # build must have succeeded; integration-tests may be skipped, but not failed
+  if: ${{ !cancelled() && needs.build.result == 'success' && needs.integration-tests.result != 'failure' }}
 ```
 
 Prefer `!cancelled()` over `always()`: a cancelled run should stop, not deploy.
@@ -322,12 +323,13 @@ Check the result of every dependency whose failure should block, not just the
 first — an unchecked dependency in `needs:` no longer gates anything once the
 implicit `success()` is gone.
 
-No linter in the [toolchain](#toolchain) catches this. `actionlint` passes the
-avoid example above with no findings, and `zizmor` audits supply-chain and
-privilege problems rather than reachability, so both report clean on the exact
-diff that introduces it. Catching it would mean deciding whether two `if:`
-expressions can ever be true together, which is beyond what either tool does.
-Reading `needs:` and `if:` together is the only check there is.
+No linter in the [toolchain](#toolchain) catches this. A complete workflow built
+around the avoid example's shape passes `actionlint` with no findings, and
+`zizmor` audits supply-chain and privilege problems rather than reachability, so
+both report clean on the exact diff that introduces it. Catching it would mean
+deciding whether two `if:` expressions can ever be true together, which is beyond
+what either tool does. Reading `needs:` and `if:` together is the only check
+there is.
 
 ### Parallel steps are new and not yet a default
 
