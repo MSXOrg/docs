@@ -49,9 +49,9 @@ current state of the work.
 
 ## Agent workspace
 
-Agents working here read organization memory from `~/.msx/memory`, set up by
-[`bootstrap/Initialize-MsxWorkspace.ps1`](bootstrap/README.md). That bootstrap is
-user-global: it is installed once per machine, not per repository.
+Agents working here read organization memory from `~/.msx/memory`, set up by the
+[workspace bootstrap](bootstrap/README.md). That bootstrap is user-global: it is installed
+once per machine, not per repository.
 
 When a verified lesson is likely to matter again, record it in `~/.msx/memory` and push it
 directly to `main`, following that repository's own contribution guide.
