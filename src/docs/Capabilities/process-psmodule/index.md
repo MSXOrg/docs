@@ -60,7 +60,7 @@ Depending on the labels in the pull requests, the [workflow will result in diffe
 
 The spec and design own the what and how. The pages below are reference documentation for those who implement, configure, and operate the workflow.
 
-Process-PSModule composes its work from reusable workflows, actions, a container image, PowerShell modules, and Python packages. For the full dependency tree, including diagrams and a reference of every dependency, see [DEPENDENCIES.md](https://github.com/PSModule/Process-PSModule/blob/main/DEPENDENCIES.md).
+Process-PSModule composes its work from reusable workflows, actions, a container image, PowerShell modules, and Python packages. The composition itself is the reference: see the [reusable workflows](https://github.com/PSModule/Process-PSModule/tree/main/.github/workflows) and the [actions they call](https://github.com/PSModule/Process-PSModule/tree/main/.github/actions).
 
 <!-- INDEX:START -->
 
