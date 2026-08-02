@@ -7,6 +7,10 @@ description: The baseline files and behaviours every repository must expose so i
 
 A repository is the smallest unit of ownership in the MSX ecosystem. It must explain what it is, how to contribute, how security is handled, how dependencies are kept current, and which standards govern its automation.
 
+The Repository Standard is the default for every repository across the MSX Enterprise, regardless of initiative, organization, or technology. It defines the baseline contract a repository must meet to be understandable, secure, and maintainable on its own.
+
+Initiative standards operate at the same altitude as this standard, not beneath it. An initiative such as PSModule adds to and adjusts these defaults for its repository types rather than merely implementing them. A repository inherits every rule this standard sets unless its initiative explicitly changes it; where an initiative standard adds or overrides a rule, the initiative standard governs that initiative's repositories.
+
 This page defines the repository-level contract. Initiative documentation defines implementation details such as exact file templates, managed-file source paths, and rollout automation.
 
 ## Required files
@@ -21,13 +25,13 @@ Every repository must carry the files that make it understandable and governable
 | `SECURITY.md` | Explains supported versions and private vulnerability reporting. |
 | `SUPPORT.md` | Explains where users ask for help. |
 | `CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
-| `.github/dependabot.yml` | Configures dependency and supply-chain update pull requests. |
+| `AGENTS.md` | Cross-tool agent onboarding entry point that points to the initiative's canonical agent guidance. |
+| `CLAUDE.md` | Claude Code entry point that imports `AGENTS.md` so Claude reads the same guidance. |
+| `.github/dependabot.yml` | Configures ecosystem-appropriate dependency-update pull requests. The `github-actions` ecosystem is expected in virtually every repository; add the language, package, container, or infrastructure ecosystems the repository actually develops in. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
-| `.github/pull_request_template.md` | Guides contributors to provide change type, impact, validation, and links. |
-| `.github/release.yml` | Defines release-note categories where GitHub releases are generated. |
-| `.github/linters/*` | Stores linter configuration derived from the written standards. |
-| `.gitattributes` | Defines Git file handling defaults. |
-| `.gitignore` | Defines files that should not enter version control. |
+| `.github/pull_request_template.md` | Scaffolds pull requests in the MSX [PR Format](PR-Format.md) (PR Manager) style — an icon + change-type + user-facing-outcome title, user-facing description sections, an optional technical-details block, and a related-issues block. |
+| `.gitattributes` | Normalizes line endings and declares text/binary handling so the repository can be developed and built consistently on Linux, macOS, and Windows. |
+| `.gitignore` | Ignores files that must never be committed, tailored to the repository's ecosystem: operating-system files, editor and developer-tooling files, language and test-harness artifacts, and all local build outputs and files created during build and test. |
 
 Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
 
@@ -85,7 +89,7 @@ See [Dependency Updates](../Capabilities/dependency-updates/spec.md) for the cen
 
 ## Linter configuration defaults
 
-Linter configuration must be repository-local when the CI job reads it from the repository. Most shared linter configs live under `.github/linters/`.
+Linter configuration is applied only when the repository actually uses the linter; it is not a mandatory baseline file. Where a linter is used and its CI job reads configuration from the repository, that configuration must be repository-local. Most shared linter configs live under `.github/linters/`.
 
 Examples:
 
@@ -129,7 +133,7 @@ Managed-file pull requests should clearly say:
 
 ## Initiative implementation guidance
 
-The central standard deliberately stops at the requirement level. Initiative repositories own implementation design.
+The central standard deliberately stops at the requirement level, and initiative standards operate at the same altitude rather than beneath it: an initiative adds to and adjusts these defaults for its repository types, and a repository inherits every rule this standard sets unless its initiative explicitly changes it. Where an initiative standard adds or overrides a rule, the initiative standard governs that initiative's repositories. Within that relationship, initiative repositories own implementation design.
 
 An initiative should document:
 
