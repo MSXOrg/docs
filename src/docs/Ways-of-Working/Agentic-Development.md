@@ -82,7 +82,7 @@ One router, and a route for every client that cannot reach it under that name.
 
 1. **`README.md`** — what this repository is and how it builds.
 2. **`CONTRIBUTING.md`** — how a change is made and reviewed here.
-3. **The repository's own `docs/`** — when it has any.
+3. **The repository's own documentation** — conventionally `docs/`, when it has any.
 4. **The initiative's governing documentation** — the standards for this family of repositories.
 5. **The central MSX documentation** — the ecosystem-wide ways of working and coding standards this site owns.
 6. **Memory** — durable lessons from earlier work, read last.

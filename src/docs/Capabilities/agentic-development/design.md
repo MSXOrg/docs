@@ -179,7 +179,7 @@ Read nearest first. A local file never overrides a standard, and memory never
 overrides documentation.
 ```
 
-A repository with no `docs/` of its own drops that line; one that publishes the standards resolves steps 3 and 4 to the same tree and drops the duplicate. The router lists the destinations that exist, in the order above.
+A router lists the destinations that exist in that repository, written as the paths that repository actually uses — the ones above are an example, not a required layout. A repository with no documentation of its own drops that line; one that publishes the standards resolves steps 3 and 4 to the same tree and drops the duplicate. Writing a real path matters more than matching the example, because the router is read literally.
 
 The index trail is the default. A clear prompt can shortcut stage discovery: `Review this PR <link>` enters Review, `Make this issue <description>` enters Define, and `Implement <issue>` enters Implement. These phrases are routing hints interpreted by [Workflow](../../Ways-of-Working/Workflow.md#find-the-current-stage), not commands with independent procedures.
 
@@ -242,8 +242,8 @@ Different clients load different files, but the framework keeps the same depende
 | Client | Reads | Behavior |
 | --- | --- | --- |
 | Cross-client agents | `AGENTS.md` | Read the router, then follow its order outward from the repository to the organization documentation and memory. |
-| Claude Code | `.claude/CLAUDE.md` | Imports `../AGENTS.md` and adds nothing else. |
-| Copilot Chat in VS Code, and the Copilot cloud agent | `AGENTS.md` | Read `AGENTS.md` natively, including its freshness gate. Path-scoped `.github/instructions/*.instructions.md` files still apply when their `applyTo` pattern matches a file being read, generated, reviewed, or edited. |
+| Claude Code | `.claude/CLAUDE.md` | Imports the router with `@../AGENTS.md` and adds nothing else. |
+| Copilot Chat in VS Code, and the Copilot cloud agent | `AGENTS.md` | Read `AGENTS.md` natively and follow its route list. Path-scoped `.github/instructions/*.instructions.md` files still apply when their `applyTo` pattern matches a file being read, generated, reviewed, or edited. |
 | Copilot surfaces without `AGENTS.md` support | `.github/copilot-instructions.md` | Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review outside GitHub.com read this file. It routes them to the router and adds nothing else. |
 | Copilot code review | Head-branch instructions | Reads repository instructions, agent instructions, and skills from the pull request's **head** branch, not the base branch. |
 
