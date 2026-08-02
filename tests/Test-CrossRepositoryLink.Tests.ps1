@@ -434,6 +434,20 @@ See the [guide](https://github.com/PSModule/Demo/blob/main/docs/Guide.md).
             $result.Output | Should -Not -Match 'Broken cross-repository links'
         }
 
+        It 'stops asking once the quota is gone' {
+            $fixture = New-CrossLinkFixture -Content @'
+# Page
+
+See the [guide](https://github.com/PSModule/Demo/blob/main/docs/Guide.md) and the
+[other guide](https://github.com/PSModule/Demo/blob/main/docs/Other.md).
+'@ -Target @{ 'PSModule/Demo/main/docs/Guide.md' = "# Guide`n" } -ForcedStatus 403
+
+            $result = Invoke-CrossLinkFixture -Fixture $fixture
+
+            $result.ExitCode | Should -Be 1
+            @(Get-Content -LiteralPath $fixture.RequestLog).Count | Should -Be 1
+        }
+
         It 'reports a failing request as its own failure' {
             $fixture = New-CrossLinkFixture -Content @'
 # Page

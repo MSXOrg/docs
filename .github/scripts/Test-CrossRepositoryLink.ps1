@@ -388,7 +388,14 @@ function Invoke-GitHubRequest {
                 if ($response.Headers.ContainsKey('x-ratelimit-reset')) {
                     $resetAt = [System.DateTimeOffset]::FromUnixTimeSeconds([long] @($response.Headers['x-ratelimit-reset'])[0]).ToString('u')
                 }
-                return [pscustomobject]@{ StatusCode = $status; Content = ''; Failure = "the GitHub API rate limit is exhausted, resetting at $resetAt" }
+                # Every later request would answer 403 too, so stop asking: the run is
+                # already going to fail, and hammering a closed quota only slows it down.
+                $script:rateLimitReached = if ($env:GITHUB_TOKEN) {
+                    "the GitHub API rate limit is exhausted, resetting at $resetAt"
+                } else {
+                    "the GitHub API rate limit is exhausted, resetting at $resetAt - no GITHUB_TOKEN was set, so the anonymous limit of 60 requests an hour applied"
+                }
+                return [pscustomobject]@{ StatusCode = $status; Content = ''; Failure = $script:rateLimitReached }
             }
             return [pscustomobject]@{ StatusCode = $status; Content = ''; Failure = "the request was refused with HTTP $status after $attempt attempt(s)" }
         }
@@ -409,6 +416,7 @@ function Invoke-GitHubRequest {
 }
 
 $script:responseCache = @{}
+$script:rateLimitReached = $null
 function Get-CachedGitHubRequest {
     <#
         .SYNOPSIS
@@ -418,6 +426,10 @@ function Get-CachedGitHubRequest {
         Memoise Invoke-GitHubRequest, so a target linked from ten pages costs one
         request rather than ten. Documentation repeats its links, and the rate limit
         is the scarce resource here.
+
+        Once the quota is gone it stops asking altogether. Every later request would
+        answer 403 the same way, and the run is already going to fail; continuing to
+        ask only makes it slower and the reason harder to read.
 
         .EXAMPLE
         Get-CachedGitHubRequest -Uri 'https://api.github.com/repos/PSModule/Demo' -MaximumAttempt 3
@@ -437,6 +449,9 @@ function Get-CachedGitHubRequest {
         [Parameter(Mandatory)]
         [int] $MaximumAttempt
     )
+    if ($script:rateLimitReached) {
+        return [pscustomobject]@{ StatusCode = 0; Content = ''; Failure = $script:rateLimitReached }
+    }
     if (-not $script:responseCache.ContainsKey($Uri)) {
         $script:responseCache[$Uri] = Invoke-GitHubRequest -Uri $Uri -MaximumAttempt $MaximumAttempt
     }
