@@ -69,6 +69,8 @@ Default expectations by repository type:
 | Reusable workflows | The README is the main documentation surface because callers need workflow interface, permissions, secrets, and examples in the repository. |
 | Documentation repositories | The published site is the product. The repository README only explains the source repo and local contribution/build entry points. |
 
+Documentation content lives in one folder, never spread across the repository root. A repository whose product is content — a documentation site, a reference collection, an archive of external material — keeps that content under a single documentation root: `docs/` by default, or a generator's source root such as `src/docs/` when the site tooling needs one. The repository root stays reserved for the README, the tooling, and the governance files, so a reader can tell content from machinery without opening a folder.
+
 Initiative docs define the implementation: exact folder layout, publishing workflow, URL convention, and which repositories are exceptions. MSX defines the expectation that product docs have an owner and that README pages stay small.
 
 ## Dependency and supply-chain defaults
