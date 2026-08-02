@@ -253,6 +253,84 @@ jobs:
         uses: ./.github/actions/publish-summary
 ```
 
+### A skipped job in `needs:` skips everything downstream
+
+A job whose `needs:` list contains a **skipped** job is skipped too. This is not
+about failure: `if:` on a job is implicitly wrapped in `success()`, and
+`success()` is false when a dependency was *skipped*, exactly as it is when one
+failed. So adding `needs:` to a job that may not run silently makes every
+dependent job conditional on it as well.
+
+What makes this expensive is the reporting. A skipped job is not a failed job,
+so the run still concludes **success**: a green check on the commit, a green
+pull request, and a satisfied branch protection gate. The only evidence is a job
+that quietly did not appear, and nobody reads a successful run.
+
+The trap is a conditional job *upstream* of an unconditional one — the reverse
+of the `build` / `report` pairing above, where the condition sits on the
+dependent job and the dependency always runs.
+
+```yaml
+# Avoid — the two conditions are mutually exclusive, so publish never runs
+jobs:
+  lint:
+    if: github.event_name == 'pull_request'    # runs only on pull requests
+
+  publish:
+    needs: [build, lint]
+    if: github.event_name != 'pull_request'    # runs only when NOT a pull request
+    # On push, lint is skipped, so publish is skipped — and the run still
+    # reports success. A real occurrence froze a documentation site for two
+    # weeks while every run was green.
+```
+
+Two corrections, and which one applies depends on whether the dependency is real.
+
+**When the edge can never carry a signal, delete it.** Above, `lint` runs only
+on a pull request and `publish` runs only when the event is not a pull request:
+they are mutually exclusive by construction, so no result can ever cross that
+edge in either direction. Neutralizing it with a status function leaves a
+`needs:` list that reads as a lint gate while gating nothing. Remove it, and say
+in a comment why it is absent so it is not reinstated.
+
+```yaml
+# Correct — the dead edge is gone; the implicit success() over build still gates
+publish:
+  # lint is deliberately not a dependency: it only runs on pull_request, which
+  # is exactly when publish must not run, so the edge can never carry a signal.
+  needs: [build]
+  if: github.event_name != 'pull_request'
+```
+
+**When the dependency is real but optional, use a status function — and restore
+the failure gate by hand.** If a job should wait for a dependency that sometimes
+does not run, `if:` has to opt out of the implicit `success()`. That opt-out is
+the whole point, and also the danger: `always()` runs the job even when a
+dependency failed or the run was cancelled, and `!cancelled()` still runs it
+when a dependency failed. Neither is safe on its own, so pair it with an
+explicit result check.
+
+```yaml
+# Correct — tolerates a skipped optional dependency, still refuses a failed one
+deploy:
+  needs: [build, integration-tests]
+  # build must have succeeded; integration-tests may be skipped, but not failed
+  if: ${{ !cancelled() && needs.build.result == 'success' && needs.integration-tests.result != 'failure' }}
+```
+
+Prefer `!cancelled()` over `always()`: a cancelled run should stop, not deploy.
+Check the result of every dependency whose failure should block, not just the
+first — an unchecked dependency in `needs:` no longer gates anything once the
+implicit `success()` is gone.
+
+No linter in the [toolchain](#toolchain) catches this. A complete workflow built
+around the avoid example's shape passes `actionlint` with no findings, and
+`zizmor` audits supply-chain and privilege problems rather than reachability, so
+both report clean on the exact diff that introduces it. Catching it would mean
+deciding whether two `if:` expressions can ever be true together, which is beyond
+what either tool does. Reading `needs:` and `if:` together is the only check
+there is.
+
 ### Parallel steps are new and not yet a default
 
 Every step in a job historically ran in sequence — each starting only once the
