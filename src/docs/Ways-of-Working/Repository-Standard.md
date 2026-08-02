@@ -13,6 +13,8 @@ Initiative standards operate at the same altitude as this standard, not beneath 
 
 This page defines the repository-level contract. Initiative documentation defines implementation details such as exact file templates, managed-file source paths, and rollout automation.
 
+Which natural language each repository artifact is written in follows [Natural Language](../Coding-Standards/Natural-Language.md).
+
 ## Required files
 
 Every repository must carry the files that make it understandable and governable on its own.
@@ -153,5 +155,6 @@ For example, PSModule can define its module-specific managed files in `PSModule/
 - [Repository Type Property](Repository-Type-Property.md) — the `Type` custom property that classifies a repository and drives which type-specific files and controls apply.
 - [README-Driven Context](Readme-Driven-Context.md) — why the README is the front door.
 - [PR Format](PR-Format.md) — the PR Manager-style title and description format.
+- [Natural Language](../Coding-Standards/Natural-Language.md) — which language each artifact is written in, and how English prose is written.
 - [GitHub Actions](../Coding-Standards/GitHub-Actions.md) — workflow and automation standards.
 - [Dependency Updates](../Capabilities/dependency-updates/spec.md) — supply-chain update requirements.
