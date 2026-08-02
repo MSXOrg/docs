@@ -30,14 +30,14 @@ When an agent receives work, it follows the same documentation trail a human can
 
 ```mermaid
 flowchart TD
-  task["Agent receives work"] --> pointer["1 Read AGENTS.md<br/>resolve project docs + memory roots"]
+  task["Agent receives work"] --> pointer["1 Read AGENTS.md<br/>the repository's router"]
   pointer --> refresh["2 Refresh every context repository<br/>stop unless exactly synchronized"]
-  refresh --> root["3 Read docs/index.md"]
-  root --> ways["4 Follow Ways of Working index"]
-  ways --> workflow["5 Read Workflow"]
-  workflow --> stage["6 Infer the current stage<br/>read its procedure"]
-  stage --> context["7 Read relevant standards,<br/>repository context, and memory"]
-  context --> work["Act and follow stage handoffs"]
+  refresh --> repo["3 Read repository context<br/>README, CONTRIBUTING, local docs"]
+  repo --> initiative["4 Read the initiative's<br/>governing documentation"]
+  initiative --> root["5 Read central docs/index.md<br/>follow Ways of Working to Workflow"]
+  root --> stage["6 Infer the current stage<br/>read its procedure and standards"]
+  stage --> memory["7 Read memory last"]
+  memory --> work["Act and follow stage handoffs"]
 ```
 
 Refresh is a gate before traversal, not a best-effort background step. After it passes, the indexes are the default discovery mechanism. [Workflow](Workflow.md) owns the process and routes the work to a [stage procedure](Workflow-Stages/index.md); the stage page then points to the standards and artifacts it consumes. A clear prompt such as `Review this PR <link>` may shortcut directly through the Workflow routing table, but it does not create a second process definition. **Local files never replace central standards — they layer specifics on top.**
@@ -55,7 +55,7 @@ This split follows [Repository Segmentation](Repository-Segmentation.md) and [RE
 
 ## How an agent runtime plugs in
 
-Each repository carries an `AGENTS.md` that points to the organization documentation and memory root indexes. A `CLAUDE.md` or other client adapter may import that pointer and add only the small amount of genuinely tool-specific configuration, such as permission scopes or path matching, that cannot live in ordinary documentation.
+Each repository carries an `AGENTS.md` that routes an agent from the repository's own files outward to the documentation and memory that govern it. A client adapter may import that router and add only the small amount of genuinely tool-specific configuration, such as permission scopes or path matching, that cannot live in ordinary documentation.
 
 Any new runtime follows the same pattern, regardless of vendor:
 
@@ -69,29 +69,68 @@ There is no separate process surface for Define, Implement, or Review. If a clie
 
 | File | Status | Role |
 | --- | --- | --- |
-| `AGENTS.md` | Required | The single agent entry point. Every other agent file points back to it. |
-| `CLAUDE.md` | Required | Claude Code loads `CLAUDE.md` rather than `AGENTS.md`, so the repository keeps a one-line import. |
-| `.github/copilot-instructions.md` | Optional adapter | Only for Copilot surfaces that do not read `AGENTS.md`. |
-| `.github/instructions/*.instructions.md` | Optional | Path-scoped local rules that apply to one repository path and cannot live centrally. |
+| `AGENTS.md` | Required | The agent entry point, at the repository root. A router, not a rulebook. |
+| `.claude/CLAUDE.md` | Required | A single `@../AGENTS.md` import, because Claude Code reads its own filename rather than `AGENTS.md`. |
+| `.github/instructions/*.instructions.md` | Exceptional | A path-scoped caveat that genuinely has nowhere better to live. |
 
-The two required files are listed as such in the [Repository Standard](Repository-Standard.md#required-files). An adapter beyond them is warranted when a runtime surface the repository actually relies on does not read `AGENTS.md`. That is a verifiable question rather than a preference: GitHub's [custom instructions support matrix](https://docs.github.com/en/copilot/reference/custom-instructions-support) records that Copilot Chat in VS Code, the Copilot cloud agent, and Copilot code review on GitHub.com read `AGENTS.md`, while Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review in VS Code read `.github/copilot-instructions.md` instead.
+That is the whole set. A repository carries no Copilot-specific instruction file.
 
-An adapter is not added as a matter of course. A second file that repeats the same pointer is duplication, and duplicated pointers disagree the moment one of them is edited — the failure this whole model exists to prevent. Add the adapter a runtime needs; do not seed one everywhere by default.
+#### What `AGENTS.md` routes to
 
-The [agentic development capability](../Capabilities/agentic-development/spec.md) is deliberately broader than this page: it permits any client adapter that points back to the same canonical roots, so an adopting organization can support whatever runtimes it uses. This page states which files an MSX repository carries by default.
+`AGENTS.md` holds the bootstrap steps an agent needs before it can reach context, and the repository's own operating nuance. Everything else it delegates, in this order:
+
+1. **`README.md`** — what this repository is and how it builds.
+2. **`CONTRIBUTING.md`** — how a change is made and reviewed here.
+3. **The repository's own `docs/`** — when it has any.
+4. **The initiative's governing documentation** — the standards for this family of repositories.
+5. **The central MSX documentation** — the ecosystem-wide ways of working and coding standards this site owns.
+6. **Memory** — durable lessons from earlier work, read last.
+
+Nearest first, widening outward. A repository's own files answer the questions only it can answer, and each step out answers a broader one. The order is written generically on purpose: every initiative resolves step 4 to its own documentation, so the same router works in any organization that adopts this model.
+
+#### Reading order is not authority order
+
+An agent reads nearest-first. Authority runs the other way.
+
+| Layer | Read | Authority |
+| --- | --- | --- |
+| Repository files | First | Add local nuance and narrow exceptions; never silently override a standard. |
+| Initiative documentation | Next | Governs that initiative's repositories, and may adjust an MSX default for them. |
+| Central MSX documentation | Next | The ecosystem default every repository inherits. |
+| Memory | Last | Informs; never governs. Where memory and documentation disagree, the documentation is right and the memory entry is corrected. |
+
+Reading nearest-first is what makes an agent efficient. Letting the nearest file win would make it wrong.
+
+#### Why there is no Copilot-specific file
+
+The runtimes this ecosystem develops in read `AGENTS.md` natively — Copilot Chat in VS Code, the Copilot cloud agent, and Copilot code review on GitHub.com among them. Some surfaces do not: Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review outside GitHub.com read `.github/copilot-instructions.md` instead, as GitHub's [custom instructions support matrix](https://docs.github.com/en/copilot/reference/custom-instructions-support) records.
+
+That gap is real, and it is not closed with a per-repository file. A second file whose content is a pointer to the first is a copy, and copies drift — the failure this whole model exists to prevent. It is closed once at the organization level instead, with [organization custom instructions](Organization-Standard.md#agent-and-human-alignment). Where a surface remains uncovered, that is an accepted cost rather than an invitation to add a file back.
+
+#### Path-scoped instruction files are the exception
+
+A `.github/instructions/*.instructions.md` file earns its place only when a rule applies to one path in one repository and has nowhere better to live. Before adding one, put the rule where it belongs:
+
+- a fact about the repository → `README.md`;
+- a rule about contributing or reviewing → `CONTRIBUTING.md`;
+- anything another repository could reuse → the initiative or central documentation.
+
+What survives that test is a genuine local caveat, which is the narrow case these files exist for. They never restate a standard and never define workflow behaviour.
+
+The [agentic development capability](../Capabilities/agentic-development/spec.md) is deliberately broader than this page: it permits any client adapter that points back to the same canonical roots, so an organization adopting the framework can support a runtime this one does not use. This page states what an MSX repository carries.
 
 ## Distribution
 
 The two non-documentation layers have different distribution models:
 
 - **The canonical process** lives in [Workflow](Workflow.md), which links to ordinary documentation pages for each [stage procedure](Workflow-Stages/index.md).
-- **Per-repository pointer files** — `AGENTS.md`, the `CLAUDE.md` that imports it, and any optional adapter a repository has taken on — are seeded from a template repository and kept current across existing repositories by a sync mechanism. A template seeds the required entry point; an optional adapter is added by the repository that needs it, not distributed to every repository in case one does.
+- **Per-repository pointer files** — `AGENTS.md` and the `.claude/CLAUDE.md` that imports it — are seeded from a template repository and kept current across existing repositories by a sync mechanism. A path-scoped instruction file is written by the repository that needs it and is not distributed.
 
 Process knowledge is never added to a distributed config file. If an agent needs the branch strategy, it goes in [Branching and Merging](Branching-and-Merging.md) or the repo's `CONTRIBUTING.md`; if it needs a coding convention, it goes in the relevant [coding standard](../Coding-Standards/index.md). The config file only points — it never defines.
 
 ## The workspace bootstrap
 
-The **user-global** entry file is a thin **bootstrap**, not a copy of the docs. Each runtime auto-loads its own user-level file — Copilot from its user instructions, Claude Code from `~/.claude/CLAUDE.md` (which imports the same instructions) — and its first instruction is to make the central workspace present locally, then start at the root indexes. This is distinct from the per-repository `AGENTS.md` and `CLAUDE.md`, which remain thin pointers to the same roots.
+The **user-global** entry file is a thin **bootstrap**, not a copy of the docs. Each runtime auto-loads its own user-level file — Copilot from its user instructions, Claude Code from `~/.claude/CLAUDE.md` (which imports the same instructions) — and its first instruction is to make the central workspace present locally, then start at the root indexes. It is central-first by design, because its whole job is to make central context exist before anything reads it. That is distinct from the per-repository `AGENTS.md`, which runs in the opposite direction once the workspace is present.
 
 The workspace is a git-isolated clone of the central repositories under `~/.msx`:
 
