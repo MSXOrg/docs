@@ -41,7 +41,7 @@ If any item is open, the pull request stays a draft. Marking it ready with known
 
 Once every item holds, hand the change off: mark it ready for review and enable auto-merge so it lands the moment review approves and the required checks stay green. See [Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge).
 
-Auto-merge is only a CI gate where one is configured. It waits for the checks a repository's branch rules declare as **required**, so where a repository declares none, an armed auto-merge lands on approval alone and never waits for CI — the phrase "auto-merge is enabled" then means less than it appears to. Confirm the repository has a required-checks rule before treating auto-merge as the thing that keeps a red build out.
+Auto-merge gates only on what the ruleset declares. It waits for the required status checks and required approvals the branch ruleset names, and for nothing else — so where a ruleset declares no required status checks, an armed auto-merge lands on approval alone and never waits for CI, and "auto-merge is enabled" means considerably less than it appears to. That is a misconfiguration, not a local variation to work around: [Required checks and auto-merge](Branching-and-Merging.md#required-checks-and-auto-merge) already requires the ruleset to enforce required status checks, so a repository without them is in breach of it. The fix is to add the rule, not to compensate by watching the build by hand.
 
 ## Definition of Done
 
