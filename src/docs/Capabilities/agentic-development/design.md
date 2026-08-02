@@ -246,7 +246,9 @@ Different clients load different files, but the framework keeps the same depende
 | Claude Code | `.claude/CLAUDE.md` | Import `../AGENTS.md`; add no duplicated process knowledge. |
 | Copilot Chat in VS Code, and the Copilot cloud agent | `AGENTS.md` | Read `AGENTS.md` natively, including its freshness gate. Path-scoped `.github/instructions/*.instructions.md` files still apply when their `applyTo` pattern matches a file being read, generated, reviewed, or edited. |
 | Copilot surfaces without `AGENTS.md` support | Organization instructions | Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review outside GitHub.com do not read `AGENTS.md`. They are covered by an organization-level instruction setting where the runtime offers one, not by a per-repository file. |
-| Copilot code review | Base-branch instructions | Review using trusted base-branch instructions rather than instructions changed by the PR under review. |
+| Copilot code review | Head-branch instructions | Reads repository instructions, agent instructions, and skills from the pull request's **head** branch, not the base branch. |
+
+Because Copilot code review reads the head branch, a pull request that changes `AGENTS.md`, an adapter, or a path-scoped instruction file also changes the instructions used to review that pull request. Those files are therefore reviewed by a human on their own merits, and an automated approval is never treated as independent of them. What this means for repositories that accept outside contributions is still open — see [MSXOrg/docs#123](https://github.com/MSXOrg/docs/issues/123).
 
 ## Failure modes
 
