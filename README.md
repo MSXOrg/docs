@@ -15,41 +15,11 @@ Published with [Zensical](https://zensical.org) to GitHub Pages: **[msxorg.githu
 
 The vision is written once, here, and referenced everywhere. Products change; the principles they express stay put.
 
-## Documentation conventions
+## How to read it
 
-The docs are built for recursive navigation — a reader, or an agent, starts at the top index and drills down until it reaches the right page.
+The docs are built for recursive navigation. Every page declares a `title` and a one-line `description`, and every section has an `index.md` listing what sits below it. Start at [`src/docs/index.md`](src/docs/index.md) — or the [published root](https://msxorg.github.io/docs/) — read the descriptions, follow the link into a section, then into a page, until you reach the document that fits the task.
 
-- **Every page carries front matter.** Each `.md` file declares a `title` — the label used in navigation and the generated indexes — and a one-line `description`:
-
-  ```yaml
-  ---
-  title: Error Handling
-  description: Fail fast, never swallow, and write messages that help the next person.
-  ---
-  ```
-
-- **Every section has an index.** Each `index.md` holds an auto-generated table of the documents at its level, between markers:
-
-  ```markdown
-  <!-- INDEX:START -->
-  <!-- INDEX:END -->
-  ```
-
-- **The tables are generated from front matter.** `.github/scripts/Update-DocumentationIndex.ps1` reads each page's `title` and `description`, orders them to match the navigation in `src/zensical.toml`, and fills every index in place. Run it after adding or renaming a page:
-
-  ```pwsh
-  pwsh .github/scripts/Update-DocumentationIndex.ps1
-  ```
-
-  CI runs the same script with `-Check` and fails if an index is out of date.
-
-- **Links are validated.** `.github/scripts/Test-DocumentationLink.ps1` checks that every relative link and heading anchor across the docs resolves. It runs in CI on every pull request and on every push to `main`, alongside linting. Run it locally before opening a PR:
-
-  ```pwsh
-  pwsh .github/scripts/Test-DocumentationLink.ps1
-  ```
-
-The result is self-describing documentation: start at `src/docs/index.md`, read the descriptions, follow the link into a section, then into a page — repeating until you reach the document that fits the task.
+That structure is what lets a reader and an agent find the same page by the same route.
 
 ## Repository layout
 
@@ -63,19 +33,9 @@ src/
   docs/                # the documentation content
   includes/            # shared snippets (abbreviations, links)
   overrides/           # theme overrides
-```
-
-## Build locally
-
-The site is built with [Zensical](https://zensical.org), a Python static-site generator.
-
-```bash
-pip install -r requirements.txt
-cd src
-zensical serve    # live preview at http://localhost:8000
-zensical build    # output to src/site
+bootstrap/             # the user-global agent workspace setup
 ```
 
 ## Contributing
 
-Every change lands through a pull request — nothing goes directly to `main`. Branch, build, open a draft PR, and let CI validate it. See [CONTRIBUTING.md](CONTRIBUTING.md) for the local workflow and the [Ways of Working](https://msxorg.github.io/docs/Ways-of-Working/) for the conventions behind it.
+See [CONTRIBUTING.md](CONTRIBUTING.md) — it covers the authoring conventions, the local build, and how a change reaches `main`.

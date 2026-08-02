@@ -70,7 +70,7 @@ Default expectations by repository type:
 | Libraries, services, CLIs, and applications | Product docs live under `docs/` and are published when the product needs more than a small README. |
 | GitHub Actions | The README is the main documentation surface because GitHub Actions users expect inputs, outputs, permissions, and examples next to `action.yml`. |
 | Reusable workflows | The README is the main documentation surface because callers need workflow interface, permissions, secrets, and examples in the repository. |
-| Documentation repositories | The published site is the product. The repository README only explains the source repo and local contribution/build entry points. |
+| Documentation repositories | The published site is the product. The repository README explains what the source repository is and how it is laid out, and points to `CONTRIBUTING.md` for the authoring conventions and the local build. |
 
 Initiative docs define the implementation: exact folder layout, publishing workflow, URL convention, and which repositories are exceptions. MSX defines the expectation that product docs have an owner and that README pages stay small.
 
