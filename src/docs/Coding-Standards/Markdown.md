@@ -52,7 +52,7 @@ These rules are disabled or widened so they do not flag valid documentation — 
 - **Write one H1, then never skip heading levels** — an H3 only appears under an H2.
 - **Use sentence-style headings.**
 - **Surround headings, lists, and fenced blocks with a blank line** for readability, even though the linter no longer enforces it.
-- **Prefer relative links** within a repository; use the canonical published URL for cross-repository references. Both forms are checked in CI — see [Links are checked](#links-are-checked).
+- **Prefer relative links** within a repository; use the canonical published URL for cross-repository references. Relative links, and cross-repository links on `github.com`, are checked in CI — see [Links are checked](#links-are-checked).
 - **Give a repeated or long link a reference-style definition** (`[text][ref]`, with `[ref]: url` listed below) so the prose stays readable and one edit updates every use.
 - **Tag every code fence with a language** (` ```bash `, ` ```yaml `) so it is highlighted and converts cleanly when published.
 - **Wrap code, commands, filenames, and identifiers in backticks** rather than bold or italic, so they read as code and do not lean on the emphasis the linter now allows freely.
@@ -64,13 +64,15 @@ A link the standard asks for is a link something verifies. Two checks run on eve
 
 **Inside a repository** — `Test-DocumentationLink.ps1` resolves every relative target and every heading anchor against the checkout. It needs no network, and it fails the moment a moved page is not accompanied by the links that pointed at it.
 
-**Into another repository** — `Test-CrossRepositoryLink.ps1` resolves the links this standard asks you to write as published URLs. It runs as its own job, so a red check says the network check failed rather than the documentation being wrong, and again weekly, because a target repository moves content long after a pull request here has merged.
+**Into another repository** — `Test-CrossRepositoryLink.ps1` resolves cross-repository links on `github.com` against the repository they point at. It runs as its own job, so a red check says the network check failed rather than the documentation being wrong, and again weekly, because a target repository moves content long after a pull request here has merged.
 
 What it covers:
 
 - **Links into the organizations MSX controls** — `MSXOrg`, `PSModule`, and `Storhaug-ting`, on `github.com` and `raw.githubusercontent.com`. Scope is ownership, not scheme: checking every URL on the internet is slow and hostage to other people's outages, while the repositories we govern are a bounded set and are where the breakage starts — the target moved because we moved it.
 - **The file and the anchor.** A `#fragment` is never sent to the server, so a HEAD request answers 200 whether or not the heading exists. The content is fetched and its headings are slugged with **GitHub's** rules, which are not the rules the published site uses — `## Hello — world` is `#hello--world` on GitHub and `#hello-world` on the site, and a repeated heading is `-1` there and `_1` here. Write the anchor GitHub gives you, which is the one the browser scrolls to.
-- **Repository roots, `blob`, `tree`, `raw`, and `?tab=readme-ov-file#anchor`.** Routes that name an API object rather than a path — `/issues/`, `/pull/`, `/discussions/`, `/releases/`, `/actions/`, `/wiki/`, `/compare/`, `/commit/` — are left alone. They do not move when a repository is restructured.
+- **Repository roots, `blob`, `tree`, `raw`, and `?tab=readme-ov-file#anchor`.** A link naming a branch or tag is resolved at that reference, so a renamed branch fails too. Routes that name an API object rather than a path — `/issues/`, `/pull/`, `/discussions/`, `/releases/`, `/actions/`, `/wiki/`, `/compare/`, `/commit/` — are left alone. They do not move when a repository is restructured.
+
+What it does **not** cover yet: a published-site URL such as `https://msxorg.github.io/docs/…`, which is the canonical form for a repository that publishes to GitHub Pages. Nothing verifies those today — see [MSXOrg/docs#150](https://github.com/MSXOrg/docs/issues/150). Inside a repository, prefer a relative link anyway; the check that already resolves those is the stricter of the two.
 
 Two things follow for authors:
 

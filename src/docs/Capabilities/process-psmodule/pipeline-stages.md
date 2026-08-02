@@ -65,7 +65,7 @@ suite matrices are computed under each owning test phase, and resolved version m
   - [PSModule framework settings for style and standards for source code](https://github.com/PSModule/Process-PSModule/tree/main/.github/actions/Test-PSModule/src/tests/SourceCode)
 - This produces a JSON-based report that is used by [Get-PesterTestResults](#get-test-results) evaluate the results of the tests.
 
-The [PSModule - SourceCode tests](https://github.com/PSModule/Process-PSModule/blob/main/.github/actions/Test-PSModule/src/tests/SourceCode/PSModule/PSModule.Tests.ps1) verifies the following coding practices that the framework enforces:
+The [PSModule - SourceCode tests](https://github.com/PSModule/Process-PSModule/blob/main/.github/actions/Test-PSModule/src/tests/SourceCode/PSModule/PSModule.Tests.ps1) verify the following coding practices that the framework enforces:
 
 | ID                  | Category            | Description                                                                                |
 |---------------------|---------------------|--------------------------------------------------------------------------------------------|
@@ -241,7 +241,7 @@ the name to avoid collisions (for example, `Test-{OS}-{ContextID}-{RunID}`).
 
 ### Module tests
 
-The [PSModule - Module tests](https://github.com/PSModule/Process-PSModule/blob/main/.github/actions/Test-PSModule/src/tests/Module/PSModule/PSModule.Tests.ps1) verifies the following coding practices that the framework enforces:
+The [PSModule - Module tests](https://github.com/PSModule/Process-PSModule/blob/main/.github/actions/Test-PSModule/src/tests/Module/PSModule/PSModule.Tests.ps1) verify the following coding practices that the framework enforces:
 
 | Name | Description |
 | ------ | ----------- |
