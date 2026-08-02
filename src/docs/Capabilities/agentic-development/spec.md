@@ -55,7 +55,7 @@ Applies to any organization that wants a shared project knowledge base and memor
 - **Pluggable project context.** The bootstrap MUST accept project-specific docs and memory coordinates and collision-free relative workspace paths without requiring a fork of its synchronization logic.
 - **OKF-style documents.** Knowledge and memory documents MUST be Markdown files with YAML frontmatter, one primary concept per page, and stable paths that act as identity.
 - **Small pages and indexes.** Documentation and memory SHOULD prefer small pages, each folder SHOULD have an `index.md`, and indexes MUST let a human or agent navigate inward from the root.
-- **Thin pointer files.** Product repositories MUST carry an `AGENTS.md` at the repository root that routes an agent from the repository's own files outward to the initiative and organization documentation and to memory. It MAY retain agent-only bootstrap steps and repository-specific operating instructions needed to reach or safely change that context. It MUST NOT duplicate standards, workflow stages, or reusable process knowledge.
+- **Thin pointer files.** Product repositories MUST carry an `AGENTS.md` at the repository root that routes an agent from the repository's own files outward to the initiative and organization documentation and to memory. It MUST be limited to that route list. It MUST NOT duplicate standards, workflow stages, or reusable process knowledge, and SHOULD NOT carry build commands, contribution mechanics, or workspace bootstrap steps, each of which has an owning file of its own.
 - **Refresh-first, index-first workflow discovery.** After every canonical context repository passes the freshness gate, a human or agent MUST be able to follow the docs root index to Ways of Working, the canonical Workflow, and the procedure for the current stage.
 - **Stage resolution from work.** Agents MUST infer the current stage from the prompt and current artifacts. Explicit task language MAY shortcut to the matching stage, but the shortcut MUST resolve to the canonical documentation.
 - **One process source.** Skills, commands, named agents, and tool-specific instruction files MUST NOT redefine Workflow stages. A client convenience MAY link to a stage procedure and add only runtime mechanics.
@@ -89,7 +89,7 @@ The framework uses this normative reading order:
 
 1. **System and client policy** — non-project instructions imposed by the agent runtime.
 2. **User-global preferences** — the human operator's baseline style and risk posture.
-3. **Repository router** — `AGENTS.md` identifies the host, organization, and the context sources below, and carries repository-local nuance.
+3. **Repository router** — `AGENTS.md` identifies the host, organization, and the context sources below, in the order they are read.
 4. **Freshness gate** — fetch every canonical context repository and stop unless each clean default-branch checkout exactly matches its remote head.
 5. **Repository context** — README, CONTRIBUTING, local docs, and narrow repository exceptions.
 6. **Path-scoped repository rules** — local rules that apply to the files being read, generated, reviewed, or edited.

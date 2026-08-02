@@ -59,19 +59,19 @@ Product repositories carry local context and thin pointers:
 
 ```text
 <repo>/
-  AGENTS.md                        # required: the router, and the only file with content
+  AGENTS.md                        # required: the router — a list of destinations
   .claude/
     CLAUDE.md                      # required: routes Claude Code — @../AGENTS.md
   .github/
     copilot-instructions.md        # required: routes the Copilot surfaces that need it
     instructions/
       <scope>.instructions.md      # exceptional: a path-scoped local caveat
-  README.md
-  CONTRIBUTING.md
-  docs/
+  README.md                        # what it is, how it builds
+  CONTRIBUTING.md                  # how a change is made here
+  docs/                            # architecture and domain context
 ```
 
-`AGENTS.md` and the routes that reach it are carried by every repository. A path-scoped instruction file appears only where a local caveat has nowhere better to live. The repository owns only repository-specific nuance: bootstrap entry points, build commands, contribution mechanics, architecture notes, local exceptions, and path-scoped rules. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract."
+The repository owns only repository-specific nuance, and each kind has a file that owns it: `README.md` for what the repository is and how it builds, `CONTRIBUTING.md` for contribution mechanics, `docs/` for architecture and domain context, and path-scoped rule files for local caveats. `AGENTS.md` points at them and holds none of it. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract" — the contract lives, it just lives in the file a human would read.
 
 ## OKF page model
 
@@ -162,32 +162,24 @@ Resolution is deterministic. If the active repository remote is `github.com/PSMo
 
 ## Pointer files
 
-`AGENTS.md` is the cross-runtime router. It identifies the project, carries the bootstrap steps and local nuance an agent needs before it can reach context, and then sends the reader outward in a fixed order. It routes to the discovery trail, not to a stage-specific tool file.
+`AGENTS.md` is the cross-runtime router. It names the project and lists where to read, in order. It holds nothing else — no bootstrap, no build commands, no contribution mechanics, no standards.
 
 ```markdown
 # Agent Instructions
 
-This repository belongs to `github.com/MSXOrg`.
-
-Before changing files:
-
-1. Segment the work by host, organization, repository, path, and task.
-2. Refresh every canonical context repository and stop unless each exactly matches its remote default branch.
-
-Then read outward, nearest first:
+This repository is `github.com/MSXOrg/<repo>`. Read in this order:
 
 1. `README.md` — what this repository is and how it builds.
 2. `CONTRIBUTING.md` — how a change is made and reviewed here.
-3. `docs/` — this repository's own documentation, when it has any.
-4. The initiative's governing documentation — the standards for this family of repositories.
-5. The central documentation — `docs/index.md`, then the Ways of Working index to Workflow; infer the current stage and read that procedure and the standards it names.
-6. Memory — `memory/index.md`, read last.
+3. `docs/index.md` — this repository's own documentation.
+4. `~/.msx/docs/src/docs/index.md` — the organization standards.
+5. `~/.msx/memory/index.md` — durable lessons, read last.
 
-Apply path-scoped local rules for the files being changed. Read nearest first, but
-a local file never overrides a standard, and memory never overrides documentation.
-
-This file routes; it does not define process knowledge.
+Read nearest first. A local file never overrides a standard, and memory never
+overrides documentation.
 ```
+
+A repository with no `docs/` of its own drops that line; one that publishes the standards resolves steps 3 and 4 to the same tree and drops the duplicate. The router lists the destinations that exist, in the order above.
 
 The index trail is the default. A clear prompt can shortcut stage discovery: `Review this PR <link>` enters Review, `Make this issue <description>` enters Define, and `Implement <issue>` enters Implement. These phrases are routing hints interpreted by [Workflow](../../Ways-of-Working/Workflow.md#find-the-current-stage), not commands with independent procedures.
 

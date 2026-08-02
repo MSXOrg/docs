@@ -24,7 +24,7 @@ This spec rests on the [Principles](Principles/index.md). Four apply directly:
 
 ## Architecture
 
-Agent configuration files are **pointers, not process containers**. They identify canonical context and may retain the bootstrap steps and repository-specific operating instructions an agent needs before it can reach that context. They do not select a persona, copy workflow stages, or restate standards. Documentation lives where it belongs — repo-specific context in each repository's `README.md`, `CONTRIBUTING.md`, and `docs/`; cross-cutting guidance in the org-level documentation site.
+Agent configuration files are **pointers, not process containers**. They name the context that governs the work and the order to read it in. They do not select a persona, copy workflow stages, restate standards, or carry the repository's own operating instructions. Documentation lives where it belongs — repo-specific context in each repository's `README.md`, `CONTRIBUTING.md`, and `docs/`; cross-cutting guidance in the org-level documentation site; workspace setup in the user-global bootstrap.
 
 When an agent receives work, it follows the same documentation trail a human can follow:
 
@@ -69,7 +69,7 @@ There is no separate process surface for Define, Implement, or Review. If a clie
 
 | File | Status | Role |
 | --- | --- | --- |
-| `AGENTS.md` | Required | The router, at the repository root. The only file with content. |
+| `AGENTS.md` | Required | The router, at the repository root. A list of destinations, nothing more. |
 | `.claude/CLAUDE.md` | Required | Routes Claude Code to the router: `@../AGENTS.md`. |
 | `.github/copilot-instructions.md` | Required | Routes the Copilot surfaces that do not read `AGENTS.md` to the router. |
 | `.github/instructions/*.instructions.md` | Exceptional | A path-scoped caveat that genuinely has nowhere better to live. |
@@ -78,7 +78,7 @@ One router, and a route for every client that cannot reach it under that name.
 
 #### What `AGENTS.md` routes to
 
-`AGENTS.md` holds the bootstrap steps an agent needs before it can reach context, and the repository's own operating nuance. Everything else it delegates, in this order:
+`AGENTS.md` is a list of destinations and nothing else. It carries no bootstrap steps, no build commands, no contribution mechanics, and no standards — each of those has a file that already owns it. What it holds is the order:
 
 1. **`README.md`** — what this repository is and how it builds.
 2. **`CONTRIBUTING.md`** — how a change is made and reviewed here.
@@ -88,6 +88,10 @@ One router, and a route for every client that cannot reach it under that name.
 6. **Memory** — durable lessons from earlier work, read last.
 
 Nearest first, widening outward. A repository's own files answer the questions only it can answer, and each step out answers a broader one. The order is written generically on purpose: every initiative resolves step 4 to its own documentation, so the same router works in any organization that adopts this model.
+
+Steps collapse where they coincide. A repository that publishes the standards — this one — resolves steps 3, 4, and 5 to the same `docs/` tree and has nothing above it, so its router lists four destinations rather than six. Skipping a step because it does not exist is not the same as omitting it.
+
+Anything an agent needs *before* it can reach step 1 — cloning the workspace, the freshness gate — belongs to the [user-global bootstrap](#the-workspace-bootstrap), not to a repository file. A per-repository copy of the bootstrap is the same duplication in a different place.
 
 #### Reading order is not authority order
 
