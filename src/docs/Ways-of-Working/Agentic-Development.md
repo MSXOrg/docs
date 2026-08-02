@@ -65,12 +65,27 @@ Any new runtime follows the same pattern, regardless of vendor:
 
 There is no separate process surface for Define, Implement, or Review. If a client exposes a skill, command, named agent, or other convenience, it links to the canonical stage page and adds no process knowledge. When a new runtime is adopted, only this thin integration layer is added.
 
+### Which agent files a repository carries
+
+| File | Status | Role |
+| --- | --- | --- |
+| `AGENTS.md` | Required | The single agent entry point. Every other agent file points back to it. |
+| `CLAUDE.md` | Adapter | Claude Code loads `CLAUDE.md` rather than `AGENTS.md`, so the repository keeps a one-line import. |
+| `.github/copilot-instructions.md` | Optional adapter | Only for Copilot surfaces that do not read `AGENTS.md`. |
+| `.github/instructions/*.instructions.md` | Optional | Path-scoped local rules that apply to one repository path and cannot live centrally. |
+
+An adapter is warranted when a runtime surface the repository actually relies on does not read `AGENTS.md`. That is a verifiable question rather than a preference: GitHub's [custom instructions support matrix](https://docs.github.com/en/copilot/reference/custom-instructions-support) records that Copilot Chat in VS Code, the Copilot cloud agent, and Copilot code review on GitHub.com read `AGENTS.md`, while Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review in VS Code read `.github/copilot-instructions.md` instead.
+
+An adapter is not added as a matter of course. A second file that repeats the same pointer is duplication, and duplicated pointers disagree the moment one of them is edited — the failure this whole model exists to prevent. Add the adapter a runtime needs; do not seed one everywhere by default.
+
+The [agentic development capability](../Capabilities/agentic-development/spec.md) is deliberately broader than this page: it permits any client adapter that points back to the same canonical roots, so an adopting organization can support whatever runtimes it uses. This page states which files an MSX repository carries by default.
+
 ## Distribution
 
 The two non-documentation layers have different distribution models:
 
 - **The canonical process** lives in [Workflow](Workflow.md), which links to ordinary documentation pages for each [stage procedure](Workflow-Stages/index.md).
-- **Per-repository pointer files** — `AGENTS.md`, the `CLAUDE.md` that imports it, and any path-scoped local-rule adapters — are seeded from a template repository and kept current across existing repositories by a sync mechanism.
+- **Per-repository pointer files** — `AGENTS.md`, the `CLAUDE.md` that imports it, and any optional adapter a repository has taken on — are seeded from a template repository and kept current across existing repositories by a sync mechanism. A template seeds the required entry point; an optional adapter is added by the repository that needs it, not distributed to every repository in case one does.
 
 Process knowledge is never added to a distributed config file. If an agent needs the branch strategy, it goes in [Branching and Merging](Branching-and-Merging.md) or the repo's `CONTRIBUTING.md`; if it needs a coding convention, it goes in the relevant [coding standard](../Coding-Standards/index.md). The config file only points — it never defines.
 
