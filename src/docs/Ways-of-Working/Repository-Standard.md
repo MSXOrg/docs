@@ -35,6 +35,8 @@ Every repository must carry the files that make it understandable and governable
 
 Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
 
+`AGENTS.md` and the `CLAUDE.md` that imports it are the two baseline agent files. Every other client adapter — `.github/copilot-instructions.md`, and path-scoped `.github/instructions/*.instructions.md` files — is optional: a repository adds one only when a runtime it relies on does not read `AGENTS.md`. See [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries).
+
 ## README defaults
 
 The README is the repository start page. It brings a reader in, gives them the first useful mental model, and then points them to the right deeper surface. It must be short enough to stay current and specific enough that a human or agent can understand the repository before reading source code.
@@ -150,6 +152,7 @@ For example, PSModule can define its module-specific managed files in `PSModule/
 ## Where this connects
 
 - [Organization Standard](Organization-Standard.md) — what an initiative organization must define centrally.
+- [Agentic Development](Agentic-Development.md) — which agent files a repository carries and why the entry point is a pointer.
 - [Repository Type Property](Repository-Type-Property.md) — the `Type` custom property that classifies a repository and drives which type-specific files and controls apply.
 - [README-Driven Context](Readme-Driven-Context.md) — why the README is the front door.
 - [PR Format](PR-Format.md) — the PR Manager-style title and description format.
