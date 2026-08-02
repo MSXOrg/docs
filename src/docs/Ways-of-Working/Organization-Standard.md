@@ -91,7 +91,7 @@ Humans and agents must read the same standards. Do not create a separate hidden 
 
 Agent files are allowed when they point to, summarize, or operationalize the central standard. They must not become a second source of truth.
 
-The repository-level entry point is `AGENTS.md`, as defined by [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries). Some agent surfaces do not read it — several GitHub Copilot surfaces read only their own repository-wide instructions file. An organization closes that gap **once, centrally**, using the organization-level instruction settings its agent vendors provide, rather than distributing a per-repository copy of the same pointer to every repository. One central setting is a single artifact to keep current; a copy in every repository is a drift surface proportional to the number of repositories.
+The repository-level entry point is `AGENTS.md`, as defined by [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries). Agent runtimes do not agree on a filename, so a repository also carries a route file for each client that reads a different one. Those routes contain a pointer and nothing else. The same limit applies to any organization-level instruction setting an agent vendor offers: use it for organization-wide preferences, never as a second copy of a standard.
 
 ## Where this connects
 

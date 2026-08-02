@@ -26,7 +26,8 @@ Every repository must carry the files that make it understandable and governable
 | `SUPPORT.md` | Explains where users ask for help. |
 | `CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
 | `AGENTS.md` | Cross-tool agent router at the repository root: it carries local operating nuance and sends an agent outward to the initiative and central documentation, then to memory. |
-| `.claude/CLAUDE.md` | Claude Code entry point that imports `../AGENTS.md` so Claude reads the same router. |
+| `.claude/CLAUDE.md` | Routes Claude Code to the router by importing `../AGENTS.md`. |
+| `.github/copilot-instructions.md` | Routes the Copilot surfaces that do not read `AGENTS.md` to the router. |
 | `.github/dependabot.yml` | Configures ecosystem-appropriate dependency-update pull requests. The `github-actions` ecosystem is expected in virtually every repository; add the language, package, container, or infrastructure ecosystems the repository actually develops in. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
 | `.github/pull_request_template.md` | Scaffolds pull requests in the MSX [PR Format](PR-Format.md) (PR Manager) style — an icon + change-type + user-facing-outcome title, user-facing description sections, an optional technical-details block, and a related-issues block. |
@@ -35,7 +36,7 @@ Every repository must carry the files that make it understandable and governable
 
 Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
 
-`AGENTS.md` and the `.claude/CLAUDE.md` that imports it are the only agent files a repository carries. There is no `.github/copilot-instructions.md`; surfaces that cannot read `AGENTS.md` are covered by an [organization-level instruction setting](Organization-Standard.md#agent-and-human-alignment) instead. A path-scoped `.github/instructions/*.instructions.md` file is exceptional — added only for a local caveat that cannot live in `README.md`, `CONTRIBUTING.md`, or central documentation. See [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries).
+`AGENTS.md` is the only agent file with content. `.claude/CLAUDE.md` and `.github/copilot-instructions.md` exist because those clients read their own filenames, and each contains nothing but a route to the router — no reading order, no workflow, no standard. A path-scoped `.github/instructions/*.instructions.md` file is exceptional, added only for a local caveat that cannot live in `README.md`, `CONTRIBUTING.md`, or central documentation. See [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries).
 
 ## README defaults
 

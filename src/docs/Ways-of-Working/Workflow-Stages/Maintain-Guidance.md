@@ -29,7 +29,7 @@ Write the stage as a page in this section, following the shape of its siblings: 
 
 ### 3. Keep pointers thin
 
-A repository never carries a copy of the workflow. Its `AGENTS.md` — with the `.claude/CLAUDE.md` that imports it — routes to these pages and adds only repo-specific nuance and the genuinely tool-specific settings (permission scopes, model choice) that cannot be expressed as a pointer. When a new runtime is adopted, add a thin import only where that runtime cannot read `AGENTS.md`; do not move process knowledge into it. See [Agentic Development](../Agentic-Development.md#which-agent-files-a-repository-carries).
+A repository never carries a copy of the workflow. Its `AGENTS.md` — with the client routes that reach it — routes to these pages and adds only repo-specific nuance and the genuinely tool-specific settings (permission scopes, model choice) that cannot be expressed as a pointer. When a new runtime is adopted, add a route under the filename it reads; do not move process knowledge into it. See [Agentic Development](../Agentic-Development.md#which-agent-files-a-repository-carries).
 
 ### 4. Validate
 

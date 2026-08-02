@@ -33,7 +33,7 @@ Agent context is delivered through three layers, in priority order:
 
 1. **Documentation** — the primary source. Published docs at <https://msxorg.github.io/docs/>, READMEs, and issue bodies are written for humans and naturally consumable by agents.
 2. **Canonical workflow** — [Workflow](../Workflow.md) owns the process and links to ordinary documentation for each [stage procedure](../Workflow-Stages/index.md). Indexes provide the default discovery path; clear task language may shortcut stage selection without creating separate instructions.
-3. **Local pointer files** — each repository's `AGENTS.md` router (with the `.claude/CLAUDE.md` that imports it), which reads outward from the repository's own files to the initiative and central documentation, and to memory last.
+3. **Local pointer files** — each repository's `AGENTS.md` router (with the content-free client routes that reach it), which reads outward from the repository's own files to the initiative and central documentation, and to memory last.
 
 ## Augmentation, not replacement
 
