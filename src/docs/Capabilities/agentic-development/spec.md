@@ -65,6 +65,7 @@ Applies to any organization that wants a shared project knowledge base and memor
 - **Deterministic context resolution.** Agents MUST resolve context in layers: system and client policy, user preferences, the repository router, the context-repository freshness gate, repository context, path-scoped repository rules, organization docs, any inherited ecosystem docs, organization memory, then current task context.
 - **Local-first availability.** The docs and memory repositories SHOULD be available locally in a predictable workspace so agents can read them without relying on search or web access.
 - **Fresh context before use.** Every canonical context repository MUST be fetched and exactly synchronized with its remote default branch before its contents are read. Dirty, locally ahead, diverged, wrong-branch, or unreachable repositories MUST stop context resolution rather than fall back to stale content.
+- **Working checkouts are not context sources.** Canonical context MUST be read from the context repository clones that passed the freshness gate. A working checkout of a `docs` or `memory` repository — one cloned in order to change it rather than to be governed by it — MUST NOT be used as a context source, whatever path it occupies, because it sits outside the gate: nothing fetches it, and a superseded page in it is readable rather than missing, so the failure is silent. A reader MAY establish whether any checkout is current with `git rev-list --left-right --count HEAD...origin/<default-branch>` after fetching, which reports commits ahead and behind without changing the working tree.
 - **Reviewed knowledge changes.** Changes to the `docs` repository MUST happen through pull requests. Changes to memory MAY be lighter-weight, but MUST remain versioned in git.
 - **No cross-project bleed.** An agent working in one organization MUST NOT apply another organization's standards or memory unless the current task explicitly asks for cross-organization work.
 - **Traceable memory.** Memory entries SHOULD identify the context they came from and SHOULD be short, factual, and linked to the relevant issue, pull request, document, or repository when one exists.
@@ -80,6 +81,7 @@ Applies to any organization that wants a shared project knowledge base and memor
 - A human or agent can follow `docs/index.md` → Ways of Working → Workflow → the current stage procedure without knowing a file path in advance.
 - A prompt such as `Review this PR <link>` reaches the Review procedure directly, while `Make this issue <description>` reaches Define, without a parallel process definition.
 - A missing, dirty, locally ahead, diverged, wrong-branch, or unreachable canonical context repository stops discovery before any context index is read.
+- A working checkout of a `docs` repository present on disk is not read as canonical context, and a reader can tell a current checkout from a stale one before trusting either.
 - Updating a standard in `docs` changes the canonical guidance without editing every repository.
 - Capturing a recurring lesson in `memory` makes it available to later agents working in the same organization.
 
