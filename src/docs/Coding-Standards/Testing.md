@@ -43,13 +43,21 @@ A test proves nothing when it computes the expected value the same way the code 
 
 This is [don't mock what you don't own](#dont-mock-what-you-dont-own) one level up. There the mock freezes your assumption about a dependency; here the assertion freezes your assumption about correctness.
 
-When the oracle is an external tool or service, confirm it is answering the question you think you asked. A wrong mode flag, an expired token, or a renamed field can turn a rich response into an empty one — and every assertion built on it into a vacuous truth. So assert on the oracle too: if it yields nothing to compare against, fail loudly instead of reporting success. Where two independent oracles are available cheaply, agreeing them once is worth more than trusting either.
+When the oracle is an external tool or service, confirm it is answering the question you think you asked. A wrong mode flag, an expired token, or a renamed field can turn a rich response into an empty one — and every assertion built on it into a vacuous truth. So assert on the oracle too: an empty response is a failure of the check, not a pass (see [nothing checked is not a pass](#nothing-checked-is-not-a-pass)). Where two independent oracles are available cheaply, agreeing them once is worth more than trusting either.
+
+## Nothing checked is not a pass
+
+Every assertion over an empty set is true. *All links resolve* holds trivially when no links were found. *Every anchor exists* holds when the oracle returned nothing to compare against. A check that iterates over nothing and reports success is not a check — it is a claim with no content behind it, and it is indistinguishable from a working one at a glance.
+
+So make the count part of the result: **a check fails when it checked nothing.** Count the units examined and treat zero as a failure, with a message that says the check found nothing rather than that everything is fine.
+
+This costs three lines next to the exit, and it covers a whole class at once — the wrong root directory, a filter that matches more than intended, a glob that missed, an empty checkout, a query that returned no rows, an oracle that answered with an empty response. None of those need to be anticipated individually. Each one drives the count to zero, and zero is a failure.
 
 ## Prove the test can fail
 
 A check that has never failed has not been checked. Before trusting a new one, make it red on purpose: break the behavior it guards, confirm it fails, read the message it produces, then restore. If breaking the behavior leaves the check green, the check is decoration.
 
-This applies to the check itself, not only to the code it guards. A verification step that passes because it found nothing to verify is the most expensive kind of green: it looks like coverage, it consumes review trust, and it conceals the very gap it was written to close.
+Counting is not a substitute for this. A healthy count only says the check examined something — not that it examined the right property. A conversion that reports every word of the source survived has a large denominator and still says nothing about whether the links in that text resolve. An empty check is caught by counting; a check measuring the wrong thing is caught only by breaking the thing it claims to guard and watching what happens.
 
 ## Properties of a good test
 
