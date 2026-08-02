@@ -33,7 +33,7 @@ Applies to any organization that wants a shared project knowledge base and memor
 
 - Organization-level `docs` and `memory` repositories.
 - Markdown documents with YAML frontmatter, following the [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) model.
-- Thin repository pointer files: a required `AGENTS.md` router, and a content-free route for every client that cannot read it.
+- Thin repository pointer files: a required `AGENTS.md` router, and a route to it for every client that cannot read it.
 - Path-scoped rule files, reserved for local caveats that cannot live in repository or central documentation.
 - Refresh-first, index-first discovery from canonical context repositories to the Workflow and its stage procedures.
 - Deterministic context resolution by host, organization, repository, path, and task.
@@ -55,7 +55,7 @@ Applies to any organization that wants a shared project knowledge base and memor
 - **Pluggable project context.** The bootstrap MUST accept project-specific docs and memory coordinates and collision-free relative workspace paths without requiring a fork of its synchronization logic.
 - **OKF-style documents.** Knowledge and memory documents MUST be Markdown files with YAML frontmatter, one primary concept per page, and stable paths that act as identity.
 - **Small pages and indexes.** Documentation and memory SHOULD prefer small pages, each folder SHOULD have an `index.md`, and indexes MUST let a human or agent navigate inward from the root.
-- **Thin pointer files.** Product repositories MUST carry an `AGENTS.md` at the repository root that routes an agent from the repository's own files outward to the organization documentation, any inherited ecosystem documentation, and memory. It MUST be limited to that route list. It MUST NOT duplicate standards, workflow stages, or reusable process knowledge, and SHOULD NOT carry build commands, contribution mechanics, or workspace bootstrap steps, each of which has an owning file of its own.
+- **Thin pointer files.** Product repositories MUST carry an `AGENTS.md` at the repository root that routes an agent from the repository's own files outward to the organization documentation, any inherited ecosystem documentation, and memory. It MUST be limited to that route list and the repository's own coordinates. It MUST NOT duplicate standards, workflow stages, or reusable process knowledge, and MUST NOT carry build commands, contribution mechanics, or workspace bootstrap steps, each of which has an owning file of its own.
 - **Refresh-first, index-first workflow discovery.** After every canonical context repository passes the freshness gate, a human or agent MUST be able to follow the docs root index to Ways of Working, the canonical Workflow, and the procedure for the current stage.
 - **Stage resolution from work.** Agents MUST infer the current stage from the prompt and current artifacts. Explicit task language MAY shortcut to the matching stage, but the shortcut MUST resolve to the canonical documentation.
 - **One process source.** Skills, commands, named agents, and tool-specific instruction files MUST NOT redefine Workflow stages. A client convenience MAY link to a stage procedure and add only runtime mechanics.

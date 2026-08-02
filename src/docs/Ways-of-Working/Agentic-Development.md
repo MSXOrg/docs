@@ -106,11 +106,11 @@ An agent reads nearest-first. Authority runs the other way.
 
 Reading nearest-first is what makes an agent efficient. Letting the nearest file win would make it wrong.
 
-#### Client files route, they never carry content
+#### Client files route, they never carry process
 
 Agent runtimes do not agree on a filename. `AGENTS.md` is read natively by Copilot Chat in VS Code, the Copilot cloud agent, and Copilot code review on GitHub.com, among others. Claude Code reads its own name. Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review outside GitHub.com read `.github/copilot-instructions.md`, as GitHub's [custom instructions support matrix](https://docs.github.com/en/copilot/reference/custom-instructions-support) records.
 
-Each of those clients gets a file whose entire content is a route to the router. The risk these files carry is **duplication, and duplication is a property of content rather than of filenames**. A file that says only "follow `AGENTS.md`" has nothing in it to drift. A file that restates the reading order, the workflow, or a coding standard has everything to drift, no matter what it is called.
+Each of those clients gets a file whose only substance is a route to the router, plus at most the runtime's own settings. The risk these files carry is **duplication, and duplication is a property of content rather than of filenames**. A file that says only "follow `AGENTS.md`" has nothing in it to drift. A file that restates the reading order, the workflow, or a coding standard has everything to drift, no matter what it is called.
 
 So the rule is about what a client file may contain, not how many of them exist:
 
