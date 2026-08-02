@@ -55,7 +55,7 @@ This split follows [Repository Segmentation](Repository-Segmentation.md) and [RE
 
 ## How an agent runtime plugs in
 
-Each repository carries an `AGENTS.md` that routes an agent from the repository's own files outward to the documentation and memory that govern it. A client adapter may import that router and add only the small amount of genuinely tool-specific configuration, such as permission scopes or path matching, that cannot live in ordinary documentation.
+Each repository carries an `AGENTS.md` that routes an agent from the repository's own files outward to the documentation and memory that govern it. A client that cannot read that filename gets a route to it, and adds only the small amount of genuinely tool-specific configuration, such as permission scopes or path matching, that cannot live in ordinary documentation.
 
 Any new runtime follows the same pattern, regardless of vendor:
 
@@ -69,11 +69,12 @@ There is no separate process surface for Define, Implement, or Review. If a clie
 
 | File | Status | Role |
 | --- | --- | --- |
-| `AGENTS.md` | Required | The agent entry point, at the repository root. A router, not a rulebook. |
-| `.claude/CLAUDE.md` | Required | A single `@../AGENTS.md` import, because Claude Code reads its own filename rather than `AGENTS.md`. |
+| `AGENTS.md` | Required | The router, at the repository root. The only file with content. |
+| `.claude/CLAUDE.md` | Required | Routes Claude Code to the router: `@../AGENTS.md`. |
+| `.github/copilot-instructions.md` | Required | Routes the Copilot surfaces that do not read `AGENTS.md` to the router. |
 | `.github/instructions/*.instructions.md` | Exceptional | A path-scoped caveat that genuinely has nowhere better to live. |
 
-That is the whole set. A repository carries no Copilot-specific instruction file.
+One router, and a route for every client that cannot reach it under that name.
 
 #### What `AGENTS.md` routes to
 
@@ -101,11 +102,18 @@ An agent reads nearest-first. Authority runs the other way.
 
 Reading nearest-first is what makes an agent efficient. Letting the nearest file win would make it wrong.
 
-#### Why there is no Copilot-specific file
+#### Client files route, they never carry content
 
-The runtimes this ecosystem develops in read `AGENTS.md` natively — Copilot Chat in VS Code, the Copilot cloud agent, and Copilot code review on GitHub.com among them. Some surfaces do not: Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review outside GitHub.com read `.github/copilot-instructions.md` instead, as GitHub's [custom instructions support matrix](https://docs.github.com/en/copilot/reference/custom-instructions-support) records.
+Agent runtimes do not agree on a filename. `AGENTS.md` is read natively by Copilot Chat in VS Code, the Copilot cloud agent, and Copilot code review on GitHub.com, among others. Claude Code reads its own name. Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review outside GitHub.com read `.github/copilot-instructions.md`, as GitHub's [custom instructions support matrix](https://docs.github.com/en/copilot/reference/custom-instructions-support) records.
 
-That gap is real, and it is not closed with a per-repository file. A second file whose content is a pointer to the first is a copy, and copies drift — the failure this whole model exists to prevent. It is closed once at the organization level instead, with [organization custom instructions](Organization-Standard.md#agent-and-human-alignment). Where a surface remains uncovered, that is an accepted cost rather than an invitation to add a file back.
+Each of those clients gets a file whose entire content is a route to the router. The risk these files carry is **duplication, and duplication is a property of content rather than of filenames**. A file that says only "follow `AGENTS.md`" has nothing in it to drift. A file that restates the reading order, the workflow, or a coding standard has everything to drift, no matter what it is called.
+
+So the rule is about what a client file may contain, not how many of them exist:
+
+- a route to `AGENTS.md`, and
+- at most, genuinely runtime-specific configuration — permission scopes, model choice — that cannot be expressed as documentation.
+
+It never restates a standard, never describes a workflow stage, and never repeats the reading order below. The router owns all of that, and every client reaches the same copy of it.
 
 #### Path-scoped instruction files are the exception
 
@@ -124,7 +132,7 @@ The [agentic development capability](../Capabilities/agentic-development/spec.md
 The two non-documentation layers have different distribution models:
 
 - **The canonical process** lives in [Workflow](Workflow.md), which links to ordinary documentation pages for each [stage procedure](Workflow-Stages/index.md).
-- **Per-repository pointer files** — `AGENTS.md` and the `.claude/CLAUDE.md` that imports it — are seeded from a template repository and kept current across existing repositories by a sync mechanism. A path-scoped instruction file is written by the repository that needs it and is not distributed.
+- **Per-repository pointer files** — `AGENTS.md` and the client routes that reach it — are seeded from a template repository and kept current across existing repositories by a sync mechanism. The routes are stable because they hold no content; what changes over time is the router they point at. A path-scoped instruction file is written by the repository that needs it and is not distributed.
 
 Process knowledge is never added to a distributed config file. If an agent needs the branch strategy, it goes in [Branching and Merging](Branching-and-Merging.md) or the repo's `CONTRIBUTING.md`; if it needs a coding convention, it goes in the relevant [coding standard](../Coding-Standards/index.md). The config file only points — it never defines.
 
