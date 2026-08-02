@@ -59,17 +59,17 @@ Product repositories carry local context and thin pointers:
 
 ```text
 <repo>/
-  AGENTS.md
-  CLAUDE.md
+  AGENTS.md                        # required: the agent entry point
+  CLAUDE.md                        # adapter: a one-line import of AGENTS.md
   .github/
-    copilot-instructions.md
+    copilot-instructions.md        # optional: only for Copilot surfaces that do not read AGENTS.md
     instructions/
-      <scope>.instructions.md
+      <scope>.instructions.md      # optional: path-scoped local rules
   README.md
   docs/
 ```
 
-The repository owns only repository-specific nuance: bootstrap entry points, build commands, contribution mechanics, architecture notes, local exceptions, and path-scoped rules. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract."
+`AGENTS.md` is the file every repository carries; the adapters are added only where a runtime needs one. The repository owns only repository-specific nuance: bootstrap entry points, build commands, contribution mechanics, architecture notes, local exceptions, and path-scoped rules. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract."
 
 ## OKF page model
 
@@ -111,8 +111,8 @@ docs/
   Ways-of-Working/Workflow.md
   Ways-of-Working/Workflow-Stages/index.md
   Coding-Standards/index.md
-  Frameworks/index.md
-  Frameworks/Agentic-Development/index.md
+  Capabilities/index.md
+  Capabilities/agentic-development/index.md
 
 memory/
   index.md
@@ -193,7 +193,7 @@ The index trail is the default. A clear prompt can shortcut stage discovery: `Re
 @AGENTS.md
 ```
 
-`.github/copilot-instructions.md` points Copilot to the same root and adds only Copilot-specific loading guidance:
+`.github/copilot-instructions.md` is optional. Add it only when the repository relies on a Copilot surface that does not read `AGENTS.md`; GitHub's [custom instructions support matrix](https://docs.github.com/en/copilot/reference/custom-instructions-support) records which surfaces do. When it is present, it points Copilot to the same root and adds only Copilot-specific loading guidance:
 
 ```markdown
 Follow `AGENTS.md`.
@@ -237,14 +237,14 @@ Session-specific notes stay out of durable memory unless they become reusable pr
 
 ## Client behavior
 
-Different clients load different files, but the framework keeps the same dependency direction:
+Different clients load different files, but the framework keeps the same dependency direction. A client that reads `AGENTS.md` needs no additional pointer file; an adapter exists for the clients that do not.
 
 | Client | Adapter | Behavior |
 | --- | --- | --- |
 | Cross-client agents | `AGENTS.md` | Resolve and synchronize the shared docs and memory roots, then traverse indexes to Workflow and the current stage. |
 | Claude Code | `CLAUDE.md` | Import `AGENTS.md`; add no duplicated process knowledge. |
-| GitHub Copilot in VS Code | `.github/copilot-instructions.md` and `.github/instructions/*.instructions.md` | Follow `AGENTS.md`, including its freshness gate, then apply path-specific local rules when files match. |
-| Copilot coding agent | `AGENTS.md`, `.github/copilot-instructions.md`, setup workflow | Synchronize the local roots, traverse the canonical indexes, and follow the resolved stage procedure. |
+| Copilot in VS Code, and the Copilot cloud agent | `AGENTS.md` | Read `AGENTS.md` natively, including its freshness gate. Path-scoped `.github/instructions/*.instructions.md` files still apply when their `applyTo` pattern matches a file being read, generated, reviewed, or edited. |
+| Copilot surfaces without `AGENTS.md` support | `.github/copilot-instructions.md`, optional | Copilot Chat on GitHub.com, Visual Studio, JetBrains, and Eclipse read repository-wide instructions only. A repository that relies on one of them adds the adapter, which follows `AGENTS.md` and adds nothing else. |
 | Copilot code review | Base-branch instructions | Review using trusted base-branch instructions rather than instructions changed by the PR under review. |
 
 ## Failure modes
@@ -266,7 +266,7 @@ Different clients load different files, but the framework keeps the same depende
 3. Add `docs/index.md` and `memory/index.md` as the two root maps.
 4. Add the canonical Workflow and linked stage procedures to `docs`.
 5. Add starter memory sections to `memory`.
-6. Add thin pointer files to each product repository.
+6. Add the `AGENTS.md` pointer to each product repository, plus only the adapters its runtimes require.
 7. Add a bootstrap that keeps local docs and memory clones present and exactly synchronized before use.
 8. Review new work for pointer discipline: facts live once, links point to them.
 
