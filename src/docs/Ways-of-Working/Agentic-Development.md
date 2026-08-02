@@ -24,7 +24,7 @@ This spec rests on the [Principles](Principles/index.md). Four apply directly:
 
 ## Architecture
 
-Agent configuration files are **pointers, not process containers**. They name the context that governs the work and the order to read it in. They do not select a persona, copy workflow stages, restate standards, or carry the repository's own operating instructions. Documentation lives where it belongs — repo-specific context in each repository's `README.md`, `CONTRIBUTING.md`, and `docs/`; cross-cutting guidance in the org-level documentation site; workspace setup in the user-global bootstrap.
+Agent configuration files are **pointers, not process containers**. The router — `AGENTS.md` — names the context that governs the work and the order to read it in; every other agent file points at the router and carries no order of its own. None of them select a persona, copy workflow stages, restate standards, or carry the repository's own operating instructions. Documentation lives where it belongs — repo-specific context in each repository's `README.md`, `CONTRIBUTING.md`, and `docs/`; cross-cutting guidance in the org-level documentation site; workspace setup in the user-global bootstrap.
 
 When an agent receives work, it follows the same documentation trail a human can follow:
 
