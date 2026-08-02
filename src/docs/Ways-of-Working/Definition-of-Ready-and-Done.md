@@ -29,15 +29,19 @@ A pull request is ready for review when:
 
 - It closes one scoped Task or Bug delivery leaf, and every item in that leaf's implementation plan is complete or explicitly moved to a follow-up issue. Additional issues may be closed only when the [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) confirms the finished diff already delivers them.
 - Native dependencies are current and every prerequisite the change relies on has landed; the pull request is not used to bypass a blocked-by edge.
-- All required checks are green — not just tests that pass locally. CI is complete, not in progress.
+- All required checks are green — not just tests that pass locally. CI is complete, not in progress, and a pull request that reports no checks has not met this item.
 - The automated review loop has converged — a clean [Copilot round](Contribution-Workflow.md#the-copilot-review-loop) with no unresolved review threads.
 - The [standards and framework alignment pass](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass) has run against the finished change, its result covers every changed surface in the pull request, and every exception links a follow-up issue.
 - The [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) has run against scoped open issues, and every fully convergent issue is linked in the pull request with a closing keyword.
 - The title, release-note description, and exactly one change-type label are finalized. See [PR Format](PR-Format.md).
 
+Absent checks are not a pass. When a pull request reports no checks at all, the usual cause is that the workflow's triggers do not cover it — a base branch outside the `pull_request` trigger's `branches` filter is the common one — and that is a gap to fix or file, not a gate to wave through. Manually dispatching the workflow against the branch does not substitute for it either: jobs gated on the event type are skipped silently, so a green `workflow_dispatch` run can hide verification that never ran. If the checks genuinely cannot be made to run before merge, say so in the pull request and link the issue tracking it, so the reviewer knows the gate was not met instead of assuming it was.
+
 If any item is open, the pull request stays a draft. Marking it ready with known-open work shifts the author's unfinished job onto reviewers — the opposite of what the signal means.
 
 Once every item holds, hand the change off: mark it ready for review and enable auto-merge so it lands the moment review approves and the required checks stay green. See [Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge).
+
+Auto-merge gates only on what the ruleset declares. It waits for the required status checks and required approvals the branch ruleset names, and for nothing else — so where a ruleset declares no required status checks, an armed auto-merge lands on approval alone and never waits for CI, and "auto-merge is enabled" means considerably less than it appears to. That is a misconfiguration, not a local variation to work around: [Required checks and auto-merge](Branching-and-Merging.md#required-checks-and-auto-merge) already requires the ruleset to enforce required status checks, so a repository without them is in breach of it. The fix is to add the rule, not to compensate by watching the build by hand.
 
 ## Definition of Done
 
