@@ -33,7 +33,8 @@ Applies to any organization that wants a shared project knowledge base and memor
 
 - Organization-level `docs` and `memory` repositories.
 - Markdown documents with YAML frontmatter, following the [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) model.
-- Thin repository pointer files: a required `AGENTS.md`, and the optional client adapters that import or follow it.
+- Thin repository pointer files: a required `AGENTS.md` router, and the minimal client adapter a runtime needs to reach it.
+- Path-scoped rule files, reserved for local caveats that cannot live in repository or central documentation.
 - Refresh-first, index-first discovery from canonical context repositories to the Workflow and its stage procedures.
 - Deterministic context resolution by host, organization, repository, path, and task.
 - Human-reviewed changes to canonical knowledge through pull requests.
@@ -54,13 +55,14 @@ Applies to any organization that wants a shared project knowledge base and memor
 - **Pluggable project context.** The bootstrap MUST accept project-specific docs and memory coordinates and collision-free relative workspace paths without requiring a fork of its synchronization logic.
 - **OKF-style documents.** Knowledge and memory documents MUST be Markdown files with YAML frontmatter, one primary concept per page, and stable paths that act as identity.
 - **Small pages and indexes.** Documentation and memory SHOULD prefer small pages, each folder SHOULD have an `index.md`, and indexes MUST let a human or agent navigate inward from the root.
-- **Thin pointer files.** Product repositories MUST carry an `AGENTS.md` that identifies the organization context and links to the canonical docs and memory root indexes. It MAY retain agent-only bootstrap steps and repository-specific operating instructions needed to reach or safely change that context. It MUST NOT duplicate standards, workflow stages, or reusable process knowledge.
+- **Thin pointer files.** Product repositories MUST carry an `AGENTS.md` at the repository root that routes an agent from the repository's own files outward to the initiative and organization documentation and to memory. It MAY retain agent-only bootstrap steps and repository-specific operating instructions needed to reach or safely change that context. It MUST NOT duplicate standards, workflow stages, or reusable process knowledge.
 - **Refresh-first, index-first workflow discovery.** After every canonical context repository passes the freshness gate, a human or agent MUST be able to follow the docs root index to Ways of Working, the canonical Workflow, and the procedure for the current stage.
 - **Stage resolution from work.** Agents MUST infer the current stage from the prompt and current artifacts. Explicit task language MAY shortcut to the matching stage, but the shortcut MUST resolve to the canonical documentation.
 - **One process source.** Skills, commands, named agents, and tool-specific instruction files MUST NOT redefine Workflow stages. A client convenience MAY link to a stage procedure and add only runtime mechanics.
 - **Segmentation before loading.** Local agent files MUST instruct agents to segment work by host, organization, repository, path, and task before loading project standards or memory.
-- **Client adapters.** Tool-specific files such as `CLAUDE.md`, `.github/copilot-instructions.md`, and `.github/instructions/*.instructions.md` MAY add runtime-specific loading or path rules, but MUST point back to the same canonical roots and MUST NOT define workflow behavior. An adapter is OPTIONAL, and a repository SHOULD add one only when a runtime surface it relies on does not read `AGENTS.md`, because a second file repeating the same pointer drifts from it. This requirement is deliberately broader than [Agentic Development](../../Ways-of-Working/Agentic-Development.md#which-agent-files-a-repository-carries), which states which files an MSX repository carries by default; an adopting organization MAY carry whichever adapters its own runtimes require.
-- **Deterministic context resolution.** Agents MUST resolve context in layers: system and client policy, user preferences, repository pointer, context-repository freshness gate, organization docs, organization memory, repository context, path-specific rules, then current task context.
+- **Client adapters.** A runtime that cannot read `AGENTS.md` under its own filename MAY be given an adapter file, which MUST contain only an import of or reference to `AGENTS.md` plus genuinely runtime-specific configuration. An adapter MUST NOT restate standards, define workflow behavior, or become a second copy of the router. Organizations SHOULD prefer a single organization-level instruction setting over a per-repository adapter when the runtime offers one, because a per-repository copy drifts from the file it points at. [Agentic Development](../../Ways-of-Working/Agentic-Development.md#which-agent-files-a-repository-carries) narrows this to the exact set an MSX repository carries; an adopting organization MAY carry a different set for the runtimes it uses.
+- **Reading order and authority order are distinct.** An agent MUST read nearest context first, in the order the repository router defines. Precedence on conflict MUST run the opposite way: repository-local files MAY add nuance and narrow exceptions but MUST NOT override an initiative or organization standard unless that standard permits a local exception, and memory MUST NOT override documentation.
+- **Deterministic context resolution.** Agents MUST resolve context in layers: system and client policy, user preferences, the repository router, the context-repository freshness gate, repository context, path-scoped repository rules, organization docs, any inherited ecosystem docs, organization memory, then current task context.
 - **Local-first availability.** The docs and memory repositories SHOULD be available locally in a predictable workspace so agents can read them without relying on search or web access.
 - **Fresh context before use.** Every canonical context repository MUST be fetched and exactly synchronized with its remote default branch before its contents are read. Dirty, locally ahead, diverged, wrong-branch, or unreachable repositories MUST stop context resolution rather than fall back to stale content.
 - **Reviewed knowledge changes.** Changes to the `docs` repository MUST happen through pull requests. Changes to memory MAY be lighter-weight, but MUST remain versioned in git.
@@ -72,7 +74,8 @@ Applies to any organization that wants a shared project knowledge base and memor
 - An agent working in `github.com/PSModule/<repo>` reads PSModule docs and memory, not MSXOrg or AI-Platform rules.
 - An agent working in `github.com/MSXOrg/<repo>` resolves `github.com/MSXOrg/docs` and `github.com/MSXOrg/memory` as the canonical project context.
 - An agent working in `dnb.ghe.com/AI-Platform/<repo>` resolves `dnb.ghe.com/AI-Platform/docs` and `dnb.ghe.com/AI-Platform/memory` as the canonical project context.
-- A new product repository can adopt the framework by adding pointer files without copying standards or memory pages.
+- A new product repository can adopt the framework by adding a router and a client import, without copying standards or memory pages.
+- An agent reads the repository's own README and CONTRIBUTING before it reads an organization standard, and still applies the organization standard when the two disagree.
 - A human can start at `docs/index.md` or `memory/index.md` and navigate to the same context an agent uses.
 - A human or agent can follow `docs/index.md` → Ways of Working → Workflow → the current stage procedure without knowing a file path in advance.
 - A prompt such as `Review this PR <link>` reaches the Review procedure directly, while `Make this issue <description>` reaches Define, without a parallel process definition.
@@ -82,19 +85,20 @@ Applies to any organization that wants a shared project knowledge base and memor
 
 ## Context resolution contract
 
-The framework uses this normative resolution order:
+The framework uses this normative reading order:
 
 1. **System and client policy** — non-project instructions imposed by the agent runtime.
 2. **User-global preferences** — the human operator's baseline style and risk posture.
-3. **Repository pointer** — `AGENTS.md` identifies the host, organization, canonical docs root, memory root, and repository-local nuance.
+3. **Repository router** — `AGENTS.md` identifies the host, organization, and the context sources below, and carries repository-local nuance.
 4. **Freshness gate** — fetch every canonical context repository and stop unless each clean default-branch checkout exactly matches its remote head.
-5. **Organization docs** — start at `docs/index.md`, traverse to Ways of Working and Workflow, resolve the current stage, then load the relevant standards, specs, and designs.
-6. **Organization memory** — start at `memory/index.md`, then load relevant lessons, gotchas, and active context.
-7. **Repository context** — README, CONTRIBUTING, local docs, and narrow repository exceptions.
-8. **Path-specific rules** — scoped local rules that apply to the files being read, generated, reviewed, or edited.
-9. **Current task context** — issue, pull request, prompt, branch, diff, diagnostics, terminal output, and open files; use these artifacts to re-evaluate the stage after each handoff.
+5. **Repository context** — README, CONTRIBUTING, local docs, and narrow repository exceptions.
+6. **Path-scoped repository rules** — local rules that apply to the files being read, generated, reviewed, or edited.
+7. **Organization documentation** — the `docs` repository for the resolved organization: start at `docs/index.md`, traverse to Ways of Working and Workflow, resolve the current stage, then load the relevant standards, specs, and designs.
+8. **Inherited ecosystem documentation** — where the organization inherits from a broader standard set, the layer it inherits from.
+9. **Organization memory** — start at `memory/index.md`, then load relevant lessons, gotchas, and active context.
+10. **Current task context** — issue, pull request, prompt, branch, diff, diagnostics, terminal output, and open files; use these artifacts to re-evaluate the stage after each handoff.
 
-A lower layer MAY refine a higher layer, but MUST NOT contradict it unless the higher layer explicitly allows a local exception.
+This is the order in which context is **read**, nearest first. It is not the order in which conflicts are **resolved**. A repository-local file MAY refine a standard but MUST NOT contradict it unless that standard explicitly allows a local exception; an organization standard governs its own repositories and MAY adjust an inherited ecosystem default for them; and memory MUST NOT override documentation.
 
 ## Where this connects
 
