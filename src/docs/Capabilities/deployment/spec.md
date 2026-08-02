@@ -79,85 +79,85 @@ Out of scope:
 
 Requirements use [BCP 14](https://www.rfc-editor.org/info/bcp14) keywords.
 
-### FR1 — A change is expressed as code and proposed for review { #fr1 }
+### FR1 — A change is expressed as code and proposed for review {#fr1}
 
 Every change to managed resources MUST be expressed as code and proposed for
 review before it is deployed. A change that reaches resources without review MUST
 be possible only through the emergency path ([FR8](#fr8)).
 
-### FR2 — The effect of a change is computed and shown for review { #fr2 }
+### FR2 — The effect of a change is computed and shown for review {#fr2}
 
 For each environment the change will pass through, the process MUST compute the
 change's **effect on the managed resources** — what it creates, updates, and
 destroys — and make every one of these effects available during review.
 Computing the effect successfully MUST be a condition of acceptance.
 
-### FR3 — Approval covers the code change together with its effect { #fr3 }
+### FR3 — Approval covers the code change together with its effect {#fr3}
 
 Acceptance MUST approve the code change **and** its computed effect on every
 environment in the promotion path, as one decision. Approving the code alone,
 without its effect, MUST NOT satisfy this requirement.
 
-### FR4 — The approved effect is exactly what is deployed { #fr4 }
+### FR4 — The approved effect is exactly what is deployed {#fr4}
 
 The deployment to each environment MUST carry out the exact effect that was
 approved for that environment. The process MUST NOT re-derive the effect between
 approval and deployment in a way that could act on resources no one approved.
 
-### FR5 — Deployment fails closed when the approved effect is no longer valid { #fr5 }
+### FR5 — Deployment fails closed when the approved effect is no longer valid {#fr5}
 
 If the approved effect for an environment is no longer valid for that
 environment's current state at deployment time, the deployment MUST stop without
 carrying out a divergent effect. Resolution MUST be to recompute the effect and
 have it approved again — never to force the invalid one.
 
-### FR6 — Changes against the same resources are serialised { #fr6 }
+### FR6 — Changes against the same resources are serialised {#fr6}
 
 At most one change MUST be deployed against a given set of resources at a time.
 Concurrent deployments against the same resources MUST be prevented, and a
 deployment in progress MUST NOT be interrupted partway.
 
-### FR7 — The process runs its automated tests { #fr7 }
+### FR7 — The process runs its automated tests {#fr7}
 
 The process MUST run its defined automated tests as part of carrying out a
 change, and a failing required test MUST stop the promotion before it reaches the
 next environment.
 
-### FR8 — An audited emergency path exists { #fr8 }
+### FR8 — An audited emergency path exists {#fr8}
 
 An emergency path MUST be able to deploy a change without the standard review.
 It MUST require a recorded reason and an incident reference, MUST be restricted
 to authorised people, MUST still compute and show the effect before it deploys,
 and MUST open a follow-up that brings the change back through the standard path.
 
-### FR9 — Every deployment documents the actions it took { #fr9 }
+### FR9 — Every deployment documents the actions it took {#fr9}
 
 Every deployment, standard or emergency, MUST record the actions it performed —
 who approved, who deployed, when, against which environment, the effect applied,
 and the outcome of its tests — retained as an immutable record.
 
-### FR10 — Drift is detected and surfaced { #fr10 }
+### FR10 — Drift is detected and surfaced {#fr10}
 
 Divergence between the real resources and the recorded state SHOULD be detected
 on an ongoing basis and surfaced for action.
 
-### NFR1 — No standing secrets { #nfr1 }
+### NFR1 — No standing secrets {#nfr1}
 
 Access to managed resources MUST use short-lived, federated identity. Zero
 long-lived credentials or static secrets exist in the repository or its
 automation.
 
-### NFR2 — Least privilege separated by phase { #nfr2 }
+### NFR2 — Least privilege separated by phase {#nfr2}
 
 Computing a change's effect MUST use read-only access; deploying it MUST use
 write access scoped to the target environment; the two MUST be distinct.
 
-### NFR3 — Per-environment identity boundary { #nfr3 }
+### NFR3 — Per-environment identity boundary {#nfr3}
 
 Each environment MUST have its own access identity, so an effect approved for one
 environment cannot be deployed to another. Zero cross-environment deployments.
 
-### NFR4 — Complete auditability { #nfr4 }
+### NFR4 — Complete auditability {#nfr4}
 
 100% of deployments, including emergency ones, MUST produce a retained,
 attributable record ([FR9](#fr9)).
