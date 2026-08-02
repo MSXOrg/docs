@@ -97,7 +97,7 @@ git --git-dir="$repo.git" config "branch.$defaultBranch.remote" origin
 git --git-dir="$repo.git" config "branch.$defaultBranch.merge" "refs/heads/$defaultBranch"
 ```
 
-> The [Checkout-GitHubRepo](https://github.com/MariusStorhaug/.dev/blob/main/.github/Checkout-GitHubRepo.ps1) script automates this for all repositories.
+> The [Checkout-GitHubRepo](https://github.com/MariusStorhaug/.dev/blob/main/.github/Checkout-GitHubRepo.ps1) script — in a private repository, so the link resolves only for the maintainer — automates this for all repositories.
 
 ## Working on a delivery leaf
 

@@ -62,10 +62,10 @@ suite matrices are computed under each owning test phase, and resolved version m
 [workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Test-SourceCode.yml)
 
 - Tests the source code in parallel (matrix) using:
-  - [PSModule framework settings for style and standards for source code](https://github.com/PSModule/Test-PSModule?tab=readme-ov-file#sourcecode-tests)
+  - [PSModule framework settings for style and standards for source code](https://github.com/PSModule/Process-PSModule/tree/main/.github/actions/Test-PSModule/src/tests/SourceCode)
 - This produces a JSON-based report that is used by [Get-PesterTestResults](#get-test-results) evaluate the results of the tests.
 
-The [PSModule - SourceCode tests](https://github.com/PSModule/Process-PSModule/blob/main/scripts/tests/SourceCode/PSModule/PSModule.Tests.ps1) verifies the following coding practices that the framework enforces:
+The [PSModule - SourceCode tests](https://github.com/PSModule/Process-PSModule/blob/main/.github/actions/Test-PSModule/src/tests/SourceCode/PSModule/PSModule.Tests.ps1) verify the following coding practices that the framework enforces:
 
 | ID                  | Category            | Description                                                                                |
 |---------------------|---------------------|--------------------------------------------------------------------------------------------|
@@ -93,7 +93,7 @@ The [PSModule - SourceCode tests](https://github.com/PSModule/Process-PSModule/b
 [workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Test-Module.yml)
 
 - Tests and lints the module in parallel (matrix) using:
-  - [PSModule framework settings for style and standards for modules](https://github.com/PSModule/Test-PSModule?tab=readme-ov-file#module-tests)
+  - [PSModule framework settings for style and standards for modules](https://github.com/PSModule/Process-PSModule/tree/main/.github/actions/Test-PSModule/src/tests/Module)
   - [PSScriptAnalyzer rules](https://github.com/PSModule/Invoke-ScriptAnalyzer)
 - This produces a JSON-based report that is used by [Get-PesterTestResults](#get-test-results) evaluate the results of the tests.
 - **Code coverage for framework-generated code**: This step collects code coverage for framework-generated
@@ -241,7 +241,7 @@ the name to avoid collisions (for example, `Test-{OS}-{ContextID}-{RunID}`).
 
 ### Module tests
 
-The [PSModule - Module tests](https://github.com/PSModule/Process-PSModule/blob/main/scripts/tests/Module/PSModule/PSModule.Tests.ps1) verifies the following coding practices that the framework enforces:
+The [PSModule - Module tests](https://github.com/PSModule/Process-PSModule/blob/main/.github/actions/Test-PSModule/src/tests/Module/PSModule/PSModule.Tests.ps1) verify the following coding practices that the framework enforces:
 
 | Name | Description |
 | ------ | ----------- |
@@ -294,4 +294,4 @@ The [PSModule - Module tests](https://github.com/PSModule/Process-PSModule/blob/
 
 ## Publish Docs
 
-[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Publish-Docs.yml)
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Publish-Site.yml)
