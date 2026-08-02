@@ -27,9 +27,7 @@ Every repository must carry the files that make it understandable and governable
 | `SECURITY.md` | Explains supported versions and private vulnerability reporting. |
 | `SUPPORT.md` | Explains where users ask for help. |
 | `CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
-| `AGENTS.md` | Cross-tool agent router at the repository root: a short ordered list of where to read, from this repository's own files outward to the initiative and central documentation, then to memory. |
-| `.claude/CLAUDE.md` | Routes Claude Code to the router with a single `@../AGENTS.md` import. |
-| `.github/copilot-instructions.md` | Routes the Copilot surfaces that do not read `AGENTS.md` to the router. |
+| `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation, then to memory. [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries) names the files and the path each one sits at. |
 | `.github/dependabot.yml` | Configures ecosystem-appropriate dependency-update pull requests. The `github-actions` ecosystem is expected in virtually every repository; add the language, package, container, or infrastructure ecosystems the repository actually develops in. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
 | `.github/pull_request_template.md` | Scaffolds pull requests in the MSX [PR Format](PR-Format.md) (PR Manager) style — an icon + change-type + user-facing-outcome title, user-facing description sections, an optional technical-details block, and a related-issues block. |
@@ -38,7 +36,7 @@ Every repository must carry the files that make it understandable and governable
 
 Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
 
-`AGENTS.md` is the only agent file that carries the reading order. `.claude/CLAUDE.md` and `.github/copilot-instructions.md` exist because those clients read their own filenames; each holds a route to the router and, at most, genuinely runtime-specific configuration such as permission scopes — never a reading order, a workflow, or a standard. A path-scoped `.github/instructions/*.instructions.md` file is exceptional, added only for a local caveat that cannot live in `README.md`, `CONTRIBUTING.md`, or central documentation. See [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries).
+The agent-file row is the one entry this table does not spell out in full. [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries) owns that set — one router at the repository root, plus a route for every client that reads a different filename — and the [agentic development spec](../Capabilities/agentic-development/spec.md) limits what a route may contain: a pointer to the router and, at most, genuinely runtime-specific configuration such as permission scopes, never a reading order, a workflow, or a standard. A repository is audited against that one list, so a second copy here would be a second list to keep in step.
 
 ## README defaults
 
