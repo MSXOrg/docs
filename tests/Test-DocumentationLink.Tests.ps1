@@ -102,7 +102,7 @@ A claim that needs support.[^1] Another claim.[^2]
         $result = Invoke-LinkFixture -ScriptPath $fixture.ScriptPath
 
         $result.ExitCode | Should -Be 0
-        $result.Output | Should -Match 'All documentation links resolve\.'
+        $result.Output | Should -Match 'All documentation links resolve \(2 file\(s\) scanned\)\.'
     }
 
     It 'accepts a reference-style definition that points at a real file' {
@@ -117,7 +117,7 @@ See [the real page][real].
         $result = Invoke-LinkFixture -ScriptPath $fixture.ScriptPath
 
         $result.ExitCode | Should -Be 0
-        $result.Output | Should -Match 'All documentation links resolve\.'
+        $result.Output | Should -Match 'All documentation links resolve \(2 file\(s\) scanned\)\.'
     }
 
     It 'reports a reference-style definition that points at a missing file' {
@@ -164,7 +164,7 @@ A claim that needs support.[^1]
         $result = Invoke-LinkFixture -ScriptPath $fixture.ScriptPath
 
         $result.ExitCode | Should -Be 0
-        $result.Output | Should -Match 'All documentation links resolve\.'
+        $result.Output | Should -Match 'All documentation links resolve \(2 file\(s\) scanned\)\.'
     }
 
     It 'accepts a footnote reference in running text' {
@@ -179,6 +179,6 @@ A claim that needs support.[^1] (A parenthetical that is not a link.)
         $result = Invoke-LinkFixture -ScriptPath $fixture.ScriptPath
 
         $result.ExitCode | Should -Be 0
-        $result.Output | Should -Match 'All documentation links resolve\.'
+        $result.Output | Should -Match 'All documentation links resolve \(2 file\(s\) scanned\)\.'
     }
 }
