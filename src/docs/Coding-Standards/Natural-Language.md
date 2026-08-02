@@ -1,13 +1,41 @@
 ---
 title: Natural Language
-description: Plain-language writing rules for docs, issues, pull requests, comments, prompts, and agent-facing text — with US English as the project dialect.
+description: Which language each artifact is written in, and the plain-language writing rules for docs, issues, pull requests, comments, prompts, and agent-facing text — with US English as the project dialect.
 ---
 
 # Natural Language
 
 Natural language is source code for humans and agents. It drives issues, pull requests, documentation, prompts, comments, error messages, release notes, and memory. Write it with the same care as code: clear, testable, consistent, and easy to change.
 
-This standard defines the writing style for English prose in the MSX ecosystem. The project dialect is **US English**.
+This standard defines which language each artifact is written in, and how English prose is written in the MSX ecosystem. The project dialect is **US English**.
+
+## Write artifacts in English
+
+Repository artifacts are written in English. A repository artifact is anything read to build, review, operate, or maintain the repository:
+
+- code and identifiers, including parameter and flag names;
+- comments;
+- commit messages and branch names;
+- issue and pull request titles and bodies, and review comments;
+- in-repository documentation such as `README.md`, `AGENTS.md`, specs, and designs;
+- workflow, job, and step names;
+- log and error output;
+- agent-facing instructions.
+
+Delivered content is written in the language of its audience. Content an organization publishes for readers outside the repository — member letters, meeting minutes, public notices — reaches people who are not maintaining the repository, so it is written in the language those people read.
+
+Material reproduced verbatim is never translated. A codified external source keeps the publisher's language and wording, because the copy exists to be compared against the original. The tooling that fetches, converts, and verifies that source is English.
+
+The split is per artifact, not per repository. A repository that serves a Norwegian audience still has English scripts, English workflows, and English pull requests next to its Norwegian source documents and published letters.
+
+| Prefer | Avoid |
+| --- | --- |
+| `scripts/Test-Link.mjs` | `scripts/Test-Lenker.mjs` |
+| `Update-Source.ps1 -Offline` | `Update-Source.ps1 -Frakoblet` |
+| `Source not found: <path>` | `Kilden finnes ikke: <path>` |
+| `🪲 [Fix]: Broken links no longer reach main` | `🪲 [Fix]: Brutte lenker stoppes` |
+
+Repository artifacts are read by contributors, reviewers, and agents who do not share one first language, and by tooling built for English. Mixed-language automation splinters the vocabulary — `-Frakoblet` and `-Offline` are the same switch — and makes shared standards, linters, and scripts unreusable across repositories.
 
 ## Use US English
 
