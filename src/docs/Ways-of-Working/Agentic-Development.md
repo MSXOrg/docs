@@ -89,7 +89,7 @@ One router, and a route for every client that cannot reach it under that name.
 
 Nearest first, widening outward. A repository's own files answer the questions only it can answer, and each step out answers a broader one. The order is written generically on purpose: every initiative resolves step 4 to its own documentation, so the same router works in any organization that adopts this model.
 
-Steps collapse where they coincide. A repository that publishes the standards — this one — resolves steps 3, 4, and 5 to the same `docs/` tree and has nothing above it, so its router lists four destinations rather than six. Skipping a step because it does not exist is not the same as omitting it.
+Steps collapse where they coincide. A repository that publishes the standards — this one, whose documentation tree is `src/docs/` — resolves steps 3, 4, and 5 to that one tree and has nothing above it, so its router lists four destinations rather than six. Skipping a step because it does not exist is not the same as omitting it.
 
 Anything an agent needs *before* it can reach step 1 — cloning the workspace, the freshness gate — belongs to the [user-global bootstrap](#the-workspace-bootstrap), not to a repository file. A per-repository copy of the bootstrap is the same duplication in a different place.
 

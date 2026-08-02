@@ -36,7 +36,7 @@ Every repository must carry the files that make it understandable and governable
 
 Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
 
-`AGENTS.md` is the only agent file with content. `.claude/CLAUDE.md` and `.github/copilot-instructions.md` exist because those clients read their own filenames, and each contains nothing but a route to the router — no reading order, no workflow, no standard. A path-scoped `.github/instructions/*.instructions.md` file is exceptional, added only for a local caveat that cannot live in `README.md`, `CONTRIBUTING.md`, or central documentation. See [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries).
+`AGENTS.md` is the only agent file that carries the reading order. `.claude/CLAUDE.md` and `.github/copilot-instructions.md` exist because those clients read their own filenames; each holds a route to the router and, at most, genuinely runtime-specific configuration such as permission scopes — never a reading order, a workflow, or a standard. A path-scoped `.github/instructions/*.instructions.md` file is exceptional, added only for a local caveat that cannot live in `README.md`, `CONTRIBUTING.md`, or central documentation. See [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries).
 
 ## README defaults
 
