@@ -243,8 +243,8 @@ Different clients load different files, but the framework keeps the same depende
 | --- | --- | --- |
 | Cross-client agents | `AGENTS.md` | Resolve and synchronize the shared docs and memory roots, then traverse indexes to Workflow and the current stage. |
 | Claude Code | `CLAUDE.md` | Import `AGENTS.md`; add no duplicated process knowledge. |
-| Copilot in VS Code, and the Copilot cloud agent | `AGENTS.md` | Read `AGENTS.md` natively, including its freshness gate. Path-scoped `.github/instructions/*.instructions.md` files still apply when their `applyTo` pattern matches a file being read, generated, reviewed, or edited. |
-| Copilot surfaces without `AGENTS.md` support | `.github/copilot-instructions.md`, optional | Copilot Chat on GitHub.com, Visual Studio, JetBrains, and Eclipse read repository-wide instructions only. A repository that relies on one of them adds the adapter, which follows `AGENTS.md` and adds nothing else. |
+| Copilot Chat in VS Code, and the Copilot cloud agent | `AGENTS.md` | Read `AGENTS.md` natively, including its freshness gate. Path-scoped `.github/instructions/*.instructions.md` files still apply when their `applyTo` pattern matches a file being read, generated, reviewed, or edited. |
+| Copilot surfaces without `AGENTS.md` support | `.github/copilot-instructions.md`, optional | Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review outside GitHub.com read `.github/copilot-instructions.md` rather than `AGENTS.md`. A repository that relies on one of them adds the adapter, which follows `AGENTS.md` and adds nothing else. |
 | Copilot code review | Base-branch instructions | Review using trusted base-branch instructions rather than instructions changed by the PR under review. |
 
 ## Failure modes
