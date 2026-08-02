@@ -469,6 +469,10 @@ function Get-ContentUri {
         resolves against the repository's default branch, which is what a reader
         following it gets.
 
+        A target with a reference but no path - 'github.com/OWNER/REPO/tree/REF' -
+        asks for the repository root at that reference, which is what makes an invalid
+        branch or tag answer 404 rather than passing on the repository existing.
+
         .EXAMPLE
         Get-ContentUri -Target $target -ApiBaseUri 'https://api.github.com'
         Returns the endpoint that answers whether the target's path exists.
@@ -488,7 +492,7 @@ function Get-ContentUri {
         [string] $ApiBaseUri
     )
     $encoded = ($Target.ItemPath -split '/' | ForEach-Object { [uri]::EscapeDataString($_) }) -join '/'
-    $uri = "$($ApiBaseUri.TrimEnd('/'))/repos/$($Target.Owner)/$($Target.Repository)/contents/$encoded"
+    $uri = "$($ApiBaseUri.TrimEnd('/'))/repos/$($Target.Owner)/$($Target.Repository)/contents/$encoded".TrimEnd('/')
     if ($Target.Reference) { $uri += "?ref=$([uri]::EscapeDataString($Target.Reference))" }
     return $uri
 }
@@ -591,10 +595,15 @@ function Get-RemoteTargetOutcome {
 
         .DESCRIPTION
         Ask the contents endpoint whether the path exists and, for Markdown with an
-        anchor, whether a heading produces it. A 404 is not conclusive on its own -
-        it answers the same for a deleted file and for a repository no anonymous
-        reader can open - so the repository itself is probed before the link is called
-        broken, and an unreadable repository is reported as unresolvable instead.
+        anchor, whether a heading produces it. A link naming a git reference but no
+        path - 'github.com/OWNER/REPO/tree/REF' - asks for the repository root at that
+        reference, so an invalid branch or tag is caught rather than passing because
+        the repository exists.
+
+        A 404 is not conclusive on its own - it answers the same for a deleted file
+        and for a repository no anonymous reader can open - so the repository itself
+        is probed before the link is called broken, and an unreadable repository is
+        reported as unresolvable instead.
 
         .EXAMPLE
         Get-RemoteTargetOutcome -Target $target -ApiBaseUri 'https://api.github.com' -MaximumAttempt 3
@@ -621,7 +630,7 @@ function Get-RemoteTargetOutcome {
     $repository = "$($Target.Owner)/$($Target.Repository)"
     $repositoryUri = "$($ApiBaseUri.TrimEnd('/'))/repos/$repository"
 
-    if (-not $Target.ItemPath) {
+    if (-not $Target.ItemPath -and -not $Target.Reference) {
         $probe = Get-CachedGitHubRequest -Uri $repositoryUri -MaximumAttempt $MaximumAttempt
         if ($probe.Failure) { return [pscustomobject]@{ Outcome = 'Unresolvable'; Reason = $probe.Failure } }
         if ($probe.StatusCode -eq 200) { return [pscustomobject]@{ Outcome = 'Resolved'; Reason = '' } }
@@ -638,6 +647,9 @@ function Get-RemoteTargetOutcome {
             return [pscustomobject]@{ Outcome = 'Unresolvable'; Reason = "$repository is not publicly readable, so a reader cannot follow this link either" }
         }
         $at = if ($Target.Reference) { " at '$($Target.Reference)'" } else { ' on the default branch' }
+        if (-not $Target.ItemPath) {
+            return [pscustomobject]@{ Outcome = 'Broken'; Reason = "$repository has no branch, tag, or commit named '$($Target.Reference)'" }
+        }
         return [pscustomobject]@{ Outcome = 'Broken'; Reason = "the target does not exist in $repository$at" }
     }
     if ($response.StatusCode -ne 200) {

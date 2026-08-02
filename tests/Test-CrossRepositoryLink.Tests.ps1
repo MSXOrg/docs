@@ -41,15 +41,15 @@ Describe 'Test-CrossRepositoryLink' {
                         continue
                     }
 
-                    if ($requestPath -match '^/repos/([^/]+)/([^/]+)/contents/(.+)$') {
+                    if ($requestPath -match '^/repos/([^/]+)/([^/]+)/contents(?:/(.*))?$') {
                         $repositoryStore = Join-Path $Store "$($matches[1])/$($matches[2])"
-                        $itemPath = [uri]::UnescapeDataString($matches[3])
+                        $itemPath = if ($matches.Count -gt 3 -and $matches[3]) { [uri]::UnescapeDataString($matches[3]) } else { '' }
                         $reference = if ($context.Request.Url.Query -match 'ref=([^&]+)') { $matches[1] } else { 'main' }
                         if (-not (Test-Path -LiteralPath $repositoryStore)) {
                             Write-StubResponse -Context $context -Status 404 -Body '{"message":"Not Found"}'
                             continue
                         }
-                        $item = Join-Path $repositoryStore "$reference/$itemPath"
+                        $item = if ($itemPath) { Join-Path $repositoryStore $reference $itemPath } else { Join-Path $repositoryStore $reference }
                         if (Test-Path -LiteralPath $item -PathType Leaf) {
                             $encoded = [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($item))
                             $payload = [pscustomobject]@{ type = 'file'; encoding = 'base64'; content = $encoded } | ConvertTo-Json -Compress
@@ -280,6 +280,20 @@ See the [helper](https://github.com/MSXOrg/docs/blob/main/src/docs/Gone.md).
             $result.Output | Should -Match 'does not exist'
             (Test-Path -LiteralPath $fixture.RequestLog) | Should -BeFalse
         }
+        It 'fails when a link names a branch the target repository does not have' {
+            $fixture = New-CrossLinkFixture -Content @'
+# Page
+
+See the [branch](https://github.com/PSModule/Demo/tree/no-such-branch).
+'@ -Target @{ 'PSModule/Demo/main/docs/Guide.md' = "# Guide`n" }
+
+            $result = Invoke-CrossLinkFixture -Fixture $fixture
+
+            $result.ExitCode | Should -Be 1
+            $result.Output | Should -Match 'Broken cross-repository links'
+            $result.Output | Should -Match 'no branch, tag, or commit named'
+            $result.Output | Should -Match 'no-such-branch'
+        }
     }
 
     Context 'Resolving targets' {
@@ -289,6 +303,19 @@ See the [helper](https://github.com/MSXOrg/docs/blob/main/src/docs/Gone.md).
 
 See the [guide](https://github.com/PSModule/Demo/blob/main/docs/Guide.md#real-section).
 '@ -Target @{ 'PSModule/Demo/main/docs/Guide.md' = "# Guide`n`n## Real section`n" }
+
+            $result = Invoke-CrossLinkFixture -Fixture $fixture
+
+            $result.ExitCode | Should -Be 0
+            $result.Output | Should -Match 'Every one of them resolves'
+        }
+
+        It 'resolves a link to a branch the target repository does have' {
+            $fixture = New-CrossLinkFixture -Content @'
+# Page
+
+See the [branch](https://github.com/PSModule/Demo/tree/main).
+'@ -Target @{ 'PSModule/Demo/main/docs/Guide.md' = "# Guide`n" }
 
             $result = Invoke-CrossLinkFixture -Fixture $fixture
 
