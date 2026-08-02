@@ -59,17 +59,19 @@ Product repositories carry local context and thin pointers:
 
 ```text
 <repo>/
-  AGENTS.md
-  CLAUDE.md
+  AGENTS.md                        # required: the router — a list of destinations
+  .claude/
+    CLAUDE.md                      # required: routes Claude Code — @../AGENTS.md
   .github/
-    copilot-instructions.md
+    copilot-instructions.md        # required: routes the Copilot surfaces that need it
     instructions/
-      <scope>.instructions.md
-  README.md
-  docs/
+      <scope>.instructions.md      # exceptional: a path-scoped local caveat
+  README.md                        # what it is, how it builds
+  CONTRIBUTING.md                  # how a change is made here
+  docs/                            # architecture and domain context
 ```
 
-The repository owns only repository-specific nuance: bootstrap entry points, build commands, contribution mechanics, architecture notes, local exceptions, and path-scoped rules. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract."
+The repository owns only repository-specific nuance, and each kind has a file that owns it: `README.md` for what the repository is and how it builds, `CONTRIBUTING.md` for contribution mechanics, `docs/` for architecture and domain context, and path-scoped rule files for local caveats. `AGENTS.md` points at them and holds none of it. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract" — the contract lives, it just lives in the file a human would read.
 
 ## OKF page model
 
@@ -111,8 +113,8 @@ docs/
   Ways-of-Working/Workflow.md
   Ways-of-Working/Workflow-Stages/index.md
   Coding-Standards/index.md
-  Frameworks/index.md
-  Frameworks/Agentic-Development/index.md
+  Capabilities/index.md
+  Capabilities/agentic-development/index.md
 
 memory/
   index.md
@@ -140,14 +142,15 @@ flowchart TD
   aip --> refresh["Refresh selected docs + memory<br/>stop unless exactly synchronized"]
   msx --> refresh
   psmodule --> refresh
-  refresh --> docs["Read selected docs index"]
+  refresh --> repo["Read README, CONTRIBUTING,<br/>and local docs"]
+  repo --> path["Apply path-scoped local rules"]
+  path --> orgdocs["Read organization<br/>documentation"]
+  orgdocs --> docs["Read inherited<br/>ecosystem documentation"]
   docs --> workflow["Follow indexes to Workflow"]
 
   workflow --> stage["Infer current stage<br/>read canonical procedure"]
-  stage --> memory["Read organization memory index"]
-  memory --> repo["Read README and repository docs"]
-  repo --> path["Apply path-specific local rules"]
-  path --> task["Read issue, PR, branch, diff, diagnostics, and open files"]
+  stage --> memory["Read memory last"]
+  memory --> task["Read issue, PR, branch, diff, diagnostics, and open files"]
   task --> act["Act and follow stage handoffs"]
 
   act --> newpath{"New file path touched?"}
@@ -159,49 +162,46 @@ Resolution is deterministic. If the active repository remote is `github.com/PSMo
 
 ## Pointer files
 
-`AGENTS.md` is the cross-runtime pointer file. It identifies the project, names the canonical docs and memory root indexes, and lists local nuance. It points to the discovery trail, not to a stage-specific tool file.
+`AGENTS.md` is the cross-runtime router. It names the project and lists where to read, in order. It holds nothing else — no bootstrap, no build commands, no contribution mechanics, no standards.
 
 ```markdown
 # Agent Instructions
 
-This repository belongs to `github.com/MSXOrg`.
+This repository is `github.com/MSXOrg/<repo>`. Read in this order:
 
-Canonical project context:
+1. `README.md` — what this repository is and how it builds.
+2. `CONTRIBUTING.md` — how a change is made and reviewed here.
+3. `docs/index.md` — this repository's own documentation.
+4. `~/.msx/docs/src/docs/index.md` — the organization standards.
+5. `~/.msx/memory/index.md` — durable lessons, read last.
 
-- `github.com/MSXOrg/docs`
-- `github.com/MSXOrg/memory`
-
-Before changing files:
-
-1. Segment the work by host, organization, repository, path, and task.
-2. Refresh every canonical context repository and stop unless each exactly matches its remote default branch.
-3. Start at the resolved project `docs/index.md`.
-4. Follow the Ways of Working index to Workflow, infer the current stage, and read that stage procedure.
-5. Read the relevant project standards, repository README and local docs, and organization memory.
-6. Apply path-specific local rules for the files being changed.
-
-This file points; it does not define process knowledge.
+Read nearest first. A local file never overrides a standard, and memory never
+overrides documentation.
 ```
+
+A router lists the destinations that exist in that repository, written as the paths that repository actually uses — the ones above are an example, not a required layout. A repository with no documentation of its own drops that line; one that publishes the standards resolves steps 3 and 4 to the same tree and drops the duplicate. Writing a real path matters more than matching the example, because the router is read literally.
 
 The index trail is the default. A clear prompt can shortcut stage discovery: `Review this PR <link>` enters Review, `Make this issue <description>` enters Define, and `Implement <issue>` enters Implement. These phrases are routing hints interpreted by [Workflow](../../Ways-of-Working/Workflow.md#find-the-current-stage), not commands with independent procedures.
 
-> **Discovery order vs. conflict precedence** — the pointer resolves organization context first, then the agent uses the stage procedure to select relevant organization and repository pages. Local pointer files and repository docs add nuance and narrow exceptions; they never silently override an organization standard unless the standard explicitly permits a local exception.
+> **Reading order vs. conflict precedence** — the router reads the repository's own files first and widens outward, because nearest context is cheapest and most specific. Precedence runs the other way: repository files add nuance and narrow exceptions and never silently override an organization standard unless that standard permits a local exception, and memory never overrides documentation.
 
-`CLAUDE.md` stays a thin import:
-
-```markdown
-@AGENTS.md
-```
-
-`.github/copilot-instructions.md` points Copilot to the same root and adds only Copilot-specific loading guidance:
+`.claude/CLAUDE.md` is a single import:
 
 ```markdown
-Follow `AGENTS.md`.
-
-Segment the work by host, organization, repository, path, and task. Refresh the resolved canonical context repositories and stop on any synchronization failure. Only then start at the organization docs root index and follow its Workflow. Use path-specific instruction files only for local path rules when their `applyTo` pattern matches a file being read, generated, reviewed, or edited.
+@../AGENTS.md
 ```
 
-Path-specific instruction files are reserved for local rules that cannot live centrally because they apply only to a repository path. They never define workflow stages.
+Claude Code accepts either `./CLAUDE.md` or `./.claude/CLAUDE.md` as the project file, and resolves a relative import against the file that contains it — so from `.claude/`, the router is `../AGENTS.md`. Writing `@AGENTS.md` there would resolve to `.claude/AGENTS.md` and silently load nothing.
+
+`.github/copilot-instructions.md` has the same shape, for the Copilot surfaces that do not read `AGENTS.md`:
+
+```markdown
+Follow the instructions in [AGENTS.md](../AGENTS.md).
+```
+
+That is the entire file. It holds no reading order, no workflow, and no standard, so there is nothing in it that can fall out of step with the router. Any future runtime is handled the same way: give it a route under whatever filename it reads, and leave the content in `AGENTS.md`.
+
+Path-scoped instruction files are reserved for local rules that cannot live centrally because they apply only to a repository path, and only when the rule does not belong in `README.md` or `CONTRIBUTING.md` instead. They never define workflow stages.
 
 ## Local workspace
 
@@ -237,15 +237,17 @@ Session-specific notes stay out of durable memory unless they become reusable pr
 
 ## Client behavior
 
-Different clients load different files, but the framework keeps the same dependency direction:
+Different clients load different files, but the framework keeps the same dependency direction. A client that reads `AGENTS.md` needs no file of its own; a client that does not gets a route to it.
 
-| Client | Adapter | Behavior |
+| Client | Reads | Behavior |
 | --- | --- | --- |
-| Cross-client agents | `AGENTS.md` | Resolve and synchronize the shared docs and memory roots, then traverse indexes to Workflow and the current stage. |
-| Claude Code | `CLAUDE.md` | Import `AGENTS.md`; add no duplicated process knowledge. |
-| GitHub Copilot in VS Code | `.github/copilot-instructions.md` and `.github/instructions/*.instructions.md` | Follow `AGENTS.md`, including its freshness gate, then apply path-specific local rules when files match. |
-| Copilot coding agent | `AGENTS.md`, `.github/copilot-instructions.md`, setup workflow | Synchronize the local roots, traverse the canonical indexes, and follow the resolved stage procedure. |
-| Copilot code review | Base-branch instructions | Review using trusted base-branch instructions rather than instructions changed by the PR under review. |
+| Cross-client agents | `AGENTS.md` | Read the router, then follow its order outward from the repository to the organization documentation and memory. |
+| Claude Code | `.claude/CLAUDE.md` | Imports the router with `@../AGENTS.md` and adds nothing else. |
+| Copilot Chat in VS Code, and the Copilot cloud agent | `AGENTS.md` | Read `AGENTS.md` natively and follow its route list. Path-scoped `.github/instructions/*.instructions.md` files still apply when their `applyTo` pattern matches a file being read, generated, reviewed, or edited. |
+| Copilot surfaces without `AGENTS.md` support | `.github/copilot-instructions.md` | Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review outside GitHub.com read this file. It routes them to the router and adds nothing else. |
+| Copilot code review | Head-branch instructions | Reads repository instructions, agent instructions, and skills from the pull request's **head** branch, not the base branch. |
+
+Because Copilot code review reads the head branch, a pull request that changes `AGENTS.md`, a client route, or a path-scoped instruction file also changes the instructions used to review that pull request. Those files are therefore reviewed by a human on their own merits, and an automated approval is never treated as independent of them. What this means for repositories that accept outside contributions is still open — see [MSXOrg/docs#123](https://github.com/MSXOrg/docs/issues/123).
 
 ## Failure modes
 
@@ -253,11 +255,12 @@ Different clients load different files, but the framework keeps the same depende
 | --- | --- |
 | Repository does not identify its organization context | Infer from remote URL; ask when ambiguous. |
 | A docs or memory clone is missing or cannot synchronize | Bootstrap or repair it, then retry. Stop context resolution until every canonical context repository passes the freshness gate. |
-| Pointer file duplicates central standards | Replace duplicated content with links during review. |
+| Pointer file duplicates central standards | Replace duplicated content with a route during review. A client file holds a pointer, not a copy. |
 | A skill, command, named agent, or instruction file defines a workflow stage | Delete the duplicate procedure and link to Workflow or its stage page. |
 | Memory conflicts with docs | Docs win; memory is corrected or removed. |
 | Two organizations are open in one workspace | Select by active repository; ask before cross-project changes. |
-| A client ignores one pointer format | Add a thin adapter for that client that points to the same canonical roots. |
+| A client ignores one pointer format | Add a route file under the filename that client reads, containing only a pointer to `AGENTS.md`. |
+| A repository file contradicts an organization standard | The standard governs. Narrow the local file to the exception the standard permits, or change the standard. |
 
 ## Adoption path
 
@@ -266,7 +269,7 @@ Different clients load different files, but the framework keeps the same depende
 3. Add `docs/index.md` and `memory/index.md` as the two root maps.
 4. Add the canonical Workflow and linked stage procedures to `docs`.
 5. Add starter memory sections to `memory`.
-6. Add thin pointer files to each product repository.
+6. Add the `AGENTS.md` router to each product repository, plus a route for every client that cannot read it.
 7. Add a bootstrap that keeps local docs and memory clones present and exactly synchronized before use.
 8. Review new work for pointer discipline: facts live once, links point to them.
 

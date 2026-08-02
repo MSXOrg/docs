@@ -27,8 +27,9 @@ Every repository must carry the files that make it understandable and governable
 | `SECURITY.md` | Explains supported versions and private vulnerability reporting. |
 | `SUPPORT.md` | Explains where users ask for help. |
 | `CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
-| `AGENTS.md` | Cross-tool agent onboarding entry point that points to the initiative's canonical agent guidance. |
-| `CLAUDE.md` | Claude Code entry point that imports `AGENTS.md` so Claude reads the same guidance. |
+| `AGENTS.md` | Cross-tool agent router at the repository root: a short ordered list of where to read, from this repository's own files outward to the initiative and central documentation, then to memory. |
+| `.claude/CLAUDE.md` | Routes Claude Code to the router with a single `@../AGENTS.md` import. |
+| `.github/copilot-instructions.md` | Routes the Copilot surfaces that do not read `AGENTS.md` to the router. |
 | `.github/dependabot.yml` | Configures ecosystem-appropriate dependency-update pull requests. The `github-actions` ecosystem is expected in virtually every repository; add the language, package, container, or infrastructure ecosystems the repository actually develops in. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
 | `.github/pull_request_template.md` | Scaffolds pull requests in the MSX [PR Format](PR-Format.md) (PR Manager) style — an icon + change-type + user-facing-outcome title, user-facing description sections, an optional technical-details block, and a related-issues block. |
@@ -36,6 +37,8 @@ Every repository must carry the files that make it understandable and governable
 | `.gitignore` | Ignores files that must never be committed, tailored to the repository's ecosystem: operating-system files, editor and developer-tooling files, language and test-harness artifacts, and all local build outputs and files created during build and test. |
 
 Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
+
+`AGENTS.md` is the only agent file that carries the reading order. `.claude/CLAUDE.md` and `.github/copilot-instructions.md` exist because those clients read their own filenames; each holds a route to the router and, at most, genuinely runtime-specific configuration such as permission scopes — never a reading order, a workflow, or a standard. A path-scoped `.github/instructions/*.instructions.md` file is exceptional, added only for a local caveat that cannot live in `README.md`, `CONTRIBUTING.md`, or central documentation. See [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries).
 
 ## README defaults
 
@@ -69,7 +72,7 @@ Default expectations by repository type:
 | Libraries, services, CLIs, and applications | Product docs live under `docs/` and are published when the product needs more than a small README. |
 | GitHub Actions | The README is the main documentation surface because GitHub Actions users expect inputs, outputs, permissions, and examples next to `action.yml`. |
 | Reusable workflows | The README is the main documentation surface because callers need workflow interface, permissions, secrets, and examples in the repository. |
-| Documentation repositories | The published site is the product. The repository README only explains the source repo and local contribution/build entry points. |
+| Documentation repositories | The published site is the product. The repository README explains what the source repository is and how it is laid out, and points to `CONTRIBUTING.md` for the authoring conventions and the local build. |
 
 Documentation content lives in one folder, never spread across the repository root. A repository whose product is content — a documentation site, a reference collection, an archive of external material — keeps that content under a single documentation root: `docs/` by default, or a generator's source root such as `src/docs/` when the site tooling needs one. The repository root stays reserved for the README, the tooling, and the governance files, so a reader can tell content from machinery without opening a folder.
 
@@ -154,6 +157,7 @@ For example, PSModule can define its module-specific managed files in `PSModule/
 ## Where this connects
 
 - [Organization Standard](Organization-Standard.md) — what an initiative organization must define centrally.
+- [Agentic Development](Agentic-Development.md) — which agent files a repository carries and why the entry point is a pointer.
 - [Repository Type Property](Repository-Type-Property.md) — the `Type` custom property that classifies a repository and drives which type-specific files and controls apply.
 - [README-Driven Context](Readme-Driven-Context.md) — why the README is the front door.
 - [PR Format](PR-Format.md) — the PR Manager-style title and description format.
