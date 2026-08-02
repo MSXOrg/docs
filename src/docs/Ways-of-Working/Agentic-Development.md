@@ -70,11 +70,11 @@ There is no separate process surface for Define, Implement, or Review. If a clie
 | File | Status | Role |
 | --- | --- | --- |
 | `AGENTS.md` | Required | The single agent entry point. Every other agent file points back to it. |
-| `CLAUDE.md` | Adapter | Claude Code loads `CLAUDE.md` rather than `AGENTS.md`, so the repository keeps a one-line import. |
+| `CLAUDE.md` | Required | Claude Code loads `CLAUDE.md` rather than `AGENTS.md`, so the repository keeps a one-line import. |
 | `.github/copilot-instructions.md` | Optional adapter | Only for Copilot surfaces that do not read `AGENTS.md`. |
 | `.github/instructions/*.instructions.md` | Optional | Path-scoped local rules that apply to one repository path and cannot live centrally. |
 
-An adapter is warranted when a runtime surface the repository actually relies on does not read `AGENTS.md`. That is a verifiable question rather than a preference: GitHub's [custom instructions support matrix](https://docs.github.com/en/copilot/reference/custom-instructions-support) records that Copilot Chat in VS Code, the Copilot cloud agent, and Copilot code review on GitHub.com read `AGENTS.md`, while Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review in VS Code read `.github/copilot-instructions.md` instead.
+The two required files are listed as such in the [Repository Standard](Repository-Standard.md#required-files). An adapter beyond them is warranted when a runtime surface the repository actually relies on does not read `AGENTS.md`. That is a verifiable question rather than a preference: GitHub's [custom instructions support matrix](https://docs.github.com/en/copilot/reference/custom-instructions-support) records that Copilot Chat in VS Code, the Copilot cloud agent, and Copilot code review on GitHub.com read `AGENTS.md`, while Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review in VS Code read `.github/copilot-instructions.md` instead.
 
 An adapter is not added as a matter of course. A second file that repeats the same pointer is duplication, and duplicated pointers disagree the moment one of them is edited — the failure this whole model exists to prevent. Add the adapter a runtime needs; do not seed one everywhere by default.
 

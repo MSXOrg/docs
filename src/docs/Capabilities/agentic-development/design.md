@@ -60,7 +60,7 @@ Product repositories carry local context and thin pointers:
 ```text
 <repo>/
   AGENTS.md                        # required: the agent entry point
-  CLAUDE.md                        # adapter: a one-line import of AGENTS.md
+  CLAUDE.md                        # required: a one-line import of AGENTS.md
   .github/
     copilot-instructions.md        # optional: only for Copilot surfaces that do not read AGENTS.md
     instructions/
@@ -69,7 +69,7 @@ Product repositories carry local context and thin pointers:
   docs/
 ```
 
-`AGENTS.md` is the file every repository carries; the adapters are added only where a runtime needs one. The repository owns only repository-specific nuance: bootstrap entry points, build commands, contribution mechanics, architecture notes, local exceptions, and path-scoped rules. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract."
+`AGENTS.md` and the `CLAUDE.md` that imports it are carried by every repository; the remaining adapters are added only where a runtime needs one. The repository owns only repository-specific nuance: bootstrap entry points, build commands, contribution mechanics, architecture notes, local exceptions, and path-scoped rules. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract."
 
 ## OKF page model
 
