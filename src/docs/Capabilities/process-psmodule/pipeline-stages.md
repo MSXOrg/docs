@@ -11,7 +11,7 @@ implements it.
 
 ## Plan
 
-[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/ThisWorkflowDoesNotExist.yml)
+[workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Plan.yml)
 
 The Plan job is the single decision point of the workflow. It reads the settings file (`.github/PSModule.yml`),
 collects event context from GitHub, and decides what should happen in the rest of the process. Using that
@@ -93,7 +93,7 @@ The [PSModule - SourceCode tests](https://github.com/PSModule/Process-PSModule/b
 [workflow](https://github.com/PSModule/Process-PSModule/blob/main/.github/workflows/Test-Module.yml)
 
 - Tests and lints the module in parallel (matrix) using:
-  - [PSModule framework settings for style and standards for modules](https://github.com/PSModule/Process-PSModule/blob/main/README.md#no-such-heading-here)
+  - [PSModule framework settings for style and standards for modules](https://github.com/PSModule/Process-PSModule/tree/main/.github/actions/Test-PSModule/src/tests/Module)
   - [PSScriptAnalyzer rules](https://github.com/PSModule/Invoke-ScriptAnalyzer)
 - This produces a JSON-based report that is used by [Get-PesterTestResults](#get-test-results) evaluate the results of the tests.
 - **Code coverage for framework-generated code**: This step collects code coverage for framework-generated
