@@ -33,7 +33,7 @@ Applies to any organization that wants a shared project knowledge base and memor
 
 - Organization-level `docs` and `memory` repositories.
 - Markdown documents with YAML frontmatter, following the [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) model.
-- Thin repository pointer files: a required `AGENTS.md` router, and the minimal client adapter a runtime needs to reach it.
+- Thin repository pointer files: a required `AGENTS.md` router, and a content-free route for every client that cannot read it.
 - Path-scoped rule files, reserved for local caveats that cannot live in repository or central documentation.
 - Refresh-first, index-first discovery from canonical context repositories to the Workflow and its stage procedures.
 - Deterministic context resolution by host, organization, repository, path, and task.
@@ -60,7 +60,7 @@ Applies to any organization that wants a shared project knowledge base and memor
 - **Stage resolution from work.** Agents MUST infer the current stage from the prompt and current artifacts. Explicit task language MAY shortcut to the matching stage, but the shortcut MUST resolve to the canonical documentation.
 - **One process source.** Skills, commands, named agents, and tool-specific instruction files MUST NOT redefine Workflow stages. A client convenience MAY link to a stage procedure and add only runtime mechanics.
 - **Segmentation before loading.** Local agent files MUST instruct agents to segment work by host, organization, repository, path, and task before loading project standards or memory.
-- **Client adapters.** A runtime that cannot read `AGENTS.md` under its own filename MAY be given an adapter file, which MUST contain only an import of or reference to `AGENTS.md` plus genuinely runtime-specific configuration. An adapter MUST NOT restate standards, define workflow behavior, or become a second copy of the router. Organizations SHOULD prefer a single organization-level instruction setting over a per-repository adapter when the runtime offers one, because a per-repository copy drifts from the file it points at. [Agentic Development](../../Ways-of-Working/Agentic-Development.md#which-agent-files-a-repository-carries) narrows this to the exact set an MSX repository carries; an adopting organization MAY carry a different set for the runtimes it uses.
+- **Client routes.** A runtime that cannot read `AGENTS.md` under its own filename MUST be given a route file — `CLAUDE.md`, `.github/copilot-instructions.md`, or the equivalent for that runtime. A route file MUST contain only a pointer to `AGENTS.md` plus, at most, genuinely runtime-specific configuration that cannot be expressed as documentation. It MUST NOT restate standards, describe workflow behavior, or repeat the reading order. Duplication is a property of content rather than of filenames: a route holds nothing that can drift, so the number of route files is unconstrained while their contents are strictly limited. [Agentic Development](../../Ways-of-Working/Agentic-Development.md#which-agent-files-a-repository-carries) names the exact set an MSX repository carries; an adopting organization MAY carry a different set for the runtimes it uses.
 - **Reading order and authority order are distinct.** An agent MUST read nearest context first, in the order the repository router defines. Precedence on conflict MUST run the opposite way: repository-local files MAY add nuance and narrow exceptions but MUST NOT override an initiative or organization standard unless that standard permits a local exception, and memory MUST NOT override documentation.
 - **Deterministic context resolution.** Agents MUST resolve context in layers: system and client policy, user preferences, the repository router, the context-repository freshness gate, repository context, path-scoped repository rules, organization docs, any inherited ecosystem docs, organization memory, then current task context.
 - **Local-first availability.** The docs and memory repositories SHOULD be available locally in a predictable workspace so agents can read them without relying on search or web access.
@@ -74,7 +74,7 @@ Applies to any organization that wants a shared project knowledge base and memor
 - An agent working in `github.com/PSModule/<repo>` reads PSModule docs and memory, not MSXOrg or AI-Platform rules.
 - An agent working in `github.com/MSXOrg/<repo>` resolves `github.com/MSXOrg/docs` and `github.com/MSXOrg/memory` as the canonical project context.
 - An agent working in `dnb.ghe.com/AI-Platform/<repo>` resolves `dnb.ghe.com/AI-Platform/docs` and `dnb.ghe.com/AI-Platform/memory` as the canonical project context.
-- A new product repository can adopt the framework by adding a router and a client import, without copying standards or memory pages.
+- A new product repository can adopt the framework by adding a router and the client routes that reach it, without copying standards or memory pages.
 - An agent reads the repository's own README and CONTRIBUTING before it reads an organization standard, and still applies the organization standard when the two disagree.
 - A human can start at `docs/index.md` or `memory/index.md` and navigate to the same context an agent uses.
 - A human or agent can follow `docs/index.md` → Ways of Working → Workflow → the current stage procedure without knowing a file path in advance.

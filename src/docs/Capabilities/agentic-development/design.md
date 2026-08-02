@@ -59,10 +59,11 @@ Product repositories carry local context and thin pointers:
 
 ```text
 <repo>/
-  AGENTS.md                        # required: the router
+  AGENTS.md                        # required: the router, and the only file with content
   .claude/
-    CLAUDE.md                      # required: a single @../AGENTS.md import
+    CLAUDE.md                      # required: routes Claude Code — @../AGENTS.md
   .github/
+    copilot-instructions.md        # required: routes the Copilot surfaces that need it
     instructions/
       <scope>.instructions.md      # exceptional: a path-scoped local caveat
   README.md
@@ -70,7 +71,7 @@ Product repositories carry local context and thin pointers:
   docs/
 ```
 
-`AGENTS.md` and the `.claude/CLAUDE.md` that imports it are carried by every repository. A path-scoped instruction file appears only where a local caveat has nowhere better to live. The repository owns only repository-specific nuance: bootstrap entry points, build commands, contribution mechanics, architecture notes, local exceptions, and path-scoped rules. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract."
+`AGENTS.md` and the routes that reach it are carried by every repository. A path-scoped instruction file appears only where a local caveat has nowhere better to live. The repository owns only repository-specific nuance: bootstrap entry points, build commands, contribution mechanics, architecture notes, local exceptions, and path-scoped rules. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract."
 
 ## OKF page model
 
@@ -200,7 +201,13 @@ The index trail is the default. A clear prompt can shortcut stage discovery: `Re
 
 Claude Code accepts either `./CLAUDE.md` or `./.claude/CLAUDE.md` as the project file, and resolves a relative import against the file that contains it — so from `.claude/`, the router is `../AGENTS.md`. Writing `@AGENTS.md` there would resolve to `.claude/AGENTS.md` and silently load nothing.
 
-No `.github/copilot-instructions.md` is added. Copilot surfaces that read `AGENTS.md` need no second file, and those that do not are covered by an organization-level instruction setting rather than a per-repository copy that drifts from the router.
+`.github/copilot-instructions.md` has the same shape, for the Copilot surfaces that do not read `AGENTS.md`:
+
+```markdown
+Follow the instructions in [AGENTS.md](../AGENTS.md).
+```
+
+That is the entire file. It holds no reading order, no workflow, and no standard, so there is nothing in it that can fall out of step with the router. Any future runtime is handled the same way: give it a route under whatever filename it reads, and leave the content in `AGENTS.md`.
 
 Path-scoped instruction files are reserved for local rules that cannot live centrally because they apply only to a repository path, and only when the rule does not belong in `README.md` or `CONTRIBUTING.md` instead. They never define workflow stages.
 
@@ -238,14 +245,14 @@ Session-specific notes stay out of durable memory unless they become reusable pr
 
 ## Client behavior
 
-Different clients load different files, but the framework keeps the same dependency direction. A client that reads `AGENTS.md` needs no repository file of its own.
+Different clients load different files, but the framework keeps the same dependency direction. A client that reads `AGENTS.md` needs no file of its own; a client that does not gets a route to it.
 
-| Client | Adapter | Behavior |
+| Client | Reads | Behavior |
 | --- | --- | --- |
 | Cross-client agents | `AGENTS.md` | Read the router, then follow its order outward from the repository to the organization documentation and memory. |
-| Claude Code | `.claude/CLAUDE.md` | Import `../AGENTS.md`; add no duplicated process knowledge. |
+| Claude Code | `.claude/CLAUDE.md` | Imports `../AGENTS.md` and adds nothing else. |
 | Copilot Chat in VS Code, and the Copilot cloud agent | `AGENTS.md` | Read `AGENTS.md` natively, including its freshness gate. Path-scoped `.github/instructions/*.instructions.md` files still apply when their `applyTo` pattern matches a file being read, generated, reviewed, or edited. |
-| Copilot surfaces without `AGENTS.md` support | Organization instructions | Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review outside GitHub.com do not read `AGENTS.md`. They are covered by an organization-level instruction setting where the runtime offers one, not by a per-repository file. |
+| Copilot surfaces without `AGENTS.md` support | `.github/copilot-instructions.md` | Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review outside GitHub.com read this file. It routes them to the router and adds nothing else. |
 | Copilot code review | Head-branch instructions | Reads repository instructions, agent instructions, and skills from the pull request's **head** branch, not the base branch. |
 
 Because Copilot code review reads the head branch, a pull request that changes `AGENTS.md`, an adapter, or a path-scoped instruction file also changes the instructions used to review that pull request. Those files are therefore reviewed by a human on their own merits, and an automated approval is never treated as independent of them. What this means for repositories that accept outside contributions is still open — see [MSXOrg/docs#123](https://github.com/MSXOrg/docs/issues/123).
@@ -256,11 +263,11 @@ Because Copilot code review reads the head branch, a pull request that changes `
 | --- | --- |
 | Repository does not identify its organization context | Infer from remote URL; ask when ambiguous. |
 | A docs or memory clone is missing or cannot synchronize | Bootstrap or repair it, then retry. Stop context resolution until every canonical context repository passes the freshness gate. |
-| Pointer file duplicates central standards | Replace duplicated content with links during review. |
+| Pointer file duplicates central standards | Replace duplicated content with a route during review. A client file holds a pointer, not a copy. |
 | A skill, command, named agent, or instruction file defines a workflow stage | Delete the duplicate procedure and link to Workflow or its stage page. |
 | Memory conflicts with docs | Docs win; memory is corrected or removed. |
 | Two organizations are open in one workspace | Select by active repository; ask before cross-project changes. |
-| A client ignores one pointer format | Prefer an organization-level instruction setting. Add a repository adapter only when the runtime offers no central equivalent, and keep it to an import of the router. |
+| A client ignores one pointer format | Add a route file under the filename that client reads, containing only a pointer to `AGENTS.md`. |
 | A repository file contradicts an organization standard | The standard governs. Narrow the local file to the exception the standard permits, or change the standard. |
 
 ## Adoption path
@@ -270,7 +277,7 @@ Because Copilot code review reads the head branch, a pull request that changes `
 3. Add `docs/index.md` and `memory/index.md` as the two root maps.
 4. Add the canonical Workflow and linked stage procedures to `docs`.
 5. Add starter memory sections to `memory`.
-6. Add the `AGENTS.md` router to each product repository, plus the single client import a runtime needs to reach it.
+6. Add the `AGENTS.md` router to each product repository, plus a route for every client that cannot read it.
 7. Add a bootstrap that keeps local docs and memory clones present and exactly synchronized before use.
 8. Review new work for pointer discipline: facts live once, links point to them.
 
