@@ -9,6 +9,10 @@
     `#Requires` line and runs it in a child PowerShell; the line is enforced by the engine, so the
     child prints `SATISFIED` only when the requirement resolves.
 
+    The last context covers a side effect rather than a resolution rule: whether the child returns
+    the exit code it asked for. Those cases write a script that prints `RAN` and exits 7, and assert
+    on the child process's real exit code — so a case cannot pass because the script never ran.
+
     Run:  Invoke-Pester -Path ./tests/Requires-Modules.Tests.ps1
     Uses the installed Pester as the sample module, so it is independent of the exact 6.x version.
 #>
@@ -31,6 +35,22 @@ Describe '#Requires -Modules version specification' {
                 Remove-Item -LiteralPath $file -Force -ErrorAction SilentlyContinue
             }
             [bool]($output -match 'SATISFIED')
+        }
+
+        function Get-DeclarationExitCode {
+            param([Parameter(Mandatory)][AllowEmptyString()][string] $Declaration)
+            $file = Join-Path ([IO.Path]::GetTempPath()) ("requires_exit_" + [guid]::NewGuid().ToString('N') + '.ps1')
+            "$Declaration`r`nWrite-Output 'RAN'`r`nexit 7" | Set-Content -LiteralPath $file -Encoding utf8
+            try {
+                $output = & $script:pwsh -NoProfile -File $file 2>&1 | Out-String
+                $code = $LASTEXITCODE
+            } finally {
+                Remove-Item -LiteralPath $file -Force -ErrorAction SilentlyContinue
+            }
+            [pscustomobject]@{
+                Ran = [bool]($output -match 'RAN')
+                ExitCode = $code
+            }
         }
     }
 
@@ -64,6 +84,24 @@ Describe '#Requires -Modules version specification' {
         }
         It 'Omitting the GUID still resolves — the GUID is optional' {
             Test-RequiresSatisfied "@{ ModuleName = 'Pester'; ModuleVersion = '$major.0.0'; MaximumVersion = '$major.*' }" | Should -BeTrue
+        }
+    }
+
+    Context 'Exit code — how the dependency is declared decides whether a verdict survives' {
+        It 'An explicit Import-Module returns the exit code the script asked for' {
+            $result = Get-DeclarationExitCode -Declaration "Import-Module -Name Pester -MinimumVersion $major.0.0 -MaximumVersion $major.*"
+            $result.Ran | Should -BeTrue
+            $result.ExitCode | Should -Be 7
+        }
+        It 'A #Requires -Modules line runs the script but does not return the exit code it asked for' {
+            $result = Get-DeclarationExitCode -Declaration "#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '$major.0.0'; MaximumVersion = '$major.*' }"
+            $result.Ran | Should -BeTrue
+            $result.ExitCode | Should -Not -Be 7
+        }
+        It 'A #Requires -Version line is not involved — the exit code survives it' {
+            $result = Get-DeclarationExitCode -Declaration '#Requires -Version 7.0'
+            $result.Ran | Should -BeTrue
+            $result.ExitCode | Should -Be 7
         }
     }
 }

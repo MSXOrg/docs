@@ -32,6 +32,41 @@ Other rules:
 - `GUID` pins module *identity*, which is orthogonal to the version — a wrong GUID blocks even a version match, and omitting it is fine. It is a supply-chain control, not part of the version lock (see [Security → Supply chain](../Security.md#supply-chain)).
 - Requirements are enforced by the engine at **parse/discovery time**: if no installed module satisfies the specification, the script is not run at all.
 
+## An entry script that reports a verdict imports its modules itself
+
+`#Requires -Modules` is the right way for a **test file, a module, or a function library** to declare what it needs. It is the wrong way for an **entry script whose exit code is the answer** — a test gate, a validation script, a hook — because the declaration can cost the script that exit code.
+
+```powershell
+# gate.ps1
+#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.0.0'; MaximumVersion = '6.*' }
+Write-Output 'ran'
+exit 7
+```
+
+```console
+$ pwsh -NoProfile -File gate.ps1
+ran
+$ echo $LASTEXITCODE
+0
+```
+
+The script runs to completion and executes its `exit`; only the code is lost. A gate written this way reports success no matter what it found — and because the failure is invisible in a passing run, it is caught only by [proving the check can fail](../Testing.md#prove-the-test-can-fail).
+
+Import the module instead, with the same range the specification would have carried:
+
+```powershell
+Import-Module -Name Pester -MinimumVersion 6.0.0 -MaximumVersion 6.*
+```
+
+What was observed, and what was not:
+
+- It reproduces with Pester — name form and hashtable form, version `5.8.0` and `6.0.1` alike. It did **not** reproduce with `PSScriptAnalyzer`, `PSReadLine`, `Microsoft.PowerShell.PSResourceGet`, `Microsoft.PowerShell.Management`, or a throwaway module written for the test, all of which return the code the script asked for.
+- `#Requires -Version` is not involved; only the `-Modules` parameter is.
+- `pwsh -Command ". ./gate.ps1"` — the form [GitHub Actions](../GitHub-Actions.md) uses for `shell: pwsh` — collapses every non-zero exit to `1` whether or not the declaration is present, so a CI step still fails. The false green belongs to `pwsh -File`, which is how a person runs the script by hand.
+- Why it is specific to one module is **not known**. The rule above is therefore written as a shape to avoid, not as a claim about how `#Requires` works.
+
+The `#Requires -Modules` lines inside `*.Tests.ps1` files stay as they are. Pester runs a test file as a container, not as an entry script, so no exit code is at stake there.
+
 ## Choosing the tightness (risk appetite)
 
 Match the constraint to how much drift you can safely absorb:
@@ -48,9 +83,10 @@ Every row above is backed by an executable Pester test, [`tests/Requires-Modules
 Invoke-Pester -Path ./tests/Requires-Modules.Tests.ps1
 ```
 
-It proves, among the eight cases:
+It proves, among the eleven cases:
 
 - The **major lock** (`ModuleVersion = 'N.0.0'; MaximumVersion = 'N.*'`) resolves to the installed `N.x`.
 - The **wildcard ceiling is enforced** — a ceiling below the floor is unsatisfiable (so `6.*` genuinely blocks 7.x).
 - An **exact** `RequiredVersion` that isn't installed does **not** resolve (why exact pins are fragile).
 - A **wrong GUID** blocks an otherwise-matching module, while **omitting** the GUID still resolves (identity is optional and orthogonal to version).
+- An **explicit `Import-Module`** returns the exit code the script asked for, and a **`#Requires -Modules` declaration does not** — the last three cases run a child script that prints `RAN` and exits `7`, and assert on the child process's real exit code, so a case cannot pass because the script never ran.
