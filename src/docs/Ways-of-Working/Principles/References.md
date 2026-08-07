@@ -15,3 +15,10 @@ Literature and books that inform these principles:
 - **The Pragmatic Programmer** — David Thomas and Andrew Hunt. Evolutionary design, DRY, and automation as default.
 - **Accelerate** — Nicole Forsgren, Jez Humble, Gene Kim. The research behind DevOps, Shift Left, and continuous delivery.
 - **Lean Software Development** — Mary and Tom Poppendieck. Start thin, eliminate waste, deliver fast.
+
+## To explore
+
+Links to review for possible future influence on the principles and ways of working:
+
+- **HumanLayer documentation** — <https://docs.humanlayer.com/>
+- **DEX Podcast** — <https://www.davidondrej.com/dex-podcast>
