@@ -51,7 +51,7 @@ param(
     # Exact Pester version to run with, so a new release cannot turn an untouched pull
     # request red. Keep it inside the range the suites' '#Requires' lines declare.
     [Parameter()]
-    [string] $RequiredVersion = '6.0.1',
+    [string] $RequiredVersion = '5.7.1',
 
     # Pester's module GUID — the identity half of the pin, checked after import so a
     # name-squatted module cannot satisfy the version.
