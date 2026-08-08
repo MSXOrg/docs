@@ -145,7 +145,7 @@ Two properties make it trustworthy rather than merely present:
   exact failure this capability exists to remove.
 - **It rewrites only the version.** The identity half of the pin — the module
   `GUID` — is never touched, because identity does not change between versions of
-  the same module. The consuming script still verifies it at run time, so an
+  the same module. The consuming script still verifies it at runtime, so an
   identity mismatch fails the test check.
 
 ### The schedule can lapse, silently
