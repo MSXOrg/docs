@@ -1,0 +1,139 @@
+name: Update module pins
+
+on:
+  # The Gallery is checked on a schedule, offset from Dependabot's day so the two
+  # streams of update pull requests do not arrive together.
+  schedule:
+    - cron: "17 6 * * 2"
+  workflow_dispatch:
+  # The schedule is not enough on its own. GitHub disables a scheduled workflow
+  # automatically "when no repository activity has occurred in 60 days" in a public
+  # repository, and it does so silently - a workflow that stopped running looks
+  # exactly like one that ran and found nothing to do. This trigger does not cover
+  # the quiet window (no pushes happen then either); what it guarantees is that the
+  # first push after a quiet period re-checks the pin, which is when a stale pin
+  # starts to matter again. See the Dependency Updates capability design.
+  push:
+    branches:
+      - main
+
+concurrency:
+  # One update run at a time, so two runs cannot race to open the same pull request.
+  # Never cancelled in progress: a cancelled run could leave a branch pushed with no
+  # pull request opened for it.
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+# Default-deny floor: the job below grants only the scopes its steps need, so a job
+# added later inherits nothing and fails closed. See the GitHub Actions coding
+# standard, "Grant least-privilege permissions".
+permissions: {}
+
+jobs:
+  pester:
+    name: Pester pin
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # push the update branch
+      pull-requests: write # open the update pull request
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # Credentials are not persisted into .git/config, so no later step in this
+          # job can read the token from there. The one push that needs them supplies
+          # them explicitly instead.
+          persist-credentials: false
+
+      - name: Check the Gallery for a newer Pester
+        id: pin
+        shell: pwsh
+        # The range mirrors what the suites' own '#Requires' lines declare, so the
+        # updater can never propose a version the suites refuse to run under. The
+        # identity half of the pin - the module GUID - is untouched, because it does
+        # not change between versions of the same module.
+        run: |
+          ./.github/scripts/Update-GalleryModulePin.ps1 `
+            -Name Pester `
+            -Path ./.github/scripts/Invoke-PesterSuite.ps1 `
+            -MinimumVersion 6.0.0 `
+            -MaximumVersion '6.*'
+
+      - name: Open the update pull request
+        if: steps.pin.outputs.updated == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MODULE: ${{ steps.pin.outputs.module }}
+          CURRENT: ${{ steps.pin.outputs.current }}
+          LATEST: ${{ steps.pin.outputs.latest }}
+          LEVEL: ${{ steps.pin.outputs.level }}
+        shell: bash
+        # Every value is read from the environment rather than expanded inline, so
+        # nothing carried in a step output can be read as shell syntax. See the
+        # GitHub Actions coding standard, "Never expand untrusted input inline".
+        run: |
+          set -euo pipefail
+
+          module_slug=$(echo "$MODULE" | tr '[:upper:]' '[:lower:]')
+          branch="maintenance/pin-${module_slug}-${LATEST}"
+
+          # 'all', not 'open': a reviewer who closes an update pull request is declining
+          # that version, and a bot that reopens it next week has not listened. The guard
+          # is per-version because the branch name carries the version, so declining
+          # 6.1.0 never suppresses 6.1.1.
+          seen_count=$(gh pr list --state all --head "$branch" --json number --jq 'length')
+          if [ "$seen_count" -ne 0 ]; then
+            echo "A pull request for ${MODULE} ${LATEST} has already been raised. Nothing to do."
+            exit 0
+          fi
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${branch}" >/dev/null 2>&1; then
+            echo "Branch ${branch} already exists on the remote. Nothing to do."
+            exit 0
+          fi
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch --create "$branch"
+          git add ./.github/scripts/Invoke-PesterSuite.ps1
+          git commit \
+            --message "Raise the pinned ${MODULE} version from ${CURRENT} to ${LATEST}" \
+            --message "The Gallery published ${LATEST}, the newest release inside the range the test suites declare. The pin stays exact and the module GUID is unchanged; only the version moves."
+          # The token is supplied to this one command rather than persisted at checkout,
+          # so it never sits in .git/config for the rest of the job. Actions masks it in
+          # the log, and no 'set -x' is enabled here that would echo the expanded URL.
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${branch}"
+
+          # Built in a file rather than passed inline, so the body's Markdown is not at
+          # the mercy of this block's indentation.
+          body=$(mktemp)
+          {
+            echo "The test suites now run against ${MODULE} ${LATEST}, up from ${CURRENT}."
+            echo
+            echo "The pin stays exact and verified by module GUID; only the version it points at moves. The Test check runs the full suite against the new version, so a release that breaks it shows up here rather than after merge."
+            echo
+            echo "---"
+            echo "<details>"
+            echo "<summary>Technical details</summary>"
+            echo
+            echo "- Opened by .github/workflows/Update-ModulePin.yml, because Dependabot has no PowerShell Gallery ecosystem to do it."
+            echo "- A ${LEVEL}-level change, selected as the newest version inside the range the suites' own module requirements declare."
+            echo "- Identity-plus-exact pins are never auto-merged, so this waits for a human review by design."
+            echo
+            echo "</details>"
+            echo
+            echo "<details>"
+            echo "<summary>Related issues</summary>"
+            echo
+            echo "- MSXOrg/docs#136"
+            echo
+            echo "</details>"
+          } > "$body"
+
+          gh pr create \
+            --head "$branch" \
+            --title "⚙️ [Maintenance]: ${MODULE} test framework updated to ${LATEST}" \
+            --body-file "$body" \
+            --label dependencies \
+            --label powershell \
+            --label "update:${LEVEL}" \
+            --label Maintenance
