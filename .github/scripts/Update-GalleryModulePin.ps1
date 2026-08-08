@@ -286,7 +286,9 @@ Write-Output "$Name is pinned to $currentVersion."
 Write-Output '::endgroup::'
 
 Write-Output "::group::Ask the Gallery which versions of $Name exist"
-$published = Get-GalleryVersion -Name $Name -GalleryUri $GalleryUri -AllowPrerelease:$AllowPrerelease
+# Wrapped so a module with exactly one published version stays an array rather than unrolling to
+# a bare [version], which has no Count under Set-StrictMode.
+$published = @(Get-GalleryVersion -Name $Name -GalleryUri $GalleryUri -AllowPrerelease:$AllowPrerelease)
 if ($published.Count -eq 0) {
     throw "The Gallery at $GalleryUri reported no versions of $Name at all. Treating that as 'nothing newer' would hide a broken query, so it is a failure."
 }
