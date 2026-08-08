@@ -148,6 +148,17 @@ Two properties make it trustworthy rather than merely present:
   the same module. The consuming script still verifies it at runtime, so an
   identity mismatch fails the test check.
 
+### Declining a version
+
+The branch name carries the version, and the check for an existing pull request
+looks at **every** state rather than only open ones. So **closing an update pull
+request is how a reviewer declines that version**: it is never reopened, and the
+run after a merge — which the default branch's `push` trigger fires with the pin
+already current — finds nothing to do.
+
+The suppression is per version, not blanket. Declining `6.1.0` says nothing about
+`6.1.1`, which arrives as its own branch and its own pull request.
+
 ### The schedule can lapse, silently
 
 GitHub disables scheduled workflows automatically: *"In a public repository,

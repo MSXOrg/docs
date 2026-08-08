@@ -77,9 +77,13 @@ jobs:
           module_slug=$(echo "$MODULE" | tr '[:upper:]' '[:lower:]')
           branch="maintenance/pin-${module_slug}-${LATEST}"
 
-          open_count=$(gh pr list --state open --head "$branch" --json number --jq 'length')
-          if [ "$open_count" -ne 0 ]; then
-            echo "A pull request for ${MODULE} ${LATEST} is already open. Nothing to do."
+          # 'all', not 'open': a reviewer who closes an update pull request is declining
+          # that version, and a bot that reopens it next week has not listened. The guard
+          # is per-version because the branch name carries the version, so declining
+          # 6.1.0 never suppresses 6.1.1.
+          seen_count=$(gh pr list --state all --head "$branch" --json number --jq 'length')
+          if [ "$seen_count" -ne 0 ]; then
+            echo "A pull request for ${MODULE} ${LATEST} has already been raised. Nothing to do."
             exit 0
           fi
           if gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${branch}" >/dev/null 2>&1; then
