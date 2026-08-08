@@ -100,6 +100,93 @@ and the same release path as any other update.
 | Auto-merge policy | branch protection / auto-merge automation |
 | Security updates | repository security settings (on by default) |
 
+## Ecosystems the platform updater does not cover
+
+Dependabot supports a fixed list of package ecosystems, and the **PowerShell
+Gallery is not on it** — there is no `package-ecosystem` value for it, and
+Renovate has no Gallery datasource either. This is a gap in the platform, not a
+choice this organization made. A repository that pins a Gallery module in CI
+therefore gets no update pull request from the updater above, however correctly
+it is configured.
+
+That matters because of what [Dependencies](../../Coding-Standards/Dependencies.md#the-balance)
+requires: a CI pipeline pins identity plus exact, and *"tight pinning is safe
+**because** the updates are automated."* Without automation the same pin becomes
+the "too tight" failure — the module keeps shipping fixes the repository never
+takes, and the pin that made the build reproducible is what stops it being
+patched.
+
+**If Dependabot ever ships a PowerShell Gallery ecosystem, delete this and add a
+`package-ecosystem` entry.** The pattern below exists only because the platform
+has no answer, and it should not outlive that.
+
+### The pattern
+
+A scheduled workflow that queries the Gallery, rewrites the pin, and opens the
+same kind of labelled pull request the updater would:
+
+```mermaid
+flowchart TD
+  trigger["Schedule · manual dispatch · push to the default branch"] --> query["Query the Gallery for the newest version inside the allowed range"]
+  query --> compare{"Newer than the pin?"}
+  compare -->|"no"| quiet["Do nothing"]
+  compare -->|"yes"| existing{"Pull request already open?"}
+  existing -->|"yes"| quiet
+  existing -->|"no"| pr["Rewrite the pin, open a labelled pull request"]
+  pr --> ci["Required checks run — the suite runs against the new version"]
+  ci --> review["Human review — identity + exact is never auto-merged"]
+```
+
+Two properties make it trustworthy rather than merely present:
+
+- **It cannot pass without performing the check.** An unreachable Gallery, a pin
+  pattern that matches nothing, and a pattern that matches several places are all
+  hard failures. Reporting "already up to date" because the lookup broke is the
+  exact failure this capability exists to remove.
+- **It rewrites only the version.** The identity half of the pin — the module
+  `GUID` — is never touched, because identity does not change between versions of
+  the same module. The consuming script still verifies it at run time, so an
+  identity mismatch fails the test check.
+
+### The schedule can lapse, silently
+
+GitHub disables scheduled workflows automatically: *"In a public repository,
+scheduled workflows are automatically disabled when no repository activity has
+occurred in 60 days"*
+([GitHub docs](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/disable-and-enable-workflows)).
+Nothing announces it. **A scheduled workflow that has stopped running looks
+exactly like one that ran and found nothing to do** — both are silent.
+
+This is named rather than solved, because a watchdog's own liveness would then
+need watching:
+
+- **The evidence is the workflow's run history.** A live updater shows recent
+  runs that found nothing; a lapsed one shows no runs since a date. That is the
+  one place the two states are distinguishable. Re-enabling is a single action on
+  the workflow's page.
+- **Recovery is automatic, detection is not.** Adding the default branch's `push`
+  event as a second trigger does *not* cover the quiet window — during inactivity
+  there are no pushes either. What it guarantees is that the **first push after a
+  quiet period re-checks the pin**, which is when a stale pin starts to matter
+  again, without anyone remembering that the schedule died.
+
+### Adopting it in another repository
+
+1. Copy the updater script and its workflow.
+2. Point the script at the pin: the module name, the file holding it, and a
+   pattern with a `version` capture group. The pattern is why the pin can stay
+   wherever it already lives — a script parameter default, a data file, a
+   workflow input — instead of being moved into a manifest to suit the tooling.
+3. Set the allowed range to whatever the consuming code already declares, so the
+   updater can never propose a version that code refuses to run under.
+4. Ensure the `dependencies`, ecosystem, and `update:*` labels exist in the
+   repository; the workflow applies them and label creation is not automatic.
+5. Decide the token. The default workflow token is enough, but a pull request it
+   opens has its checks held in an approval-required state until someone with
+   write access starts them. That is acceptable for an identity-plus-exact pin,
+   which is never auto-merged anyway; a GitHub App installation token removes the
+   step where it matters.
+
 ## Where this connects
 
 - [Spec](spec.md) — the requirements this design delivers.

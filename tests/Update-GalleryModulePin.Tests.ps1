@@ -1,4 +1,4 @@
-#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.0.0'; MaximumVersion = '6.*' }
+﻿#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.0.0'; MaximumVersion = '6.*' }
 
 <#
     .SYNOPSIS
@@ -85,7 +85,7 @@ Describe 'Update-GalleryModulePin' {
                 .OUTPUTS
                 [pscustomobject]
             #>
-            [CmdletBinding()]
+            [CmdletBinding(SupportsShouldProcess)]
             param(
                 # Versions the stub reports as published, newest order irrelevant.
                 [Parameter(Mandatory)]
@@ -101,6 +101,10 @@ Describe 'Update-GalleryModulePin' {
             $port = $probe.LocalEndpoint.Port
             $probe.Stop()
 
+            if (-not $PSCmdlet.ShouldProcess("http://localhost:$port/", 'Start Gallery stub')) {
+                return
+            }
+
             $listener = [System.Net.HttpListener]::new()
             $listener.Prefixes.Add("http://localhost:$port/")
             $listener.Start()
@@ -112,9 +116,9 @@ Describe 'Update-GalleryModulePin' {
             $null = $shell.BeginInvoke()
 
             return [pscustomobject]@{
-                Uri      = "http://localhost:$port"
+                Uri = "http://localhost:$port"
                 Listener = $listener
-                Shell    = $shell
+                Shell = $shell
             }
         }
 
@@ -134,12 +138,15 @@ Describe 'Update-GalleryModulePin' {
                 .OUTPUTS
                 None
             #>
-            [CmdletBinding()]
+            [CmdletBinding(SupportsShouldProcess)]
             param(
                 # The object returned by Start-GalleryStub.
                 [Parameter(Mandatory)]
                 [psobject] $Stub
             )
+            if (-not $PSCmdlet.ShouldProcess($Stub.Uri, 'Stop Gallery stub')) {
+                return
+            }
             try { $Stub.Listener.Stop() } catch { $null = $_ }
             try { $Stub.Listener.Close() } catch { $null = $_ }
             try { $Stub.Shell.Runspace.Dispose() } catch { $null = $_ }
@@ -191,7 +198,10 @@ Describe 'Update-GalleryModulePin' {
             $stub = Start-GalleryStub -Version '6.0.0', '6.0.1', '6.0.2'
             $pin = New-PinFixture -Version 6.0.1
             try {
-                $result = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri 6>$null
+                # The script logs to stdout as well as returning its result, so the pipeline
+                # carries workflow-command strings ahead of the object. Take the object rather
+                # than relying on member enumeration over the whole array.
+                $result = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri | Select-Object -Last 1
 
                 $result.Updated | Should -BeTrue
                 $result.CurrentVersion | Should -Be ([version] '6.0.1')
@@ -209,7 +219,7 @@ Describe 'Update-GalleryModulePin' {
             $pin = New-PinFixture -Version 6.0.1
             try {
                 $before = [System.IO.File]::ReadAllText($pin)
-                $result = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri 6>$null
+                $result = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri | Select-Object -Last 1
                 $after = [System.IO.File]::ReadAllText($pin)
                 $bytes = [System.IO.File]::ReadAllBytes($pin)
 
@@ -231,7 +241,7 @@ Describe 'Update-GalleryModulePin' {
             $outputFile = Join-Path ([System.IO.Path]::GetTempPath()) "out-$([guid]::NewGuid().ToString('N')).txt"
             try {
                 $env:GITHUB_OUTPUT = $outputFile
-                $null = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri 6>$null
+                $null = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri | Select-Object -Last 1
 
                 $written = [System.IO.File]::ReadAllText($outputFile)
                 $written | Should -Match 'updated=true'
@@ -252,7 +262,7 @@ Describe 'Update-GalleryModulePin' {
             $pin = New-PinFixture -Version 6.0.1
             try {
                 $before = [System.IO.File]::ReadAllBytes($pin)
-                $result = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri 6>$null
+                $result = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri | Select-Object -Last 1
                 $after = [System.IO.File]::ReadAllBytes($pin)
 
                 $result.Updated | Should -BeFalse
@@ -268,7 +278,7 @@ Describe 'Update-GalleryModulePin' {
             $stub = Start-GalleryStub -Version '6.0.1', '7.0.0'
             $pin = New-PinFixture -Version 6.0.1
             try {
-                $result = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri 6>$null
+                $result = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri | Select-Object -Last 1
 
                 $result.Updated | Should -BeFalse
                 $result.LatestVersion | Should -Be ([version] '6.0.1')
@@ -282,7 +292,7 @@ Describe 'Update-GalleryModulePin' {
             $stub = Start-GalleryStub -Version '6.0.1', '6.1.0-alpha2'
             $pin = New-PinFixture -Version 6.0.1
             try {
-                $result = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri 6>$null
+                $result = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri | Select-Object -Last 1
 
                 $result.Updated | Should -BeFalse
                 $result.LatestVersion | Should -Be ([version] '6.0.1')
@@ -298,7 +308,7 @@ Describe 'Update-GalleryModulePin' {
             $stub = Start-GalleryStub -Version '6.0.0', '6.0.1', '6.0.2', '6.1.0' -PageSize 2
             $pin = New-PinFixture -Version 6.0.1
             try {
-                $result = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri 6>$null
+                $result = & $script:sourceScript -Name Pester -Path $pin -MinimumVersion 6.0.0 -MaximumVersion '6.*' -GalleryUri $stub.Uri | Select-Object -Last 1
 
                 $result.Updated | Should -BeTrue
                 $result.LatestVersion | Should -Be ([version] '6.1.0')

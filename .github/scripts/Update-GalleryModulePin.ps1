@@ -330,10 +330,10 @@ if ($env:GITHUB_OUTPUT) {
 }
 
 [pscustomobject]@{
-    Module         = $Name
-    Path           = $pinFile
+    Module = $Name
+    Path = $pinFile
     CurrentVersion = $currentVersion
-    LatestVersion  = $latest
-    Level          = $level
-    Updated        = $updated
+    LatestVersion = $latest
+    Level = $level
+    Updated = $updated
 }
