@@ -37,10 +37,13 @@ jobs:
       contents: write # push the update branch
       pull-requests: write # open the update pull request
     steps:
-      # Credentials are deliberately persisted here, unlike the read-only jobs in
-      # Docs.yml: this workflow pushes the update branch it creates.
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # Credentials are not persisted into .git/config, so no later step in this
+          # job can read the token from there. The one push that needs them supplies
+          # them explicitly instead.
+          persist-credentials: false
 
       - name: Check the Gallery for a newer Pester
         id: pin
@@ -79,7 +82,7 @@ jobs:
             echo "A pull request for ${MODULE} ${LATEST} is already open. Nothing to do."
             exit 0
           fi
-          if git ls-remote --exit-code --heads origin "$branch" >/dev/null 2>&1; then
+          if gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${branch}" >/dev/null 2>&1; then
             echo "Branch ${branch} already exists on the remote. Nothing to do."
             exit 0
           fi
@@ -91,7 +94,10 @@ jobs:
           git commit \
             --message "Raise the pinned ${MODULE} version from ${CURRENT} to ${LATEST}" \
             --message "The Gallery published ${LATEST}, the newest release inside the range the test suites declare. The pin stays exact and the module GUID is unchanged; only the version moves."
-          git push --set-upstream origin "$branch"
+          # The token is supplied to this one command rather than persisted at checkout,
+          # so it never sits in .git/config for the rest of the job. Actions masks it in
+          # the log, and no 'set -x' is enabled here that would echo the expanded URL.
+          git push "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "HEAD:refs/heads/${branch}"
 
           # Built in a file rather than passed inline, so the body's Markdown is not at
           # the mercy of this block's indentation.
@@ -120,6 +126,7 @@ jobs:
           } > "$body"
 
           gh pr create \
+            --head "$branch" \
             --title "⚙️ [Maintenance]: ${MODULE} test framework updated to ${LATEST}" \
             --body-file "$body" \
             --label dependencies \
