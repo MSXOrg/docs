@@ -106,6 +106,11 @@ When a workflow needs to write — creating commits, releases, comments, statuse
 or pull requests — default to a **GitHub App installation token**, not a PAT and
 not `github.token`, unless a documented exception requires otherwise.
 
+A GitHub App token is minted at runtime using `actions/create-github-app-token`
+with the app's **Client ID** and private key. The Client ID is the app's stable
+identifier (not the deprecated App ID), configured per-installation with specific
+repositories and permissions scopes.
+
 Use the right token type for the job:
 
 | Token | Source | Tied to user | Cross-repo | Caller-scoped |
@@ -143,9 +148,9 @@ Every token mint must declare both repository and permission scope explicitly.
 ```yaml
 - name: Mint a minimally scoped app token
   id: app-token
-  uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+  uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
   with:
-    app-id: ${{ secrets.GitHubAppClientId }}
+    client-id: ${{ secrets.GitHubAppClientId }}
     private-key: ${{ secrets.GitHubAppPrivateKey }}
     repositories: ${{ github.event.repository.name }}
     permission-contents: read
@@ -160,6 +165,8 @@ Rules:
 - **Always set `permission-*` inputs.** Request only the scopes the job uses.
 - **Never mint an unscoped token.** A token with no repository or permission
   narrowing violates least privilege.
+
+The example uses `client-id` from the GitHub App's configuration, not the legacy `app-id` parameter.
 
 ### Inject app tokens at step scope, not job scope
 
