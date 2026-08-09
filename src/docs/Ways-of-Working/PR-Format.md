@@ -109,7 +109,8 @@ At the very end of every PR description, use this exact structure:
 <summary>Relevant issues (or links)</summary>
 
 - Fixes Owner/Repo#123
-- Owner/OtherRepo#124
+- Fixes Owner/OtherRepo#124
+- Closes Owner/OtherRepo#125
 
 </details>
 ```
@@ -132,7 +133,7 @@ A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link to the fol
 
 The **Relevant issues (or links)** block is required and uses fully qualified references (`Owner/Repo#N`) so links work across repositories.
 
-Use one bullet per linked issue. One bullet uses a [closing keyword](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue) (`Fixes`, `Closes`, or `Resolves`) for the scoped Task or Bug delivered by the pull request. Additional bullets may also use closing keywords only for issues the [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) confirms are fully satisfied by the same finished diff. A parent PBI or Epic may appear as context without a closing keyword; never close an aggregate through a delivery pull request. Partially convergent or supporting issues are linked as non-closing context.
+Use one bullet per linked reference. Prefix every issue with `Fixes`; this applies to the scoped Task or Bug delivered by the pull request and to additional issues the [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) confirms are fully satisfied by the same finished diff. Use `Closes` for linked pull requests or other closing references. A parent PBI or Epic may appear as context without a closing keyword; never close an aggregate through a delivery pull request. Partially convergent or supporting issues are linked as non-closing context.
 
 If there is not one scoped closing Task or Bug: **stop**. Route back to [Define](Workflow-Stages/Define.md) to create or correctly route the delivery leaf. If additional closing keywords are used, include sweep evidence in Technical details that shows those issues are fully satisfied. The [Issue Hierarchy](Issues/Types/Hierarchy.md) and [Issue Lifecycle](Issues/Process/Lifecycle.md) own type and closure semantics.
 
@@ -176,7 +177,8 @@ Commands that query a specific repository, enterprise, or release by name now re
 <summary>Relevant issues (or links)</summary>
 
 - Fixes Owner/Repo#218
-- Owner/Repo#219
+- Fixes Owner/Repo#219
+- Closes Owner/Repo#220
 
 </details>
 ````
