@@ -2,10 +2,10 @@ name: Docs
 
 on:
   workflow_dispatch:
-  # No paths filter on purpose: this is the only workflow, so every push and pull
-  # request must run it to lint and build the full documented surface — including
-  # root files such as README.md, .github/dependabot.yml, and .prettierrc.json. A
-  # paths allow-list would silently skip CI for changes outside it.
+  # No paths filter on purpose: every push and pull request must run this to lint and
+  # build the full documented surface — including root files such as README.md,
+  # .github/dependabot.yml, and .prettierrc.json. A paths allow-list would silently
+  # skip CI for changes outside it.
   push:
     branches:
       - main
@@ -92,6 +92,9 @@ jobs:
         with:
           path: src/site
 
+  # Relative links and same-repository anchors only, resolved from the checkout with no
+  # network access. The cross-repository half lives in Cross-Repository-Links.yml, so a
+  # GitHub outage cannot turn this check red or block the Pages deploy below.
   links:
     name: Links
     runs-on: ubuntu-24.04

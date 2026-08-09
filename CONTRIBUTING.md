@@ -21,10 +21,13 @@ owns it.
    pwsh .github/scripts/Update-DocumentationIndex.ps1
    ```
 
-4. Validate links before opening a pull request:
+4. Validate links before opening a pull request. The first resolves relative links and
+   anchors from the checkout; the second resolves links into other MSX repositories
+   over the network:
 
    ```pwsh
    pwsh .github/scripts/Test-DocumentationLink.ps1
+   pwsh .github/scripts/Test-CrossRepositoryLink.ps1
    ```
 
 5. Run the Pester suites — the same job CI runs, so a failure shows up before the
@@ -76,8 +79,11 @@ index and drill down to the right page. Three conventions make that work.
   and fails if an index is out of date.
 
 Links are validated the same way: `.github/scripts/Test-DocumentationLink.ps1` checks that
-every relative link and heading anchor across the docs resolves, in CI on every pull request
-and on every push to `main`.
+every relative link and heading anchor across the docs resolves, and
+`.github/scripts/Test-CrossRepositoryLink.ps1` resolves every link into another MSX
+repository against that repository — file and anchor both. Both run in CI on every pull
+request and on every push to `main`, the second also weekly, since a target repository
+moves on its own schedule.
 
 Write to the [Markdown standard](https://msxorg.github.io/docs/Coding-Standards/Markdown/)
 and the [Documentation Model](https://msxorg.github.io/docs/Ways-of-Working/Documentation-Model/);
