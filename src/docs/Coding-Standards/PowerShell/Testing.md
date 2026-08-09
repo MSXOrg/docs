@@ -55,4 +55,4 @@ tests/
     └── Windows.Container.ps1
 ```
 
-Different directories may use different forms. Process-PSModule recursively applies its [per-directory discovery precedence](../../Capabilities/process-psmodule/pipeline-stages.md#module-local-test-discovery), including sibling suppression, unique test-name requirements, and root-only workflow phases.
+Different directories may use different forms. Process-PSModule recursively applies its [per-directory discovery precedence](https://psmodule.io/docs/Modules/Process-PSModule/), including sibling suppression, unique test-name requirements, and root-only workflow phases.
