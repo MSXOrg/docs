@@ -37,14 +37,16 @@ Two shapes occur; both are the same mechanism with a different artifact:
 
 - **Automatic on stable release.** A stable producer release MUST trigger propagation to every declared dependent. Prereleases MUST NOT propagate.
 - **Full context, not just a number.** Each dependent receives the new version, the immutable reference (commit SHA or image digest), the release notes, and any related-change context the update implies.
-- **A Task and a PR per dependent, opened by an agent.** The mechanical work — the bump plus the fixes that make it work — is delegated to a cloud agent *in the dependent*. The agent creates or reuses one Task delivery leaf and opens a pull request that closes exactly that Task.
+- **A pull request per dependent, opened by an agent.** The mechanical work — the bump plus the fixes that make it work — is delegated to a cloud agent *in the dependent*, which opens the pull request. **How** the agent is engaged is a design choice, not a requirement: the spec requires the delegation and the pull request, not a particular delegation mechanism.
+- **Idempotent by identity.** Propagation MUST be safe to run more than once for the same producer version. A repeated run for a version a dependent has already been offered MUST NOT open a second pull request; it reuses the existing one. The identity that makes this decidable — an issue, an existing pull request, or the version itself — is a design choice.
 - **Humans decide.** A human reviews and merges each PR; the agent applies what it can safely do now and calls out larger or riskier work as follow-up.
-- **Backfill on demand.** Propagation MUST be re-runnable for a specific release — for a missed event, or a dependent added after the release.
+- **Backfill on demand.** Propagation MUST be re-runnable for a specific release — for a missed event, or a dependent added after the release. Backfill uses the same idempotency, so re-running for an already-propagated dependent is a no-op rather than a duplicate.
 
 ## Success criteria
 
-- A stable release yields one Task and one closing PR in each declared dependent, carrying the immutable reference and an impact summary without manual coordination.
+- A stable release yields one pull request in each declared dependent, carrying the immutable reference and an impact summary without manual coordination.
 - A prerelease yields none.
+- Running propagation twice for the same version yields the same one pull request per dependent, not two.
 - A dependent added after a release can be back-filled without cutting a new release.
 
 ## Where this connects

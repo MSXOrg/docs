@@ -64,22 +64,50 @@ of truth for the change.
 
 ## Delegation
 
-The delegation step creates an agent task in the dependent carrying the prompt
-and the instruction to open the PR, then polls until the task reaches `queued`,
-`in_progress`, or `completed` (a fast task may go straight to `completed`). It
-**fails** only if the task cannot be created or lands in `failed`, `timed_out`,
-or `cancelled`. Fan-out is a **matrix** of dependents (pinned-reference shape) or
-a single configured `notify_repo` (published-artifact shape), with
-`fail-fast: false` so one dependent's failure does not stop the rest.
+Two delegation models satisfy the spec. They differ in what carries the request
+into the dependent, and therefore in what makes a repeat run idempotent.
+
+| | **Task-first** | **Issue-first** |
+| --- | --- | --- |
+| The request is | an agent task created from the prompt | an issue in the dependent, which the agent picks up |
+| The agent produces | a pull request directly | a pull request closing that issue |
+| Idempotency key | the producer version, matched against open propagation pull requests | the issue itself — one issue per producer version per dependent |
+| Visible before the agent starts | the task state | the issue |
+| Suits | fast, mechanical bumps where the pull request is the whole record | propagation that needs triage, discussion, or scheduling before work starts |
+
+**Task-first** is the default: the delegation step creates an agent task in the
+dependent carrying the prompt and the instruction to open the PR, then polls
+until the task reaches `queued`, `in_progress`, or `completed` (a fast task may go
+straight to `completed`). It **fails** only if the task cannot be created or lands
+in `failed`, `timed_out`, or `cancelled`. Idempotency is by **match, not
+creation**: before creating a task, the step looks for an open pull request in the
+dependent already carrying this producer version, and if one exists it reports it
+and stops.
+
+**Issue-first** creates or reuses one issue in the dependent per producer version
+— the delivery leaf — and the agent opens the pull request that closes exactly
+that issue. Idempotency is by **existence**: the issue *is* the record that this
+version was propagated, so a repeat run finds it and stops. This costs an extra
+artifact and buys a durable, labellable, assignable handle on work that is not
+going to be done immediately ([issues as the durable record](../../Ways-of-Working/Issues/Process/Lifecycle.md)).
+
+Either way the model is chosen per producer, not per release, so a dependent
+receives propagation in one consistent shape.
+
+Fan-out is a **matrix** of dependents (pinned-reference shape) or a single
+configured `notify_repo` (published-artifact shape), with `fail-fast: false` so
+one dependent's failure does not stop the rest.
 
 ## Agent instructions
 
-The agent is told to: **create or reuse one Task delivery issue** for the
-dependent's slice; **apply the bump** (every matching reference, bringing any
-mutable-tag pins into SHA-pinned compliance); **apply the related changes it can
-make safely**; **call out** larger or riskier work under a follow-up section
-rather than forcing it into the bump; **summarise impact** in the PR body; and
-**open the pull request** with exactly that Task as its closing issue.
+The agent is given the same instructions under either delegation model:
+
+- **Apply the bump.** Every matching reference, bringing any mutable-tag pins into SHA-pinned compliance.
+- **Read the release notes for related work.** The notes are the producer's own account of what changed; the agent treats new or renamed configuration keys, new environment variables or secrets, changed defaults, and migrations as part of the update, not as someone else's problem.
+- **Apply the related changes it can make safely.** A change that is mechanical and verifiable belongs in this pull request.
+- **Call out** larger or riskier work under a follow-up section rather than forcing it into the bump. Scope that needs a decision is surfaced, not guessed at.
+- **Summarise impact** in the PR body: what moved, what it requires of the dependent, and what was deliberately left out.
+- **Open the pull request** — closing its delivery issue under the issue-first model, or standing alone under task-first.
 
 ## Permissions and credentials
 
@@ -100,7 +128,8 @@ and a release it publishes cannot trigger a `release:` workflow. So the job:
 
 | Condition | Behaviour |
 | --- | --- |
-| Task not created (missing permission / capability off) | Step **fails** with the error; re-run via `workflow_dispatch`. |
+| Delegation not created (missing permission / capability off) | Step **fails** with the error; re-run via `workflow_dispatch`. |
+| This version already propagated to this dependent | Step **succeeds**, reporting the existing pull request; nothing new is created. |
 | Task lands in a failed / timed-out / cancelled state | Step **fails** with the reported state. |
 | One dependent's leg fails | Fails independently (`fail-fast: false`); others proceed. |
 | Prerelease published | Propagation is skipped. |

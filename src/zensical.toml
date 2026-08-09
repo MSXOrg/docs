@@ -118,6 +118,7 @@ nav = [
       "Capabilities/release-management/index.md",
       {"Spec" = "Capabilities/release-management/spec.md"},
       {"Design" = "Capabilities/release-management/design.md"},
+      {"Publishing Targets" = "Capabilities/release-management/design-publishing-targets.md"},
     ]},
     {"Dependency Updates" = [
       "Capabilities/dependency-updates/index.md",
