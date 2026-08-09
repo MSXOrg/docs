@@ -32,7 +32,7 @@ MSX does not add Diataxis quadrant directories or `diataxis` metadata. The
 artifact tiers already route the same reader needs while keeping related
 subject matter together. MSX also does not adopt strict OKF conformance fields
 or per-area `log.md` files: the only metadata queried by navigation is title
-and description, and Git history is the authoritative change log.
+and description, and Git history is the authoritative changelog.
 
 ## Consequences
 
