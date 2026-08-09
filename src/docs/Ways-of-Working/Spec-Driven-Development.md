@@ -34,7 +34,11 @@ The spec is the durable artifact. Code is its expression in a particular languag
 
 ## The artifact tiers
 
-The spec and the design are the two required artifacts; a capability MAY carry five more when its content genuinely needs a different altitude or a different reader. Each tier answers one question for one audience, and no tier restates another — it links.
+The spec and the design are the two required **content artifacts**; each
+capability folder also carries its required `index.md` navigation page. A
+capability MAY carry five more content artifacts when its content genuinely needs
+a different altitude or a different reader. Each tier answers one question for
+one audience, and no tier restates another — it links.
 
 | Artifact | Answers | Reader | Required |
 |---|---|---|---|
@@ -104,7 +108,7 @@ Requirements are testable statements of what must be true — never how it is bu
 
 Give each requirement its own heading with a stable, explicit anchor — `### FR1 — <statement> { #fr1 }` for functional, `### NFR1 — <statement> { #nfr1 }` for non-functional. The anchor is the identifier alone, so the heading can be reworded without breaking a single reference. Identifiers are **append-only**: assign the next unused number, never renumber, and never reuse — a removed requirement simply disappears, and git holds the history.
 
-Numbering is scoped **per page**. Every spec page — a core spec and each of its [feature addenda](#core-and-feature-addenda) — starts at `FR1` and `NFR1`. Identity is the page plus the anchor, so a requirement is referenced as `[FR1](#fr1)` on the same page and `[FR1](spec.md#fr1)` or `[FR2](features/<feature>.md#fr2)` across pages. Because identity includes the page, moving a set of requirements onto a new feature page never forces a renumber.
+Numbering is scoped **per page**. Every spec page — a core spec and each of its [feature addenda](#core-and-feature-addenda) — starts at `FR1` and `NFR1`. Identity is the page plus the anchor, so a requirement is referenced as `[FR1](#fr1)` on the same page and `[FR1](spec.md#fr1)` across pages; a feature reference has the form `features/<feature-name>.md#fr2`. Because identity includes the page, moving a set of requirements onto a new feature page never forces a renumber.
 
 ### Behavioral scenarios
 
@@ -156,7 +160,7 @@ Estimate up front to align on why the work is worth doing; measure afterwards to
 
 The design is the specification's companion. It answers *how*, and it is free to change as often as the implementation does while the spec holds still. A design **contains** the approach and its rationale, the alternatives considered and why they were rejected, the architecture and components, the data and contracts other things depend on, the security boundaries and threats for new surfaces, the testing strategy, and the rollout and operability plan.
 
-A design is **logical**: technical, naming the approach and the technology, and still readable end to end. It stops short of the exact values.
+A design is **logical**: technical, naming the approach and the technology, and still readable end-to-end. It stops short of the exact values.
 
 The **design/implementation altitude test**: would this sentence change if exact settings, counts, or names changed, while the technology and the approach stayed the same? If yes, the detail belongs in [implementation docs](#what-implementation-docs-are); if no, it belongs in the design. This keeps the design readable without discarding the concrete detail.
 
@@ -166,7 +170,7 @@ A design MAY be a single `design.md` or a `design/` folder when it grows past on
 
 ## What implementation docs are
 
-An implementation doc holds the concrete *whats* a design deliberately leaves out: exact configuration values, element and resource names, taxonomies, field-by-field mappings from a requirement to the thing that satisfies it, and the scripts that apply them.
+An implementation doc holds the concrete details a design deliberately leaves out: exact configuration values, element and resource names, taxonomies, field-by-field mappings from a requirement to the thing that satisfies it, and the scripts that apply them.
 
 Implementation docs exist so the design stays at the logical altitude. A design that has started listing settings has outgrown itself: the settings move down, and the design keeps the explanation and a link.
 
@@ -216,7 +220,7 @@ The method is requirements-first. Work does not start from a solution; it starts
 
 ## Where specs and designs live
 
-A specification and its design live together in a folder named for the capability they describe, alongside an `index.md` — the [capability folder](Documentation-Model.md#capabilities-live-in-folders) pattern. The capability is owned by a component, and by default a component is a repository ([Repository Segmentation](Repository-Segmentation.md)), so the spec lives beside the code it governs ([docs live close to the code](../Coding-Standards/Documentation.md#the-hierarchy-of-documentation)):
+A specification and its design live together in a folder named for the capability they describe, alongside the required `index.md` navigation page — the [capability folder](Documentation-Model.md#capabilities-live-in-folders) pattern. The capability is owned by a component, and by default a component is a repository ([Repository Segmentation](Repository-Segmentation.md)), so the spec lives beside the code it governs ([docs live close to the code](../Coding-Standards/Documentation.md#the-hierarchy-of-documentation)):
 
 - **A component's own capabilities** → that repository's `docs/`.
 - **Cross-cutting capabilities** that span components → the central documentation hub.

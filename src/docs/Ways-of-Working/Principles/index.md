@@ -37,9 +37,15 @@ A principle MUST be true of work that has not been imagined yet. A rule that onl
 Every layer below this one conforms to these principles and MUST NOT restate them. The direction of reference is fixed:
 
 - A standard, specification, or design **links up** to the principle it obeys, and never copies its wording.
-- A principle **does not link down** to the standard, capability, or product that applies it.
+- A principle **does not link down** in normative prose to the standard,
+  capability, or product that applies it.
 
 The asymmetry is deliberate. A principle that names the things that currently implement it acquires a maintenance burden it cannot carry: every new capability becomes an edit here, and every retired one leaves a dangling claim. Keeping references one-directional means this layer stays stable while everything beneath it moves.
+
+The generated index and other navigation links are allowed to list their direct
+children: they help a reader find a page and do not claim that a child implements
+or governs its parent. The prohibition applies to normative dependency links,
+which would couple a stable principle to the changing things that apply it.
 
 The consequence for a reader is that this layer answers *why*, and never enumerates *where*. To find what applies a principle, read the layer that claims it — the standard or specification says which principle it conforms to, so the relationship is discoverable from below without being duplicated above.
 

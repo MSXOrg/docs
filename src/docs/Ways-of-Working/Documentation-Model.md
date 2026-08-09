@@ -45,7 +45,7 @@ is a folder holding its spec and design side by side:
 ```text
 Capabilities/
   release-management/
-    index.md      # what this capability is
+    index.md      # required navigation for this capability
     spec.md       # the why + what
     design.md     # the how + what is built
 ```
@@ -56,7 +56,8 @@ it documents](Principles/Engineering-Practices.md#documentation-lives-close-to-t
 applied to the spec–design pair; where a design maps to a repository, the same
 two documents live with the code.
 
-The spec and the design are the only required files. A capability that outgrows
+Every capability folder requires an `index.md` for navigation. The spec and the
+design are the two required **content artifacts**. A capability that outgrows
 them grows downward into the optional
 [artifact tiers](Spec-Driven-Development.md#the-artifact-tiers), each of which has
 a fixed home in the same folder:
@@ -64,12 +65,12 @@ a fixed home in the same folder:
 ```text
 Capabilities/
   <capability>/
-    index.md          # what this capability is                     (required)
-    spec.md           # the why + what                              (required)
+    index.md          # required navigation, not a content artifact
+    spec.md           # the why + what                              (required content)
     features/         # per-feature spec addenda
       index.md
       <feature>.md
-    design.md         # the how + what is built                     (required)
+    design.md         # the how + what is built                     (required content)
     implementation.md # the concrete values and names
     guides/           # task-oriented walkthroughs
       index.md
