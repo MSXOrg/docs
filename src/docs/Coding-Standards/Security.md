@@ -21,7 +21,7 @@ The goal is to limit blast radius: if any one identity is compromised, the damag
 ## Secrets stay secret
 
 - **Never commit secrets.** No tokens, keys, passwords, or connection strings in source — not even briefly, not even in history.
-- **Secret scanning runs on every commit and PR.** A pre-commit hook and a CI gate catch leaks before they spread.
+- **Secret scanning runs on every commit and PR.** A [pre-commit hook](Pre-Commit.md) and a CI gate catch leaks before they spread.
 - **Secrets live in a vault** or the platform's secret store, injected at runtime, never baked into images or config.
 - **Prefer short-lived, federated credentials.** Where a platform supports it, authenticate with OIDC or workload-identity federation instead of storing a long-lived secret. A token that lasts minutes and is scoped to one job beats a key that sits in a vault for a year.
 - **Rotate on exposure.** A leaked secret is a compromised secret — revoke and rotate, don't hope.
@@ -45,6 +45,20 @@ Dependencies are part of the attack surface.
 - **Make builds reproducible.** Lock or vendor dependencies so a build resolves the same inputs every time — and can run without network access where that matters.
 - **Generate provenance.** Build artifacts carry a software bill of materials (SBOM) and build attestations, so what is inside a release is verifiable.
 - **Minimize the surface.** Every dependency is a liability as well as a convenience — add them deliberately, remove them when unused.
+
+### Identify a bot by the pull request author
+
+Automation frequently needs to treat a dependency bot's pull requests differently — auto-approving a patch bump, skipping a gate that only applies to human contributions, or applying a label. Key that condition off the pull request author:
+
+```yaml
+if: github.event.pull_request.user.login == 'dependabot[bot]'
+```
+
+Not `github.actor`. `github.actor` is whoever triggered the *current* run, which is not the same as who opened the pull request: a maintainer who comments, re-runs a job, or pushes to the branch becomes the actor, and a workflow keyed on `github.actor` then evaluates a human-triggered run as if the bot had authored it. `github.event.pull_request.user.login` names the pull request author and does not change when somebody else interacts with the pull request.
+
+Keep the elevated-privilege shortcut out of the baseline too. `pull_request_target` runs with the base repository's secrets and write token against a head reference the contributor controls, so a bot-detection condition placed there is guarding a job that should not have been privileged in the first place. Use `pull_request`, and where write access genuinely is required, use a separate `workflow_run` job that consumes only trusted data.
+
+This is the failure `zizmor`'s `bot-conditions` audit exists to catch, and it runs on every workflow — see [GitHub Actions → Toolchain](GitHub-Actions.md#toolchain).
 
 ## Secure by default
 

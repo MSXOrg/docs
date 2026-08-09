@@ -1,6 +1,6 @@
 ---
 title: Spec-Driven Development Templates
-description: A copyable skeleton for every spec-driven artifact — specification, feature addendum, design, implementation doc, guide, reference, research, and decision record.
+description: A copyable skeleton for every spec-driven artifact — specification, feature addendum, design, implementation doc, guide, reference, research, decision record, standard, orchestration playbook, and decisions register.
 ---
 
 # Spec-Driven Development Templates
@@ -354,6 +354,129 @@ description: <One line: the decision and its scope.>
 ## Supersession
 
 <Nothing, or: superseded by <link>, which now carries this choice.>
+````
+
+## Standard
+
+A standard states a rule and how it is held. It carries its reasoning inline rather than deferring it, because a rule without a stated reason is followed until it is inconvenient.
+
+````markdown
+---
+title: <Subject the rule governs>
+description: <One line: what this standard requires.>
+---
+
+# <Subject the rule governs>
+
+<One paragraph: the rule in a sentence, and what goes wrong without it.>
+
+## The source of truth
+
+<Where the authoritative definition lives — a file, a config, a schema — and what
+derives from it. Everything else references it rather than restating it.>
+
+## Rules
+
+| Rule | Requirement |
+|---|---|
+| <name> | <MUST / SHOULD / MAY statement> |
+
+<Or a `###` subsection per rule where a rule needs its reasoning spelled out.>
+
+## Enforcement
+
+<What catches a violation, and where in the loop — editor, pre-commit, CI, review.>
+
+## Exceptions
+
+<The narrow cases the rule does not cover, how an exception is recorded, and who
+may grant one. "None" is a valid answer and is better than silence.>
+````
+
+## Orchestration playbook
+
+A playbook describes work that runs in stages, where each stage has to finish before the next begins. Its distinguishing feature is **exit criteria**: a stage that cannot be shown to be complete cannot be handed to the next one.
+
+````markdown
+---
+title: <The orchestrated activity>
+description: <One line: what this playbook produces.>
+---
+
+# <The orchestrated activity>
+
+<One paragraph: what this coordinates, and why it needs stages rather than a checklist.>
+
+## Purpose and scope
+
+<What this playbook is for.>
+
+**Out of scope**
+
+- <the adjacent thing this deliberately does not do, and where it belongs instead>
+
+## Inputs and prerequisites
+
+| Input | Required | Notes |
+|---|---|---|
+| <what must exist before starting> | Yes / No | <where it comes from> |
+
+## Workflow stages
+
+### Stage 1 — <name>
+
+<What happens, and what it establishes.>
+
+**Exit criteria.** <The observable condition that means this stage is done.>
+
+### Stage 2 — <name>
+
+<...>
+
+**Exit criteria.** <...>
+
+## Quality gates
+
+<The conditions that hold across stages, not just at the end — what invalidates the
+run and forces a return to an earlier stage.>
+
+## Outputs and evidence
+
+<What exists when the run completes, and where it lives. Evidence means artifacts a
+reader can inspect, not an assertion that the work was done.>
+
+## Canonical references
+
+- [<Standard or capability this defers to>](<path>) — <what it carries>
+````
+
+## Decisions register
+
+A register holds the decisions a body of work has settled, so a question is answered once. It is not a substitute for a [decision record](#decision-record): a record argues a single choice at length, while a register is the index of choices that are no longer open.
+
+````markdown
+---
+title: <Scope> — Decisions
+description: <One line: the decisions this register holds.>
+---
+
+# <Scope> — Decisions
+
+<One line: what this register covers, and what a reader should conclude from an entry
+being here — that the question is closed.>
+
+## Recorded decisions
+
+| Decision | Record |
+|---|---|
+| <the choice, stated as what is now true> | [<record>](<path>) |
+
+## Standing choices
+
+<Positions that are settled but too small to warrant a record of their own. Each
+points outward to the page that carries the detail.>
+
+- **<Choice>** — <what was chosen and why>, per [<page>](<path>).
 ````
 
 ## Where this connects

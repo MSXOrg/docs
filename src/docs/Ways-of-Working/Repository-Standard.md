@@ -101,6 +101,18 @@ Documentation content lives in one folder, never spread across the repository ro
 
 Initiative docs define the implementation: exact folder layout, publishing workflow, URL convention, and which repositories are exceptions. MSX defines the expectation that product docs have an owner and that README pages stay small.
 
+## Automation label defaults
+
+Every label set that repository automation reads MUST be provisioned and
+namespace-qualified as `namespace:value`. The namespace identifies the owning
+function, so automation can read only its own labels and label sets cannot collide.
+Repositories MUST NOT use bare labels as automation inputs.
+
+For example, repositories that use Release Management use the `release:*` bump set;
+dependency update automation uses a distinct update namespace. See [Automation
+Labels](Automation-Labels.md) for ownership, provisioning, and the complete
+namespacing rule.
+
 ## Dependency and supply-chain defaults
 
 Every repository that has external dependencies must have automated update coverage.
@@ -116,8 +128,8 @@ recorded centrally for shared update coverage.
 
 Dependency update pull requests must:
 
-- Use namespaced labels that identify the dependency category and ecosystem, per [Automation Labels](Automation-Labels.md).
-- Keep update-level labels in a namespace separate from release-bump labels.
+- Use the provisioned update namespace to identify the dependency category and
+  ecosystem, separate from the `release:*` bump namespace.
 - Pass the same CI and review gates as human-authored changes.
 - Keep SHA-pinned actions pinned to immutable commit SHAs with a version comment when possible.
 - Be reviewed before merge, even when auto-merge is allowed for low-risk updates.

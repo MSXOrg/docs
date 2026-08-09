@@ -59,7 +59,7 @@ stale, unpatched code.
 - **Label the update PR** with `dependencies` + `github-actions`, plus the
   dependency's own level (`update:major` / `update:minor` / `update:patch`).
   These update-level labels are deliberately **distinct from the release-bump
-  labels** (`Major` / `Minor` / `Patch`) — a bumped action is an
+  labels** (`release:major` / `release:minor` / `release:patch`) — a bumped action is an
   artifact-affecting change that itself cuts a release, so the two must not
   share one label set.
 - **Review `update:major` by hand** — a major action bump can change inputs,
