@@ -32,9 +32,8 @@ list happens to contain.
 
 ## Namespacing
 
-A label set that could be confused with another MUST be namespaced as
-`namespace:value`, where the namespace names the owning function and the value is
-the instruction to it.
+A label set MUST be namespaced as `namespace:value`, where the namespace names the
+owning function and the value is the instruction to it.
 
 ```text
 update:major          dependencies
@@ -49,20 +48,41 @@ decision for the repository consuming it; those are two version decisions on one
 pull request, and only a namespace keeps them apart
 ([dependency updates](../Capabilities/dependency-updates/design.md#separation-from-release-versioning)).
 
-## Reserved vocabularies
+## Every set is namespaced
 
-Where a function's label set is unprefixed, that set MUST be **reserved**: no other
-function may read, provision, or reuse those words, and the reservation MUST be
-documented on the owning capability's page.
+There is no reserved unprefixed vocabulary. Every label set an automation reads is
+namespaced, including the release bump set:
 
-The release bump vocabulary is the standing example. `Major`, `Minor`, `Patch`, and
-`NoRelease` are read by [release management](../Capabilities/release-management/spec.md)
-and by nothing else. Any other function that needs to express a version level MUST
-namespace its own set instead of borrowing these, because a borrowed bump label does
-not merely confuse a reader — it changes the version the repository publishes.
+```text
+release:major         release:none
+release:minor
+release:patch
+```
 
-Reservation is the weaker of the two mechanisms, because it depends on a documented
-prohibition rather than on the label's own name. New label sets are namespaced.
+`release:major`, `release:minor`, `release:patch`, and `release:none` are read by
+[release management](../Capabilities/release-management/spec.md) and by nothing else.
+
+Reserving bare words would be the weaker mechanism, because it depends on a documented
+prohibition rather than on the label's own name — and for the release set specifically,
+the prohibition is not the only thing at stake.
+
+### Why the release set in particular
+
+Hosted Dependabot applies a SemVer label to its own pull requests **when a repository
+has labels named `major`, `minor`, or `patch`**. It matches on those bare words. A
+repository that reserves the bare bump vocabulary for release management therefore hands
+Dependabot the ability to set the repository's next published version as a side effect of
+an upstream patch bump — with no human deciding it.
+
+Namespacing removes the collision at the source. Dependabot finds no bare `major`,
+`minor`, or `patch` label to apply, so its pull requests arrive with no release decision
+attached and a maintainer makes that call at the pull request gate like any other.
+
+There is a documented workaround for suppressing Dependabot's labelling, sometimes
+written as a `skip-release` label or a configuration flag. On **hosted** Dependabot it is
+a no-op: the labelling behavior is not configurable from the repository, so the only
+control a repository actually has is which label names exist. Namespacing is that
+control.
 
 ## Automation ignores what it does not own
 
@@ -94,7 +114,7 @@ decision applies, and unambiguous about who acts on it.
 
 ## Where this connects
 
-- [Release Management](../Capabilities/release-management/spec.md) — the reserved bump vocabulary and why exactly one of its values is required.
+- [Release Management](../Capabilities/release-management/spec.md) — the namespaced bump vocabulary and why exactly one of its values is required.
 - [Dependency Updates](../Capabilities/dependency-updates/design.md#labels) — the namespaced dependency label sets and their separation from release versioning.
 - [Repository Governance](../Capabilities/repository-governance/design.md) — the controls that read repository state, of which labels are one.
 - [Repository Standard](Repository-Standard.md) — the repository-level requirement that labels be provisioned rather than improvised.

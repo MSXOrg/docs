@@ -16,7 +16,7 @@ The standard owns the formatting rules; the tooling enforces them automatically 
 - **The config lives in the repository**, in version control and traceable to this standard, so humans and agents apply the same rules.
 - This frees review attention for what actually matters: correctness, design, and clarity.
 
-See [Shift Left → pre-commit hooks](../Ways-of-Working/Principles/Engineering-Practices.md#pre-commit-hooks) for where these gates run.
+See [Shift Left → pre-commit hooks](../Ways-of-Working/Principles/Engineering-Practices.md#pre-commit-hooks) for where these gates run, and [Pre-Commit](Pre-Commit.md) for the mechanism that runs them.
 
 ## Functions and units
 
