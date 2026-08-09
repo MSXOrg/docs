@@ -138,10 +138,13 @@ Each clone has repository-local git config only; it never modifies the global gi
 
 ## Then — read before acting
 
-1. Start at `~/.msx/docs/src/docs/index.md`.
-2. Follow the Ways of Working index to `Workflow.md`.
-3. Infer the current stage from the task and its artifacts, then read the linked stage procedure.
-4. Read the relevant standards, repository context, and `~/.msx/memory`.
+1. Segment the work by host, organization, repository, path, and task, so the right project context is selected before any of it is loaded.
+2. Start at `~/.msx/docs/src/docs/index.md`.
+3. Follow the Ways of Working index to `Workflow.md`.
+4. Infer the current stage from the task and its artifacts, then read the linked stage procedure.
+5. Read the relevant standards, repository context, and `~/.msx/memory`.
+
+In a repository, its root `AGENTS.md` names the host and organization and lists the order to read in. This file carries the bootstrap and the segmentation step; the repository file carries the route. Neither restates the other.
 
 Clear task language may shortcut the index trail: `Review this PR <link>` enters Review, `Make this issue <description>` enters Define, and `Implement <issue>` enters Implement. The linked documentation owns each procedure; this file does not define a separate agent or skill.
 

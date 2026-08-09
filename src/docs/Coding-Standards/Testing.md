@@ -37,6 +37,28 @@ Mock the boundary you control, not someone else's surface. Wrap a third-party AP
 
 Where the real contract matters, back the mocked unit tests with a small integration suite that exercises the live dependency on a schedule, so drift surfaces early.
 
+## The oracle must be independent
+
+A test proves nothing when it computes the expected value the same way the code computes the actual one. If a function derives anchors from headings, and the test reimplements that same derivation to check it, both are free to be wrong together and the suite stays green forever. The expected value has to come from somewhere the implementation cannot influence: the library the real consumer runs, a fixture recorded from the real system, the published specification, or a second implementation written independently.
+
+This is [don't mock what you don't own](#dont-mock-what-you-dont-own) one level up. There the mock freezes your assumption about a dependency; here the assertion freezes your assumption about correctness.
+
+When the oracle is an external tool or service, confirm it is answering the question you think you asked. A wrong mode flag, an expired token, or a renamed field can turn a rich response into an empty one — and every assertion built on it into a vacuous truth. So assert on the oracle too: an empty response is a failure of the check, not a pass (see [nothing checked is not a pass](#nothing-checked-is-not-a-pass)). Where two independent oracles are available cheaply, agreeing them once is worth more than trusting either.
+
+## Nothing checked is not a pass
+
+Every assertion over an empty set is true. *All links resolve* holds trivially when no links were found. *Every anchor exists* holds when the oracle returned nothing to compare against. A check that iterates over nothing and reports success is not a check — it is a claim with no content behind it, and it is indistinguishable from a working one at a glance.
+
+So make the count part of the result: **a check fails when it checked nothing.** Count the units examined and treat zero as a failure, with a message that says the check found nothing rather than that everything is fine.
+
+This costs three lines next to the exit, and it covers a whole class at once — the wrong root directory, a filter that matches more than intended, a glob that missed, an empty checkout, a query that returned no rows, an oracle that answered with an empty response. None of those need to be anticipated individually. Each one drives the count to zero, and zero is a failure.
+
+## Prove the test can fail
+
+A check that has never failed has not been checked. Before trusting a new one, make it red on purpose: break the behavior it guards, confirm it fails, read the message it produces, then restore. If breaking the behavior leaves the check green, the check is decoration.
+
+Counting is not a substitute for this. A healthy count only says the check examined something — not that it examined the right property. A conversion that reports every word of the source survived has a large denominator and still says nothing about whether the links in that text resolve. An empty check is caught by counting; a check measuring the wrong thing is caught only by breaking the thing it claims to guard and watching what happens.
+
 ## Properties of a good test
 
 - **Deterministic.** Same input, same result, every time. A test that passes intermittently is worse than no test — it trains people to ignore failures. No reliance on wall-clock time, network, ordering, or shared mutable state.
@@ -48,6 +70,8 @@ Where the real contract matters, back the mocked unit tests with a small integra
 ## Coverage with judgment
 
 Coverage is a signal, not a goal. High coverage of trivial code while the hard branches go untested is a false comfort. Aim coverage at the code that carries risk — logic, edge cases, error handling — and don't chase a percentage for its own sake.
+
+Watch for a number that measures something adjacent to what you actually care about. A conversion reporting that every word of the source survived tells you the text is verbatim; it says nothing about whether the links inside that text resolve. The measurement is honest and the conclusion drawn from it is not — which is why the reassuring ones deserve the most scrutiny.
 
 ## When a bug escapes
 

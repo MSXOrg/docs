@@ -107,9 +107,33 @@ jobs:
         shell: pwsh
         run: ./.github/scripts/Test-DocumentationLink.ps1
 
+  # Separate from Build on purpose: a failing test must be distinguishable from a
+  # failing site build in the checks list. The suites are discovered from disk, so a
+  # new tests/*.Tests.ps1 file is gated the moment it lands, without touching this
+  # workflow. "Test" is the check name branch protection would require — see the
+  # GitHub Actions coding standard, "Gate merges with a named status check".
+  test:
+    name: Test
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Run the Pester test suites
+        shell: pwsh
+        # The script pins Pester to an exact version and verifies its module GUID: a CI
+        # pipeline is an end artifact, so it pins to an exact resolved version rather
+        # than to the range the suites' own #Requires lines declare. See the
+        # Dependencies coding standard, "Update tracks".
+        run: ./.github/scripts/Invoke-PesterSuite.ps1
+
   publish:
     name: Publish
-    needs: [build, lint, links]
+    needs: [build, lint, links, test]
     if: github.event_name != 'pull_request'
     runs-on: ubuntu-24.04
     environment:
