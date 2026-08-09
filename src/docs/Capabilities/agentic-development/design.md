@@ -23,9 +23,11 @@ Current project scopes follow the same shape:
 
 | Host | Organization | Docs | Memory |
 | --- | --- | --- | --- |
-| `dnb.ghe.com` | `AI-Platform` | `AI-Platform/docs` | `AI-Platform/memory` |
 | `github.com` | `MSXOrg` | `MSXOrg/docs` | `MSXOrg/memory` |
 | `github.com` | `PSModule` | `PSModule/docs` | `PSModule/memory` |
+| `<host>` | `<org>` | `<org>/docs` | `<org>/memory` |
+
+The last row is the general case: any adopting organization on any GitHub host — public or an enterprise instance — plugs into the same shape without changing the framework.
 
 ## Repository roles
 
@@ -135,13 +137,13 @@ flowchart TD
   pointer --> locate["Resolve host, org, docs, and memory roots"]
 
   locate --> host{"Which project scope?"}
-  host -->|"dnb.ghe.com / AI-Platform"| aip["AI-Platform context"]
   host -->|"github.com/MSXOrg"| msx["MSXOrg context"]
   host -->|"github.com/PSModule"| psmodule["PSModule context"]
+  host -->|"any adopting org"| other["&lt;host&gt;/&lt;org&gt; context"]
 
-  aip --> refresh["Refresh selected docs + memory<br/>stop unless exactly synchronized"]
-  msx --> refresh
+  msx --> refresh["Refresh selected docs + memory<br/>stop unless exactly synchronized"]
   psmodule --> refresh
+  other --> refresh
   refresh --> repo["Read README, CONTRIBUTING,<br/>and local docs"]
   repo --> path["Apply path-scoped local rules"]
   path --> orgdocs["Read organization<br/>documentation"]

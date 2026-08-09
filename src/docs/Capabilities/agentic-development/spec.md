@@ -7,7 +7,7 @@ description: Requirements for refresh-first, index-first agentic development thr
 
 ## Premise
 
-An agent does useful work only when it knows which project it is serving, which standards apply, and what the team has already learned. That context MUST be project-scoped, durable, reviewable, and readable by humans and agents alike. The project boundary is the GitHub organization: `dnb.ghe.com/AI-Platform`, `github.com/MSXOrg`, `github.com/PSModule`, and any future organization that adopts the framework.
+An agent does useful work only when it knows which project it is serving, which standards apply, and what the team has already learned. That context MUST be project-scoped, durable, reviewable, and readable by humans and agents alike. The project boundary is the GitHub organization — `github.com/MSXOrg`, `github.com/PSModule`, and any other organization that adopts the framework, on any GitHub host.
 
 Each organization owns two canonical repositories:
 
@@ -71,9 +71,9 @@ Applies to any organization that wants a shared project knowledge base and memor
 
 ## Success criteria
 
-- An agent working in `github.com/PSModule/<repo>` reads PSModule docs and memory, not MSXOrg or AI-Platform rules.
+- An agent working in `github.com/PSModule/<repo>` reads PSModule docs and memory, not another organization's rules.
 - An agent working in `github.com/MSXOrg/<repo>` resolves `github.com/MSXOrg/docs` and `github.com/MSXOrg/memory` as the canonical project context.
-- An agent working in `dnb.ghe.com/AI-Platform/<repo>` resolves `dnb.ghe.com/AI-Platform/docs` and `dnb.ghe.com/AI-Platform/memory` as the canonical project context.
+- An agent working in `<host>/<org>/<repo>` for any adopting organization resolves `<host>/<org>/docs` and `<host>/<org>/memory` as the canonical project context, with no change to the framework.
 - A new product repository can adopt the framework by adding a router and the client routes that reach it, without copying standards or memory pages.
 - An agent reads the repository's own README and CONTRIBUTING before it reads an organization standard, and still applies the organization standard when the two disagree.
 - A human can start at `docs/index.md` or `memory/index.md` and navigate to the same context an agent uses.
