@@ -43,6 +43,7 @@ nav = [
     {"Agentic Development" = [
       "Ways-of-Working/Agentic-Development.md",
       {"Git Worktrees" = "Ways-of-Working/Git-Worktrees.md"},
+      {"Session Interactions" = "Ways-of-Working/Session-Interactions.md"},
     ]},
     {"Organization Standard" = "Ways-of-Working/Organization-Standard.md"},
     {"Repository Standard" = "Ways-of-Working/Repository-Standard.md"},
@@ -163,6 +164,7 @@ nav = [
       {"Design" = "Capabilities/agentic-development/design.md"},
       {"Memory Repository Template" = "Capabilities/agentic-development/memory-template.md"},
       {"MCP Servers" = "Capabilities/agentic-development/mcp-servers.md"},
+      {"Runtime Integration" = "Capabilities/agentic-development/runtime-integration.md"},
       {"Plugin Distribution" = "Capabilities/agentic-development/plugin-distribution.md"},
       {"Agent Interaction" = "Capabilities/agentic-development/agent-interaction.md"},
       {"Advisory Agents" = "Capabilities/agentic-development/advisory-agents.md"},

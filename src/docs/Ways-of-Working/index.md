@@ -25,6 +25,7 @@ This section documents the principles, processes, and norms that every contribut
 | [Evolutionary Development](Evolutionary-Development.md) | Grow software as bets under selection — variation, feedback, and survival of the fittest, run as one tight loop. |
 | [Agentic Development](Agentic-Development.md) | How ways of working, standards, and documentation are authored once and consumed by both humans and agents. |
 | [Git Worktrees](Git-Worktrees.md) | How agentic development is implemented locally — a bare-clone and worktree layout for working on several things at once. |
+| [Session Interactions](Session-Interactions.md) | Recognised phrases that steer a working session deterministically, why each is defined once as a standard rather than embedded in tool-specific files, and what an interaction may not do. |
 | [Organization Standard](Organization-Standard.md) | What every initiative organization must define centrally so humans and agents share the same expectations. |
 | [Repository Standard](Repository-Standard.md) | The baseline files and behaviours every repository must expose so it is understandable, secure, and maintainable. |
 | [Repository Type Property](Repository-Type-Property.md) | How a multi-select "Type" custom property classifies every repository in an initiative organization and drives which org-wide controls apply to it. |
