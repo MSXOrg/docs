@@ -45,14 +45,24 @@ phrase is the route to it, not a second definition of it.
 | **Park** | This is real, but not now, and not here | Move a tangent out of the session into an issue in the repository that owns it, with enough context to be actionable later, and return to the original task |
 | **Triage** | Decide what this is before working it | Classify the item — its type, the repository that owns it, whether it is already known — and route it, without beginning implementation |
 | **Handoff** | Someone or something else continues this | Bring the artifacts to a state another participant can resume from, and record what remains as [state rather than as a message](../Capabilities/agentic-development/agent-interaction.md#handover-is-a-state-not-a-message) |
+| **Status** | Tell me where this stands | Report what is done, in progress, and outstanding, with blockers and open decisions, referencing the issues and pull requests involved — and change nothing |
+| **Checkpoint** | Save a known-good point and keep going | Bring the tree to a coherent state, record a work-in-progress commit and the task record, note what the checkpoint covers, and continue working |
+| **Spin-off** | This is a separate concern | Move a tangent discovered mid-task into its own issue, cross-linked to the current work, so the pull request stays one concern |
+| **Stop** | Abandon this | State plainly what will be discarded, confirm before touching anything, then discard it — salvaging anything worth keeping as an issue |
 
-Two properties are shared by all four, and they are what make the vocabulary worth having:
+One property holds across the whole vocabulary, and it is what makes it worth having:
+**no interaction decides anything about the work.** Parking an item does not judge it; triage
+classifies but does not implement; status reports without steering. An interaction moves work
+into the right place, or reports on it, and leaves the decision to whoever owns it.
 
-- **None of them decide anything about the work.** Parking an item does not judge it; triage
-  classifies but does not implement. An interaction moves work into the right place and leaves
-  the decision to whoever owns it.
-- **All of them end with durable state.** The value of an interaction is that nothing is left
-  in the session — after wrap-up or handoff, the session can be discarded without loss.
+Beyond that, they divide by what they leave behind, and the difference is worth being explicit
+about because it determines how safe each one is to invoke:
+
+| Effect | Interactions | Consequence |
+| --- | --- | --- |
+| Leave durable state | Wrap up, Park, Triage, Handoff, Checkpoint, Spin-off | Nothing is left in the session; it can be discarded without loss |
+| Leave nothing | Status | Free to invoke at any time, including mid-task |
+| Remove state | Stop | Destructive, and therefore the only interaction that MUST confirm first |
 
 ### Wrap up
 
@@ -96,6 +106,64 @@ That is why handoff is a state and not a message. A message announcing a handove
 work in whatever state it happened to be in; a handoff brings the artifacts to a resumable
 state first, and the announcement becomes redundant.
 
+### Status
+
+Status answers "where are we" — also phrased as *recap*, or *catch me up* — and its defining
+property is that it has **no side effects**. It reports: what is done, what is in progress,
+what remains, and which blockers or undecided questions stand in the way, referencing the
+issues and pull requests concerned so the reader can go and look.
+
+It creates nothing, commits nothing, and changes nothing. That constraint is the whole value.
+An operation that might quietly commit, file, or reorganise something is one a contributor
+hesitates to invoke mid-task; one that provably does not is free, and gets used at the moment
+the question actually arises rather than at the end.
+
+Status MUST NOT fix anything it notices. A problem found while reporting is a candidate for
+[park](#park) or [spin-off](#spin-off), not something to slip in.
+
+### Checkpoint
+
+A checkpoint marks a known-good point and then **carries on**. That distinguishes it from
+wrap-up, which ends the session, and from a handoff, which prepares it for someone else.
+
+Bring the tree to a coherent state, record a work-in-progress commit on the topic branch,
+update the task record, and note what the checkpoint covers and what comes next. Then keep
+working.
+
+The reason to have a phrase for it is that long tasks otherwise accumulate hours of
+uncommitted work whose only backup is the session. A checkpoint costs a commit and converts an
+unrecoverable position into a recoverable one. The commit is explicitly work in progress and
+carries no claim to be complete or releasable.
+
+### Spin-off
+
+Spin-off and [park](#park) look similar and are aimed at different problems. Park sets a
+tangent aside because it is *not now*. Spin-off separates a concern because it does not belong
+in *this pull request*, even though it may well be worked next.
+
+The test is scope, not timing: a pull request stays one concern, so a second concern gets its
+own issue and its own pull request. Identify the tangent, say why it is separable, draft the
+issue with a cross-reference to the current work, confirm, and return to the task.
+
+A change that would make a reviewer ask "why is this here?" is a spin-off candidate.
+
+### Stop
+
+Stop is the only **destructive** interaction, and its procedure is shaped by that entirely.
+
+State plainly what will be discarded — which commits, which uncommitted changes, which
+branches, which open pull requests — and get confirmation **before touching anything**. Only
+then revert or discard.
+
+The confirmation is not politeness. "Stop", "abandon", and "drop it" are said in frustration
+more often than in judgement, and a session that acts on the first reading of any of them will
+eventually destroy something the contributor meant to keep.
+
+Then record why. Work is abandoned for a reason, and that reason is usually the most valuable
+thing the session produced: an approach that does not work, a constraint discovered late, a
+dependency that turned out to be missing. Salvage anything worth keeping as an issue before
+the rest is discarded.
+
 ## Defined once, referenced everywhere
 
 An interaction MUST be defined in exactly one place, and every runtime that recognises it MUST
@@ -126,7 +194,10 @@ The vocabulary stays useful only by staying small and staying out of the way of 
   an issue; it does not prioritise it. Wrap-up records a lesson; it does not change a standard.
 - The vocabulary SHOULD stay small. A phrase set large enough to need its own reference is a
   command language, and a command language is learned rather than recognised — which forfeits
-  the reason for using phrases at all.
+  the reason for using phrases at all. Eight phrases is near the practical ceiling: each one
+  earns its place by naming an operation on the session that recurs in every project and that
+  is otherwise performed differently every time. A ninth needs to clear that bar, and a phrase
+  that overlaps an existing one belongs in that one's procedure instead.
 
 Adding an interaction is therefore a documentation change: define the procedure, bind a phrase
 to it here, and let each runtime reference it. A phrase recognised by one runtime only is a

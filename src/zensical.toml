@@ -36,6 +36,7 @@ nav = [
     ]},
     {"Contribution Workflow" = "Ways-of-Working/Contribution-Workflow.md"},
     {"Fleet Orchestration" = "Ways-of-Working/Fleet-Orchestration.md"},
+    {"Comparative Review Orchestration" = "Ways-of-Working/Comparative-Review-Orchestration.md"},
     {"Documentation Model" = "Ways-of-Working/Documentation-Model.md"},
     {"Spec-Driven Development" = "Ways-of-Working/Spec-Driven-Development.md"},
     {"Spec-Driven Development Templates" = "Ways-of-Working/Spec-Driven-Development-Templates.md"},
@@ -83,9 +84,12 @@ nav = [
     {"Commit Conventions" = "Ways-of-Working/Commit-Conventions.md"},
     {"Branching and Merging" = "Ways-of-Working/Branching-and-Merging.md"},
     {"Review Etiquette" = "Ways-of-Working/Review-Etiquette.md"},
+    {"Code Ownership" = "Ways-of-Working/Code-Ownership.md"},
     {"Repository Segmentation" = "Ways-of-Working/Repository-Segmentation.md"},
     {"README-Driven Context" = "Ways-of-Working/Readme-Driven-Context.md"},
     {"Continuous Practices" = "Ways-of-Working/Continuous-Practices.md"},
+    {"Continuous Delivery and Release" = "Ways-of-Working/Continuous-Delivery-And-Release.md"},
+    {"Observability" = "Ways-of-Working/Observability.md"},
     {"DevOps Reference" = "Ways-of-Working/DevOps-Reference.md"},
   ]},
   {"Coding Standards" = [
@@ -100,6 +104,7 @@ nav = [
     {"Performance" = "Coding-Standards/Performance.md"},
     {"Security" = "Coding-Standards/Security.md"},
     {"Dependencies" = "Coding-Standards/Dependencies.md"},
+    {"Pre-Commit" = "Coding-Standards/Pre-Commit.md"},
     {"GitHub Actions" = "Coding-Standards/GitHub-Actions.md"},
     {"Markdown" = "Coding-Standards/Markdown.md"},
     {"PowerShell" = [
@@ -113,6 +118,7 @@ nav = [
     ]},
     {"Terraform" = "Coding-Standards/Terraform.md"},
     {"TypeScript" = "Coding-Standards/TypeScript.md"},
+    {"YAML" = "Coding-Standards/YAML.md"},
   ]},
   {"Capabilities" = [
     "Capabilities/index.md",
