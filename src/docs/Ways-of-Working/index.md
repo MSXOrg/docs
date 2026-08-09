@@ -27,7 +27,8 @@ This section documents the principles, processes, and norms that every contribut
 | [Git Worktrees](Git-Worktrees.md) | How agentic development is implemented locally — a bare-clone and worktree layout for working on several things at once. |
 | [Organization Standard](Organization-Standard.md) | What every initiative organization must define centrally so humans and agents share the same expectations. |
 | [Repository Standard](Repository-Standard.md) | The baseline files and behaviours every repository must expose so it is understandable, secure, and maintainable. |
-| [Repository Type Property](Repository-Type-Property.md) | How a single "Type" custom property classifies every repository in an initiative organization and drives which org-wide controls apply to it. |
+| [Repository Type Property](Repository-Type-Property.md) | How a multi-select "Type" custom property classifies every repository in an initiative organization and drives which org-wide controls apply to it. |
+| [Automation Labels](Automation-Labels.md) | Why every label that drives automation belongs to exactly one owning function, how namespacing keeps label dimensions disjoint, and why automation ignores labels it does not own. |
 | [Principles](Principles/index.md) | The foundational beliefs and product mindset behind every decision. |
 | [Engineering Taste](Engineering-Taste.md) | The judgment that takes over when the standards run out. |
 | [Goal-Setting Framework](Goal-Setting.md) | Mission, OKRs, and Initiatives — the strategy above repository Epics. |

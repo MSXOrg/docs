@@ -1,6 +1,6 @@
 ---
 title: Repository Type Property
-description: How a single "Type" custom property classifies every repository in an initiative organization and drives which org-wide controls apply to it.
+description: How a multi-select "Type" custom property classifies every repository in an initiative organization and drives which org-wide controls apply to it.
 ---
 
 # Repository Type Property
@@ -8,23 +8,68 @@ description: How a single "Type" custom property classifies every repository in 
 [Organization Standard](Organization-Standard.md) requires every initiative to define
 "repository types used by the initiative" and "required custom properties, labels, branch
 protection, and review rules." This page is the concrete mechanism that satisfies both at
-once: a single GitHub organization **custom property named `Type`**, whose value per
-repository determines which org-wide rulesets and controls apply.
+once: one GitHub organization **custom property named `Type`**, whose values per repository
+determine which org-wide rulesets and controls apply.
+
+This page owns the **mechanism** — how the property is declared, how ruleset conditions
+target it, and how those conditions are changed safely. What the individual values *mean*
+is owned by [Repository Types](../Capabilities/repository-governance/design-types.md), and
+the governance they drive by [Repository
+Governance](../Capabilities/repository-governance/spec.md).
 
 ## The pattern
 
 Each initiative organization defines:
 
-1. One `single_select` custom property named `Type`, required on every repository, with a
-   default value (typically `Other`).
+1. One `multi_select` custom property named `Type`, required on every repository, with a
+   default value.
 2. An allowed-values list specific to that organization's actual repository shapes (a docs
    org and a module-publishing org will not need the same list).
 3. Org-wide rulesets (branch protection, required reviews, and similar controls) that
-   target repositories by their `Type` value instead of by repository name.
+   target repositories by their `Type` values instead of by repository name.
 
 Setting a repository's `Type` is then the single action that determines every `Type`-scoped
 control it inherits — no per-repository ruleset edits, no repository-name lists to keep in
 sync by hand.
+
+## Why the property is multi-select
+
+A repository's classification answers more than one question, and the answers are
+independent. *How does a change reach the protected branch?* is a branch-model question.
+*What else must be true before it does?* — the documentation builds, the artifact history
+stays linear — is a layering question. A repository can be an infrastructure stack whose
+documentation also publishes, and a single-select property cannot express that without
+inventing a combined value for every pairing that occurs.
+
+So `Type` is `multi_select`, and its values divide into branch-model types, layering types,
+and the exemption type ([the catalogue](../Capabilities/repository-governance/design-types.md)).
+A ruleset condition tests whether a repository's `Type` **includes** a value, so a layering
+ruleset matches without knowing which branch model the repository also declares.
+
+The consequence is that combinations must be validated rather than assumed: a multi-select
+property accepts any subset, including contradictory ones. The [validation
+rules](../Capabilities/repository-governance/design-types.md#validation-rules) state which
+subsets are meaningful, and validation is enforced by
+[reconciliation](../Capabilities/repository-governance/design.md#drift-detection-and-reconciliation)
+rather than by the property schema, which cannot express them.
+
+## Migrating from a single-select property
+
+The platform does not convert a property between selection modes in place, so the migration
+creates a second property and retires the first — the same shape as the condition migration
+below, and subject to the same verification:
+
+1. Create the `multi_select` property alongside the existing `single_select` one.
+2. Populate it for every repository from the current single value, so each repository's new
+   value set is a one-element set carrying the same meaning.
+3. Verify computed coverage is unchanged before repointing anything, using the coverage diff
+   described below.
+4. Repoint every ruleset condition onto the new property.
+5. Retire the old property once no condition reads it, per [deprecating single-purpose
+   properties](#deprecating-single-purpose-properties).
+
+Only after step 4 is verified does a repository gain a second value. Adding values and
+changing the property's mode at the same time makes a coverage diff impossible to attribute.
 
 ## Filter by exclusion, not by inclusion
 
@@ -98,6 +143,11 @@ Both current MSX initiative organizations use this pattern:
 | `MSXOrg` | `Docs`, `Memory`, `VSCodeExtension`, `Other` | Introduced from scratch, replacing a prior single-purpose `BranchStrategy` property. |
 | `PSModule` | `Action`, `Archive`, `Docs`, `Framework`, `FunctionApp`, `Memory`, `Module`, `Other`, `Template`, `Workflow` | `Memory` added to an existing, already-populated `Type` property; the ruleset condition changed from a repository-name allow-list (`~ALL`) to a `Type`-based exclude. |
 
+An organization's list is its own. The values above are shaped by what those two
+organizations actually build; another organization adopting the pattern names the shapes it
+has. What every list has in common is the structure — one default branch-model value, any
+layering values the organization needs, and one exemption value — not the vocabulary.
+
 In both organizations, repositories with `Type: Memory` — the
 [Memory Repository Template](../Capabilities/agentic-development/memory-template.md)'s
 no-PR, direct-commit-to-`main` repositories — are excluded from the org-wide pull-request-
@@ -107,6 +157,10 @@ are rejected the same as on any other repository.
 
 ## Where this connects
 
+- [Repository Governance](../Capabilities/repository-governance/spec.md) — the framework this
+  property is the input to.
+- [Repository Types](../Capabilities/repository-governance/design-types.md) — what each value
+  means, how values compose, and which combinations are invalid.
 - [Organization Standard](Organization-Standard.md) — the requirement this property
   implements: documented repository types and the custom properties, rulesets, and review
   rules attached to them.

@@ -36,6 +36,26 @@ Every repository must carry the files that make it understandable and governable
 
 Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
 
+### Required files by type
+
+The table above is the mandatory set: it applies to every repository, whatever its
+type. A [repository type](../Capabilities/repository-governance/design-types.md)
+adds to that set; no type subtracts from it.
+
+| Type | Adds |
+| --- | --- |
+| **Standard** | Nothing beyond the mandatory set. |
+| **Artifact** | The artifact's own manifest or metadata file — whatever declares its identity to the ecosystem it publishes into — and a changelog where the ecosystem expects one rather than reading [GitHub Releases](../Capabilities/release-management/design-publishing-targets.md). |
+| **Infrastructure** | Documentation of each environment the repository deploys to and how a change reaches it, plus the promotion automation the [promotion flow](../Capabilities/repository-governance/design-types.md#infrastructure) requires. |
+| **Docs** | The documentation source root and the build configuration the documentation-build check runs. |
+| **Memory** | The structure documented by the [memory repository template](../Capabilities/agentic-development/memory-template.md). |
+| **Unmanaged** | Nothing — but the exemption does not extend to discoverability: `README.md`, `SECURITY.md`, and the agent router remain required, because a repository nobody governs is still a repository someone will open. |
+
+The set a repository is audited against is the mandatory set plus the additions of
+every type it declares. Presence is verified by
+[reconciliation](../Capabilities/repository-governance/design.md#required-files-by-type),
+not by review.
+
 The agent-file row is the one entry this table does not spell out in full. [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries) owns that set — one router at the repository root, plus a route for every client that reads a different filename — and the [agentic development spec](../Capabilities/agentic-development/spec.md) limits what a route may contain: a pointer to the router and, at most, genuinely runtime-specific configuration such as permission scopes, never a reading order, a workflow, or a standard. A repository is audited against that one list, so a second copy here would be a second list to keep in step.
 
 ## README defaults
@@ -84,8 +104,8 @@ At minimum, repositories with GitHub Actions must include a `github-actions` eco
 
 Dependency update pull requests must:
 
-- Use labels that identify the dependency category and ecosystem.
-- Keep update-level labels separate from release-bump labels.
+- Use namespaced labels that identify the dependency category and ecosystem, per [Automation Labels](Automation-Labels.md).
+- Keep update-level labels in a namespace separate from release-bump labels.
 - Pass the same CI and review gates as human-authored changes.
 - Keep SHA-pinned actions pinned to immutable commit SHAs with a version comment when possible.
 - Be reviewed before merge, even when auto-merge is allowed for low-risk updates.
@@ -155,6 +175,8 @@ For example, PSModule can define its module-specific managed files in `PSModule/
 ## Where this connects
 
 - [Organization Standard](Organization-Standard.md) — what an initiative organization must define centrally.
+- [Repository Governance](../Capabilities/repository-governance/spec.md) — how a repository's type selects the controls and the file set it is audited against.
+- [Automation Labels](Automation-Labels.md) — the namespacing rule every label a repository's automation reads must follow.
 - [Agentic Development](Agentic-Development.md) — which agent files a repository carries and why the entry point is a pointer.
 - [Repository Type Property](Repository-Type-Property.md) — the `Type` custom property that classifies a repository and drives which type-specific files and controls apply.
 - [README-Driven Context](Readme-Driven-Context.md) — why the README is the front door.

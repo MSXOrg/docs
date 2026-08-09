@@ -60,7 +60,7 @@ flowchart TD
 ## Eligibility
 
 Which pull requests may merge without a human mirrors the
-[dependency-update policy](../dependency-updates/design.md#update-level-policy):
+[dependency-update policy](../dependency-updates/design.md#review-posture):
 low-risk, well-labelled changes are eligible; anything that can break consumers,
 or that policy marks for review, needs a human approval even on green. The
 eligible set is configuration, and it only ever **tightens** the gate —

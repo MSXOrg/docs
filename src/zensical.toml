@@ -47,6 +47,7 @@ nav = [
     {"Organization Standard" = "Ways-of-Working/Organization-Standard.md"},
     {"Repository Standard" = "Ways-of-Working/Repository-Standard.md"},
     {"Repository Type Property" = "Ways-of-Working/Repository-Type-Property.md"},
+    {"Automation Labels" = "Ways-of-Working/Automation-Labels.md"},
     {"Principles" = [
       "Ways-of-Working/Principles/index.md",
       {"Purpose and Direction" = "Ways-of-Working/Principles/Purpose-and-Direction.md"},
@@ -119,6 +120,12 @@ nav = [
       {"Spec" = "Capabilities/release-management/spec.md"},
       {"Design" = "Capabilities/release-management/design.md"},
       {"Publishing Targets" = "Capabilities/release-management/design-publishing-targets.md"},
+    ]},
+    {"Repository Governance" = [
+      "Capabilities/repository-governance/index.md",
+      {"Spec" = "Capabilities/repository-governance/spec.md"},
+      {"Design" = "Capabilities/repository-governance/design.md"},
+      {"Repository Types" = "Capabilities/repository-governance/design-types.md"},
     ]},
     {"Dependency Updates" = [
       "Capabilities/dependency-updates/index.md",
