@@ -7,7 +7,7 @@ description: The specification is the source of truth — the spec (why and what
 
 Spec-driven development treats the specification as the source of truth: the spec captures *why* a change matters and *what* it must do, and everything downstream — design, delivery issues, code, tests — serves it. When intent changes, the spec changes first and the rest follows.
 
-This standard is the shape of a spec. It defines the artifacts of the method — the **specification**, its **design**, and the tiers beneath them — what each contains, at what level of detail, and how they move through the life of a change. It builds on the [evergreen documentation](Principles/Engineering-Practices.md#evergreen-documentation) principle (how a spec is written) and the [engineering practices](Principles/Engineering-Practices.md) (how we plan, build, ship, and measure).
+This standard is the shape of a spec. It defines the artifacts of the method — the **specification**, its **design**, and the tiers beneath them — what each contains, at what level of detail, and how they move through the life of a change. It builds on the [evergreen documentation](Principles/Engineering-Practices.md#evergreen-documentation) principle (how a spec is written) and the [engineering practices](Principles/Engineering-Practices.md) (how work is planned, built, shipped, and measured).
 
 ## The model
 

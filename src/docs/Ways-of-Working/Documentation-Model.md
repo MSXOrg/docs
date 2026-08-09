@@ -47,7 +47,7 @@ Capabilities/
   release-management/
     index.md      # what this capability is
     spec.md       # the why + what
-    design.md     # the how + what we build
+    design.md     # the how + what is built
 ```
 
 A reader opens one folder and has the whole picture — the requirement and the
@@ -69,7 +69,7 @@ Capabilities/
     features/         # per-feature spec addenda
       index.md
       <feature>.md
-    design.md         # the how + what we build                     (required)
+    design.md         # the how + what is built                     (required)
     implementation.md # the concrete values and names
     guides/           # task-oriented walkthroughs
       index.md
@@ -93,7 +93,7 @@ with no reader, so a folder appears the first time it has something to hold
 | --- | --- |
 | **Why / what** a capability must do | the capability's **spec** |
 | **How / what** we build to deliver it | the capability's **design** |
-| **Which exact value or name** we chose | the capability's **implementation** docs |
+| **Which exact value or name** was chosen | the capability's **implementation** docs |
 | **How to perform a task** with it | the capability's **guides** |
 | **What the settings are** | the capability's **references** |
 | **What was explored** before deciding | the capability's **research** |
