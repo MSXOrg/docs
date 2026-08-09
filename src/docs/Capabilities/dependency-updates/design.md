@@ -50,9 +50,8 @@ lands pull requests outside the hours anyone triages them.
 
 ```yaml
 schedule:
-  interval: weekly
-  day: monday
-  time: "09:00"
+  interval: cron
+  cronjob: "0 9 * * 1,3,5"
   timezone: <the organization's working timezone>
 ```
 
@@ -160,7 +159,7 @@ and the same release path as any other update.
 | --- | --- | --- |
 | Native ecosystems and directories | `.github/dependabot.yml` | Generated from supported manifests |
 | Unsupported ecosystems | Central exception register | Centrally managed shared mechanism |
-| Schedule interval, day, time, timezone | `.github/dependabot.yml` | Organization configuration |
+| Schedule (`interval`, `day` and `time`, or `cronjob`) and `timezone` | `.github/dependabot.yml` | Organization configuration |
 | Cooldown | `.github/dependabot.yml` | Organization configuration |
 | Static labels (`dependencies` + ecosystem) | `.github/dependabot.yml` | Generated |
 | `update:*` labels | Update metadata → labelling step | Derived per pull request |

@@ -11,9 +11,11 @@ updates:
       - dependencies
       - github-actions
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: "0 9 * * 1,3,5"
+      timezone: Europe/Oslo
     cooldown:
-      default-days: 7
+      default-days: 3
 
   - package-ecosystem: pip # Build toolchain pinned in requirements.txt
     directory: /
@@ -21,6 +23,8 @@ updates:
       - dependencies
       - python
     schedule:
-      interval: weekly
+      interval: cron
+      cronjob: "0 9 * * 1,3,5"
+      timezone: Europe/Oslo
     cooldown:
-      default-days: 7
+      default-days: 3
