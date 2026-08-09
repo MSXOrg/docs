@@ -1,3 +1,6 @@
 [codespell]
 skip = ./.github/linters
 ignore-words-list = afterall,skelton
+# A Unicode category escape ('\p{Nd}', '\p{Lu}') is a regex token, not prose - codespell
+# reads the category name as a misspelling ('Nd' for 'And') and there is nothing to fix.
+ignore-regex = \\p\{[A-Za-z]+\}

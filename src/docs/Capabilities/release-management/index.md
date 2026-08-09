@@ -17,5 +17,6 @@ ritual.
 | --- | --- |
 | [Spec](spec.md) | Requirements for release management — automatic, label-driven, versioned releases driven entirely on the GitHub platform. |
 | [Design](design.md) | How release management is built — a shared reusable workflow that reads pull-request labels, computes the SemVer bump, and cuts the release. |
+| [Publishing Targets](design-publishing-targets.md) | The contract every publishing destination documents, with GitHub Releases as the reference target. |
 
 <!-- INDEX:END -->

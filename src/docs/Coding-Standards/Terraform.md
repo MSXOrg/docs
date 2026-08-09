@@ -56,6 +56,22 @@ terraform {
 - Only set a `default` for genuinely optional inputs; required inputs have no default so a missing value fails fast.
 - **Describe every output**, and expose only what other stacks or operators actually consume.
 
+## Locals
+
+- **Use `locals` for computed values, derived names, and conditional logic** so each value is defined once and every reference reads the same expression. A name assembled twice in two resources will eventually be assembled two different ways.
+- **Prefix an intermediate local with `_`** when it exists only to feed another local — `_all_subnet_ids` — so the reader can tell a building block from a value the configuration actually consumes.
+- **Multiple `locals` blocks in one file are fine** when each groups related values. One block per concern reads better than one block holding everything.
+
+## Resources and modules
+
+- **Name a single-instance resource `this`** — `aws_lb.this`, `aws_s3_bucket.this` — because the resource type already says what it is and a second name adds nothing. Where more than one instance of a type exists, name each for its role, not its ordinal.
+- **Create an optional resource with `count`**, not `for_each` over a boolean: `count = var.enable_logging ? 1 : 0`. `count` expresses "zero or one"; `for_each` expresses "one per key", and forcing a boolean through it obscures both.
+- **Migrate state with `moved` blocks**, not `terraform state mv`. A `moved` block is committed, reviewed, and applied by everyone who runs the configuration; a state command runs once on one machine and leaves no trace for the next person.
+- **Use `depends_on` only where Terraform cannot infer the edge.** Referencing an attribute already creates the dependency; an explicit `depends_on` on top of that is noise, and a graph full of noise hides the one real ordering constraint.
+- **Pass values into a module explicitly through variables.** A module does not reach for a data source to look up something the caller already knows — that couples the module to the caller's environment and makes it untestable in isolation.
+- **Configure providers only in the root module.** A child module declares what it needs in `required_providers` and contains no `provider` block, so the root stays the single place provider configuration is decided.
+- **Pin a module's Git `source` to an immutable commit SHA**, with the release tag in a trailing comment, following [Pin versions and lock them](#pin-versions-and-lock-them). A tag can be moved; a SHA cannot.
+
 ## Tooling
 
 - **`terraform fmt`** — canonical formatting; CI runs `terraform fmt -check`.

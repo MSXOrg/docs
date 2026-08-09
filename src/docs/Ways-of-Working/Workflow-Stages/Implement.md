@@ -75,7 +75,7 @@ Run this once per implementation session, at the same timing as the standards/fr
 1. Search for already-open issues whose asks are already satisfied by the finished diff, not only the issue originally linked when the branch was opened.
 2. Scope the sweep deliberately so it scales: prioritize the delivery leaf's parent and siblings in the [Issue Hierarchy](../Issues/Types/Hierarchy.md), then narrow by affected component, labels, keywords, or code paths. Do not read every open issue serially in large repositories.
 3. Treat convergence as outcome-based:
-   - **Fully satisfied** — the diff already delivers the issue's ask. Add it to the pull request's Relevant issues block with a closing keyword (`Fixes`, `Closes`, or `Resolves`) so merge closes it.
+   - **Fully satisfied** — the diff already delivers the issue's ask. Add it to the pull request's Relevant issues block with `Resolves` so merge closes it.
    - **Partially satisfied** — the diff helps but does not fully deliver the ask. Link it as non-closing context and keep or create a follow-up delivery leaf for the remaining gap.
 4. Keep this pass focused on convergence and linkage. It does **not** rewrite, reformat, or otherwise "fix up" issue bodies to match issue templates; issue quality edits are separate work routed through [Define](Define.md).
 

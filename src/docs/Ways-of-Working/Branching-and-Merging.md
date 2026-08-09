@@ -52,6 +52,17 @@ Two models, chosen by the repository's deployment shape:
 
 The choice follows from [repository segmentation](Repository-Segmentation.md): an app and an infrastructure stack don't share a model.
 
+### The standing promotion pull request
+
+A repository on the promotion model MAY keep a **standing draft pull request** from the integration branch to the production branch, held open permanently rather than opened per promotion. The pull request is the release candidate: it always shows the exact set of changes that are integrated but not yet promoted, and its diff is the promotion under review.
+
+- **One long-lived pull request, not one per promotion.** Merging it promotes; a new draft opens immediately, so the candidate view is never absent.
+- **Draft is the resting state.** It is marked ready when the integrated state is deemed promotable, which is what turns review and any promotion gate on.
+- **Its description is the promotion note.** Assembled from the changes it carries, it is the record of what a promotion contained, written for whoever operates the destination.
+- **The bump label on it decides the production version.** Promotion is a release like any other, so the version comes from the label on this pull request, not from the versions of the changes it bundles ([release management](../Capabilities/release-management/spec.md)).
+
+The value is continuous visibility: at any moment, the difference between what is integrated and what is live is one link. It suits repositories where promotion is a deliberate, gated event and costs more than it returns where every merge already ships.
+
 ## Required checks and auto-merge
 
 A branch ruleset on the protected branch defines the merge requirements every pull request must satisfy before it can land — the **required status checks**, the **required approvals**, and any others the ruleset enforces (for example conversation resolution or signed commits). These are the required steps: a pull request that has not satisfied all of them cannot land, however it was marked. The ruleset is configured on the repository (in its settings), not in these files; this section defines what it must enforce.

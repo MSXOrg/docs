@@ -1,39 +1,39 @@
 ---
 title: Purpose and direction
-description: Why we build, who we build for, and the least-privilege stance under every decision.
+description: The purpose behind the work, the audience it serves, and the least-privilege stance under every decision.
 ---
 
 # Purpose and direction
 
 ## Start with Why — the Golden Circle
 
-Every piece of work — at every level — should be groundable in three concentric questions:
+Every piece of work — at every level — is groundable in three concentric questions:
 
-- **Why** — what change in the world are we trying to make? Vision.
-- **How** — what approach do we take to make that change happen? Mission.
-- **What** — what concrete thing are we delivering right now?
+- **Why** — what change in the world is this trying to make? Vision.
+- **How** — what approach makes that change happen? Mission.
+- **What** — what concrete thing is being delivered right now?
 
-[Goal Setting](../Goal-Setting.md) owns the strategy path from Mission through OKR and Initiative. [Issue Planning](../Issues/Process/Planning.md) applies Why, How, and What progressively from Epic and PBI aggregates to Task and Bug delivery leaves; this principle does not assign them to copied body sections.
+Strategy and planning apply Why, How, and What progressively, from long-lived aggregates down to delivery leaves. This principle fixes the questions; it does not assign them to particular body sections or planning artifacts.
 
 ## Product / service mindset
 
-We are building something for people who should **want** to use it. Without users, we are nothing. Every decision is filtered through: does this make the product more wanted, or less?
+The thing being built is for people who should **want** to use it. Without users, it is nothing. Every decision is filtered through one question: does this make the product more wanted, or less?
 
 ## Build for all developers
 
-We target all platforms and all shells. Our code, scripts, workflows, and documentation must work regardless of whether the developer is on Windows, macOS, or Linux. Line endings, path separators, shell assumptions — none of these should silently break someone's experience. Repository configuration (`.gitattributes`, CI matrices, test environments) must reflect this.
+Every platform and every shell is a target. Code, scripts, workflows, and documentation MUST work regardless of whether the developer is on Windows, macOS, or Linux. Line endings, path separators, shell assumptions — none of these may silently break someone's experience. Repository configuration such as `.gitattributes`, CI matrices, and test environments MUST reflect this.
 
 ## Build for the modern engineer
 
-We build for engineers using the latest tools and platforms. We do not support deprecated or end-of-life software. Concretely: we target current, cross-platform, actively-developed runtimes — not legacy editions frozen years ago. The same applies across the stack: latest stable releases, current LTS versions, modern APIs. If a tool has a successor, use the successor.
+The audience is engineers using current tools and platforms. Deprecated and end-of-life software is not supported. Concretely: target current, cross-platform, actively-developed runtimes — not legacy editions frozen years ago. The same applies across the stack: latest stable releases, current LTS versions, modern APIs. If a tool has a successor, the successor is the target.
 
 ## Dogfooding
 
-Be the first customer of every service we build. But avoid full self-dependency on a service before it is proven — explore and use it in non-critical contexts first, then promote it as confidence grows.
+Be the first customer of every service produced here. Avoid full self-dependency on a service before it is proven — use it in non-critical contexts first, then promote it as confidence grows.
 
 ## Least-privilege
 
-Every identity — human, agent, or workflow — gets only the permissions it needs to complete its specific task, and nothing more. This applies to GitHub tokens, workflow permissions, API scopes, and agent capabilities.
+Every identity — human, agent, or workflow — gets only the permissions it needs to complete its specific task, and nothing more. This applies to tokens, workflow permissions, API scopes, and agent capabilities.
 
 Concretely:
 

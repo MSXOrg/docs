@@ -5,22 +5,22 @@ description: Grow software as bets under selection — variation, feedback, and 
 
 # Evolutionary Development
 
-Software is grown, not specified into existence. No one designs the right system up front; the hardest part of any change is deciding precisely what to build. So we treat every change as a **bet**: frame it, build the smallest thing that can be judged, expose it to real selection pressure, and keep what survives.
+Software is grown, not specified into existence. No one designs the right system up front; the hardest part of any change is deciding precisely what to build. So every change is treated as a **bet**: frame it, build the smallest thing that can be judged, expose it to real selection pressure, and keep what survives.
 
-This is Darwin's theory of evolution applied to engineering: variation, selection, and survival of the fittest. A design is not right because it was planned well; it survives because it fits the environment it has to live in — the tests, the users, the load, and the constraints. The outcome is non-deterministic: we direct the variation — the deliberate mutations — but real conditions, not our intentions, decide which design survives. It is neither blind natural selection nor a breeder's artificial selection: we choose what to try, the environment chooses what lives.
+This is Darwin's theory of evolution applied to engineering: variation, selection, and survival of the fittest. A design is not right because it was planned well; it survives because it fits the environment it has to live in — the tests, the users, the load, and the constraints. The outcome is non-deterministic: the variation is directed — the mutations are deliberate — but real conditions, not intentions, decide which design survives. It is neither blind natural selection nor a breeder's artificial selection: the engineer chooses what to try, the environment chooses what lives.
 
-Nature ran this algorithm first. We copy what it does well and set it on hyper-speed: cheap variation, ruthless feedback, and generations measured in minutes, not millennia.
+Nature ran this algorithm first. This standard copies what it does well and sets it on hyper-speed: cheap variation, ruthless feedback, and generations measured in minutes, not millennia.
 
-This standard is the *loop*, and it marries the practices we already keep. [Spec-Driven Development](Spec-Driven-Development.md) gives a bet its *shape* — the spec and its design, the *what* and *why*. Behavior-driven discovery turns that intent into Given / When / Then acceptance criteria — the definition of *fit*. Test-driven development grows the implementation against those criteria and the unit tests beneath them — the *how*, evolved in small steps. The three run as one loop. What drives it is not a particular hand but context in, criteria as the target, and feedback as the verdict — so the same loop turns whether a person runs it, an agent runs it, or agents run it end-to-end (see [How the loop is driven](#how-the-loop-is-driven)). It builds on [engineering practices](Principles/Engineering-Practices.md) (test-first where it pays, small batches, reversible decisions) and [AI-first development](Principles/AI-First-Development.md).
+This standard is the *loop*, and it marries the practices already kept here. [Spec-Driven Development](Spec-Driven-Development.md) gives a bet its *shape* — the spec and its design, the *what* and *why*. Behavior-driven discovery turns that intent into Given / When / Then acceptance criteria — the definition of *fit*. Test-driven development grows the implementation against those criteria and the unit tests beneath them — the *how*, evolved in small steps. The three run as one loop. What drives it is not a particular hand but context in, criteria as the target, and feedback as the verdict — so the same loop turns whether a person runs it, an agent runs it, or agents run it end-to-end (see [How the loop is driven](#how-the-loop-is-driven)). It builds on [engineering practices](Principles/Engineering-Practices.md) (test-first where it pays, small batches, reversible decisions) and [AI-first development](Principles/AI-First-Development.md).
 
 ## Why evolve instead of plan
 
-We state intent first and treat the plan as a living thing. Two habits carry it:
+Intent is stated first, and the plan is treated as a living thing. Two habits carry it:
 
 - **Build shared understanding from concrete examples**, in rapid iterations, with documentation that is continuously checked against the system.
 - **Front-load the *why* and *what*** so both people and agents have the context they need, then refine continuously as understanding grows.
 
-Neither habit assumes the first design is correct. Both optimise the *loop*, not the plan: a big up-front design is a large, hard-to-reverse bet made when we know the least; a small slice under real feedback is a cheap bet made while we can still change our minds. Prefer the cheap bet.
+Neither habit assumes the first design is correct. Both optimise the *loop*, not the plan: a big up-front design is a large, hard-to-reverse bet made at the point of least knowledge; a small slice under real feedback is a cheap bet made while the decision is still open. Prefer the cheap bet.
 
 ## The loop
 
@@ -39,7 +39,7 @@ flowchart LR
   retain -.-> decide
 ```
 
-- **Decide.** State the bet as a hypothesis with an explicit kill condition — the result that would make us abandon it. Size the bet to its reversibility: local, reversible moves are cheap, so make them freely; one-way doors are expensive, so slow down and write them down ([decision before change](Principles/AI-First-Development.md#decision-before-change), [engineering taste](Engineering-Taste.md)).
+- **Decide.** State the bet as a hypothesis with an explicit kill condition — the result that would make the bet worth abandoning. Size the bet to its reversibility: local, reversible moves are cheap, so make them freely; one-way doors are expensive, so slow down and write them down ([decision before change](Principles/AI-First-Development.md#decision-before-change), [engineering taste](Engineering-Taste.md)).
 - **Build.** Make the smallest thing that can be judged — a walking skeleton or a throwaway spike — as a thin vertical slice, not a layer ([engineering practices](Principles/Engineering-Practices.md)).
 - **Explore.** Put it in front of reality: run it, demo it, probe its edges. Exploration is where surprises surface while they are still cheap.
 - **Test.** The [acceptance criteria](Spec-Driven-Development.md#acceptance-criteria) — Given / When / Then — are the coarse fitness function; the unit tests beneath them check the internals. They pass, or the bet has not survived. These automated tests become the guard-rails that stop later turns breaking earlier ones.
@@ -78,14 +78,14 @@ flowchart TB
   build -.-> inner
 ```
 
-- **The outer loop evolves the design.** It is deliberate and coarse-grained: state the intent, agree the acceptance criteria, decide quickly, and let a slice meet reality. When feedback contradicts the intent, the spec changes first and the approach evolves — [spec-driven development](Spec-Driven-Development.md) turning. This is where early alignment, the acceptance criteria, and the one-way doors are settled. We dare to decide fast and fail fast here because the spec makes the cost of being wrong cheap to see and cheap to revise.
+- **The outer loop evolves the design.** It is deliberate and coarse-grained: state the intent, agree the acceptance criteria, decide quickly, and let a slice meet reality. When feedback contradicts the intent, the spec changes first and the approach evolves — [spec-driven development](Spec-Driven-Development.md) turning. This is where early alignment, the acceptance criteria, and the one-way doors are settled. Deciding fast and failing fast belong here, because the spec makes the cost of being wrong cheap to see and cheap to revise.
 - **The inner loop evolves the implementation.** It nests inside the **Build** stage and runs fast and fine-grained: write a failing test, make it pass, refactor, repeat — [test-driven development](Principles/Engineering-Practices.md#test-driven-development). The tests come at two grains — fine-grained **unit tests** for the internals and the **Given / When / Then acceptance tests** that encode the behavior from discovery. Many inner turns fit inside one outer turn, fast enough that variations are generated and discarded far quicker than by hand.
 
 The **acceptance criteria** couple the two loops. Written once as Given / When / Then, they are the outer loop's definition of *fit* and the inner loop's target — one behavioral statement serving discovery, the spec, and the test. Whoever turns each loop, the criteria keep both honest to the same intent.
 
 ## Signals: the shapes of intent
 
-A turn does not only begin when someone asks for a feature. It begins with a **signal** — a pressure from the environment that the current design no longer fits — and every signal is **intent in a particular shape**. Naming the shapes keeps us honest that a bugfix, a performance guard, and a new capability are the same kind of work: a bet, framed from a signal, judged by selection.
+A turn does not only begin when someone asks for a feature. It begins with a **signal** — a pressure from the environment that the current design no longer fits — and every signal is **intent in a particular shape**. Naming the shapes keeps it honest that a bugfix, a performance guard, and a new capability are the same kind of work: a bet, framed from a signal, judged by selection.
 
 - **Need.** A request for functionality or capability the product does not have yet — a user, a stakeholder, or a dependent system pulling it forward. Intent stated outright: *make it do this.*
 - **Defect.** Proof that behavior and intent already disagree — a fault found in test or reported from production. An acceptance criterion that should hold does not, so the bet is to make it hold again.
@@ -119,7 +119,7 @@ This is [context-first development](Principles/AI-First-Development.md#context-f
 > [!IMPORTANT]
 > Self-directed update is a standing directive, not an optional courtesy. Whoever turns the loop — a person or an agent — and learns something or hits a wrong instruction is expected to improve that instruction then and there, rather than leave it for someone else, so the next turn starts sharper than this one did. A loop that cannot improve its own instructions cannot evolve.
 
-The standards, guides, and agent instructions that inform how we work are part of the environment the loop runs in. They are context, and context drives every turn (see [How the loop is driven](#how-the-loop-is-driven)) — so a weak instruction misdirects every turn that reads it, quietly and at scale, and a sharper one improves every turn just as widely. The instructions are under selection too: correct them when they are wrong, and refine them when a turn teaches something better. Either way, updating them is part of the work, not a separate chore. This is [self-improving agents](Principles/AI-First-Development.md#self-improving-agents) applied to the instructions themselves.
+The standards, guides, and agent instructions that inform how the work is done are part of the environment the loop runs in. They are context, and context drives every turn (see [How the loop is driven](#how-the-loop-is-driven)) — so a weak instruction misdirects every turn that reads it, quietly and at scale, and a sharper one improves every turn just as widely. The instructions are under selection too: correct them when they are wrong, and refine them when a turn teaches something better. Either way, updating them is part of the work, not a separate chore. This is [self-improving agents](Principles/AI-First-Development.md#self-improving-agents) applied to the instructions themselves.
 
 When a turn exposes a defect or discovers a better way of working — whether a person hits the friction or an agent does — raise the change as its own small bet and run it through the same loop: a change to the doc, reviewed and merged through a [decision point](Principles/AI-First-Development.md#decision-before-change). Signals worth acting on:
 
@@ -129,7 +129,7 @@ When a turn exposes a defect or discovers a better way of working — whether a 
 - A turn goes wrong in a way a clearer instruction would have prevented.
 - A turn finds a better way — a sharper prompt, a cleaner sequence, a rule worth making the default — worth keeping for the next one.
 
-Because a standard is defined once and pointed to everywhere ([Agentic Development](Agentic-Development.md)), one change propagates to every repo and every agent that reads it — improve it in one place and the whole fleet's behavior evolves. This is the method turned on itself: the same living-documentation discipline that keeps a spec true keeps the instructions true and refines them as we learn, so the way we work gets better every time a turn teaches us something worth keeping.
+Because a standard is defined once and pointed to everywhere ([Agentic Development](Agentic-Development.md)), one change propagates to every repo and every agent that reads it — improve it in one place and the whole fleet's behavior evolves. This is the method turned on itself: the same living-documentation discipline that keeps a spec true keeps the instructions true and refines them as understanding grows, so the way of working gets better every time a turn teaches something worth keeping.
 
 ## Working a v1
 
