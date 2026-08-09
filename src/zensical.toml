@@ -38,6 +38,7 @@ nav = [
     {"Fleet Orchestration" = "Ways-of-Working/Fleet-Orchestration.md"},
     {"Documentation Model" = "Ways-of-Working/Documentation-Model.md"},
     {"Spec-Driven Development" = "Ways-of-Working/Spec-Driven-Development.md"},
+    {"Spec-Driven Development Templates" = "Ways-of-Working/Spec-Driven-Development-Templates.md"},
     {"Evolutionary Development" = "Ways-of-Working/Evolutionary-Development.md"},
     {"Agentic Development" = [
       "Ways-of-Working/Agentic-Development.md",

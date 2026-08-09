@@ -56,19 +56,56 @@ it documents](Principles/Engineering-Practices.md#documentation-lives-close-to-t
 applied to the spec–design pair; where a design maps to a repository, the same
 two documents live with the code.
 
+The spec and the design are the only required files. A capability that outgrows
+them grows downward into the optional
+[artifact tiers](Spec-Driven-Development.md#the-artifact-tiers), each of which has
+a fixed home in the same folder:
+
+```text
+Capabilities/
+  <capability>/
+    index.md          # what this capability is                     (required)
+    spec.md           # the why + what                              (required)
+    features/         # per-feature spec addenda
+      index.md
+      <feature>.md
+    design.md         # the how + what we build                     (required)
+    implementation.md # the concrete values and names
+    guides/           # task-oriented walkthroughs
+      index.md
+      <task>.md
+    references.md     # lookup tables
+    research/         # point-in-time exploration
+      index.md
+      <exploration>.md
+```
+
+A file that grows past a single page becomes a folder with an `index.md` and one
+page per member — `design.md` may become `design/`, and `references.md` may
+become `references/`, without changing what the tier means. The reverse also
+holds: a tier that never fills up is never created. Empty scaffolding is a cost
+with no reader, so a folder appears the first time it has something to hold
+([concise by default](#concise-by-default)).
+
 ## Why, what, how — a home for everything
 
 | Concern | Owned by |
 | --- | --- |
 | **Why / what** a capability must do | the capability's **spec** |
 | **How / what** we build to deliver it | the capability's **design** |
+| **Which exact value or name** we chose | the capability's **implementation** docs |
+| **How to perform a task** with it | the capability's **guides** |
+| **What the settings are** | the capability's **references** |
+| **What was explored** before deciding | the capability's **research** |
 | **How we work** — process, principles, conventions | [Ways of Working](index.md) |
 | **How code looks** — style applied to code | [Coding Standards](../Coding-Standards/index.md) |
 | **How this one change is implemented** — paths, trade-offs | the Task or Bug delivery leaf and its PR; see [Issue Planning](Issues/Process/Planning.md) |
 
 Keeping implementation out of the spec is what makes the spec durable:
-implementation detail rots fastest, so the spec leaves it to the design, and the
-design leaves per-change detail to the issue and the PR.
+implementation detail rots fastest, so the spec leaves it to the design, the
+design leaves exact values to the implementation docs, and all of them leave
+per-change detail to the issue and the PR. Each tier absorbs the churn of the one
+below it, so the tier above stays still.
 
 ## It starts with a need
 

@@ -21,6 +21,7 @@ This section documents the principles, processes, and norms that every contribut
 | [Fleet Orchestration](Fleet-Orchestration.md) | How one change is rolled out across many repositories through Task or Bug delivery leaves tracked entirely on GitHub. |
 | [Documentation Model](Documentation-Model.md) | How every capability is documented — a spec for the why and a design for the how, colocated, concise, and kept evergreen for humans and agents alike. |
 | [Spec-Driven Development](Spec-Driven-Development.md) | The specification is the source of truth — the spec (why and what), its design (how), and how a change moves from need to shipped. |
+| [Spec-Driven Development Templates](Spec-Driven-Development-Templates.md) | A copyable skeleton for every spec-driven artifact — specification, feature addendum, design, implementation doc, guide, reference, research, and decision record. |
 | [Evolutionary Development](Evolutionary-Development.md) | Grow software as bets under selection — variation, feedback, and survival of the fittest, run as one tight loop. |
 | [Agentic Development](Agentic-Development.md) | How ways of working, standards, and documentation are authored once and consumed by both humans and agents. |
 | [Git Worktrees](Git-Worktrees.md) | How agentic development is implemented locally — a bare-clone and worktree layout for working on several things at once. |
