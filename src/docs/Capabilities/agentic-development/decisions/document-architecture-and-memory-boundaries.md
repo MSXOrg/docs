@@ -7,11 +7,10 @@ description: The topic-and-artifact documentation model, minimal OKF-style metad
 
 ## Context
 
-MSX needs documentation that humans and agents can navigate cheaply, thin agent
-configuration that points to canonical knowledge, and a shared place for
-durable lessons. Issue [MSXOrg/docs#10](https://github.com/MSXOrg/docs/issues/10)
-proposed Diataxis, the Open Knowledge Format (OKF), and a writable `brain/`
-area in this repository to meet those needs.
+MSX documentation is navigable cheaply by humans and agents, agent
+configuration points to canonical knowledge, and durable lessons have a shared
+home. The architecture establishes those boundaries without duplicating
+documentation across classifications or repositories.
 
 ## Decision
 
@@ -46,6 +45,4 @@ Agents commit durable, factual lessons to `MSXOrg/memory` under its
 [memory-writing rules](../design.md#memory-writing-rules); they never use this
 public documentation repository as a low-ceremony dump.
 
-This decision resolves the architecture questions in
-[MSXOrg/docs#10](https://github.com/MSXOrg/docs/issues/10). Future changes to
-these boundaries require a new decision record that supersedes this one.
+Changes to these boundaries use a new decision record that supersedes this one.
