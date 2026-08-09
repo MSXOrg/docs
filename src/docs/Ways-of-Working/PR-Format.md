@@ -108,8 +108,14 @@ At the very end of every PR description, use this exact structure:
 <details>
 <summary>Relevant issues (or links)</summary>
 
-- Fixes Owner/Repo#123
-- Owner/OtherRepo#124
+- Resolves Org/Repo#123
+- Resolves Org/OtherRepo#124
+
+### Related work
+
+- Depends on Org/OtherRepo#124
+- Followed by Org/OtherRepo#125
+- References Org/OtherRepo#126
 
 </details>
 ```
@@ -126,21 +132,22 @@ The **Technical details** block is for reviewers and maintainers. Include intern
 | Changed surface | Standards checked | Framework docs checked | Result |
 | --- | --- | --- | --- |
 | `src/**` (PowerShell) | Naming, Functions | Module source layout | Aligned |
-| `.github/workflows/**` | GitHub Actions | Reusable workflow contract | Exception — Owner/Repo#123 |
+| `.github/workflows/**` | GitHub Actions | Reusable workflow contract | Exception — Org/Repo#123 |
 
 A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link to the follow-up issue that carries it. A surface with no framework or domain documentation of its own is recorded as `None (no framework-specific docs)`.
 
-The **Relevant issues (or links)** block is required and uses fully qualified references (`Owner/Repo#N`) so links work across repositories.
+The **Relevant issues (or links)** block is required and uses fully qualified references (`Org/Repo#N`) so links work across repositories.
 
-Use one bullet per linked issue. One bullet uses a [closing keyword](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue) (`Fixes`, `Closes`, or `Resolves`) for the scoped Task or Bug delivered by the pull request. Additional bullets may also use closing keywords only for issues the [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) confirms are fully satisfied by the same finished diff. A parent PBI or Epic may appear as context without a closing keyword; never close an aggregate through a delivery pull request. Partially convergent or supporting issues are linked as non-closing context.
+Use one bullet per linked reference. Begin with the closing issues, each prefixed with `Resolves`; this applies to the scoped Task or Bug delivered by the pull request and to additional issues the [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) confirms are fully satisfied by the same finished diff. When the PR relates to other issues or pull requests, add a `### Related work` header below the `Resolves` list, then list each qualified reference with its relationship, such as `Depends on`, `Followed by`, or `References`. Closing keywords do not close pull requests. A parent PBI or Epic may appear as context without a closing keyword; never close an aggregate through a delivery pull request. Partially convergent or supporting issues are linked as non-closing context.
 
-If there is not one scoped closing Task or Bug: **stop**. Route back to [Define](Workflow-Stages/Define.md) to create or correctly route the delivery leaf. If additional closing keywords are used, include sweep evidence in Technical details that shows those issues are fully satisfied. The [Issue Hierarchy](Issues/Types/Hierarchy.md) and [Issue Lifecycle](Issues/Process/Lifecycle.md) own type and closure semantics.
+A PR that delivers a scoped Task or Bug must include at least one `Resolves` link. A PR that does not resolve an issue must include a `### Related work` header and an unordered list of qualified relationship references. If additional `Resolves` links are used, include sweep evidence in Technical details that shows those issues are fully satisfied. The [Issue Hierarchy](Issues/Types/Hierarchy.md) and [Issue Lifecycle](Issues/Process/Lifecycle.md) own type and closure semantics.
 
 ## Formatting
 
 - Paragraphs are written as a **single unbroken line**. GitHub renders mid-paragraph newlines as spaces.
 - The PR description is **the release note**. Write it for users, not reviewers.
 - The PR title and description align with the closing Task or Bug's user-facing framing and recorded technical decisions.
+- Refer to every issue or pull request as `Org/Repo#N`, including references in the current repository; do not use bare `#N` references.
 
 ## Example
 
@@ -168,15 +175,19 @@ Commands that query a specific repository, enterprise, or release by name now re
 - The repository model's custom-properties field is now a typed collection rather than an untyped object.
 - The GraphQL query layer splits error handling into partial-success (data + errors → warnings) and full-failure (errors only → terminating error) branches.
 - Null guards added to the repository lookup helpers.
-- Implementation plan progress: tasks 1–3 in #218 completed; task 4 (integration tests) remains.
+- Implementation plan progress: tasks 1–3 in Org/Repo#218 completed; task 4 (integration tests) remains.
 
 </details>
 
 <details>
 <summary>Relevant issues (or links)</summary>
 
-- Fixes Owner/Repo#218
-- Owner/Repo#219
+- Resolves Org/Repo#218
+- Resolves Org/Repo#219
+
+### Related work
+
+- References Org/Repo#220
 
 </details>
 ````
