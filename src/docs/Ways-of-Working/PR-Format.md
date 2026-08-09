@@ -94,7 +94,7 @@ Do **not** mention internal function names, class names, private APIs, or refact
 
 ### 3. Required ending blocks
 
-At the very end of every PR description, use the Technical details block and one relationship block. A PR that resolves an issue uses the Relevant issues (or links) block:
+At the very end of every PR description, use this exact structure:
 
 ```markdown
 ---
@@ -110,20 +110,12 @@ At the very end of every PR description, use the Technical details block and one
 
 - Resolves Org/Repo#123
 - Resolves Org/OtherRepo#124
-- References Org/OtherRepo#125
 
-</details>
-```
+### Related work
 
-When a PR does not resolve an issue, use this relationship block instead:
-
-```markdown
-<details>
-<summary>Relationship to related work</summary>
-
-- Depends on Org/Repo#123
-- Followed by Org/OtherRepo#124
-- References Org/OtherRepo#125
+- Depends on Org/OtherRepo#124
+- Followed by Org/OtherRepo#125
+- References Org/OtherRepo#126
 
 </details>
 ```
@@ -144,11 +136,11 @@ The **Technical details** block is for reviewers and maintainers. Include intern
 
 A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link to the follow-up issue that carries it. A surface with no framework or domain documentation of its own is recorded as `None (no framework-specific docs)`.
 
-The **Relevant issues (or links)** block is required for a PR that resolves an issue and uses fully qualified references (`Org/Repo#N`) so links work across repositories.
+The **Relevant issues (or links)** block is required and uses fully qualified references (`Org/Repo#N`) so links work across repositories.
 
-Use one bullet per linked reference. In the Relevant issues (or links) block, prefix every closing issue with `Resolves`; this applies to the scoped Task or Bug delivered by the pull request and to additional issues the [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) confirms are fully satisfied by the same finished diff. Link pull requests and other non-issue references with `References`; closing keywords do not close pull requests. A parent PBI or Epic may appear as context without a closing keyword; never close an aggregate through a delivery pull request. Partially convergent or supporting issues are linked as non-closing context.
+Use one bullet per linked reference. Begin with the closing issues, each prefixed with `Resolves`; this applies to the scoped Task or Bug delivered by the pull request and to additional issues the [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) confirms are fully satisfied by the same finished diff. When the PR relates to other issues or pull requests, add a `### Related work` header below the `Resolves` list, then list each qualified reference with its relationship, such as `Depends on`, `Followed by`, or `References`. Closing keywords do not close pull requests. A parent PBI or Epic may appear as context without a closing keyword; never close an aggregate through a delivery pull request. Partially convergent or supporting issues are linked as non-closing context.
 
-A PR that delivers a scoped Task or Bug must include at least one `Resolves` link. If the PR does not resolve an issue, it must instead include the **Relationship to related work** block with an unordered list that prefixes each qualified reference with its relationship, such as `Depends on`, `Followed by`, or `References`. If additional `Resolves` links are used, include sweep evidence in Technical details that shows those issues are fully satisfied. The [Issue Hierarchy](Issues/Types/Hierarchy.md) and [Issue Lifecycle](Issues/Process/Lifecycle.md) own type and closure semantics.
+A PR that delivers a scoped Task or Bug must include at least one `Resolves` link. A PR that does not resolve an issue must include a `### Related work` header and an unordered list of qualified relationship references. If additional `Resolves` links are used, include sweep evidence in Technical details that shows those issues are fully satisfied. The [Issue Hierarchy](Issues/Types/Hierarchy.md) and [Issue Lifecycle](Issues/Process/Lifecycle.md) own type and closure semantics.
 
 ## Formatting
 
@@ -192,6 +184,9 @@ Commands that query a specific repository, enterprise, or release by name now re
 
 - Resolves Org/Repo#218
 - Resolves Org/Repo#219
+
+### Related work
+
 - References Org/Repo#220
 
 </details>
