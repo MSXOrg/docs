@@ -5,7 +5,7 @@ description: Names that reveal intent, consistently, in every language.
 
 # Naming
 
-Names are the primary interface to code. A good name removes the need for a comment; a bad name survives every refactor and misleads for years. Naming is the cheapest documentation we have — spend on it.
+Names are the primary interface to code. A good name removes the need for a comment; a bad name survives every refactor and misleads for years. Naming is the cheapest documentation available — spend on it.
 
 ## Principles
 

@@ -65,4 +65,4 @@ Every standard here serves that single fact. When a rule and readability disagre
 
 ## How standards evolve
 
-Standards are evergreen, not frozen. When one stops serving us, we change it — in a pull request, against this repository, with the reasoning written down. A standard that cannot be justified is a standard that should be removed.
+Standards are evergreen, not frozen. When one stops serving its purpose, it changes — in a pull request, against this repository, with the reasoning written down. A standard that cannot be justified is a standard that should be removed.

@@ -7,7 +7,7 @@ description: The baseline files and behaviours every repository must expose so i
 
 A repository is the smallest unit of ownership in the MSX ecosystem. It must explain what it is, how to contribute, how security is handled, how dependencies are kept current, and which standards govern its automation.
 
-The Repository Standard is the default for every repository across the MSX Enterprise, regardless of initiative, organization, or technology. It defines the baseline contract a repository must meet to be understandable, secure, and maintainable on its own.
+The Repository Standard is the default for every governed repository across the MSX Enterprise, regardless of initiative, organization, or technology. It defines the baseline contract a repository must meet to be understandable, secure, and maintainable on its own.
 
 Initiative standards operate at the same altitude as this standard, not beneath it. An initiative such as PSModule adds to and adjusts these defaults for its repository types rather than merely implementing them. A repository inherits every rule this standard sets unless its initiative explicitly changes it; where an initiative standard adds or overrides a rule, the initiative standard governs that initiative's repositories.
 
@@ -17,7 +17,9 @@ Which natural language each repository artifact is written in follows [Natural L
 
 ## Required files
 
-Every repository must carry the files that make it understandable and governable on its own.
+Every governed repository must carry the files that make it understandable and
+governable on its own. An Unmanaged repository carries the explicit
+discoverability minimum defined below instead.
 
 | File | Requirement |
 | --- | --- |
@@ -28,13 +30,36 @@ Every repository must carry the files that make it understandable and governable
 | `SUPPORT.md` | Explains where users ask for help. |
 | `CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
 | `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation, then to memory. [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries) names the files and the path each one sits at. |
-| `.github/dependabot.yml` | Configures ecosystem-appropriate dependency-update pull requests. The `github-actions` ecosystem is expected in virtually every repository; add the language, package, container, or infrastructure ecosystems the repository actually develops in. |
+| `.github/dependabot.yml` | Configures platform-native dependency-update pull requests for supported ecosystems. The `github-actions` ecosystem is expected in virtually every repository; an unsupported ecosystem follows the centrally managed exception path rather than a repository-local updater. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
 | `.github/pull_request_template.md` | Scaffolds pull requests in the MSX [PR Format](PR-Format.md) (PR Manager) style — an icon + change-type + user-facing-outcome title, user-facing description sections, an optional technical-details block, and a related-issues block. |
 | `.gitattributes` | Normalizes line endings and declares text/binary handling so the repository can be developed and built consistently on Linux, macOS, and Windows. |
 | `.gitignore` | Ignores files that must never be committed, tailored to the repository's ecosystem: operating-system files, editor and developer-tooling files, language and test-harness artifacts, and all local build outputs and files created during build and test. |
 
 Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
+
+### Required files by type
+
+The table above is the mandatory set for every governed repository. A
+[repository type](../Capabilities/repository-governance/design-types.md) adds to
+that set; no governed type subtracts from it. `Unmanaged` is the explicit
+full-governance exemption: it is audited only for the discoverability minimum
+stated below, not for the governed baseline.
+
+| Type | Adds |
+| --- | --- |
+| **Standard** | Nothing beyond the mandatory set. |
+| **Artifact** | The artifact's own manifest or metadata file — whatever declares its identity to the ecosystem it publishes into — and a changelog where the ecosystem expects one rather than reading [GitHub Releases](../Capabilities/release-management/design-publishing-targets.md). |
+| **Infrastructure** | Documentation of each environment the repository deploys to and how a change reaches it, plus the promotion automation the [promotion flow](../Capabilities/repository-governance/design-types.md#infrastructure) requires. |
+| **Docs** | The documentation source root and the build configuration the documentation-build check runs. |
+| **Memory** | The structure documented by the [memory repository template](../Capabilities/agentic-development/memory-template.md). |
+| **Unmanaged** | Nothing — but the exemption does not extend to discoverability: `README.md`, `SECURITY.md`, and the agent router remain required, because a repository nobody governs is still a repository someone will open. |
+
+The set a governed repository is audited against is the mandatory set plus the
+additions of every type it declares; an Unmanaged repository is audited only
+against its discoverability minimum. Presence is verified by
+[reconciliation](../Capabilities/repository-governance/design.md#required-files-by-type),
+not by review.
 
 The agent-file row is the one entry this table does not spell out in full. [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries) owns that set — one router at the repository root, plus a route for every client that reads a different filename — and the [agentic development spec](../Capabilities/agentic-development/spec.md) limits what a route may contain: a pointer to the router and, at most, genuinely runtime-specific configuration such as permission scopes, never a reading order, a workflow, or a standard. A repository is audited against that one list, so a second copy here would be a second list to keep in step.
 
@@ -78,14 +103,21 @@ Initiative docs define the implementation: exact folder layout, publishing workf
 
 ## Dependency and supply-chain defaults
 
-Every repository that has external dependencies must configure automated update pull requests. Dependabot is the default GitHub-native mechanism unless the initiative documents a different implementation.
+Every repository that has external dependencies must have automated update coverage.
+Dependabot is the default GitHub-native mechanism for its supported ecosystems; an
+unsupported ecosystem uses the centrally managed exception path defined by
+[Dependency Updates](../Capabilities/dependency-updates/spec.md#coverage), never a
+repository-specific updater.
 
-At minimum, repositories with GitHub Actions must include a `github-actions` ecosystem entry. Repositories with language, package, container, or infrastructure dependencies must include the relevant ecosystems too.
+At minimum, repositories with GitHub Actions must include a `github-actions`
+ecosystem entry. Repositories with language, package, container, or infrastructure
+dependencies include their supported native ecosystems; unsupported ones are
+recorded centrally for shared update coverage.
 
 Dependency update pull requests must:
 
-- Use labels that identify the dependency category and ecosystem.
-- Keep update-level labels separate from release-bump labels.
+- Use namespaced labels that identify the dependency category and ecosystem, per [Automation Labels](Automation-Labels.md).
+- Keep update-level labels in a namespace separate from release-bump labels.
 - Pass the same CI and review gates as human-authored changes.
 - Keep SHA-pinned actions pinned to immutable commit SHAs with a version comment when possible.
 - Be reviewed before merge, even when auto-merge is allowed for low-risk updates.
@@ -155,6 +187,8 @@ For example, PSModule can define its module-specific managed files in `PSModule/
 ## Where this connects
 
 - [Organization Standard](Organization-Standard.md) — what an initiative organization must define centrally.
+- [Repository Governance](../Capabilities/repository-governance/spec.md) — how a repository's type selects the controls and the file set it is audited against.
+- [Automation Labels](Automation-Labels.md) — the namespacing rule every label a repository's automation reads must follow.
 - [Agentic Development](Agentic-Development.md) — which agent files a repository carries and why the entry point is a pointer.
 - [Repository Type Property](Repository-Type-Property.md) — the `Type` custom property that classifies a repository and drives which type-specific files and controls apply.
 - [README-Driven Context](Readme-Driven-Context.md) — why the README is the front door.

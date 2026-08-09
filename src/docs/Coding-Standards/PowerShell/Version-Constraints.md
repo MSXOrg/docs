@@ -96,7 +96,7 @@ Here a bare `Version="16.0.0"` is a *minimum* — NuGet's own semantics — the 
 - `RequiredVersion` cannot be combined with `ModuleVersion` or `MaximumVersion`. A range needs the floor **and** ceiling keys together; the exact pin stands alone.
 - `MaximumVersion` is **inclusive** and understands the `N.*` wildcard, so a major lock is `MaximumVersion = '6.*'` — every `6.x`, nothing in `7` — with no `6.999.999` sentinel.
 - The module `GUID` pins **identity**, orthogonal to the version: a supply-chain control, not part of the version constraint (see [Security → Supply chain](../Security.md#supply-chain)). Add it to any lock.
-- The `#Requires -Version` statement and a manifest's `PowerShellVersion` are **not** package ranges — each is a single minimum engine version (we target PowerShell 7). Leave them as a bare version: `#Requires -Version 7.0`.
+- The `#Requires -Version` statement and a manifest's `PowerShellVersion` are **not** package ranges — each is a single minimum engine version (the target is PowerShell 7). Leave them as a bare version: `#Requires -Version 7.0`.
 
 ## Not a version range — pin by digest
 

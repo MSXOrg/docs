@@ -5,7 +5,7 @@ description: ES modules, strict-mode typing, pinned dependencies, and the Pretti
 
 # TypeScript
 
-How TypeScript is written across the ecosystem. TypeScript is the language for Node-based tooling, GitHub Actions written in JavaScript, and **VS Code extensions**. We target the **latest stable TypeScript** on the **Node.js Active LTS**, ship **ES modules**, and treat the compiler's strict mode as non-negotiable.
+How TypeScript is written across the ecosystem. TypeScript is the language for Node-based tooling, GitHub Actions written in JavaScript, and **VS Code extensions**. The target is the **latest stable TypeScript** on the **Node.js Active LTS**, shipping **ES modules**, treating the compiler's strict mode as non-negotiable.
 
 This standard builds on the [language-agnostic baseline](index.md); where the two overlap, the baseline rules apply and the conventions below add the TypeScript specifics.
 

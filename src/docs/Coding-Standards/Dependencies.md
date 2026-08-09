@@ -5,7 +5,7 @@ description: How dependencies are pinned and kept current — the locking spectr
 
 # Dependencies
 
-Every dependency we consume — a PowerShell module, a GitHub Action, a container base image, a .NET package, a Terraform provider — is both a convenience and part of our [attack surface](Security.md#supply-chain). How we depend on one is a single decision made twice: **how tightly to pin it** (how much version drift we accept) and **how it moves forward** (how new versions reach us). Get the balance wrong in either direction and it costs us.
+Every consumed dependency — a PowerShell module, a GitHub Action, a container base image, a .NET package, a Terraform provider — is both a convenience and part of the [attack surface](Security.md#supply-chain). Depending on one is a single decision made twice: **how tightly to pin it** (how much version drift is acceptable) and **how it moves forward** (how new versions arrive). Getting the balance wrong in either direction has a cost.
 
 This is the ecosystem-agnostic standard; the per-tool standards apply it. [PowerShell → Version Constraints](PowerShell/Version-Constraints.md) expresses it for modules and packages, and [GitHub Actions → Pin every action to a full commit SHA](GitHub-Actions.md#pin-every-action-to-a-full-commit-sha) expresses it for Actions and images. The [Dependency Updates](../Capabilities/dependency-updates/index.md) capability is the automation that keeps pins current.
 
@@ -13,12 +13,12 @@ This is the ecosystem-agnostic standard; the per-tool standards apply it. [Power
 
 A pin has two independent parts; keep them separate.
 
-- **Identity** — *which* artifact, proven. A name alone can be squatted, re-tagged, or repointed at new code, so an **identity pin** binds to immutable bytes: a module `GUID`, an Action or commit **SHA**, an image **digest**. It answers "is this the exact thing I vetted?" and is orthogonal to the version.
+- **Identity** — *which* artifact, proven. A name alone can be squatted, re-tagged, or repointed at new code, so an **identity pin** binds to immutable bytes: a module `GUID`, an Action or commit **SHA**, an image **digest**. It answers "is this the exact thing that was vetted?" and is orthogonal to the version.
 - **Version tightness** — *which versions* of that artifact are acceptable, from an exact pin to floating latest.
 
 The strongest posture combines both: a verified identity **and** a deliberate version. Identity is the integrity control; tightness is the velocity-versus-risk control below.
 
-Before you choose a pin, decide whether you should add the dependency at all. For modules and libraries we build, the default is to **avoid introducing a new third-party dependency when the capability can reasonably be implemented with PowerShell, the .NET base class library, or code we own**. Every external DLL, package, or module adds another update stream, trust boundary, and failure mode to carry for the lifetime of the module. Spend a bit more effort up front if that keeps the shipped surface smaller and the ownership clearer.
+Before choosing a pin, decide whether the dependency belongs at all. For modules and libraries built here, the default is to **avoid introducing a new third-party dependency when the capability can reasonably be implemented with PowerShell, the .NET base class library, or owned code**. Every external DLL, package, or module adds another update stream, trust boundary, and failure mode to carry for the lifetime of the module. Spend a bit more effort up front if that keeps the shipped surface smaller and the ownership clearer.
 
 ## The locking spectrum
 

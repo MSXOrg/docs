@@ -55,7 +55,7 @@ Every identity — human, agent, or workflow — gets only the permissions it ne
 
 ### LTS
 
-Long-Term Support — a release line maintained with fixes for an extended period. We target current LTS runtimes rather than legacy editions.
+Long-Term Support — a release line maintained with fixes for an extended period. Current LTS runtimes are the target rather than legacy editions.
 
 ### Open Knowledge Format
 
@@ -63,15 +63,15 @@ OKF — a vendor-neutral format for representing knowledge as plain Markdown fil
 
 ### Philosophy
 
-The most stable tier of belief — *why* we exist and what we value: easy, fast, safe. It informs the [Principles](../Ways-of-Working/Principles/index.md).
+The most stable tier of belief — the *why* behind the work and what it values: easy, fast, safe. It informs the [Principles](../Ways-of-Working/Principles/index.md).
 
 ### Practice
 
-How we habitually act on a principle — concrete and evolving, such as pinning actions to a commit SHA. See [Principles](../Ways-of-Working/Principles/index.md).
+The habitual way of acting on a principle — concrete and evolving, such as pinning actions to a commit SHA. See [Principles](../Ways-of-Working/Principles/index.md).
 
 ### Principle
 
-Something that is always true for us — rarely changing, sitting between philosophy and practice. See [Principles](../Ways-of-Working/Principles/index.md).
+Something that is always true across the ecosystem — rarely changing, sitting between philosophy and practice. See [Principles](../Ways-of-Working/Principles/index.md).
 
 ### Pull request
 

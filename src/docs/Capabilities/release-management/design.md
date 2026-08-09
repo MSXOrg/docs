@@ -37,11 +37,45 @@ release-branches:
     release-type: prerelease
 ```
 
+## The pipeline
+
+Every release runs the same four stages in order. The stage boundaries exist to
+make **build-once** enforceable — each stage may only consume what the previous
+stage produced.
+
+```mermaid
+flowchart LR
+    resolve["Resolve<br/>version decided"] --> build["Build<br/>artifact created once"]
+    build --> test["Test<br/>same artifact validated"]
+    test --> publish["Publish<br/>same artifact released"]
+```
+
+| Stage | Produces | Invariant |
+| --- | --- | --- |
+| **Resolve** | the version | the version is known before anything is built, so it can be baked in |
+| **Build** | the artifact | the artifact is created exactly **once**, carrying its version |
+| **Test** | a verdict | validation runs against the built artifact, not a rebuild of its source |
+| **Publish** | released versions | the artifact is transferred unchanged to every target |
+
+Two consequences follow, and they are the point of the model:
+
+- **The version is identity, not metadata.** Because Resolve precedes Build, the
+  version is embedded in the artifact rather than attached to it. A manifest
+  version, an image label, and the tag agree because they came from one decision.
+- **Recovery preserves artifact identity.** Retrying validation or publication of
+  an unchanged, already-built artifact reuses that artifact and its resolved
+  version. A correction that changes the output is a new release: it resolves a
+  new version and builds new bytes. An artifact is never patched, re-tagged, or
+  rebuilt under an existing version — that would publish something other than what
+  was tested.
+
 ## Version computation
 
-- The bump comes from the PR label (`Major` / `Minor` / `Patch` / `NoRelease`),
-  defaulting to `Patch`. Multiple SemVer labels, or a SemVer label with
-  `NoRelease`, are **rejected**. For `workflow_dispatch`, the bump is an input.
+- The bump comes from the PR label (`Major` / `Minor` / `Patch` / `NoRelease`).
+  Exactly one is required; **no default** is applied. A missing label, multiple
+  SemVer labels, or a SemVer label alongside `NoRelease` are all **rejected**, so
+  the version is always a decision someone made. For `workflow_dispatch`, the
+  bump is an input.
 - **First release** starts from a baseline (`v0.1.0` or `v1.0.0`). Pre-`1.0.0`
   breaking changes are `Minor` per [SemVer §4](https://semver.org/#spec-item-4);
   `Major` is never auto-detected pre-`1.0.0`.
@@ -94,6 +128,57 @@ handed to [Downstream Release Propagation](../downstream-release-propagation/des
 3. A GitHub Release whose name is the version, carrying the note and the
    immutable reference (digest, package version, or the tag).
 
+## Publishing targets
+
+Publish is the only stage that knows where an artifact goes, and it reaches every
+destination through one abstraction: a **publishing target**. A target is any
+destination that accepts a versioned artifact and serves it to consumers — the
+GitHub Release itself, a package registry, an extension marketplace, a container
+registry.
+
+The release process is written against the target *contract*, never against a
+specific target. Each target documents how it answers six questions — version
+scheme, prerelease representation and sort order, immutability, unpublish
+behaviour, sliding-tag support, and where its release record lives — in
+[Publishing Targets](design-publishing-targets.md). Adding a destination means
+writing that contract and a publish step; it does not change Resolve, Build,
+Test, or the spec.
+
+Where a repository has more than one target, publishing is **all-or-nothing** for
+a version:
+
+- Targets are attempted in a defined order, and each is idempotent — publishing
+  an already-published version is a success only when it identifies the same
+  immutable artifact. A version collision with different bytes is an error, so a
+  re-run completes the set rather than accepting changed output.
+- A target that rejects the version fails the release. The version is not
+  advertised as available until every target holds it.
+- A partial publication resumes Publish for the **same** artifact and the same
+  version. It never resolves a new version to work around a single failed target,
+  because the targets that already succeeded hold that immutable version.
+
+## Sliding tags
+
+Sliding tags are optional, mutable pointers published alongside the immutable
+version tag, for consumers that want to track a line rather than a point:
+
+| Tag | Points at | Moves when |
+| --- | --- | --- |
+| `latest` | the newest stable version | any stable release |
+| `vMAJOR` | the newest stable version in that major | a stable release within that major |
+| `vMAJOR.MINOR` | the newest stable patch in that minor | a stable patch within that minor |
+
+Three rules keep them safe:
+
+- **Prereleases never move a sliding tag.** Only a stable release advances one,
+  so a sliding tag never points at something not promoted for adoption.
+- **A sliding tag never moves backwards.** It only advances, so a consumer
+  following it never silently downgrades.
+- **Sliding tags are conveniences, not references.** They are how a consumer
+  *finds* a version, not how one **pins** to it; anything requiring
+  reproducibility pins to the immutable version, digest, or SHA
+  ([supply chain](../../Coding-Standards/Security.md#supply-chain)).
+
 ## Serialised releases
 
 Release runs for the same ref are **serialised** and **queue rather than
@@ -123,11 +208,12 @@ release, and its runs are serialised like any other.
 | Bump label / prerelease / RC | PR label, or `workflow_dispatch` input |
 | Path filter | `.github/release.config.yml` |
 | Prerelease cleanup toggle | release config / workflow input |
-| Publish target | reusable-workflow input + GitHub environment |
+| Publishing targets | reusable-workflow input + GitHub environment; see [Publishing Targets](design-publishing-targets.md) |
 
 ## Where this connects
 
 - [Spec](spec.md) — the requirements this design delivers.
+- [Publishing Targets](design-publishing-targets.md) — the contract each destination documents.
 - [Downstream Release Propagation](../downstream-release-propagation/design.md) — consumes the release note and immutable reference.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md) — how the workflow itself is authored (SHA pins, least privilege, concurrency).
 - [Security](../../Coding-Standards/Security.md#supply-chain) — why consumers pin to immutable references.

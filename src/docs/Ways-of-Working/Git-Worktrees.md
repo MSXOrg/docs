@@ -50,7 +50,7 @@ Every repository has exactly two remotes (or one, if it is not a fork):
 
 | Remote         | Points to                    | Required | Purpose                                          |
 | -------------- | ---------------------------- | -------- | ------------------------------------------------ |
-| **`origin`**   | Our copy on the server       | Always   | Push branches, open PRs, CI runs against this.   |
+| **`origin`**   | The copy on the server       | Always   | Push branches, open PRs, CI runs against this.   |
 | **`upstream`** | The parent repo (forks only) | Forks    | Track upstream changes, sync the default branch. |
 
 No other remotes are added. This keeps the model simple and predictable for both humans and agents.
@@ -58,7 +58,7 @@ No other remotes are added. This keeps the model simple and predictable for both
 ### How it works in practice
 
 - **Non-fork repos** — only `origin` exists. Branches are pushed to `origin`, PRs are opened against `origin`.
-- **Forked repos** — `origin` is our fork, `upstream` is the original repository. The default branch tracks `upstream` for syncing; feature branches are pushed to `origin` and PRs are opened from `origin` into `upstream`.
+- **Forked repos** — `origin` is the fork, `upstream` is the original repository. The default branch tracks `upstream` for syncing; feature branches are pushed to `origin` and PRs are opened from `origin` into `upstream`.
 
 ### Fetch configuration
 

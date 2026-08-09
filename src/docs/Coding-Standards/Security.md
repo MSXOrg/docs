@@ -5,7 +5,7 @@ description: Least privilege, secret hygiene, and the OWASP baseline.
 
 # Security
 
-Security is a property of how we build, not a phase at the end. The cheapest vulnerability to fix is the one caught in the editor; the most expensive is the one found in production. Shift it left.
+Security is a property of how software is built, not a phase at the end. The cheapest vulnerability to fix is the one caught in the editor; the most expensive is the one found in production. Shift it left.
 
 ## Least privilege, everywhere
 
@@ -38,7 +38,7 @@ All code is written to be free of the vulnerabilities in the [OWASP Top 10](http
 
 ## Supply chain
 
-Our dependencies are part of our attack surface.
+Dependencies are part of the attack surface.
 
 - **Pin dependencies** to a known-good version. Pin GitHub Actions to a full commit SHA, not a moving tag.
 - **Automate updates** with a dependency bot, so patches land quickly and reviewably.
