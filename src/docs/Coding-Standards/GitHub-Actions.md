@@ -148,7 +148,7 @@ Every token mint must declare both repository and permission scope explicitly.
 ```yaml
 - name: Mint a minimally scoped app token
   id: app-token
-  uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3
+  uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
   with:
     client-id: ${{ secrets.GitHubAppClientId }}
     private-key: ${{ secrets.GitHubAppPrivateKey }}
