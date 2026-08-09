@@ -18,7 +18,8 @@ The initiative docs must describe:
 - Repository types used by the initiative.
 - Required files for each repository type.
 - Managed-file source locations and update workflow.
-- Required custom properties, labels, branch protection, and review rules.
+- Required custom properties, namespace-qualified automation label sets, branch
+  protection, and review rules.
 - How humans and agents discover the relevant standards before making changes.
 - How initiative-specific exceptions are requested and reviewed.
 
@@ -32,8 +33,8 @@ Every initiative organization must define standards for these shared file famili
 | --- | --- |
 | Community health files | Code of conduct, contribution guide, support policy, security policy, and license expectations. |
 | Repository context | README defaults, documentation ownership, and repository metadata expectations. |
-| Review workflow | Pull request template, review routing, CODEOWNERS, labels, and change-type conventions. |
-| Supply chain | Dependabot configuration, dependency update labels, security update behavior, and review expectations. |
+| Review workflow | Pull request template, review routing, CODEOWNERS, namespace-qualified automation label sets, and change-type conventions. |
+| Supply chain | Dependabot configuration, namespace-qualified dependency update labels, security update behavior, and review expectations. |
 | Linters and enforcement | Linter configuration derived from the written standards. |
 | Agent context | Instructions, prompts, hooks, and any repository-local agent guidance. |
 | Release automation | Release notes, changelog categorization, and release workflow defaults where applicable. |
@@ -75,6 +76,16 @@ Organizations must distinguish mandatory files from optional or type-specific fi
 
 Security, contribution, conduct, support, dependency update, and license files are candidates for mandatory file sets. Linter settings, agent instructions, and workflow defaults may be global or type-specific depending on the initiative.
 
+Which set applies to a repository is derived from its classification rather than decided per repository, so that adding a repository requires classifying it and nothing else. The classification mechanism, the per-type required-file matrix, and the composition rules for a repository that is more than one type are defined by [Repository Governance](../Capabilities/repository-governance/spec.md).
+
+## Enforcement is continuous
+
+A standard is only in force where the organization can tell whether it is being met. Writing the standard down, distributing the files once, and assuming the result persists produces an organization that believes it is aligned and cannot demonstrate it — repositories are created outside the distribution path, settings are changed by hand, and files are edited locally, none of which announces itself.
+
+So every organization-level standard must be paired with a way of observing its state across repositories, and every observed deviation must be either corrected or recorded as a deliberate exemption. Silent deviation is the only outcome that is not allowed, because it is indistinguishable from compliance until something depends on it.
+
+This is the reconciliation loop described in [Repository Governance](../Capabilities/repository-governance/design.md#drift-detection-and-reconciliation): the declared state is the source of truth, the observed state is measured against it, and the difference is a finding that names its own remedy.
+
 ## Linter configuration ownership
 
 The written standard defines the rule. The linter configuration enforces the rule.
@@ -97,6 +108,9 @@ The repository-level entry point is `AGENTS.md`, as defined by [Agentic Developm
 
 - [Repository Standard](Repository-Standard.md) — the repository-level contract every repository must satisfy.
 - [Repository Type Property](Repository-Type-Property.md) — the concrete `Type` custom-property mechanism that implements "repository types" and "required custom properties, branch protection" from this page.
+- [Repository Governance](../Capabilities/repository-governance/index.md) — the classification, ruleset, required-file, exemption, and reconciliation machinery that puts this standard in force.
+- [Repository Segmentation](Repository-Segmentation.md) — where a repository's boundary falls, which is what gets classified.
+- [Automation Labels](Automation-Labels.md) — the label vocabulary organization automation reads and writes.
 - [Documentation Model](Documentation-Model.md) — why specs own why and what, while designs own implementation.
 - [Dependency Updates](../Capabilities/dependency-updates/spec.md) — the supply-chain update capability every repository inherits.
 - [GitHub Actions](../Coding-Standards/GitHub-Actions.md) — workflow authoring and enforcement rules.

@@ -14,10 +14,10 @@ How to disagree well, how to keep reviews focused, and how to keep the loop conv
 Consider each of the following dimensions when reviewing a PR:
 
 - **Functional** — Does the code meet the stated needs?
-- **Reliability** — Are we confident that the code will run failure-free?
+- **Reliability** — Is there confidence that the code will run failure-free?
 - **Performance** — Is the code as efficient as it can be?
-- **Usability** — Consider the user(s) of the service/product we provide; is the experience of high quality with this change?
-- **Security** — Are we improving the security posture of the service/product with the changes to the code? Are we worsening it?
+- **Usability** — Consider the users of the service or product being provided; is the experience of high quality with this change?
+- **Security** — Does this change improve the security posture of the service or product? Does it worsen it?
 - **Maintainability** — Is the architecture good for future maintenance?
 - **Standards** — Is the code meeting coding standards for the project and language?
 

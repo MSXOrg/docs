@@ -98,9 +98,9 @@ pass before the release stage runs, alongside a green test result.
 Versioning is [Release Management](../release-management/design.md) applied to a
 VSIX artifact — this framework does not re-implement it:
 
-- The bump is the PR label (`Major` / `Minor` / `Patch` / `NoRelease`,
-  defaulting to `Patch`); multiple SemVer labels, or a SemVer label with
-  `NoRelease`, are rejected.
+- The bump is the PR label (`release:major` / `release:minor` / `release:patch` / `release:none`,
+  defaulting to `release:patch`); multiple SemVer labels, or a SemVer label with
+  `release:none`, are rejected.
 - The version is computed once and stamped into the manifest; it is never
   hand-edited.
 - A prerelease is requested by a `Prerelease` label on an open pull request (or

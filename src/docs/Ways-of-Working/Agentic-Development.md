@@ -156,6 +156,7 @@ The workspace makes the *central* context present locally; the same local-first 
 ## Where this connects
 
 - [Git Worktrees](Git-Worktrees.md) — how this framework is implemented on a local machine, so several pieces of work run in parallel.
+- [Session Interactions](Session-Interactions.md) — recognised phrases that operate on the session, each defined once and referenced by every runtime.
 - [Documentation Model](Documentation-Model.md) — the discipline this specification follows.
 - [Principles](Principles/index.md) — the beliefs this specification rests on, including the three-layer agent context model.
 - [README-Driven Context](Readme-Driven-Context.md) — why the repository's own context comes first.

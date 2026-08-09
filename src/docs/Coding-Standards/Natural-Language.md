@@ -76,7 +76,7 @@ Prefer specific, observable language over vague intent.
 | Prefer | Avoid |
 | --- | --- |
 | The workflow fails when the version label is missing. | There may be some issues with labels. |
-| Add `NoRelease` to documentation-only PRs. | Make sure docs PRs are handled correctly. |
+| Add `release:none` to documentation-only PRs. | Make sure docs PRs are handled correctly. |
 | The agent reads `AGENTS.md` before editing files. | The agent should probably look at the instructions. |
 
 Use **MUST**, **SHOULD**, and **MAY** only when a sentence is intentionally normative. If a rule is optional, say what trade-off decides it.
@@ -155,7 +155,7 @@ A good error message includes:
 Prefer:
 
 ```text
-Release label is missing. Add exactly one of Major, Minor, Patch, or NoRelease.
+Release label is missing. Add exactly one of release:major, release:minor, release:patch, or release:none.
 ```
 
 Avoid:

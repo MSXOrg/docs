@@ -5,7 +5,7 @@ description: The executable specification — test-first, locally runnable, dete
 
 # Testing
 
-Tests are the executable specification. They define the behavior we want, prove we built it, and catch the day it breaks. They are written as part of the work — not bolted on afterward.
+Tests are the executable specification. They define the intended behavior, prove it was built, and catch the day it breaks. They are written as part of the work — not bolted on afterward.
 
 ## Test-first
 

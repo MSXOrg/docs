@@ -43,11 +43,13 @@ The baseline pages apply to all code and come first; the per-language standards 
 | [Performance](Performance.md) | Scale with the input, measure before optimizing, clarity first. |
 | [Security](Security.md) | Least privilege, secret hygiene, and the OWASP baseline. |
 | [Dependencies](Dependencies.md) | How dependencies are pinned and kept current — the locking spectrum from identity pins to floating latest, and the balance between update velocity and supply-chain exposure. |
+| [Pre-Commit](Pre-Commit.md) | The generic local enforcement mechanism for every coding standard — the hook runs the standard's own tooling, mirrors the CI gate, and is pinned and kept current like any other dependency. |
 | [GitHub Actions](GitHub-Actions.md) | Workflow authoring — SHA pinning, least-privilege permissions, OIDC, secrets handling, a PowerShell-first scripting default, script extraction, and diagnostic logging. |
 | [Markdown](Markdown.md) | GitHub Flavored Markdown authoring rules enforced by the shared markdownlint configuration. |
 | [PowerShell](PowerShell/index.md) | Cross-platform PowerShell 7 — the conventions shared by every script, function, and class, with per-construct standards below. |
 | [Terraform](Terraform.md) | Stack layout, version pinning, state and secrets, and the fmt/validate/tflint toolchain. |
 | [TypeScript](TypeScript.md) | ES modules, strict-mode typing, pinned dependencies, and the Prettier/ESLint/Vitest toolchain for Node tooling and VS Code extensions. |
+| [YAML](YAML.md) | One file extension, yamllint locally and in CI, narrowly scoped suppressions, and actionlint on top for workflow files. |
 
 <!-- INDEX:END -->
 
@@ -65,4 +67,4 @@ Every standard here serves that single fact. When a rule and readability disagre
 
 ## How standards evolve
 
-Standards are evergreen, not frozen. When one stops serving us, we change it — in a pull request, against this repository, with the reasoning written down. A standard that cannot be justified is a standard that should be removed.
+Standards are evergreen, not frozen. When one stops serving its purpose, it changes — in a pull request, against this repository, with the reasoning written down. A standard that cannot be justified is a standard that should be removed.

@@ -34,4 +34,4 @@ Standards cover the common cases. When they run out, judgment takes over. These 
 
 ## When still unsure
 
-Fall back to the three words: does this make the system **easier**, let us move **faster**, and keep us **safe**? If a choice trades one away, say so out loud and decide deliberately.
+Fall back to the three words: does this make the system **easier**, does it move **faster**, and does it stay **safe**? If a choice trades one away, say so out loud and decide deliberately.

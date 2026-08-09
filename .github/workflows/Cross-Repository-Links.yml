@@ -1,0 +1,51 @@
+name: Cross-Repository Links
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  # A target repository moves content on its own schedule, long after a pull request
+  # here has merged, and nothing in the pull-request trigger will ever notice. Weekly
+  # is often enough to catch it while the change is still recent, and rare enough that
+  # a rate limit is never in play.
+  schedule:
+    - cron: '17 6 * * 1'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Default-deny floor: the job below grants only what its steps need, so a job added
+# later that omits its own permissions block inherits nothing and fails closed. See the
+# GitHub Actions coding standard, "Grant least-privilege permissions".
+permissions: {}
+
+jobs:
+  # Its own workflow rather than a job in Docs.yml, for two reasons. The name of a red
+  # check then says the network check failed rather than the documentation being wrong.
+  # And Docs.yml's publish job has 'needs: [build, lint, links, test]', so a job there
+  # would let a GitHub outage block a Pages deploy.
+  cross-links:
+    name: Cross-repository links
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Validate cross-repository links
+        shell: pwsh
+        env:
+          # Only for rate-limit headroom: 60 requests an hour anonymously against 1000
+          # authenticated. This token grants no access to a private repository
+          # elsewhere, so the check still measures what an anonymous reader can reach —
+          # which is the right bar for a public documentation site.
+          GITHUB_TOKEN: ${{ github.token }}
+        run: ./.github/scripts/Test-CrossRepositoryLink.ps1

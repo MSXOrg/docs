@@ -31,28 +31,50 @@ this capability governs the release. If no, there is nothing to release.
 ## Requirements
 
 - **Semantic versioning.** Versions follow [SemVer 2.0.0](https://semver.org/) (`vMAJOR.MINOR.PATCH`), derived automatically — never written by hand.
-- **Label-driven bump.** The bump level is a pull-request label — `Major` / `Minor` / `Patch` / `NoRelease` — defaulting to `Patch`. Conventional commit messages are **not** required.
+- **Label-driven bump, stated explicitly.** The bump level is a pull-request label — `release:major` / `release:minor` / `release:patch` / `release:none`. Exactly one bump label MUST be present, and there is **no default**: an unlabelled pull request is not releasable, and the release fails closed rather than assuming the smallest bump. Requiring the label makes the versioning decision a reviewed decision instead of an omission. Conventional commit messages are **not** required.
 - **A release per merge.** One merged PR to a release branch is one release, and the PR review gate is the release gate. Direct pushes and manual dispatch also release.
+- **Version before build.** The version MUST be resolved before the artifact is built, so the version is part of the artifact's identity rather than a label attached afterwards.
+- **Build once.** The artifact MUST be built exactly once and MUST NOT be altered after it is built. The same bytes flow through validation and publishing. Rebuilding to publish means the tested artifact and the published artifact are different artifacts.
 - **Stable and prerelease.** Every release is either **stable** (the latest version to adopt) or a **prerelease** (testable, not promoted to latest). A prerelease MUST be obtainable from an open pull request and/or from a prerelease branch.
 - **Serialised releases.** Only one release process runs against a given version of the codebase (the same ref) at a time. A release mutates shared, version-anchored state — the tag, the version counter, the published artifact — so overlapping runs on the same ref MUST NOT race, and an in-flight release is never interrupted.
 - **A single production authority.** Exactly one branch is in charge of the production (stable) version, so consumers get one unambiguous latest stable release and two branches can never publish competing production releases.
 - **Notes from the contributor's own words.** The GitHub Release name is the version; its body is assembled from material the contributor already wrote (PR title + description, or commit message, or collected history). The PR description is therefore written for consumers.
 - **Only artifact-affecting changes release.** A change that does not flow into the artifact (documentation, CI config) MUST NOT produce a release — though validation still runs on every merge.
 - **Immutable references.** Consumers pin to the most immutable reference available — a container digest or a commit SHA — never a mutable tag.
+- **Publish through a target contract.** Every publishing destination is reached through the same [publishing-target contract](design-publishing-targets.md), so the release process stays one process regardless of how many destinations a repository has. Adding a destination supplies a contract and a publish step; it MUST NOT change the release process.
+- **All-or-nothing across targets.** Where a repository publishes one artifact to more than one destination, a version MUST NOT end up present on some destinations and absent from others. Partial publication is a failure, reported as one, and resumed by completing the remaining destinations with the same immutable artifact and version.
+- **Recovery distinguishes retries from changed output.** Retrying validation or publication of unchanged bytes MUST reuse their artifact and version. A correction that changes the bytes MUST create a new versioned artifact; an existing version is never overwritten or reused.
 - **Standard GitHub primitives only.** Pull requests, labels, comments, and workflow dispatch — no external tooling beyond `gh` and GitHub Actions.
+
+### Consumer update policies
+
+A consumer chooses how much version movement it accepts. Selecting a policy is a **consumer-side** concern — the release capability's obligation is to publish versions that make every policy expressible:
+
+| Policy | Accepts | Suits |
+| --- | --- | --- |
+| **Latest** | any newer version, including major | consumers that track the current release and have tests to catch breakage |
+| **Lock major boundary** | newer minor and patch within one major | the default for a library dependency under SemVer |
+| **Lock minor boundary** | newer patch only | consumers that accept fixes but no new surface |
+| **Lock specific version** | nothing; movement is an explicit change | consumers under change control |
+| **Lock immutable fingerprint** | nothing; the reference is a digest or SHA | consumers that require the exact bytes to be provable |
+
+Because versions are semantic, immutable, and published once, a consumer can adopt any of these without the producer knowing which one it chose.
 
 ## Success criteria
 
 - Merging a labelled PR to a release branch produces a GitHub Release, a git tag, and (where one exists) a published artifact, with no manual step.
-- The version bump matches the PR's label every time; a conflicting or ambiguous label set is **rejected**, never guessed.
+- The version bump matches the PR's label every time; a missing, conflicting, or ambiguous label set is **rejected**, never guessed.
+- The artifact that consumers download is byte-identical to the artifact that passed validation.
 - A documentation-only merge produces no new version but still runs its CI checks.
 - Two release runs for the same ref never overlap; the second waits for the first to finish rather than racing it.
 - Only the single production branch ever publishes a stable release.
+- A version that reaches one publishing target reaches all of them, or the release is reported as failed.
 - Every release is linkable and records its immutable artifact reference.
 
 ## Where this connects
 
 - [Design](design.md) — how these requirements are delivered.
+- [Publishing Targets](design-publishing-targets.md) — the contract each destination documents.
 - [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — why this spec holds only the why and the what.
 - [PR Format](../../Ways-of-Working/PR-Format.md) — the change-type labels that drive the bump.
 - [Dependency Updates](../dependency-updates/spec.md) — update PRs are artifact-affecting and release through this capability.

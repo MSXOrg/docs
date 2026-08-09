@@ -25,7 +25,7 @@ them to point at different code. A full commit SHA is **immutable**.
 
 - **Pin every `uses:` to a full 40-character commit SHA.** Keep the human
   version as a trailing comment so reviewers know the intended release.
-- This applies to **all** actions — third-party, first-party, and our own
+- This applies to **all** actions — third-party, first-party, and internally authored
   internal actions alike.
 
 ```yaml
@@ -36,7 +36,7 @@ them to point at different code. A full commit SHA is **immutable**.
 - name: Set up Node
   uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
 
-# Avoid — mutable tag; the referenced code can change under us
+# Avoid — mutable tag; the referenced code can change without notice
 - name: Check out the repository
   uses: actions/checkout@v6
 ```
@@ -59,7 +59,7 @@ stale, unpatched code.
 - **Label the update PR** with `dependencies` + `github-actions`, plus the
   dependency's own level (`update:major` / `update:minor` / `update:patch`).
   These update-level labels are deliberately **distinct from the release-bump
-  labels** (`Major` / `Minor` / `Patch`) — a bumped action is an
+  labels** (`release:major` / `release:minor` / `release:patch`) — a bumped action is an
   artifact-affecting change that itself cuts a release, so the two must not
   share one label set.
 - **Review `update:major` by hand** — a major action bump can change inputs,
@@ -99,6 +99,122 @@ jobs:
       id-token: write      # OIDC federation to the cloud provider
       contents: read       # checkout only
 ```
+
+## Use GitHub App installation tokens as the default write identity
+
+When a workflow needs to write — creating commits, releases, comments, statuses,
+or pull requests — default to a **GitHub App installation token**, not a PAT and
+not `github.token`, unless a documented exception requires otherwise.
+
+Use the right token type for the job:
+
+| Token | Source | Tied to user | Cross-repo | Caller-scoped |
+| --- | --- | --- | --- | --- |
+| `github.token` (`GITHUB_TOKEN`) | Automatically injected | No (GitHub Actions bot) | No | Yes — workflow `permissions:` block |
+| PAT (classic or fine-grained) | Stored in repo/org secret | Yes | Yes (if scoped) | No — fixed at creation |
+| GitHub App installation token | Minted per run (`actions/create-github-app-token`) | No (app bot identity) | Yes (if installed multi-repo) | Yes — `repositories:` + `permission-*` inputs |
+
+Prefer a GitHub App token when:
+
+- commits and releases must be attributed to a bot identity rather than a person;
+- a reusable workflow needs write access, including calls that originate from
+  fork-driven pull request flows;
+- per-job permission scoping must be controlled by the called workflow itself.
+
+### `permissions:` scopes `github.token` only
+
+The workflow or job `permissions:` block controls only the default
+`github.token`/`GITHUB_TOKEN`. It does **not** constrain a GitHub App
+installation token minted by `actions/create-github-app-token`.
+
+Treat these as separate controls:
+
+- `permissions:` limits what the default workflow token can do.
+- `repositories:` + `permission-*` inputs limit what the minted app token can do.
+
+If a minted app token omits `repositories:` and `permission-*`, it inherits the
+full installation scope — every installed repository and every granted
+permission. That shape is forbidden.
+
+### Mint app tokens with minimum scope every time
+
+Every token mint must declare both repository and permission scope explicitly.
+
+```yaml
+- name: Mint a minimally scoped app token
+  id: app-token
+  uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+  with:
+    app-id: ${{ secrets.GitHubAppClientId }}
+    private-key: ${{ secrets.GitHubAppPrivateKey }}
+    repositories: ${{ github.event.repository.name }}
+    permission-contents: read
+    permission-pull-requests: write
+```
+
+Rules:
+
+- **Always set `repositories:`.** Default to the current repository
+  (`${{ github.event.repository.name }}`); widen only when cross-repository access
+  is an explicit requirement.
+- **Always set `permission-*` inputs.** Request only the scopes the job uses.
+- **Never mint an unscoped token.** A token with no repository or permission
+  narrowing violates least privilege.
+
+### Inject app tokens at step scope, not job scope
+
+A token should exist only where it is consumed.
+
+- **Prefer step-level `env:`** so one step sees the token.
+- **Avoid job-level `env:`** for tokens; it exposes the token to every step in
+  the job, including third-party actions.
+
+```yaml
+# Correct — token visible only to this step.
+- name: Update labels
+  env:
+    GH_TOKEN: ${{ steps.app-token.outputs.token }}
+  shell: pwsh
+  run: gh issue edit 123 --add-label ready
+```
+
+```yaml
+# Avoid — token is injected into every step in the job.
+jobs:
+  update:
+    env:
+      GH_TOKEN: ${{ steps.app-token.outputs.token }}
+```
+
+Use `GH_TOKEN` for the GitHub CLI. `gh` checks `GH_TOKEN` first, then
+`GITHUB_TOKEN`; setting `GH_TOKEN` avoids accidentally replacing the default
+token other actions may rely on.
+
+### Prefer environment-based token passing for actions and composite actions
+
+When an action supports both a named token input (for example `with: token:`) and
+environment-based auth, prefer the environment variable (`GH_TOKEN`) path.
+
+```yaml
+# Preferred — token passed through environment.
+- name: Run publish action
+  uses: org/publish-action@<sha> # vX.Y.Z
+  env:
+    GH_TOKEN: ${{ steps.app-token.outputs.token }}
+```
+
+```yaml
+# Avoid when an env-based option exists — named token input can appear in debug logs.
+- name: Run publish action
+  uses: org/publish-action@<sha> # vX.Y.Z
+  with:
+    token: ${{ steps.app-token.outputs.token }}
+```
+
+With `ACTIONS_STEP_DEBUG=true`, named input values can appear in debug output.
+Runner masking protects the raw secret string, but not every transformed form. If
+an action requires a named token input, verify the action masks it at startup
+(`core.setSecret(inputs.token)`) before it logs any input.
 
 ## Authenticate with OIDC, not long-lived secrets
 
