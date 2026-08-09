@@ -33,3 +33,17 @@ What belongs in a repository, and when to split or combine. The boundary of a re
 
 - Every repository states, at its root, what it is, what it owns, and how it ships — in a README kept current with the code. See [README-Driven Context](Readme-Driven-Context.md).
 - Documentation and decisions live with the code they describe, so the repository boundary also bounds its own context instead of scattering it into a central store.
+- The boundary is also declared in machine-readable form, so automation can determine what a repository is without inferring it from file layout. See [Repository Type Property](Repository-Type-Property.md).
+
+## The boundary determines the governance that applies
+
+- Segmentation and governance are the same decision seen twice. The lifecycle and branch-strategy seams that decide where a repository ends are the seams that decide which branch model, which required files, and which protection rules it carries.
+- A repository is therefore classified at creation, and its classification follows from the same questions used to draw its boundary: what it ships, how it is versioned, and how changes reach its default branch. See [Repository Governance](../Capabilities/repository-governance/spec.md).
+- A repository that cannot be classified is usually mis-segmented. When one repository needs two branch models or two release cadences, the classification is not ambiguous — the boundary is wrong, and the resolution is to split rather than to hold both models in one place.
+
+## Where this connects
+
+- [Repository Standard](Repository-Standard.md) — the contract each segmented repository must satisfy.
+- [Repository Governance](../Capabilities/repository-governance/index.md) — how a repository's classification drives its rules and required files.
+- [Repository Type Property](Repository-Type-Property.md) — the declaration a repository carries so its boundary is machine-readable.
+- [Branching and Merging](Branching-and-Merging.md) — the branch models a boundary must choose exactly one of.
