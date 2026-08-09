@@ -116,6 +116,7 @@ This is the order in which context is **read**, nearest first. It is not the ord
 - [Design](design.md) — how these requirements are delivered.
 - [Memory Repository Template](memory-template.md) — the concrete scaffold every organization's canonical `memory` repository instantiates.
 - [MCP Servers](mcp-servers.md) — how one logical tool layer is declared across runtimes.
+- [Runtime Integration](runtime-integration.md) — what a runtime supplies to be supported, and why process is never part of it.
 - [Plugin Distribution](plugin-distribution.md) — how named intents stay pointers to documentation.
 - [Agent Interaction](agent-interaction.md) — issues, labels, and pull requests as the coordination substrate.
 - [Advisory Agents](advisory-agents.md) — the pattern for automation that advises without deciding.

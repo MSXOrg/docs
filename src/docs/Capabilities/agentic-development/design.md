@@ -256,6 +256,9 @@ before context is read. It MUST NOT be skipped on the grounds that the workspace
 bootstrapped recently; "recently" is not a state the agent can observe, and the gate exists
 precisely to replace that judgement with a check.
 
+Each shape's obligations beyond the refresh — its entry file, tool declaration, and identity —
+are set out in [Runtime Integration](runtime-integration.md).
+
 ## Memory writing rules
 
 Agents write memory only when a lesson is likely to matter again. Good memory is:
@@ -318,6 +321,7 @@ Because Copilot code review reads the head branch, a pull request that changes `
 - [Memory Repository Template](memory-template.md) — the concrete scaffold every organization's canonical `memory` repository instantiates.
 - [MCP Servers](mcp-servers.md) — the shared tool layer every runtime declares in its own format.
 - [Plugin Distribution](plugin-distribution.md) — how named intents are packaged and kept pointer-based.
+- [Runtime Integration](runtime-integration.md) — what each runtime shape supplies, and why it never supplies process.
 - [Agent Interaction](agent-interaction.md) — how agents and humans coordinate through platform artifacts.
 - [Advisory Agents](advisory-agents.md) — agents that produce advice rather than commits.
 - [Conformance](conformance.md) — the checklist a repository is measured against.
