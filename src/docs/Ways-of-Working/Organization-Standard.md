@@ -18,7 +18,8 @@ The initiative docs must describe:
 - Repository types used by the initiative.
 - Required files for each repository type.
 - Managed-file source locations and update workflow.
-- Required custom properties, labels, branch protection, and review rules.
+- Required custom properties, namespace-qualified automation label sets, branch
+  protection, and review rules.
 - How humans and agents discover the relevant standards before making changes.
 - How initiative-specific exceptions are requested and reviewed.
 
@@ -32,8 +33,8 @@ Every initiative organization must define standards for these shared file famili
 | --- | --- |
 | Community health files | Code of conduct, contribution guide, support policy, security policy, and license expectations. |
 | Repository context | README defaults, documentation ownership, and repository metadata expectations. |
-| Review workflow | Pull request template, review routing, CODEOWNERS, labels, and change-type conventions. |
-| Supply chain | Dependabot configuration, dependency update labels, security update behavior, and review expectations. |
+| Review workflow | Pull request template, review routing, CODEOWNERS, namespace-qualified automation label sets, and change-type conventions. |
+| Supply chain | Dependabot configuration, namespace-qualified dependency update labels, security update behavior, and review expectations. |
 | Linters and enforcement | Linter configuration derived from the written standards. |
 | Agent context | Instructions, prompts, hooks, and any repository-local agent guidance. |
 | Release automation | Release notes, changelog categorization, and release workflow defaults where applicable. |
