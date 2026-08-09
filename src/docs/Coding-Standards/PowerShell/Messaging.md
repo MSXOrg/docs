@@ -70,7 +70,7 @@ When writing messages, ask:
    - It exposes implementation details (payload, headers, internal variables, timing).
    - It helps answer "why did the code take this path?" or "what is the state inside this function?".
 
-3. **Am I unsure?** Prefer `Write-Verbose` — it's safer to be slightly more verbose at the normal level than to hide troubleshooting context that operators need.
+3. **Still unsure?** Prefer `Write-Verbose` — it's safer to be slightly more verbose at the normal level than to hide troubleshooting context that operators need.
 
 ## Enabling messages at runtime
 

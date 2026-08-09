@@ -18,11 +18,11 @@ Each capability the ecosystem builds is documented by two evergreen documents:
 | Document | Owns | Answers | Written for |
 | --- | --- | --- | --- |
 | **Spec** | Requirements, expectations, needs | **Why** it exists and **what** it must do | Whoever decides *whether* and *what* to build |
-| **Design** | Implementation approach | **How** and **what** we build to deliver the spec | Whoever *builds* and maintains it |
+| **Design** | Implementation approach | **How** and **what** is built to deliver the spec | Whoever *builds* and maintains it |
 
 The **spec** is the contract — the behaviour, guarantees, and success criteria a
 user (human or agent) can rely on. It never prescribes implementation. The
-**design** is the current answer to *how we deliver that contract*: the
+**design** is the current answer to *how that contract is delivered*: the
 mechanism, the moving parts, the configuration. Both are durable, and both
 evolve — neither is a one-time plan.
 
@@ -45,9 +45,9 @@ is a folder holding its spec and design side by side:
 ```text
 Capabilities/
   release-management/
-    index.md      # what this capability is
+    index.md      # required navigation for this capability
     spec.md       # the why + what
-    design.md     # the how + what we build
+    design.md     # the how + what is built
 ```
 
 A reader opens one folder and has the whole picture — the requirement and the
@@ -56,19 +56,61 @@ it documents](Principles/Engineering-Practices.md#documentation-lives-close-to-t
 applied to the spec–design pair; where a design maps to a repository, the same
 two documents live with the code.
 
+Every capability folder requires an `index.md` for navigation. The spec and the
+design are the two required **content artifacts**. A capability that outgrows
+them grows downward into the optional
+[artifact tiers](Spec-Driven-Development.md#the-artifact-tiers), each of which has
+a fixed home in the same folder:
+
+```text
+Capabilities/
+  <capability>/
+    index.md          # required navigation, not a content artifact
+    spec.md           # the why + what                              (required content)
+    features/         # per-feature spec addenda
+      index.md
+      <feature>.md
+    design.md         # the how + what is built                     (required content)
+    implementation.md # the concrete values and names
+    guides/           # task-oriented walkthroughs
+      index.md
+      <task>.md
+    references.md     # lookup tables
+    decisions/        # one-way-door choices, immutable
+      index.md
+      <decision>.md
+    research/         # point-in-time exploration
+      index.md
+      <exploration>.md
+```
+
+A file that grows past a single page becomes a folder with an `index.md` and one
+page per member — `design.md` may become `design/`, and `references.md` may
+become `references/`, without changing what the tier means. The reverse also
+holds: a tier that never fills up is never created. Empty scaffolding is a cost
+with no reader, so a folder appears the first time it has something to hold
+([concise by default](#concise-by-default)).
+
 ## Why, what, how — a home for everything
 
 | Concern | Owned by |
 | --- | --- |
 | **Why / what** a capability must do | the capability's **spec** |
-| **How / what** we build to deliver it | the capability's **design** |
-| **How we work** — process, principles, conventions | [Ways of Working](index.md) |
+| **How / what** is built to deliver it | the capability's **design** |
+| **Which exact value or name** was chosen | the capability's **implementation** docs |
+| **How to perform a task** with it | the capability's **guides** |
+| **What the settings are** | the capability's **references** |
+| **Which one-way-door choice** was made, and why | the capability's **decisions** |
+| **What was explored** before deciding | the capability's **research** |
+| **How the work is done** — process, principles, conventions | [Ways of Working](index.md) |
 | **How code looks** — style applied to code | [Coding Standards](../Coding-Standards/index.md) |
 | **How this one change is implemented** — paths, trade-offs | the Task or Bug delivery leaf and its PR; see [Issue Planning](Issues/Process/Planning.md) |
 
 Keeping implementation out of the spec is what makes the spec durable:
-implementation detail rots fastest, so the spec leaves it to the design, and the
-design leaves per-change detail to the issue and the PR.
+implementation detail rots fastest, so the spec leaves it to the design, the
+design leaves exact values to the implementation docs, and all of them leave
+per-change detail to the issue and the PR. Each tier absorbs the churn of the one
+below it, so the tier above stays still.
 
 ## It starts with a need
 
@@ -78,9 +120,9 @@ then code — and loops:
 1. **Need** — a request, a bug, a review observation, a platform change.
 2. **Spec** — agree the next version's requirements: why it matters and what it
    must do. Nothing is committed to building yet.
-3. **Design** — once committed to deliver, describe how and what we will build.
+3. **Design** — once committed to deliver, describe how and what will be built.
 4. **Build** — ready Task and Bug leaves implement the gap, evolving the design
-   *and* the spec as development teaches you things.
+   *and* the spec as development reveals more.
 5. **Operate** — running the system surfaces new needs, and the loop returns.
 
 ```mermaid

@@ -1,6 +1,6 @@
 ---
 title: Engineering practices
-description: Write it down, everything as code, evergreen docs, test-driven development, and shift-left quality.
+description: Write it down, everything as code, evergreen documentation, test-driven development, fleet-wide change, and shift-left quality.
 ---
 
 # Engineering practices
@@ -39,7 +39,7 @@ Distance between a thing and its documentation is the rate at which they drift a
 
 Documentation describes the system as it **is**, in the present tense — not the history of how it got there. A reader (human or agent) should be able to trust any page as the current truth without knowing what changed or when.
 
-- Write the intended state as if it already exists. Cut hedging, status notes, and "we will" or "we did".
+- Write the intended state as if it already exists. Cut hedging, status notes, and future or past framing of the work itself.
 - Describe behavior and intent, not the process of building them. A pull request that adds a capability documents the capability, not the act of adding it.
 - Keep task lists, TODOs, and change history in issues and pull requests — not in evergreen docs.
 - Define a thing by what it is, not by contrast with an abandoned alternative. Lead with the positive fact.
@@ -69,7 +69,7 @@ This is a design constraint, not an optional addition. A solution that is untest
 
 ### Pre-commit hooks
 
-Validation that runs automatically on `git commit` — before the change enters history and before a PR is opened. Pre-commit hooks close the gap between "I can test it locally if I choose to" and "it is always checked before it leaves my machine."
+Validation that runs automatically on `git commit` — before the change enters history and before a PR is opened. Pre-commit hooks close the gap between "it can be tested locally by choice" and "it is always checked before it leaves the machine."
 
 Typical gates: linting, formatting, static analysis, secret scanning, and fast unit tests. Keep them fast enough to not interrupt flow — if a hook takes more than a few seconds, it will be bypassed.
 
@@ -94,7 +94,23 @@ Push work as far inward as it can go.
 
 ## 1-2-Automate
 
-If you've done a thing twice, the third time it should be automated. Sometimes you already know — go straight to automation. Extreme automation is often the right starting point.
+If a thing has been done twice, the third time it is automated. Sometimes this is known in advance — go straight to automation. Extreme automation is often the right starting point.
+
+## Manage the fleet, not the repository
+
+A change that is correct for one repository is rarely needed by only one. Treat a group of repositories as a single managed population: the unit of change is the whole set that shares a property, not the individual member.
+
+This follows from everything as code. If configuration, workflows, and policy are expressed as files, then applying a decision across many repositories is a mechanical operation rather than a manual round of visits — and the same mechanism can verify the result afterwards.
+
+The obligations that follow:
+
+- A change intended for a class of repositories is applied by a mechanism that covers the whole class, so no member is silently skipped.
+- Membership is derived from a declared property of the repository, never from a hand-maintained list that drifts as repositories are created and retired.
+- The desired state is expressed once, centrally, and distributed. A member that needs to differ records the deviation locally rather than quietly diverging.
+- Drift is expected, not exceptional. Because a population changes underneath any decision, conformance is re-checked continuously and reconciled, rather than assumed to hold because it once did.
+- The scale of the population is a design input. A step that is acceptable once by hand is not acceptable when it repeats across every member.
+
+The intent is that the effort of a decision stays flat as the number of repositories grows. Where per-repository effort scales with the fleet, the mechanism is wrong.
 
 ## DevOps and SRE
 

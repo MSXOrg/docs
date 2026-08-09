@@ -1,3 +1,4 @@
+*[ADR]: Architecture Decision Record
 *[API]: Application Programming Interface
 *[Bitbucket]: Web-based version control repository hosting service
 *[CD]: Continuous Deployment or Continuous Delivery
@@ -10,6 +11,7 @@
 *[DevOps]: Development and Operations
 *[DNS]: Domain Name System
 *[Docker]: Platform for developing, shipping, and running applications in containers
+*[DORA]: DevOps Research and Assessment
 *[GH]: GitHub
 *[GHE]: GitHub Enterprise
 *[GHEC]: GitHub Enterprise Cloud
@@ -29,6 +31,10 @@
 *[KPI]: Key Performance Indicator
 *[Kubernetes]: Open-source system for automating deployment, scaling, and management of containerized applications
 *[LTS]: Long-Term Servicing
+*[MCP]: Model Context Protocol
+*[OKF]: Open Knowledge Format
+*[OKR]: Objectives and Key Results
+*[OpenAPI]: Open standard for describing HTTP APIs
 *[OS]: Operating System
 *[PaaS]: Platform as a Service
 *[ps1]: PowerShell Script File
@@ -38,13 +44,20 @@
 *[pwsh]: PowerShell Core (also known as PowerShell 7)
 *[REST]: Representational State Transfer
 *[SaaS]: Software as a Service
+*[SBOM]: Software Bill of Materials
+*[SemVer]: Semantic Versioning
 *[SEO]: Search Engine Optimization
 *[SOAP]: Simple Object Access Protocol
 *[SQL]: Structured Query Language
+*[SRE]: Site Reliability Engineering
 *[SSL]: Secure Sockets Layer
+*[TDD]: Test-Driven Development
 *[TLS]: Transport Layer Security
+*[TOML]: Tom's Obvious Minimal Language
 *[UI]: User Interface
 *[UX]: User Experience
 *[VPN]: Virtual Private Network
 *[W3C]: World Wide Web Consortium
 *[XML]: eXtensible Markup Language
+*[XP]: Extreme Programming
+*[YAML]: YAML Ain't Markup Language

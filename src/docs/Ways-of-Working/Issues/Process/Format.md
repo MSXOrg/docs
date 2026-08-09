@@ -53,6 +53,7 @@ Use [GitHub Flavored Markdown](https://github.github.com/gfm/) to make the body 
 - Fenced code blocks with language identifiers.
 - Backticks for identifiers and commands.
 - Markdown links for external references rather than bare URLs.
+- Refer to every issue or pull request as `Org/Repo#N`, including references in the current repository; do not use bare `#N` references.
 - Horizontal rules when they clarify the transition between intent, decisions, and plan.
 
 Write each paragraph as a single unbroken line. Prefer concise body content and link to the canonical source instead of restating it.

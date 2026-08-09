@@ -19,16 +19,16 @@ The safe and smart choice should be the default choice. Design systems, tools, a
 ## Fast
 
 Shift left, ship early, learn fast, iterate. Work flows in small increments — draft PRs, micro-commits, quick reviews.
-The faster we close the loop between intention and observation, the faster we improve and evolve what we are building.
+The faster the loop closes between intention and observation, the faster the thing being built improves and evolves.
 
 ## Safe
 
 Every decision should be reversible. Every release should be observable. Every failure should teach.
-Speed requires safety — we can only iterate fast when changes are cheap to undo, easy to monitor, and failures produce learning rather than blame.
+Speed requires safety — fast iteration is only possible when changes are cheap to undo, easy to monitor, and failures produce learning rather than blame.
 
 ## What this is
 
-**MSX** is the umbrella for everything I build on GitHub. This site is the **top of the tree** — the vision, principles, and ways of working that every organization, repository, and agent inherits. It is written once, here, and referenced everywhere.
+**MSX** is the umbrella for everything built under it on GitHub. This site is the **top of the tree** — the vision, principles, and ways of working that every organization, repository, and agent inherits. It is written once, here, and referenced everywhere.
 
 - The **why** lives in the [Vision](Vision/index.md).
 - The **how** lives in the [Ways of Working](Ways-of-Working/index.md) and the [Coding Standards](Coding-Standards/index.md).
@@ -61,6 +61,6 @@ See the [Initiatives](Initiatives/index.md) for where the principles on this sit
 
 ## Built for humans and agents
 
-Everything here is written once, for two audiences. A human reads it to understand how we work. An agent reads the same words as context before it acts. There is no separate "agent manual" — the documentation *is* the manual, and keeping it evergreen keeps both audiences aligned.
+Everything here is written once, for two audiences. A human reads it to understand how the work is done. An agent reads the same words as context before it acts. There is no separate "agent manual" — the documentation *is* the manual, and keeping it evergreen keeps both audiences aligned.
 
 Start with the [Vision](Vision/index.md), or jump straight to the [Ways of Working](Ways-of-Working/index.md).

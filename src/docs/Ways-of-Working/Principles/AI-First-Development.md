@@ -5,9 +5,9 @@ description: Agents as first-class participants, determinism before intelligence
 
 # AI-first development
 
-We practice AI-first development. AI agents are part of how we think, build, and deliver — not an afterthought bolted on at the end. Every workflow, every process, and every piece of documentation is designed with agents as first-class participants.
+Development here is AI-first. AI agents are part of how work is thought about, built, and delivered — not an afterthought bolted on at the end. Every workflow, every process, and every piece of documentation is designed with agents as first-class participants.
 
-That said, engineering is not fully non-deterministic. Our priority order is clear: **build deterministic software first, invoke AI where determinism falls short.** A script that always produces the correct answer is better than a prompt that usually does. AI fills the gaps that deterministic logic cannot cover — ambiguity, judgment, creativity, natural language, and tasks where the search space is too large for hand-written rules.
+That said, engineering is not fully non-deterministic. The priority order is clear: **build deterministic software first, invoke AI where determinism falls short.** A script that always produces the correct answer is better than a prompt that usually does. AI fills the gaps that deterministic logic cannot cover — ambiguity, judgment, creativity, natural language, and tasks where the search space is too large for hand-written rules.
 
 The result: AI is always available, always integrated, always ready — but it earns its place by handling what deterministic tools cannot.
 
@@ -27,17 +27,17 @@ Practices:
 
 The workflow is designed for humans and agents working side by side. Agents join a good human way of working — they do not replace it or require a parallel system. The operating model is **human-first, agent-augmented**.
 
-Agents are trained to read documentation. That is their natural skill. By keeping standards, conventions, and principles in documentation format we serve both audiences with a single artifact — no separate "agent manual" required.
+Agents are trained to read documentation. That is their natural skill. Keeping standards, conventions, and principles in documentation format serves both audiences with a single artifact — no separate "agent manual" required.
 
 Agent context is delivered through three layers, in priority order:
 
-1. **Documentation** — the primary source. Published docs at <https://msxorg.github.io/docs/>, READMEs, and issue bodies are written for humans and naturally consumable by agents.
-2. **Canonical workflow** — [Workflow](../Workflow.md) owns the process and links to ordinary documentation for each [stage procedure](../Workflow-Stages/index.md). Indexes provide the default discovery path; clear task language may shortcut stage selection without creating separate instructions.
-3. **Local pointer files** — each repository's `AGENTS.md` router (with the content-free client routes that reach it), which reads outward from the repository's own files to the initiative and central documentation, and to memory last.
+1. **Documentation** — the primary source. Published documentation, READMEs, and issue bodies are written for humans and naturally consumable by agents.
+2. **Canonical workflow** — one documented process owns the order of work and links to ordinary documentation for each stage procedure. Indexes provide the default discovery path; clear task language may shortcut stage selection without creating separate instructions.
+3. **Local pointer files** — each repository's agent router, and the content-free client routes that reach it, which read outward from the repository's own files to the organization's documentation, and to memory last.
 
 ## Augmentation, not replacement
 
-Agents amplify the team. They make us faster, more consistent, and free us from work that is mechanical. **Human in the loop** remains the default for decisions that matter.
+Agents amplify the team. They make delivery faster and more consistent, and remove work that is mechanical. **Human in the loop** remains the default for decisions that matter.
 
 ## One workflow, not a swarm
 
@@ -45,7 +45,7 @@ Treat the agent ecosystem as one teammate following one shared workflow. Stages 
 
 ## Self-improving agents
 
-Agents need feedback and a way to process it. Every workflow stage should evolve as we learn. Capture lessons in the stage descriptions and in this docs section — don't let them live only in someone's head.
+Agents need feedback and a way to process it. Every workflow stage evolves as lessons accumulate. Capture those lessons in the stage descriptions and in this documentation — never let them live only in someone's head.
 
 ## Integration and sensoring
 
@@ -60,7 +60,7 @@ Every change flows through context before it touches code:
 Intention of change → Update documentation → Update README → Update tests → Update code
 ```
 
-Code echoes the docs, not the other way around. The README and the docs are the **specification**. Tests validate the interface we want to see. If a change isn't reflected in context first, the code has no contract to implement against — and agents have nothing to read.
+Code echoes the documentation, not the other way around. The README and the documentation are the **specification**. Tests validate the intended interface. If a change isn't reflected in context first, the code has no contract to implement against — and agents have nothing to read.
 
 This means:
 
@@ -69,9 +69,7 @@ This means:
 - A refactor updates the relevant documentation **first**, then the tests, then the code follows to match.
 - If the docs and the code disagree, the docs are wrong — fix the docs, fix the tests, then fix the code to match.
 
-This is what makes agentic development work at scale. Agents read context. If the context is stale or missing, the agent builds the wrong thing. Keeping context ahead of code is how we stay in control.
-
-See [README-Driven Context](../Readme-Driven-Context.md).
+This is what makes agentic development work at scale. Agents read context. If the context is stale or missing, the agent builds the wrong thing. Keeping context ahead of code is what keeps the outcome under control.
 
 ## Context as a product
 
@@ -81,8 +79,6 @@ The work of keeping context **right, evergreen, and declarative** runs alongside
 - **Context maintenance** produces issues, decisions, READMEs, pointer files, and documentation — and treats them as products that must be kept current.
 
 Both run continuously. Each iteration of software delivery produces context that needs maintenance; each iteration of context maintenance unblocks the next round of software work.
-
-See [Workflow](../Workflow.md) for how these connect in practice.
 
 ## 4-eyes (or N-eyes) principle
 

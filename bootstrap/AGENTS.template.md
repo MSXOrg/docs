@@ -148,6 +148,19 @@ In a repository, its root `AGENTS.md` names the host and organization and lists 
 
 Clear task language may shortcut the index trail: `Review this PR <link>` enters Review, `Make this issue <description>` enters Define, and `Implement <issue>` enters Implement. The linked documentation owns each procedure; this file does not define a separate agent or skill.
 
+## Interactions
+
+Some phrases operate on the session rather than on the work, and each one resolves to a procedure defined in the canonical Ways of Working:
+
+| Phrase | Means |
+| --- | --- |
+| `wrap up` | The session is ending — scan for untracked work and land each item in its proper artifact. |
+| `park` | Move a tangent into an issue in the repository that owns it, then resume the original task. |
+| `triage` | Classify and route an item without starting implementation. |
+| `handoff` | Bring the artifacts to a state another participant can resume from. |
+
+Read `Ways-of-Working/Session-Interactions.md` in the canonical docs for what each one does. This table is a route, not a definition.
+
 ## Work in the selected repository
 
 1. Read its `README.md` to understand the repository and its build.
