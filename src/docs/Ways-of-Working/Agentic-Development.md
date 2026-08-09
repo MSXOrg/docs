@@ -40,7 +40,7 @@ flowchart TD
   memory --> work["Act and follow stage handoffs"]
 ```
 
-Refresh is a gate before traversal, not a best-effort background step. After it passes, the indexes are the default discovery mechanism. [Workflow](Workflow.md) owns the process and routes the work to a [stage procedure](Workflow-Stages/index.md); the stage page then points to the standards and artifacts it consumes. A clear prompt such as `Review this PR <link>` may shortcut directly through the Workflow routing table, but it does not create a second process definition. **Local files never replace central standards — they layer specifics on top.**
+Refresh is a gate before traversal, not a best-effort background step. It governs the clones the bootstrap validates, and those are what context is read from — [a working checkout is not a context source](#a-working-checkout-is-not-a-context-source). After it passes, the indexes are the default discovery mechanism. [Workflow](Workflow.md) owns the process and routes the work to a [stage procedure](Workflow-Stages/index.md); the stage page then points to the standards and artifacts it consumes. A clear prompt such as `Review this PR <link>` may shortcut directly through the Workflow routing table, but it does not create a second process definition. **Local files never replace central standards — they layer specifics on top.**
 
 ## Where documentation lives
 
@@ -152,6 +152,21 @@ The workspace is a git-isolated clone of the central repositories under `~/.msx`
 Each clone carries repository-local git config only, so the workspace never modifies the global git config or the repository the agent is working in — git still reads them, but only repository-local config is written. Before context is read, [`bootstrap/Initialize-MsxWorkspace.ps1`](https://github.com/MSXOrg/docs/blob/main/bootstrap/Initialize-MsxWorkspace.ps1) clones missing repositories and requires every existing context repository to be clean, on its remote default branch, and exactly synchronized with the remote head. Any update failure stops context resolution rather than allowing stale guidance or memory.
 
 The workspace makes the *central* context present locally; the same local-first stance shapes how each working repository is laid out. Repositories are cloned as [git worktrees](Git-Worktrees.md) — one working directory per branch — so a person and an agent, or several agents, can work on multiple issues in the same repository at once without stashing or switching branches.
+
+### A working checkout is not a context source
+
+Canonical context is read from the clones the gate validated. A **working checkout** of a documentation repository — one cloned in order to change it, rather than to be governed by it — is not a context source, even when it sits on disk and reads perfectly well. The distinction is one of role, not of path: what makes a clone canonical is that the gate proved it current, not where it lives, so this holds for any initiative's `docs` and `memory` repositories and for whatever location a contributor happens to clone them into.
+
+The reason is that a working checkout has no freshness gate. Nothing fetches it, nothing fails when it falls behind, and a superseded page in it is still present and still readable — so the failure is silent and self-confirming. A working checkout of this repository was found 26 commits behind its remote head, clean and zero commits ahead, simply neglected; it predated the Ways of Working restructure and so still carried a page that had been replaced upstream. A task prompt authored from that checkout named the replaced page as the authority for its format, citing a path that had not existed for 26 commits. The agent that received the prompt could not tell, because the page it was sent to opened.
+
+Whether a given checkout is current is decided by a fetch and a count, neither of which changes anything in the working tree:
+
+```powershell
+git -C <path> fetch origin --quiet
+git -C <path> rev-list --left-right --count HEAD...origin/<default-branch>
+```
+
+The two numbers are the commits the checkout is ahead of, and behind, the remote head. Both must be zero — the same bar the gate applies, where being ahead or diverged fails just as being behind does. Anything else means the checkout is not fit to be read as guidance: read the validated clone instead, or bring the checkout to the remote head before trusting a word of it. Editing documentation through a working checkout is unchanged by this — the checkout is where a change is written, not where the rules are read.
 
 ## Where this connects
 
