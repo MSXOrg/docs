@@ -23,7 +23,7 @@ Ready gates starting, not scope. An issue that is not ready stays in refinement 
 
 ## Definition of Ready for Review
 
-A pull request stays a **draft** until it is genuinely ready for other people to spend attention on it. "Ready for review" is not "I started" or "please take a look" — it is a deliberate signal that the change is complete and self-reviewed, and that the only thing left is another perspective before merge. It gates the hand-off in the [Contribution Workflow](Contribution-Workflow.md).
+A pull request stays a **draft** until it is genuinely ready for other people to spend attention on it. "Ready for review" is not "work has started" or "please take a look" — it is a deliberate signal that the change is complete and self-reviewed, and that the only thing left is another perspective before merge. It gates the hand-off in the [Contribution Workflow](Contribution-Workflow.md).
 
 A pull request is ready for review when:
 

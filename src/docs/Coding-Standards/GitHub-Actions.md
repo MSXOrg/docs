@@ -25,7 +25,7 @@ them to point at different code. A full commit SHA is **immutable**.
 
 - **Pin every `uses:` to a full 40-character commit SHA.** Keep the human
   version as a trailing comment so reviewers know the intended release.
-- This applies to **all** actions — third-party, first-party, and our own
+- This applies to **all** actions — third-party, first-party, and internally authored
   internal actions alike.
 
 ```yaml
@@ -36,7 +36,7 @@ them to point at different code. A full commit SHA is **immutable**.
 - name: Set up Node
   uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
 
-# Avoid — mutable tag; the referenced code can change under us
+# Avoid — mutable tag; the referenced code can change without notice
 - name: Check out the repository
   uses: actions/checkout@v6
 ```

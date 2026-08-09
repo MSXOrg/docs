@@ -42,7 +42,7 @@ This section documents the principles, processes, and norms that every contribut
 | [Repository Segmentation](Repository-Segmentation.md) | What belongs in a repository, and when to split or combine. |
 | [README-Driven Context](Readme-Driven-Context.md) | Why the README is the front door and the source of truth. |
 | [Continuous Practices](Continuous-Practices.md) | The Continuous X family, Continuous AI, and the DevOps Dojo pillars. |
-| [DevOps Reference](DevOps-Reference.md) | A curated reading list and the principles behind how we work. |
+| [DevOps Reference](DevOps-Reference.md) | A curated reading list and the principles behind the way of working. |
 
 <!-- INDEX:END -->
 

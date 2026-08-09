@@ -13,9 +13,9 @@ This page is the **why**. It is the most stable thing on this site: products, la
 
 Work at every level is grounded in three concentric questions — the [Golden Circle](../Ways-of-Working/Principles/Purpose-and-Direction.md#start-with-why-the-golden-circle):
 
-- **Why** — what change in the world are we trying to make? *Make the right thing the easy thing, so good software ships fast and safely.*
+- **Why** — what change in the world is this trying to make? *Make the right thing the easy thing, so good software ships fast and safely.*
 - **How** — what approach makes that change happen? *Everything as code, context before code, deterministic automation first, AI where judgment is needed, humans in the loop.*
-- **What** — what concrete thing are we delivering right now? *The frameworks, actions, modules, and tools in the [Initiatives](../Initiatives/index.md).*
+- **What** — what concrete thing is being delivered right now? *The frameworks, actions, modules, and tools in the [Initiatives](../Initiatives/index.md).*
 
 The Why is constant. The How is the way of working. The What is replaceable.
 
@@ -32,8 +32,8 @@ Every decision is filtered through **easy**, **fast**, and **safe** — in tensi
 | Word     | What it asks of every decision                                                              |
 | -------- | ------------------------------------------------------------------------------------------- |
 | **Easy** | Is the right thing also the easy thing? Is the safe, smart choice the default choice?        |
-| **Fast** | Does this shorten the loop between intention and feedback? Can we ship a thinner slice now?  |
-| **Safe** | Is this reversible? Is it observable? Will a failure teach us something instead of hurting?  |
+| **Fast** | Does this shorten the loop between intention and feedback? Is there a thinner slice to ship now?  |
+| **Safe** | Is this reversible? Is it observable? Will a failure teach something instead of causing harm?  |
 
 The words pull against each other, and that is the point. Easy without safe is reckless. Safe without fast is paralysis. Fast without easy burns people out. Holding all three at once is the discipline.
 
@@ -41,8 +41,8 @@ The words pull against each other, and that is the point. Easy without safe is r
 
 Two beliefs sit underneath everything:
 
-- **AI is a first-class participant.** Agents are part of how we think, build, and deliver — not a feature bolted on at the end. Every workflow and every document is designed so an agent can read it and act.
-- **Determinism comes first.** A script that always produces the correct answer beats a prompt that usually does. We use AI to *build* deterministic tools, then run the tools. AI earns its place by handling what deterministic logic cannot — ambiguity, judgment, natural language, and search spaces too large for hand-written rules.
+- **AI is a first-class participant.** Agents are part of how work is thought through, built, and delivered — not a feature bolted on at the end. Every workflow and every document is designed so an agent can read it and act.
+- **Determinism comes first.** A script that always produces the correct answer beats a prompt that usually does. AI *builds* the deterministic tools, and then the tools run. AI earns its place by handling what deterministic logic cannot — ambiguity, judgment, natural language, and search spaces too large for hand-written rules.
 
 The result is automation for the predictable and repeatable, and intelligence for the genuinely variable. Both, always available, each used where it is strongest. The full reasoning lives in [Principles → AI-first development](../Ways-of-Working/Principles/AI-First-Development.md).
 

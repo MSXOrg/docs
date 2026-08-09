@@ -1,6 +1,6 @@
 ---
 title: DevOps Reference
-description: A curated reading list and the principles behind how we work.
+description: A curated reading list and the principles behind the way of working.
 ---
 
 # DevOps Reference

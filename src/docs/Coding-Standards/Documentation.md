@@ -16,7 +16,7 @@ Distance between a thing and its documentation is the rate at which they drift a
 | Why a line exists    | In a comment next to the line                  |
 | How a function works | In comment-based help next to the function     |
 | What a repo is       | In the README at the repository root           |
-| How we work          | In this org-level docs site                    |
+| How the work is done | In this org-level docs site                    |
 | Why a decision held  | In the issue that produced it                  |
 
 ## Self-documenting code first
