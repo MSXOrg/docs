@@ -32,20 +32,20 @@ Agents are trained to read documentation. That is their natural skill. By keepin
 Agent context is delivered through three layers, in priority order:
 
 1. **Documentation** — the primary source. Published docs at <https://msxorg.github.io/docs/>, READMEs, and issue bodies are written for humans and naturally consumable by agents.
-2. **Central agent descriptions** — the roles agents play, authored once as documentation in the [Agents](../../Agents/index.md) section. They reference the ways of working and define roles, boundaries, and procedural steps — never standards or conventions.
-3. **Local pointer files** — each repository's `AGENTS.md` (and the `CLAUDE.md` that imports it), pointing to the central descriptions and adding only repo-specific nuance and genuinely tool-specific settings.
+2. **Canonical workflow** — [Workflow](../Workflow.md) owns the process and links to ordinary documentation for each [stage procedure](../Workflow-Stages/index.md). Indexes provide the default discovery path; clear task language may shortcut stage selection without creating separate instructions.
+3. **Local pointer files** — each repository's `AGENTS.md` router (with the content-free client routes that reach it), which reads outward from the repository's own files to the initiative and central documentation, and to memory last.
 
 ## Augmentation, not replacement
 
 Agents amplify the team. They make us faster, more consistent, and free us from work that is mechanical. **Human in the loop** remains the default for decisions that matter.
 
-## Persona, not swarm
+## One workflow, not a swarm
 
-Treat the agent ecosystem as one team mate. Many specialized roles, one cohesive bank of knowledge, one consistent voice.
+Treat the agent ecosystem as one teammate following one shared workflow. Stages and specialized review paths divide responsibility while preserving one cohesive bank of knowledge and one consistent voice.
 
 ## Self-improving agents
 
-Agents need feedback and a way to process it. Every agent definition should evolve as we learn. Capture lessons in the agent definitions and in this docs section — don't let them live only in someone's head.
+Agents need feedback and a way to process it. Every workflow stage should evolve as we learn. Capture lessons in the stage descriptions and in this docs section — don't let them live only in someone's head.
 
 ## Integration and sensoring
 
@@ -78,7 +78,7 @@ See [README-Driven Context](../Readme-Driven-Context.md).
 The work of keeping context **right, evergreen, and declarative** runs alongside software delivery:
 
 - **Software delivery** produces code, tests, and releases using source control, CI/CD, and DevOps practices.
-- **Context maintenance** produces issues, decisions, READMEs, agent definitions, and documentation — and treats them as products that must be kept current.
+- **Context maintenance** produces issues, decisions, READMEs, pointer files, and documentation — and treats them as products that must be kept current.
 
 Both run continuously. Each iteration of software delivery produces context that needs maintenance; each iteration of context maintenance unblocks the next round of software work.
 

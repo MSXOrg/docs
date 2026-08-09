@@ -1,6 +1,6 @@
 ---
 title: Goal-Setting Framework
-description: Mission, OKRs, and initiatives — strategy connected to delivery.
+description: Mission, OKRs, and Initiatives — the strategy above repository Epics.
 ---
 
 # Goal-Setting Framework
@@ -12,8 +12,8 @@ MSX uses a lightweight OKR-based framework to connect strategic direction to day
 | Layer          | Lives in                                     | Purpose                                                                                      |
 | -------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | **Mission**    | Pinned issue in the org `.github` repository | The org's reason to exist — *make great software delivery the default: easy, fast, and safe* |
-| **OKR**        | Sub-issues of the Mission                    | Qualitative objectives + measurable key results                                              |
-| **Initiative** | Sub-issues of an OKR                         | A concrete bet to move a Key Result — becomes an Epic in a repo                               |
+| **OKR**        | Sub-issues of the Mission                    | Qualitative objectives + measurable key results                                             |
+| **Initiative** | Sub-issues of an OKR                         | A concrete organization-level bet to move a Key Result                                      |
 
 ## Why OKRs and not KPIs
 
@@ -32,11 +32,14 @@ OKRs are tracked as sub-issues of the Mission issue in the org `.github` reposit
 
 ## From strategy to delivery
 
-Initiatives are the bridge between strategy and execution. An Initiative is a sub-issue of an OKR and maps directly to an **Epic** in the relevant repository. From there it decomposes into PBIs and Tasks through the [Issue Hierarchy](Issue-Hierarchy.md).
+Mission, OKR, and Initiative are the strategy layers. The strategy boundary sits **above Epic**: an Initiative links to the repository Epics that deliver its outcome, and each participating repository owns its own Epic. The canonical [Issue Hierarchy](Issues/Types/Hierarchy.md) owns all decomposition and delivery semantics from Epic downward.
 
 ```text
 Mission (org-level, evergreen)
 └── OKR (qualitative objective + key results)
     └── Initiative (concrete bet to move a KR)
-        └── Epic (in a repository) → PBIs → Tasks
+        ├── Epic (repository A)
+        └── Epic (repository B)
 ```
+
+The arrow from Initiative to Epic is a strategy-to-delivery link, not a replacement for the native relationships inside a repository. Epic and lower issue types follow the [Issue Planning](Issues/Process/Planning.md) and [Issue Relationships](Issues/Process/Relationships.md) guidance.

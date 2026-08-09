@@ -91,9 +91,12 @@ Humans and agents must read the same standards. Do not create a separate hidden 
 
 Agent files are allowed when they point to, summarize, or operationalize the central standard. They must not become a second source of truth.
 
+The repository-level entry point is `AGENTS.md`, as defined by [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries). Agent runtimes do not agree on a filename, so a repository also carries a route file for each client that reads a different one. A route holds a pointer to the router and, at most, genuinely runtime-specific configuration — never a duplicated standard or workflow. The same limit applies to any organization-level instruction setting an agent vendor offers: use it for organization-wide preferences, never as a second copy of a standard.
+
 ## Where this connects
 
 - [Repository Standard](Repository-Standard.md) — the repository-level contract every repository must satisfy.
+- [Repository Type Property](Repository-Type-Property.md) — the concrete `Type` custom-property mechanism that implements "repository types" and "required custom properties, branch protection" from this page.
 - [Documentation Model](Documentation-Model.md) — why specs own why and what, while designs own implementation.
 - [Dependency Updates](../Capabilities/dependency-updates/spec.md) — the supply-chain update capability every repository inherits.
 - [GitHub Actions](../Coding-Standards/GitHub-Actions.md) — workflow authoring and enforcement rules.

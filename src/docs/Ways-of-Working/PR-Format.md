@@ -92,28 +92,21 @@ Under each header:
 
 Do **not** mention internal function names, class names, private APIs, or refactoring decisions here.
 
-### 3. Technical details (optional)
+### 3. Required ending blocks
+
+At the very end of every PR description, use this exact structure:
 
 ```markdown
-## Technical Details
-```
-
-For reviewers and maintainers. Not part of the release note. Include:
-
-- Which internal functions, classes, or files were changed.
-- Implementation approach and design decisions.
-- Backward compatibility notes for developers.
-- **Implementation plan progress** — cross-reference Section 3 of the linked issue. Which tasks does this PR complete? Which remain?
-
-Omit the section entirely if there's nothing noteworthy.
-
-### 4. Related issues
-
-A collapsible `<details>` block at the very end of the description containing issue links. Always use fully qualified references (`Owner/Repo#N`) so links work across repositories.
-
-```markdown
+---
 <details>
-<summary>Related issues</summary>
+<summary>Technical details</summary>
+
+...
+
+</details>
+
+<details>
+<summary>Relevant issues (or links)</summary>
 
 - Fixes Owner/Repo#123
 - Owner/OtherRepo#124
@@ -121,15 +114,33 @@ A collapsible `<details>` block at the very end of the description containing is
 </details>
 ```
 
-One bullet per linked issue. Use a [closing keyword](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue) (`Fixes`, `Closes`, `Resolves`) when the PR fully addresses the issue. Otherwise, list the reference without a keyword to indicate a relationship without auto-closing.
+The **Technical details** block is for reviewers and maintainers. Include internal implementation notes such as:
 
-If no issue is linked: **stop**. PRs without issues break the workflow. Route back to the Ideator role or proceed only on explicit user confirmation. The Shipper enforces this.
+- Which internal functions, classes, or files were changed.
+- Implementation approach and design decisions.
+- Backward compatibility notes for developers.
+- **Implementation plan progress** — cross-reference the closing Task or Bug's plan. Which plan steps does this PR complete? Which were moved to follow-up delivery issues?
+- **Standards and framework alignment** — the result of the [alignment pass](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass), as one row per changed surface. The stage procedure owns when and how the pass is run; this block only carries its evidence.
+- **Issue convergence sweep** — the scope used for the [session-end sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) and which additional open issues (if any) the finished diff fully satisfied.
+
+| Changed surface | Standards checked | Framework docs checked | Result |
+| --- | --- | --- | --- |
+| `src/**` (PowerShell) | Naming, Functions | Module source layout | Aligned |
+| `.github/workflows/**` | GitHub Actions | Reusable workflow contract | Exception — Owner/Repo#123 |
+
+A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link to the follow-up issue that carries it. A surface with no framework or domain documentation of its own is recorded as `None (no framework-specific docs)`.
+
+The **Relevant issues (or links)** block is required and uses fully qualified references (`Owner/Repo#N`) so links work across repositories.
+
+Use one bullet per linked issue. One bullet uses a [closing keyword](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue) (`Fixes`, `Closes`, or `Resolves`) for the scoped Task or Bug delivered by the pull request. Additional bullets may also use closing keywords only for issues the [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) confirms are fully satisfied by the same finished diff. A parent PBI or Epic may appear as context without a closing keyword; never close an aggregate through a delivery pull request. Partially convergent or supporting issues are linked as non-closing context.
+
+If there is not one scoped closing Task or Bug: **stop**. Route back to [Define](Workflow-Stages/Define.md) to create or correctly route the delivery leaf. If additional closing keywords are used, include sweep evidence in Technical details that shows those issues are fully satisfied. The [Issue Hierarchy](Issues/Types/Hierarchy.md) and [Issue Lifecycle](Issues/Process/Lifecycle.md) own type and closure semantics.
 
 ## Formatting
 
 - Paragraphs are written as a **single unbroken line**. GitHub renders mid-paragraph newlines as spaces.
 - The PR description is **the release note**. Write it for users, not reviewers.
-- If a linked issue exists, the PR title and description should align with the issue's user-facing framing and the Technical Decisions section (Section 2).
+- The PR title and description align with the closing Task or Bug's user-facing framing and recorded technical decisions.
 
 ## Example
 
@@ -150,15 +161,19 @@ The `repo properties` command remains available if only the properties are neede
 
 Commands that query a specific repository, enterprise, or release by name now return nothing instead of throwing when the resource doesn't exist. This makes them safe to use in conditional logic without error handling.
 
-## Technical Details
+---
+<details>
+<summary>Technical details</summary>
 
 - The repository model's custom-properties field is now a typed collection rather than an untyped object.
 - The GraphQL query layer splits error handling into partial-success (data + errors → warnings) and full-failure (errors only → terminating error) branches.
 - Null guards added to the repository lookup helpers.
 - Implementation plan progress: tasks 1–3 in #218 completed; task 4 (integration tests) remains.
 
+</details>
+
 <details>
-<summary>Related issues</summary>
+<summary>Relevant issues (or links)</summary>
 
 - Fixes Owner/Repo#218
 - Owner/Repo#219

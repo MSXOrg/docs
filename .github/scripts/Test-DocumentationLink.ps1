@@ -18,11 +18,17 @@
       the heading's anchor.
 
     External links (http, https, mailto, tel), absolute paths, links inside fenced
-    code blocks, and links inside inline code spans are ignored on purpose.
+    code blocks, links inside inline code spans, and the prose body of a GFM
+    footnote definition ('[^1]: ...') are ignored on purpose.
 
     The script changes nothing. It exits 0 when every link resolves and exits 1,
     listing each broken link, otherwise - so it can gate a pull request and a push
     to main in CI, alongside linting.
+
+    It also exits 1 when it found no Markdown files at all. Every link resolving
+    is trivially true when there are no links, so an empty run is reported as a
+    failure rather than a pass - a wrong root or an over-broad filter cannot make
+    this check quietly green.
 
 .EXAMPLE
     ./Test-DocumentationLink.ps1
@@ -204,12 +210,18 @@ function Get-LinkTargetIssue {
 # The inline target may carry an optional title ("...", '...', or (...)); the
 # nested-paren alternative keeps a parenthesised title from being truncated. The
 # definition destination is either an angle-bracketed path (which may contain
-# spaces) or a bare non-whitespace token.
+# spaces) or a bare non-whitespace token. A label starting with '^' is a footnote
+# definition ('[^1]: some prose'), whose body is prose rather than a destination,
+# so it is excluded - otherwise the footnote's first word is validated as a
+# relative path and every footnote on the page is reported as a broken link. An
+# inline link inside that prose is still caught by $linkPattern.
 $linkPattern = '\[[^\]]*\]\(([^()]*(?:\([^()]*\)[^()]*)*)\)'
-$refDefPattern = '^\s*\[[^\]]+\]:\s+(<[^>]+>|\S+)'
+$refDefPattern = '^\s*\[(?!\^)[^\]]+\]:\s+(<[^>]+>|\S+)'
 $broken = [System.Collections.Generic.List[string]]::new()
+$scanned = 0
 
 foreach ($file in (Get-ChildItem -LiteralPath $Docs -Recurse -File -Filter *.md | Sort-Object FullName)) {
+    $scanned++
     $rel = ($file.FullName.Substring($Root.Length).TrimStart('\', '/')) -replace '\\', '/'
     $lines = [System.IO.File]::ReadAllLines($file.FullName)
     $inFence = $false
@@ -233,8 +245,13 @@ foreach ($file in (Get-ChildItem -LiteralPath $Docs -Recurse -File -Filter *.md 
     }
 }
 
+if ($scanned -eq 0) {
+    Write-Output "No Markdown files were found under $Docs - nothing was validated."
+    Write-Output 'A check that checked nothing is a failure, not a pass.'
+    exit 1
+}
 if ($broken.Count -eq 0) {
-    Write-Output 'All documentation links resolve.'
+    Write-Output "All documentation links resolve ($scanned file(s) scanned)."
     exit 0
 }
 Write-Output "Broken documentation links ($($broken.Count)):"

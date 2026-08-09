@@ -44,6 +44,21 @@ $Start = '<!-- INDEX:START -->'
 $End = '<!-- INDEX:END -->'
 $Utf8 = [System.Text.UTF8Encoding]::new($false)
 
+function ConvertTo-LineEnding {
+    param(
+        [string]$Text,
+        [string]$NewLine
+    )
+    return [regex]::Replace($Text, '\r\n|\r|\n', $NewLine)
+}
+
+function Get-LineEnding {
+    param([string]$Text)
+    $match = [regex]::Match($Text, '\r\n|\r|\n')
+    if ($match.Success) { return $match.Value }
+    return [Environment]::NewLine
+}
+
 function Read-FrontMatter {
     param([string]$Path)
     $meta = @{}
@@ -97,7 +112,7 @@ function Get-RelKey {
 }
 
 function Get-IndexTable {
-    param([string]$IndexPath, [hashtable]$Order)
+    param([string]$IndexPath, [hashtable]$Order, [string]$NewLine)
     $dir = Split-Path -Parent $IndexPath
     $subdirs = @(Get-ChildItem -LiteralPath $dir -Directory |
             Where-Object { Test-Path (Join-Path $_.FullName 'index.md') } | Sort-Object Name)
@@ -133,16 +148,18 @@ function Get-IndexTable {
     $lines.Add("| $header | Description |")
     $lines.Add('| --- | --- |')
     foreach ($r in $sorted) { $lines.Add("| [$($r.Title)]($($r.Link)) | $($r.Desc) |") }
-    return ($lines -join "`n")
+    return ($lines -join $NewLine)
 }
 
 function Get-Rendered {
     param([string]$IndexPath, [hashtable]$Order)
     $text = [System.IO.File]::ReadAllText($IndexPath)
     if (($text -notlike "*$Start*") -or ($text -notlike "*$End*")) { return $null }
+    $newLine = Get-LineEnding $text
+    $text = ConvertTo-LineEnding $text $newLine
     $head = $text.Substring(0, $text.IndexOf($Start) + $Start.Length)
     $tail = $text.Substring($text.IndexOf($End))
-    return "$head`n`n$(Get-IndexTable $IndexPath $Order)`n`n$tail"
+    return "$head$newLine$newLine$(Get-IndexTable $IndexPath $Order $newLine)$newLine$newLine$tail"
 }
 
 $order = Get-NavOrder
@@ -150,7 +167,8 @@ $stale = [System.Collections.Generic.List[string]]::new()
 foreach ($index in (Get-ChildItem -LiteralPath $Docs -Recurse -File -Filter index.md | Sort-Object FullName)) {
     $rendered = Get-Rendered $index.FullName $order
     if ($null -eq $rendered) { continue }
-    if ($rendered -eq [System.IO.File]::ReadAllText($index.FullName)) { continue }
+    $current = [System.IO.File]::ReadAllText($index.FullName)
+    if ((ConvertTo-LineEnding $rendered "`n") -eq (ConvertTo-LineEnding $current "`n")) { continue }
     $stale.Add((($index.FullName.Substring($Root.Length).TrimStart('\', '/')) -replace '\\', '/'))
     if (-not $Check) { [System.IO.File]::WriteAllText($index.FullName, $rendered, $Utf8) }
 }

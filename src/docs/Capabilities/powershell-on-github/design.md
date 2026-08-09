@@ -32,7 +32,7 @@ The model combines two tracks:
 ## Current canonical references
 
 - PSModule initiative overview: ../../Initiatives/PSModule.md
-- Process-PSModule framework: ../../Frameworks/Process-PSModule/index.md
+- [Process-PSModule documentation](https://psmodule.io/docs/Modules/Process-PSModule/)
 - Coding standards baseline: ../../Coding-Standards/index.md
 
 ## Planned evolution
