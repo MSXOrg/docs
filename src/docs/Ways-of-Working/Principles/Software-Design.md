@@ -1,6 +1,6 @@
 ---
 title: Software design
-description: SOLID, extensibility, smart defaults with local overrides, DRY with judgment, and making change easy before making the change.
+description: SOLID, extensibility, smart defaults with local overrides, secure by default, DRY with judgment, and making change easy before making the change.
 ---
 
 # Software design
@@ -17,7 +17,7 @@ description: SOLID, extensibility, smart defaults with local overrides, DRY with
 
 Extend by adding, not by modifying what already works — the Open/Closed principle, applied beyond code to how the whole system grows. Ways of working and standards are the **stable core**; the tools that act on them — coding agents, runtimes, integrations — are **pluggable adapters** that slot in. Adding or swapping a tool means writing new pointers, not rewriting process knowledge.
 
-The system stays pluggable: the docs do not change when a new agent runtime is added — only a new integration layer is written. See the [Agentic Development](../Agentic-Development.md) specification for how this plays out in practice.
+The system stays pluggable: the documentation does not change when a new agent runtime is added — only a new integration layer is written.
 
 ## Smart defaults, local overrides
 
@@ -39,7 +39,22 @@ This shape is chosen for manageability over the life of a system, and it earns t
 
 Make the wide default easy to set and the local override easy to make. When the two disagree, the more specific one wins — predictably, by its position in the hierarchy, never by special-casing.
 
-This is [Easy and Safe](../../index.md) expressed as design: doing the right thing takes no effort because it is the default, and deviating is deliberate and contained because it is a local override. [Least-privilege](Purpose-and-Direction.md#least-privilege) and [secure by default](../../Coding-Standards/Security.md#secure-by-default) are this principle applied to permissions and security; the way [the vision cascades](../../Vision/index.md#how-the-vision-cascades) is its shape applied to knowledge.
+This is easy-and-safe expressed as design: doing the right thing takes no effort because it is the default, and deviating is deliberate and contained because it is a local override. [Least-privilege](Purpose-and-Direction.md#least-privilege) and [secure by default](#secure-by-default) are this principle applied to permissions and security; the way knowledge cascades from belief to practice is its shape applied to documentation.
+
+## Secure by default
+
+The safe configuration is the one that requires no decision. Security is a property of the default, not a step someone remembers to take — anything that depends on being remembered will eventually be forgotten.
+
+This follows from smart defaults with local overrides, applied to risk. Where a choice exists between a convenient default and a safe one, the safe option MUST be the default, and relaxing it MUST be explicit, local, and visible in review. A setting that is safe only when someone opts in is not a secure default; it is an unsafe default with documentation.
+
+Concretely:
+
+- New surfaces start closed. Access, exposure, and permission are granted deliberately rather than removed after the fact.
+- Secrets are never a fallback value. Absent configuration fails the operation rather than silently continuing with something weaker.
+- A relaxation is scoped to the thing that needs it and carries the reason with it, so it can be found and revisited.
+- Validation runs by default. Turning a check off is the exception that gets argued for, not the state a repository drifts into.
+
+The intent is that the path of least effort and the correct path are the same path. When they diverge, the default is wrong — not the person who followed it.
 
 ## DRY — with judgment
 
