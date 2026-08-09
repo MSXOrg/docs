@@ -77,7 +77,7 @@ The **spec/design altitude test**: would this sentence change if the team picked
 
 ### Conformance to principles
 
-A spec **conforms to** the [Principles](Principles/index.md) and never restates them. Specs link up; principles never link down. A rule that holds for every capability belongs in a principle or a standard and is referenced from the spec by link; a spec that copies it creates a second source that will disagree with the first. When a spec needs a narrow exception to a standard, it names the exception and links to the standard that permits it.
+A spec **conforms to** the [Principles](Principles/index.md) and never restates them. The reference direction is set by the [principles' own contract](Principles/index.md#principles-do-not-link-down): specs link up, and principles do not link down. A rule that holds for every capability belongs in a principle or a standard and is referenced from the spec by link; a spec that copies it creates a second source that will disagree with the first. When a spec needs a narrow exception to a standard, it names the exception and links to the standard that permits it.
 
 ### Core and feature addenda
 
@@ -219,7 +219,7 @@ Splitting the spec from the design is what lets the spec stay stable across refa
 - **State enduring problems, not timing.** Avoid "why now", "currently", "recently", and similar time-bound framing. A spec states the condition that makes the capability worth having, phrased so it stays true. Where a time bound genuinely is durable — a published deprecation, a contractual date — it is a constraint, stated as one.
 - **Let git carry the record.** Created and updated dates, revision numbers, authorship, and the changelog are the repository's history, not fields in the document. Restating them in the body duplicates git and drifts out of date; the commits and the pull requests that reference the spec hold how it got here.
 - **Ownership is by location, not a byline.** The team that owns the code owns its spec ([docs live close to the code](../Coding-Standards/Documentation.md#the-hierarchy-of-documentation)); accountability lives in `CODEOWNERS`, not a per-document owner field that goes stale.
-- **Conform, do not restate.** A spec links up to the principle or standard it obeys and never copies it. Principles never link down to specs.
+- **Conform, do not restate.** A spec links up to the principle or standard it obeys and never copies it. The direction is one-way by [design](Principles/index.md#principles-do-not-link-down): principles do not link down to specs.
 - **Mark unknowns, do not guess.** Where the need is unclear, leave an explicit `[NEEDS CLARIFICATION: the specific question]` marker rather than a plausible assumption. All markers are resolved and removed before the spec is accepted.
 - **Self-review against a checklist.** Before review, confirm the spec is complete: no clarification markers remain, every requirement is testable and carries at least one scenario, and the success criteria are measurable — a checklist is a unit test for the English.
 - **Keep it navigable.** The spec is readable in one sitting. Heavy detail moves down a tier — into the design, an implementation doc, or a reference — not into the body.

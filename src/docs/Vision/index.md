@@ -51,15 +51,20 @@ The result is automation for the predictable and repeatable, and intelligence fo
 The vision is inherited, not copied. It is written once, here, and referenced everywhere:
 
 ```text
-Vision (this site)            the why — stable, evergreen
-└── Ways of Working           the how — workflow, principles, conventions
-    └── Coding Standards      the how, applied to code
-        └── Initiatives       the what — the products
-            └── Repositories  each README is the local source of truth
-                └── Agents    read the same docs as context before acting
+Vision (this site)              the why — stable, evergreen
+└── Principles                  the beliefs every layer conforms to
+    └── Ways of Working         the how — workflow, process, conventions
+        ├── Coding Standards    the how, applied to code
+        └── Capabilities        the how, applied to a named capability
+            │                   each with its own spec (why/what) and design (how/what)
+            └── Initiatives     the what — the products
+                └── Repositories  each README is the local source of truth
+                    └── Agents    read the same documentation as context before acting
 ```
 
 Each layer references the one above instead of restating it. A repository's README does not re-explain the principles — it links to them. An agent pointer does not embed a style guide or workflow stage — it leads into the documentation indexes. This keeps a single source of truth and lets the whole system evolve without drifting out of sync.
+
+References point in one direction only: upward. A layer names the layer it conforms to, and never enumerates the layers that conform to it. That asymmetry is what keeps the upper layers stable — adding a capability or a repository changes nothing above it.
 
 ## Where it comes to life
 
