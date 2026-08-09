@@ -19,6 +19,16 @@ Extend by adding, not by modifying what already works — the Open/Closed princi
 
 The system stays pluggable: the documentation does not change when a new agent runtime is added — only a new integration layer is written.
 
+## API-first
+
+Expose a capability through a versioned API contract first. Every consumer — a web UI, a CLI, a script, another service, an agent — is a client of that contract, and none of them gets a privileged path around it.
+
+Design the API before the consumers. Doing it in that order leaves one authoritative contract that many clients depend on, so a second or third consumer arrives without renegotiating anything and without coordinating through whichever client happened to be built first. Doing it the other way round hides the real interface inside a UI, and the next consumer either reimplements it or drives the UI as if it were an API.
+
+Describe the contract explicitly — an OpenAPI document for an HTTP surface — and version it, so a consumer pins a compatible major version and absorbs additive changes without a coordinated release. A contract that is only implied by the code cannot be pinned, and every change to it is a surprise to somebody.
+
+The corollary is a test for whether a design actually holds: if a feature is reachable only through one client, it is not part of the contract, and the contract is not the interface.
+
 ## Smart defaults, local overrides
 
 The default is the smart, secure choice — what you would pick most of the time, and the safe option when unsure. A system with no configuration is already correct, safe, and useful out of the box. Configuration exists to *deviate* from a good default, never to reach a usable one.
