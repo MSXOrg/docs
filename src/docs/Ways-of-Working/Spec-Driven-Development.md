@@ -115,7 +115,7 @@ Numbering is scoped **per page**. Every spec page — a core spec and each of it
 Each requirement owns a `#### Behavioral scenarios` subsection immediately beneath it, holding one or two Given / When / Then scenarios that make that one requirement concrete in place. These are the acceptance criteria for that requirement, stated once, where the requirement is stated.
 
 ````markdown
-### FR1 — A request MUST succeed while any healthy upstream provider remains { #fr1 }
+### FR1 — A request MUST succeed while any healthy upstream provider remains {#fr1}
 
 #### Behavioral scenarios
 

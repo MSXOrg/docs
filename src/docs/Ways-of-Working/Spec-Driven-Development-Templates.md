@@ -51,7 +51,7 @@ description: <One line: what this capability guarantees.>
 
 ## Functional requirements
 
-### FR1 — <what the capability does, behavioral, testable, no technology> { #fr1 }
+### FR1 — <what the capability does, behavioral, testable, no technology> {#fr1}
 
 #### Behavioral scenarios
 
@@ -62,11 +62,11 @@ Scenario: <the case that makes FR1 concrete>
   Then <observable result>
 ```
 
-### FR2 — <...> { #fr2 }
+### FR2 — <...> {#fr2}
 
 ## Non-functional requirements
 
-### NFR1 — <a quality attribute as a measurable condition: latency, availability, redaction, retention, cost> { #nfr1 }
+### NFR1 — <a quality attribute as a measurable condition: latency, availability, redaction, retention, cost> {#nfr1}
 
 #### Behavioral scenarios
 
@@ -138,7 +138,7 @@ description: <One line: what this feature adds to the capability.>
 
 ## Functional requirements
 
-### FR1 — <feature-specific behavior> { #fr1 }
+### FR1 — <feature-specific behavior> {#fr1}
 
 #### Behavioral scenarios
 
@@ -151,7 +151,7 @@ Scenario: <...>
 
 ## Non-functional requirements
 
-### NFR1 — <feature-specific quality attribute, measurable> { #nfr1 }
+### NFR1 — <feature-specific quality attribute, measurable> {#nfr1}
 ````
 
 ## Design
