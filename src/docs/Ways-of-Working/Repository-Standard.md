@@ -30,7 +30,7 @@ discoverability minimum defined below instead.
 | `SUPPORT.md` | Explains where users ask for help. |
 | `CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
 | `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation, then to memory. [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries) names the files and the path each one sits at. |
-| `.github/dependabot.yml` | Configures ecosystem-appropriate dependency-update pull requests. The `github-actions` ecosystem is expected in virtually every repository; add the language, package, container, or infrastructure ecosystems the repository actually develops in. |
+| `.github/dependabot.yml` | Configures platform-native dependency-update pull requests for supported ecosystems. The `github-actions` ecosystem is expected in virtually every repository; an unsupported ecosystem follows the centrally managed exception path rather than a repository-local updater. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
 | `.github/pull_request_template.md` | Scaffolds pull requests in the MSX [PR Format](PR-Format.md) (PR Manager) style — an icon + change-type + user-facing-outcome title, user-facing description sections, an optional technical-details block, and a related-issues block. |
 | `.gitattributes` | Normalizes line endings and declares text/binary handling so the repository can be developed and built consistently on Linux, macOS, and Windows. |
@@ -103,9 +103,16 @@ Initiative docs define the implementation: exact folder layout, publishing workf
 
 ## Dependency and supply-chain defaults
 
-Every repository that has external dependencies must configure automated update pull requests. Dependabot is the default GitHub-native mechanism unless the initiative documents a different implementation.
+Every repository that has external dependencies must have automated update coverage.
+Dependabot is the default GitHub-native mechanism for its supported ecosystems; an
+unsupported ecosystem uses the centrally managed exception path defined by
+[Dependency Updates](../Capabilities/dependency-updates/spec.md#coverage), never a
+repository-specific updater.
 
-At minimum, repositories with GitHub Actions must include a `github-actions` ecosystem entry. Repositories with language, package, container, or infrastructure dependencies must include the relevant ecosystems too.
+At minimum, repositories with GitHub Actions must include a `github-actions`
+ecosystem entry. Repositories with language, package, container, or infrastructure
+dependencies include their supported native ecosystems; unsupported ones are
+recorded centrally for shared update coverage.
 
 Dependency update pull requests must:
 

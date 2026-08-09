@@ -39,29 +39,45 @@ Management](../release-management/spec.md).
 
 ### Coverage
 
-- **FR1 — Every ecosystem present is covered.** Coverage MUST be derived from the manifests the repository actually contains. An ecosystem with a manifest and no updater entry is an uncovered pin, and an uncovered pin ages silently.
-- **FR2 — Coverage is verifiable, not asserted.** The set of manifests present MUST be comparable against the set of configured ecosystems, so a gap is a detectable finding rather than something noticed when a pin is years stale. Adding an ecosystem to a repository therefore obliges adding it to the updater configuration.
-- **FR3 — Configuration is generated, not hand-maintained.** Because coverage follows the manifests, the updater configuration SHOULD be produced from what the repository contains rather than written by hand. A generated configuration cannot drift from the repository; a hand-written one drifts the moment an ecosystem is added.
+- **FR1 — Every ecosystem present is classified.** Coverage MUST be derived from
+  the manifests the repository actually contains. Each detected ecosystem MUST
+  either be supported by the platform-native updater or have a centrally managed
+  exception; an unclassified manifest is an uncovered pin that ages silently.
+- **FR2 — Native support is configured.** Every detected ecosystem in the
+  centrally maintained native-support catalogue MUST have an updater entry for
+  the directory its manifest governs.
+- **FR3 — Unsupported ecosystems use a central exception.** An ecosystem the
+  native updater does not support MUST be recorded in the centrally managed
+  exception register with its manifest, scope, reason, owner, and shared update
+  mechanism. A repository MUST NOT create or maintain a bespoke updater.
+- **FR4 — Coverage is verifiable, not asserted.** The manifest inventory MUST be
+  comparable against the configured native ecosystems and the central exception
+  register, so a gap is a detectable finding rather than something noticed when a
+  pin is years stale.
+- **FR5 — Native configuration is generated, not hand-maintained.** Native
+  updater configuration SHOULD be produced from supported manifests rather than
+  written by hand. A generated configuration cannot drift from the repository; a
+  hand-written one drifts when a supported ecosystem is added.
 
 ### Cadence
 
-- **FR4 — Currency is checked on a schedule.** No human watches upstream releases.
-- **FR5 — The schedule is configuration.** Frequency and the timezone it is expressed in MUST be configurable per organization. There is no correct global cadence: a repository whose consumers deploy continuously wants updates sooner than one that ships quarterly, and a schedule expressed in a timezone nobody works in produces pull requests nobody triages.
-- **FR6 — Freshly published versions wait.** A version MUST NOT be proposed the moment it appears. A cooldown between publication and proposal lets an upstream project withdraw or supersede a bad release before every consumer has a pull request open against it.
-- **FR7 — Security advisories bypass the schedule.** An advisory affecting a pin raises an update on disclosure, out of band, and MUST be prioritised over scheduled currency updates.
+- **FR6 — Currency is checked on a schedule.** No human watches upstream releases.
+- **FR7 — The schedule is configuration.** Frequency and the timezone it is expressed in MUST be configurable per organization. There is no correct global cadence: a repository whose consumers deploy continuously wants updates sooner than one that ships quarterly, and a schedule expressed in a timezone nobody works in produces pull requests nobody triages.
+- **FR8 — Freshly published versions wait.** A version MUST NOT be proposed the moment it appears. A cooldown between publication and proposal lets an upstream project withdraw or supersede a bad release before every consumer has a pull request open against it.
+- **FR9 — Security advisories bypass the schedule.** An advisory affecting a pin raises an update on disclosure, out of band, and MUST be prioritised over scheduled currency updates.
 
 ### Batching
 
-- **FR8 — Low-risk updates MAY be grouped; breaking ones MUST NOT be.** Minor and patch updates within one ecosystem MAY share a pull request, because reviewing twelve patch bumps separately costs twelve reviews and yields no more information than one. A major update MUST be isolated, because it is the update whose diff has to be read.
-- **FR9 — Grouping never crosses ecosystems.** A group's review requires knowing one ecosystem's conventions; mixing ecosystems in one pull request means no single reviewer is qualified for the whole diff.
+- **FR10 — Low-risk updates MAY be grouped; breaking ones MUST NOT be.** Minor and patch updates within one ecosystem MAY share a pull request, because reviewing twelve patch bumps separately costs twelve reviews and yields no more information than one. A major update MUST be isolated, because it is the update whose diff has to be read.
+- **FR11 — Grouping never crosses ecosystems.** A group's review requires knowing one ecosystem's conventions; mixing ecosystems in one pull request means no single reviewer is qualified for the whole diff.
 
 ### Review and labelling
 
-- **FR10 — One reviewed pull request per update or group.** Each update is a pull request that passes the full check suite before merge. Nothing is applied unreviewed, and no update takes a side channel around the gate.
-- **FR11 — Update level is labelled.** Every update pull request MUST carry the category, the ecosystem, and the dependency's own version-change level, so review routing and triage do not require opening the diff.
-- **FR12 — Update labels MUST NOT reuse the release bump vocabulary.** The label that signals the *dependency's* version level MUST be namespaced away from the reserved release-bump labels ([automation labels](../../Ways-of-Working/Automation-Labels.md#reserved-vocabularies)). A dependency update is artifact-affecting and therefore produces a release; one shared vocabulary across the two dimensions would set this repository's version from the upstream project's decision.
-- **FR13 — Review posture follows update level.** Patch and minor updates MAY merge automatically once every required check passes. A major update MUST require human review and MUST NOT merge automatically. A repository MAY tighten this and MUST NOT loosen it.
-- **FR14 — Automatic merge is never a bypass.** Where an update merges without review, it does so because the checks passed, not because the checks were skipped.
+- **FR12 — One reviewed pull request per update or group.** Each update is a pull request that passes the full check suite before merge. Nothing is applied unreviewed, and no update takes a side channel around the gate.
+- **FR13 — Update level is labelled.** Every update pull request MUST carry the category, the ecosystem, and the dependency's own version-change level, so review routing and triage do not require opening the diff.
+- **FR14 — Update labels MUST NOT reuse the release bump vocabulary.** The label that signals the *dependency's* version level MUST be namespaced away from the reserved release-bump labels ([automation labels](../../Ways-of-Working/Automation-Labels.md#reserved-vocabularies)). A dependency update is artifact-affecting and therefore produces a release; one shared vocabulary across the two dimensions would set this repository's version from the upstream project's decision.
+- **FR15 — Review posture follows update level.** Patch and minor updates MAY merge automatically once every required check passes. A major update MUST require human review and MUST NOT merge automatically. A repository MAY tighten this and MUST NOT loosen it.
+- **FR16 — Automatic merge is never a bypass.** Where an update merges without review, it does so because the checks passed, not because the checks were skipped.
 
 ### Non-functional
 

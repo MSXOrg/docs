@@ -18,28 +18,29 @@ The behaviour in the [spec](spec.md) is delivered by the platform-native updater
 
 ## Coverage from manifests
 
-Which ecosystems are configured is not a judgement call — it is a function of the
-files the repository contains. Each ecosystem announces itself with a manifest, and
-the presence of that manifest is what obliges an updater entry:
+Which ecosystems are covered is not a judgement call — it is a function of the
+files the repository contains. Each ecosystem announces itself with a manifest:
 
-| Ecosystem | Announced by |
-| --- | --- |
-| GitHub Actions | Workflow and composite-action definitions under `.github/` |
-| Containers | A container definition or a base-image reference |
-| Language packages | The ecosystem's manifest and lockfile at the directory root it governs |
-| Infrastructure definitions | The module or provider constraint file for the tool in use |
+| Ecosystem | Announced by | Coverage path |
+| --- | --- | --- |
+| GitHub Actions | Workflow and composite-action definitions under `.github/` | Native updater |
+| Containers | A container definition or a base-image reference | Native updater |
+| Language packages | The ecosystem's manifest and lockfile at the directory root it governs | Native updater when supported |
+| Infrastructure definitions | The module or provider constraint file for the tool in use | Native updater when supported |
 
-Configuration is therefore **generated** from the manifests rather than written by
-hand. Generation is what makes the coverage requirement enforceable: the generator
-walks the repository, emits one entry per ecosystem and directory it finds, and a
-repository whose committed configuration differs from the generated one is drifting
-([reconciliation](../repository-governance/design.md#drift-detection-and-reconciliation)).
-Hand-maintained configuration cannot offer that comparison, because there is nothing
-to compare it against.
+The organization owns a **native-support catalogue** and an **exception register**.
+The catalogue names the ecosystems the platform-native updater supports; generation
+emits one updater entry per supported ecosystem and directory. An unsupported
+manifest is not forced into an invalid native entry. Instead, it must have an
+exception-register entry naming the manifest and directory, why native support is
+absent, the responsible owner, and the shared centrally managed mechanism that
+checks and proposes updates.
 
-Adding an ecosystem to a repository is then a two-part change — the manifest and the
-regenerated configuration — and omitting the second part is a detectable finding
-rather than a pin that quietly stops being watched.
+Reconciliation compares every manifest with the generated native configuration and
+the exception register. Adding an ecosystem is therefore either the manifest plus
+regenerated native configuration, or the manifest plus a central exception request.
+A repository never introduces a bespoke updater: the exception consumes a mechanism
+operated once for the organization, and remains visible until native support exists.
 
 ## Cadence and cooldown
 
@@ -164,7 +165,8 @@ and the same release path as any other update.
 
 | Surface | Where | Set by |
 | --- | --- | --- |
-| Ecosystems and directories | `.github/dependabot.yml` | Generated from the manifests present |
+| Native ecosystems and directories | `.github/dependabot.yml` | Generated from supported manifests |
+| Unsupported ecosystems | Central exception register | Centrally managed shared mechanism |
 | Schedule interval, day, time, timezone | `.github/dependabot.yml` | Organization configuration |
 | Cooldown | `.github/dependabot.yml` | Organization configuration |
 | Grouping | `.github/dependabot.yml` | Generated: per-ecosystem minor/patch groups, majors isolated |
