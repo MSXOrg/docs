@@ -42,7 +42,8 @@ this capability governs the release. If no, there is nothing to release.
 - **Only artifact-affecting changes release.** A change that does not flow into the artifact (documentation, CI config) MUST NOT produce a release — though validation still runs on every merge.
 - **Immutable references.** Consumers pin to the most immutable reference available — a container digest or a commit SHA — never a mutable tag.
 - **Publish through a target contract.** Every publishing destination is reached through the same [publishing-target contract](design-publishing-targets.md), so the release process stays one process regardless of how many destinations a repository has. Adding a destination supplies a contract and a publish step; it MUST NOT change the release process.
-- **All-or-nothing across targets.** Where a repository publishes one artifact to more than one destination, a version MUST NOT end up present on some destinations and absent from others. Partial publication is a failure, reported as one, and resolved by completing the remaining destinations at the same version.
+- **All-or-nothing across targets.** Where a repository publishes one artifact to more than one destination, a version MUST NOT end up present on some destinations and absent from others. Partial publication is a failure, reported as one, and resumed by completing the remaining destinations with the same immutable artifact and version.
+- **Recovery distinguishes retries from changed output.** Retrying validation or publication of unchanged bytes MUST reuse their artifact and version. A correction that changes the bytes MUST create a new versioned artifact; an existing version is never overwritten or reused.
 - **Standard GitHub primitives only.** Pull requests, labels, comments, and workflow dispatch — no external tooling beyond `gh` and GitHub Actions.
 
 ### Consumer update policies

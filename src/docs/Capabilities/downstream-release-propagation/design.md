@@ -10,8 +10,8 @@ release coordinates, builds a self-contained prompt per dependent, and delegates
 the change to a cloud agent **in the dependent** via the
 [Agent Tasks API](https://docs.github.com/rest/agent-tasks/agent-tasks). The
 brief travels entirely in the prompt. The agent first creates or reuses the
-dependent's Task delivery issue, then opens the pull request with that Task as
-its one closing reference.
+dependent's Task or Bug delivery issue, then opens the pull request with that
+delivery leaf as its one closing reference.
 
 ```mermaid
 flowchart TD
@@ -19,7 +19,7 @@ flowchart TD
   notify --> resolve["Resolve version + immutable ref (SHA / digest) + notes"]
   resolve --> fan{"For each dependent"}
   fan --> delegate["Create agent task in dependent<br/>self-contained prompt with full context"]
-  delegate --> issue["Create or reuse Task delivery issue"]
+  delegate --> issue["Create or reuse Task / Bug delivery issue"]
   issue --> pr["Agent opens closing PR: bump + related fixes + impact"]
   pr --> review["Human review + merge"]
 ```
@@ -64,32 +64,32 @@ of truth for the change.
 
 ## Delegation
 
-Two delegation models satisfy the spec. They differ in what carries the request
-into the dependent, and therefore in what makes a repeat run idempotent.
+Two delegation modes can carry the request into the dependent. Both create or
+reuse a real Task or Bug delivery leaf before a pull request exists, so the
+delivery path satisfies the [Definition of Ready](../../Ways-of-Working/Definition-of-Ready-and-Done.md#delivery-leaf-readiness).
 
 | | **Task-first** | **Issue-first** |
 | --- | --- | --- |
-| The request is | an agent task created from the prompt | an issue in the dependent, which the agent picks up |
-| The agent produces | a pull request directly | a pull request closing that issue |
-| Idempotency key | the producer version, matched against open propagation pull requests | the issue itself — one issue per producer version per dependent |
-| Visible before the agent starts | the task state | the issue |
-| Suits | fast, mechanical bumps where the pull request is the whole record | propagation that needs triage, discussion, or scheduling before work starts |
+| The request is | an agent task created after its delivery leaf exists | an issue in the dependent, which the agent picks up |
+| The agent produces | a pull request closing the delivery leaf | a pull request closing that issue |
+| Idempotency key | the delivery issue — one per producer version per dependent | the issue itself — one issue per producer version per dependent |
+| Visible before the agent starts | the delivery issue and task state | the issue |
+| Suits | immediate execution after the delivery leaf is ready | propagation that needs triage, discussion, or scheduling before work starts |
 
-**Task-first** is the default: the delegation step creates an agent task in the
-dependent carrying the prompt and the instruction to open the PR, then polls
-until the task reaches `queued`, `in_progress`, or `completed` (a fast task may go
-straight to `completed`). It **fails** only if the task cannot be created or lands
-in `failed`, `timed_out`, or `cancelled`. Idempotency is by **match, not
-creation**: before creating a task, the step looks for an open pull request in the
-dependent already carrying this producer version, and if one exists it reports it
-and stops.
+**Issue-first is the default:** it creates or reuses one Task or Bug in the
+dependent per producer version, with independently verifiable acceptance criteria
+and an executable local plan. The issue is the delivery leaf before the agent
+starts, then the agent opens the pull request that closes exactly that issue.
+Idempotency is by **existence**: the issue is the durable record that this version
+was propagated, so a repeat run finds and reuses it.
 
-**Issue-first** creates or reuses one issue in the dependent per producer version
-— the delivery leaf — and the agent opens the pull request that closes exactly
-that issue. Idempotency is by **existence**: the issue *is* the record that this
-version was propagated, so a repeat run finds it and stops. This costs an extra
-artifact and buys a durable, labellable, assignable handle on work that is not
-going to be done immediately ([issues as the durable record](../../Ways-of-Working/Issues/Process/Lifecycle.md)).
+**Task-first** is available only when the agent task is created after the same
+Task or Bug is created or reused. The task carries the issue number and instruction
+to close it, then is polled until it reaches `queued`, `in_progress`, or
+`completed` (a fast task may go straight to `completed`). It fails only if the
+task cannot be created or lands in `failed`, `timed_out`, or `cancelled`. An agent
+task is execution state, not a delivery record; it never authorizes a standalone
+delivery pull request.
 
 Either way the model is chosen per producer, not per release, so a dependent
 receives propagation in one consistent shape.
@@ -107,7 +107,8 @@ The agent is given the same instructions under either delegation model:
 - **Apply the related changes it can make safely.** A change that is mechanical and verifiable belongs in this pull request.
 - **Call out** larger or riskier work under a follow-up section rather than forcing it into the bump. Scope that needs a decision is surfaced, not guessed at.
 - **Summarise impact** in the PR body: what moved, what it requires of the dependent, and what was deliberately left out.
-- **Open the pull request** — closing its delivery issue under the issue-first model, or standing alone under task-first.
+- **Open the pull request** — closing exactly the Task or Bug delivery leaf
+  created or reused for this producer version.
 
 ## Permissions and credentials
 
@@ -129,7 +130,7 @@ and a release it publishes cannot trigger a `release:` workflow. So the job:
 | Condition | Behaviour |
 | --- | --- |
 | Delegation not created (missing permission / capability off) | Step **fails** with the error; re-run via `workflow_dispatch`. |
-| This version already propagated to this dependent | Step **succeeds**, reporting the existing pull request; nothing new is created. |
+| This version already propagated to this dependent | Step **succeeds**, reporting the existing delivery issue and pull request if one exists; no duplicate is created. |
 | Task lands in a failed / timed-out / cancelled state | Step **fails** with the reported state. |
 | One dependent's leg fails | Fails independently (`fail-fast: false`); others proceed. |
 | Prerelease published | Propagation is skipped. |

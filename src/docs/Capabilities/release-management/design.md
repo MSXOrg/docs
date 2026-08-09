@@ -62,10 +62,12 @@ Two consequences follow, and they are the point of the model:
 - **The version is identity, not metadata.** Because Resolve precedes Build, the
   version is embedded in the artifact rather than attached to it. A manifest
   version, an image label, and the tag agree because they came from one decision.
-- **Recovery is a re-run, not a repair.** A failure at any stage is resolved by
-  running the pipeline again from Resolve, producing a new version. An artifact is
-  never patched, re-tagged, or rebuilt to fix a downstream problem — that would
-  publish something other than what was tested.
+- **Recovery preserves artifact identity.** Retrying validation or publication of
+  an unchanged, already-built artifact reuses that artifact and its resolved
+  version. A correction that changes the output is a new release: it resolves a
+  new version and builds new bytes. An artifact is never patched, re-tagged, or
+  rebuilt under an existing version — that would publish something other than what
+  was tested.
 
 ## Version computation
 
@@ -146,13 +148,14 @@ Where a repository has more than one target, publishing is **all-or-nothing** fo
 a version:
 
 - Targets are attempted in a defined order, and each is idempotent — publishing
-  an already-published version is a success, not a conflict, so a re-run
-  completes the set rather than failing on the first target.
+  an already-published version is a success only when it identifies the same
+  immutable artifact. A version collision with different bytes is an error, so a
+  re-run completes the set rather than accepting changed output.
 - A target that rejects the version fails the release. The version is not
   advertised as available until every target holds it.
-- Recovery re-runs Publish for the **same** artifact and the same version. It
-  never resolves a new version to work around a single failed target, because the
-  targets that already succeeded hold the old one.
+- A partial publication resumes Publish for the **same** artifact and the same
+  version. It never resolves a new version to work around a single failed target,
+  because the targets that already succeeded hold that immutable version.
 
 ## Sliding tags
 

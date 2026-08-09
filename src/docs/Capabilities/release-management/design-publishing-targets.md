@@ -56,7 +56,10 @@ Because every release produces a GitHub Release, it is also the **join point** a
 
 1. Document the six contract dimensions above, in the summary table.
 2. Confirm the target's immutability and prerelease behaviour are compatible with [SemVer](https://semver.org/) ordering. Where the target's native convention differs, the mapping is stated rather than assumed.
-3. Add the publish step. It receives the already-built artifact and the already-resolved version, and it MUST be idempotent: publishing a version the target already holds is a success.
+3. Add the publish step. It receives the already-built artifact and the
+   already-resolved version, and it MUST be idempotent: publishing a version the
+   target already holds is a success only when its immutable identity matches the
+   artifact being retried. A different artifact at the same version is an error.
 4. Include the target in the [all-or-nothing](design.md#publishing-targets) set, so a version cannot be present on some destinations and absent from others.
 
 The spec does not change. That is the purpose of the contract.
