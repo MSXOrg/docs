@@ -148,7 +148,7 @@ Every token mint must declare both repository and permission scope explicitly.
 ```yaml
 - name: Mint a minimally scoped app token
   id: app-token
-  uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+  uses: actions/create-github-app-token@<sha> # vx.y.z
   with:
     client-id: ${{ secrets.GitHubAppClientId }}
     private-key: ${{ secrets.GitHubAppPrivateKey }}
@@ -159,6 +159,11 @@ Every token mint must declare both repository and permission scope explicitly.
 
 Rules:
 
+- **Pin the action to a full immutable SHA.** Resolve the latest released version
+  of `actions/create-github-app-token` to its full 40-character commit SHA, and
+  record the exact release tag in the trailing comment (`# vx.y.z`). Keep both in
+  sync: when the action releases a new version, update both the SHA and the
+  comment. See [Pin every action to a full commit SHA](#pin-every-action-to-a-full-commit-sha).
 - **Always set `repositories:`.** Default to the current repository
   (`${{ github.event.repository.name }}`); widen only when cross-repository access
   is an explicit requirement.
@@ -166,7 +171,9 @@ Rules:
 - **Never mint an unscoped token.** A token with no repository or permission
   narrowing violates least privilege.
 
-The example uses `client-id` from the GitHub App's configuration, not the legacy `app-id` parameter.
+The example uses `client-id` from the GitHub App's configuration. Use the `client-id`
+input (not the legacy `app-id` parameter) with the app's stable Client ID stored as a
+secret.
 
 ### Inject app tokens at step scope, not job scope
 
