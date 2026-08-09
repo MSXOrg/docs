@@ -121,7 +121,7 @@ repository's version and is the label the release workflow reads; the **`update:
 is advisory metadata that drives review routing, never the bump.
 
 Namespacing both sides is what makes this hold in practice rather than by convention.
-Hosted Dependabot applies a semver label to its own pull requests **when a repository has
+Hosted Dependabot applies a SemVer label to its own pull requests **when a repository has
 labels named `major`, `minor`, or `patch`** — it matches on those bare words. Had the
 release set kept the bare vocabulary, every Dependabot pull request would arrive with the
 repository's own version decision pre-set by a bot, describing the upstream bump. Because

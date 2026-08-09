@@ -98,19 +98,19 @@ version level is guessing about consumers they cannot see; a reviewer at the gat
 the whole change in front of them. It also means the decision is recorded on the
 artifact everyone can see, rather than inferred later from history.
 
-### D3 — Pre-release by default, stabilized on merge
+### D3 — Prerelease by default, stabilized on merge
 
-Every build from a topic branch MUST be published as a pre-release. The stable version
+Every build from a topic branch MUST be published as a prerelease. The stable version
 is cut on merge, from the label.
 
-A pre-release version (`1.3.0-add-widgets.1`) sorts below every stable version, which
+A prerelease version (`1.3.0-add-widgets.1`) sorts below every stable version, which
 is the entire mechanism: a consumer who has not opted in cannot resolve it, so
 publishing early is free. Contributors and reviewers get a real, installable artifact
 to test against for the whole life of the pull request, and nobody has to build it
 by hand.
 
 The stable release is then not a separate act of packaging — it is the same content
-with the pre-release suffix removed, at the moment the change becomes part of the
+with the prerelease suffix removed, at the moment the change becomes part of the
 mainline.
 
 ### D4 — Recovery is roll-forward only
@@ -140,7 +140,7 @@ recorded as bad in its release notes rather than erased.
 ## Where this connects
 
 - [Continuous Practices](Continuous-Practices.md) — the wider Continuous X family and where each term comes from.
-- [Release Management](../Capabilities/release-management/spec.md) — how the version decision and the pre-release flow are implemented.
+- [Release Management](../Capabilities/release-management/spec.md) — how the version decision and the prerelease flow are implemented.
 - [Automation Labels](Automation-Labels.md) — why the release label is the authoritative signal and why it is namespaced.
 - [Pre-Commit](../Coding-Standards/Pre-Commit.md) — the local half of the integration gate.
 - [Branching and Merging](Branching-and-Merging.md) — the PR → main boundary the build-once decision is taken across.

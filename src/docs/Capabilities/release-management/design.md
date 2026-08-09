@@ -87,7 +87,7 @@ Two consequences follow, and they are the point of the model:
 The bump vocabulary is namespaced under `release:` rather than using the bare words
 `Major`, `Minor`, and `Patch`, and the reason is concrete rather than cosmetic.
 
-Hosted Dependabot applies a semver label to its own pull requests **when a repository has
+Hosted Dependabot applies a SemVer label to its own pull requests **when a repository has
 labels named `major`, `minor`, or `patch`**. It matches on those bare words. In a
 repository where the release bump set is unprefixed, an upstream patch bump therefore
 arrives already carrying a label that this workflow reads as the repository's own version

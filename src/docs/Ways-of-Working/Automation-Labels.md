@@ -68,7 +68,7 @@ the prohibition is not the only thing at stake.
 
 ### Why the release set in particular
 
-Hosted Dependabot applies a semver label to its own pull requests **when a repository
+Hosted Dependabot applies a SemVer label to its own pull requests **when a repository
 has labels named `major`, `minor`, or `patch`**. It matches on those bare words. A
 repository that reserves the bare bump vocabulary for release management therefore hands
 Dependabot the ability to set the repository's next published version as a side effect of
