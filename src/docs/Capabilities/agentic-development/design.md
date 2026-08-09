@@ -225,6 +225,37 @@ The bootstrap clones missing repositories and fetches every existing context rep
 
 MSXOrg is the default project. Additional projects plug in a name, relative workspace path, docs URL, and memory URL. For example, PSModule can use `projects/PSModule/{docs,memory}` beneath the same workspace while reusing the identical synchronization and validation path. Repository agent files retain this small coordinate block because it is required before project documentation can be reached; the reusable bootstrap behavior remains central.
 
+## Refresh hooks
+
+The freshness gate is only worth as much as the last time it ran. A workspace bootstrapped
+once is current at that moment and progressively less so afterwards, and an agent reading a
+week-old clone reads a standard that has since changed while believing it is canonical.
+
+So the refresh runs at the **start of every session**, not once per machine. What differs
+between runtimes is where the trigger hangs, never what it does:
+
+| Runtime shape | Lifecycle point | How the refresh attaches |
+| --- | --- | --- |
+| Local interactive agent | Session start | A session-start hook in the runtime's own configuration invokes the bootstrap before the first turn. |
+| Hosted or remote agent | Environment setup | The environment's setup steps run the bootstrap while the workspace is being prepared, so the agent starts against fresh context. |
+| Review-time agent | Pull request event | Instructions are read from the pull request's head branch, so freshness follows the branch under review rather than a local clone. |
+| Batch or scheduled agent | Job start | The job's first step is the bootstrap; a scheduled run has no earlier lifecycle point to rely on. |
+
+Each of these is one **declaration** of the same behaviour. The bootstrap is a single
+idempotent operation — clone what is missing, fetch what exists, verify each clone is clean,
+on the remote default branch, and exactly equal to the fetched head — and a hook does
+nothing but call it at the right moment. That is what makes a new runtime cheap to support:
+the work is finding its lifecycle point, not writing another refresh.
+
+The refresh MUST be idempotent, because it runs far more often than it changes anything. A
+hook that is expensive or noisy when everything is already current gets disabled, and a
+disabled hook is worse than no hook, because the workspace still looks bootstrapped.
+
+Where a runtime offers no lifecycle point at all, the refresh MUST be invoked explicitly
+before context is read. It MUST NOT be skipped on the grounds that the workspace was
+bootstrapped recently; "recently" is not a state the agent can observe, and the gate exists
+precisely to replace that judgement with a check.
+
 ## Memory writing rules
 
 Agents write memory only when a lesson is likely to matter again. Good memory is:
@@ -235,7 +266,13 @@ Agents write memory only when a lesson is likely to matter again. Good memory is
 - free of secrets, credentials, and private personal notes;
 - updated or removed when it becomes wrong.
 
-Session-specific notes stay out of durable memory unless they become reusable project knowledge.
+Memory is written by **horizon**: organization-wide lessons and per-repository facts are
+durable and shared, while notes about the task in hand are session-scoped and never pushed
+([memory repository template](memory-template.md#memory-has-three-horizons)). A session note
+becomes durable only by being deliberately promoted and rewritten as a statement of fact.
+
+Durable memory is committed and pushed as it is written, one commit per discrete lesson, so
+that nothing depends on a session ending cleanly.
 
 ## Client behavior
 
@@ -279,6 +316,11 @@ Because Copilot code review reads the head branch, a pull request that changes `
 
 - [Spec](spec.md) — the requirements this design delivers.
 - [Memory Repository Template](memory-template.md) — the concrete scaffold every organization's canonical `memory` repository instantiates.
+- [MCP Servers](mcp-servers.md) — the shared tool layer every runtime declares in its own format.
+- [Plugin Distribution](plugin-distribution.md) — how named intents are packaged and kept pointer-based.
+- [Agent Interaction](agent-interaction.md) — how agents and humans coordinate through platform artifacts.
+- [Advisory Agents](advisory-agents.md) — agents that produce advice rather than commits.
+- [Conformance](conformance.md) — the checklist a repository is measured against.
 - [Agentic Development](../../Ways-of-Working/Agentic-Development.md) — the way-of-working standard this framework implements.
 - [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — why spec and design are split.
 - [README-Driven Context](../../Ways-of-Working/Readme-Driven-Context.md) — why local repository context remains the front door.

@@ -12,42 +12,84 @@ document defines an exact file layout — this page is that layout. It is the on
 every adopting organization's `memory` repository instantiates. Content differs per
 organization; structure does not.
 
+## Memory has three horizons
+
+Not every remembered thing has the same lifetime, and treating them alike is what makes a
+memory repository degrade. A convention that holds everywhere, a fact true of one
+repository, and a note that matters only until the current task finishes are three
+different kinds of knowledge, and mixing them means the durable content is buried in the
+ephemeral.
+
+The scaffold therefore separates memory by **horizon** — how long the entry stays true and
+how widely it applies:
+
+| Horizon | Scope | Lifetime | Shared |
+| --- | --- | --- | --- |
+| **User** | Applies across every repository in the organization | Until the practice itself changes | Yes — committed and pushed |
+| **Repository** | Applies to one repository | As long as that repository keeps the shape the entry describes | Yes — committed and pushed |
+| **Session** | Applies to work in progress right now | Until the task finishes | No — local only, never pushed |
+
+Horizon is a property of the entry, not of its subject. A workaround for one repository's
+build quirk is repository-scoped even though it is about a build; a decision to always
+verify a command before recording it is user-scoped even though it was learned in one
+repository.
+
 ## Scaffold
 
 ```text
 memory/
-├── README.md        # front door: what this repo is, that it's private, "commit straight to main, no PR"
-├── CONTRIBUTING.md   # short: direct push to main, no PR/review gate, keep entries short/dated/factual
+├── README.md         # front door: what this repo is, that it's private, "commit straight to main, no PR"
+├── CONTRIBUTING.md   # short: direct push to main, no PR/review gate, keep entries short and factual
 ├── AGENTS.md         # cross-client agent entry point: orients an agent landing here cold, points at index.md and the memory-writing rules
 ├── .gitattributes
-├── .gitignore
-├── index.md          # OKF root index (okf_version frontmatter), links to the sections below
-├── gotchas/          # short, dated entries: pitfalls, conventions, verified commands
+├── .gitignore        # ignores session/ so ephemeral notes are never pushed
+├── index.md          # OKF root index (okf_version frontmatter), links to the scopes below
+├── user/             # organization-wide, durable: conventions, verified commands, recurring gotchas, ecosystem facts
 │   └── index.md
-├── knowledge/        # durable facts about the ecosystem, tools, cross-repo relationships
-│   ├── index.md
-│   └── repos/        # one file per repo worth remembering repo-specific facts about (created lazily as needed)
-└── agents/           # per-workflow-stage knowledge; empty stub until stage-specific lessons exist
-    └── index.md
+├── repo/             # per-repository, durable: one folder per repository worth remembering facts about
+│   └── index.md      # created lazily: repo/<repo>/index.md once a repository accumulates facts
+└── session/          # ephemeral working notes for the task in hand — git-ignored, never pushed
+    └── .gitkeep
 ```
 
-Create `knowledge/repos/<repo>.md` files lazily, only once a repository accumulates facts
-worth remembering — the folder starts empty in a freshly scaffolded `memory` repository.
+`repo/<repo>/` folders are created lazily, only once a repository accumulates facts worth
+remembering — `repo/` starts with nothing but its index in a freshly scaffolded repository.
 
-## How the scaffold maps to what memory owns
+## Why `session/` is git-ignored
 
-[Design](design.md#memory) already states what the `memory` repository owns. Each
-top-level folder is one of those responsibilities made concrete:
+A session note is a scratchpad: what has been tried, what the current hypothesis is, which
+file is half-edited. It is genuinely useful while the task runs and actively harmful
+afterwards, because a later agent reading it cannot tell a live hypothesis from a settled
+fact.
 
-| Folder | Owns (from [Design](design.md#memory)) |
+So `session/` is ignored rather than merely short-lived. Ignoring it, instead of relying on
+discipline to delete it, means the ephemeral content cannot leak into shared memory at all:
+
+- An agent MAY write freely to `session/` without weighing whether the note is worth
+  keeping, which is the only way a scratchpad is useful.
+- Nothing in `session/` reaches another person or another machine, so no one inherits
+  someone else's half-finished reasoning as though it were knowledge.
+- Promoting a session note to durable memory is a **deliberate move** into `user/` or
+  `repo/<repo>/`, rewritten as a statement of fact. Promotion is the moment the entry gets
+  reviewed for whether it is actually true, and an ignored folder is what forces that moment
+  to exist.
+
+An agent that wants a note to survive the session MUST move it, not leave it and hope.
+
+## How the scopes map to what memory owns
+
+[Design](design.md#memory) already states what the `memory` repository owns. Each scope is
+one horizon of those responsibilities:
+
+| Scope | Owns (from [Design](design.md#memory)) |
 | --- | --- |
-| `gotchas/` | Recurring gotchas and lessons learned. |
-| `knowledge/` | Active project context that should survive a single chat session, project-specific preferences that are factual rather than private user preference, and issue/PR/incident notes worth reusing. |
-| `agents/` | Agent workflow-stage working knowledge. |
+| `user/` | Recurring gotchas and lessons learned, durable facts about the ecosystem and its tools, and project-specific preferences that are factual rather than private user preference. |
+| `repo/<repo>/` | Facts true of one repository: its shape, its quirks, its cross-repository relationships, and issue, pull request, or incident notes worth reusing. |
+| `session/` | Active context for the task in hand, which should survive a single chat session but MUST NOT outlive the task. |
 
 `index.md` is the root map described in [Design's indexes section](design.md#indexes-as-the-mindmap):
-it links to `gotchas/index.md`, `knowledge/index.md`, and `agents/index.md` so a human or
-agent can start at the root and drill inward.
+it links to `user/index.md` and `repo/index.md` so a human or agent can start at the root and
+drill inward. It does not link into `session/`, which has no shared content to index.
 
 `AGENTS.md` doesn't map to a `memory` ownership bullet — it isn't content memory owns, it's the
 framework's [client behavior table](design.md#client-behavior) entry point: "Cross-client agents |
@@ -58,6 +100,26 @@ orients an *agent* specifically, pointing straight at `index.md` and the
 [memory writing rules](design.md#memory-writing-rules), while `CONTRIBUTING.md` stays
 contribution-process-flavored (direct push, no PR) even though this repository's real audience is
 agents, not human contributors.
+
+## Commit after every discrete action
+
+Durable memory MUST be committed and pushed as soon as it is written, one commit per
+discrete thing learned.
+
+Batching memory writes until the end of a session is how memory gets lost. An agent session
+can end at any point — the task completes, the context window fills, the process is
+interrupted — and anything still uncommitted at that moment is gone. A lesson learned in
+the first minute and pushed in the first minute survives all three endings.
+
+Micro-commits also make memory legible in the way documentation is: one commit is one
+lesson, so the history reads as a list of things learned rather than a periodic dump. A
+memory entry whose commit bundles nine unrelated observations cannot be reverted, cited, or
+blamed independently.
+
+Because memory changes land directly on the default branch
+([spec](spec.md#requirements)), there is no batching pressure from a review gate. The only
+reason to hold a memory write is that it is not yet true, and an entry that is not yet true
+belongs in `session/`.
 
 ## A deliberate exception to the Repository Standard
 
@@ -87,13 +149,20 @@ exception, made explicit rather than left as an oversight:
   audience is the organization's own humans and agents.
 
 A `memory` repository still carries `README.md`, `CONTRIBUTING.md`, `AGENTS.md`, `.gitattributes`,
-and `.gitignore` — the minimum needed to explain itself and behave predictably in git.
+and `.gitignore` — the minimum needed to explain itself and behave predictably in git. The
+`.gitignore` is load-bearing rather than conventional here: it is what keeps `session/` out
+of the shared history.
 
 ## Visibility
 
 `memory` repositories default to **private**. Working memory can capture internal
 context, half-finished reasoning, and organization-specific detail that isn't meant for a
 public audience, even when the adjoining `docs` repository is public.
+
+Privacy and the `session/` ignore rule solve different problems and neither substitutes for
+the other. Privacy decides *who* may read durable memory; the ignore rule decides *what*
+becomes durable at all. A private repository full of stale hypotheses is still a repository
+an agent will read and believe.
 
 ## Where this connects
 

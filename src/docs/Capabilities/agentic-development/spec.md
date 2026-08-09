@@ -35,6 +35,10 @@ Applies to any organization that wants a shared project knowledge base and memor
 - Markdown documents with YAML frontmatter, following the [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) model.
 - Thin repository pointer files: a required `AGENTS.md` router, and a route to it for every client that cannot read it.
 - Path-scoped rule files, reserved for local caveats that cannot live in repository or central documentation.
+- The shared tool layer agents call out to, and how each runtime declares it.
+- Named intents that package recurring workflows as pointers to canonical procedure.
+- Advisory automation that publishes judgement without taking authority.
+- Coordination between humans and agents on platform artifacts.
 - Refresh-first, index-first discovery from canonical context repositories to the Workflow and its stage procedures.
 - Deterministic context resolution by host, organization, repository, path, and task.
 - Human-reviewed changes to canonical knowledge through pull requests.
@@ -65,6 +69,13 @@ Applies to any organization that wants a shared project knowledge base and memor
 - **Deterministic context resolution.** Agents MUST resolve context in layers: system and client policy, user preferences, the repository router, the context-repository freshness gate, repository context, path-scoped repository rules, organization docs, any inherited ecosystem docs, organization memory, then current task context.
 - **Local-first availability.** The docs and memory repositories SHOULD be available locally in a predictable workspace so agents can read them without relying on search or web access.
 - **Fresh context before use.** Every canonical context repository MUST be fetched and exactly synchronized with its remote default branch before its contents are read. Dirty, locally ahead, diverged, wrong-branch, or unreachable repositories MUST stop context resolution rather than fall back to stale content.
+- **Refresh once per session, not once per machine.** The freshness gate MUST run at the start of every agent session, in every runtime. A workspace that was synchronized at some earlier point MUST NOT be treated as current, because elapsed time is not a state the agent can observe. The refresh MUST be idempotent, so that running it when nothing has changed is cheap and silent; a refresh that is expensive or noisy at steady state gets bypassed, and a bypassed gate is worse than none because the workspace still appears synchronized.
+- **Memory is scoped by horizon.** Memory MUST separate entries that apply organization-wide, entries that apply to one repository, and notes that apply only to the task in hand. Session-scoped notes MUST NOT be shared: they MUST be excluded from the repository's history so that a scratchpad cannot be inherited as knowledge. Making a session note durable MUST be a deliberate act of promotion, which is where the entry is checked for whether it is actually true.
+- **Durable memory is committed as it is written.** A memory entry MUST be committed and pushed when it is written, one commit per discrete lesson, so that no remembered thing depends on a session ending cleanly.
+- **One tool layer, declared per runtime.** Where agents use external tools, the set of tool servers MUST be defined once as a logical layer and each runtime MUST declare that same set in its own native configuration format. A runtime MUST NOT define tools of its own that other runtimes lack, because a capability available in one client and absent in another makes the documented procedure conditional on which client is running it.
+- **Named intents stay pointer-based.** A packaged shortcut for a recurring workflow — however a runtime names it — MUST resolve to the canonical documentation for that workflow and MUST contain only the runtime mechanics needed to get there. It MUST NOT restate the procedure, since a shortcut that carries a copy of the process becomes a second, silently diverging definition of it.
+- **Advice and authority are separate.** An automated agent MAY analyse work and publish its conclusion as advice on the artifact under review. It MUST NOT be the thing that decides: it MUST NOT overwrite a human's decision, MUST NOT re-apply a decision a human has changed, and MUST NOT commit to the branch it is advising on. Its output is an input to the review, not a substitute for it.
+- **Coordination happens on durable artifacts.** Where agents and humans coordinate, they MUST do so through the platform's own artifacts — issues, labels, and pull requests — rather than through a channel that leaves no trace in the repository. Intent MUST be separable from implementation: the issue states *what* is wanted and *why*, and the pull request proposes *how*, so that a rejected implementation does not discard the intent.
 - **Reviewed knowledge changes.** Changes to the `docs` repository MUST happen through pull requests. Changes to memory MAY be lighter-weight, but MUST remain versioned in git.
 - **No cross-project bleed.** An agent working in one organization MUST NOT apply another organization's standards or memory unless the current task explicitly asks for cross-organization work.
 - **Traceable memory.** Memory entries SHOULD identify the context they came from and SHOULD be short, factual, and linked to the relevant issue, pull request, document, or repository when one exists.
@@ -104,6 +115,11 @@ This is the order in which context is **read**, nearest first. It is not the ord
 
 - [Design](design.md) — how these requirements are delivered.
 - [Memory Repository Template](memory-template.md) — the concrete scaffold every organization's canonical `memory` repository instantiates.
+- [MCP Servers](mcp-servers.md) — how one logical tool layer is declared across runtimes.
+- [Plugin Distribution](plugin-distribution.md) — how named intents stay pointers to documentation.
+- [Agent Interaction](agent-interaction.md) — issues, labels, and pull requests as the coordination substrate.
+- [Advisory Agents](advisory-agents.md) — the pattern for automation that advises without deciding.
+- [Conformance](conformance.md) — how a repository is measured against this spec.
 - [Agentic Development](../../Ways-of-Working/Agentic-Development.md) — the existing way-of-working standard this framework operationalizes.
 - [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — how specs and designs are written and kept evergreen.
 - [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) — the Markdown and frontmatter model used for knowledge pages.
