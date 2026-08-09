@@ -78,6 +78,10 @@ index and drill down to the right page. Three conventions make that work.
   `src/zensical.toml`, and fills every index in place. CI runs the same script with `-Check`
   and fails if an index is out of date.
 
+Choose a page's home by subject first, then by the artifact that answers the reader's
+question. The [Documentation Model](https://msxorg.github.io/docs/Ways-of-Working/Documentation-Model/#architecture-and-classification)
+defines those artifact tiers and the deliberate use of minimal OKF-style front matter.
+
 Links are validated the same way: `.github/scripts/Test-DocumentationLink.ps1` checks that
 every relative link and heading anchor across the docs resolves, and
 `.github/scripts/Test-CrossRepositoryLink.ps1` resolves every link into another MSX

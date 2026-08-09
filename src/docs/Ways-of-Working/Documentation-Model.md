@@ -176,6 +176,32 @@ being long.
   describe. Laziness is a design constraint — the less a reader must travel, the
   more they actually read.
 
+## Architecture and classification
+
+The documentation tree is organized **by scope and subject**, then by the
+artifact that answers the reader's question. A reader starts at the root
+`index.md`, chooses the relevant topic, and follows that topic's index inward.
+This keeps related material together without requiring a reader to decide
+whether they need a tutorial, guide, reference, or explanation before they can
+find the subject.
+
+The artifact tiers provide the second classification:
+
+| Reader need | Owning artifact |
+| --- | --- |
+| Understand why a capability exists and what it guarantees | Spec |
+| Understand how the capability is delivered | Design |
+| Perform a task against a capability | Guide |
+| Look up stable facts or values | Reference |
+| Understand a one-way-door choice | Decision record |
+| Revisit point-in-time findings | Research |
+
+This maps the useful reader needs behind Diataxis without imposing a second,
+parallel taxonomy in paths or front matter. A page has one home under its
+subject and links to adjacent artifacts rather than being duplicated across
+quadrants. [Document architecture and memory boundaries](../Capabilities/agentic-development/decisions/document-architecture-and-memory-boundaries.md)
+records that decision and the corresponding OKF and memory boundaries.
+
 ## For humans and agents
 
 The same pages serve both. A contributor reads the index, follows the

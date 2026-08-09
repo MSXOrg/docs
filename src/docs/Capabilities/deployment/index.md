@@ -29,4 +29,4 @@ combination adds a design; it never changes the spec.
 
 | Design | Service provider | CI/CD platform | Description |
 | --- | --- | --- | --- |
-| [Deploying Azure from GitHub](designs/azure-from-github.md) | Azure | GitHub | GitHub Actions and Terraform deploy Azure and Entra resources with passwordless identity, approving the code change together with its per-environment effect. |
+| [Designs](designs/index.md) | — | — | Deployment designs, one for each service-provider and CI/CD-platform combination. |
