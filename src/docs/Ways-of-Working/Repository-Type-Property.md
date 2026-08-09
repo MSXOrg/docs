@@ -56,20 +56,24 @@ rather than by the property schema, which cannot express them.
 ## Migrating from a single-select property
 
 The platform does not convert a property between selection modes in place, so the migration
-creates a second property and retires the first — the same shape as the condition migration
-below, and subject to the same verification:
+uses a temporary, uniquely named property and recreates the canonical name:
 
-1. Create the `multi_select` property alongside the existing `single_select` one.
-2. Populate it for every repository from the current single value, so each repository's new
-   value set is a one-element set carrying the same meaning.
-3. Verify computed coverage is unchanged before repointing anything, using the coverage diff
-   described below.
-4. Repoint every ruleset condition onto the new property.
-5. Retire the old property once no condition reads it, per [deprecating single-purpose
-   properties](#deprecating-single-purpose-properties).
+1. Choose a name such as `Type_Migration`, after verifying that no organization
+   property already uses it, and create it as `multi_select`.
+2. Populate it for every repository from the current single-select `Type`, so
+   each new value set is a one-element set carrying the same meaning.
+3. Create or update every replacement ruleset to read `Type_Migration`, then
+   verify its computed coverage against the existing ruleset as described below.
+   Both controls remain active until the coverage sets match.
+4. Delete the old single-select `Type` schema only after no rule reads it, then
+   create the canonical `Type` schema as `multi_select` and copy each temporary
+   value set into it.
+5. Update every ruleset from `Type_Migration` to the new canonical `Type`, verify
+   the coverage diff again, and delete `Type_Migration` only when nothing reads it.
 
-Only after step 4 is verified does a repository gain a second value. Adding values and
-changing the property's mode at the same time makes a coverage diff impossible to attribute.
+Only after the second coverage diff is verified does a repository gain a second
+value. Adding values and changing the property's mode at the same time makes a
+coverage diff impossible to attribute.
 
 ## Filter by exclusion, not by inclusion
 
@@ -112,17 +116,17 @@ repository before making it live:
    than reasoning about condition JSON by hand, since it reflects GitHub's own evaluation).
 4. Diff the two coverage sets. The only differences should be the `Type` values the
    migration intentionally excludes. Any other difference means the new condition is wrong.
-5. Only after the diff matches expectations: delete the old ruleset, then create the final
-   ruleset under its real name, then delete the temporary one. This ordering means both
-   rulesets are briefly active together rather than there being a gap with neither active.
+5. Only after the diff matches expectations, update the real ruleset with its
+   complete replacement representation and repeat the coverage check. Delete the
+   temporary replacement only after the real ruleset is confirmed active.
 
-## A known API quirk: ruleset `PATCH` may not work
+## Ruleset updates use `PUT`, not `PATCH`
 
-`PATCH` on `/orgs/{org}/rulesets/{id}` has been observed to fail (`404`) for tokens that
-otherwise have full `GET`/`POST`/`DELETE` access to the same endpoint, including on a
-disposable test ruleset created solely to isolate the failure. Treat in-place ruleset edits
-as unreliable and use the delete-old / create-new sequence above instead, even for small
-condition changes.
+Update an organization ruleset with `PUT /orgs/{org}/rulesets/{ruleset_id}` and
+the complete desired ruleset representation. Do not use `PATCH`: it is not the
+documented update operation and has proved unreliable for otherwise authorized
+tokens. `PUT` preserves the ruleset identity while the temporary replacement and
+coverage comparison make the change safe to roll out.
 
 ## Deprecating single-purpose properties
 
@@ -134,26 +138,28 @@ rather than keeping two overlapping classification properties. `Type` is the one
 that should answer "what kind of repository is this," and every `Type`-scoped control
 should read from it.
 
-## Worked examples
+## Historical organization inventories
 
-Both current MSX initiative organizations use this pattern:
+The values below are historical inventories, recorded before the branch-model,
+layering, and exemption taxonomy existed. They are **not** canonical type
+examples and must not be copied into a new organization without migration:
 
 | Organization | `Type` allowed values | Notes |
 | --- | --- | --- |
-| `MSXOrg` | `Docs`, `Memory`, `VSCodeExtension`, `Other` | Introduced from scratch, replacing a prior single-purpose `BranchStrategy` property. |
-| `PSModule` | `Action`, `Archive`, `Docs`, `Framework`, `FunctionApp`, `Memory`, `Module`, `Other`, `Template`, `Workflow` | `Memory` added to an existing, already-populated `Type` property; the ruleset condition changed from a repository-name allow-list (`~ALL`) to a `Type`-based exclude. |
+| `MSXOrg` | `Docs`, `Memory`, `VSCodeExtension`, `Other` | Legacy values that predate the canonical taxonomy. |
+| `PSModule` | `Action`, `Archive`, `Docs`, `Framework`, `FunctionApp`, `Memory`, `Module`, `Other`, `Template`, `Workflow` | Legacy values that predate the canonical taxonomy. |
 
-An organization's list is its own. The values above are shaped by what those two
-organizations actually build; another organization adopting the pattern names the shapes it
-has. What every list has in common is the structure — one default branch-model value, any
-layering values the organization needs, and one exemption value — not the vocabulary.
+An organization's canonical list is shaped by what it builds, but it has the
+taxonomy defined by [Repository Types](../Capabilities/repository-governance/design-types.md):
+one branch model (explicit or defaulted), any layering values, and `Unmanaged` as
+the sole exemption. A migration maps historical values into that taxonomy before
+the canonical `Type` property becomes authoritative.
 
-In both organizations, repositories with `Type: Memory` — the
+Where a historical value maps to Memory, repositories with `Type: Memory` — the
 [Memory Repository Template](../Capabilities/agentic-development/memory-template.md)'s
 no-PR, direct-commit-to-`main` repositories — are excluded from the org-wide pull-request-
-required ruleset. That template's workflow only works because the ruleset stops matching
-`Memory`-typed repositories; without this, direct pushes to a memory repository's `main`
-are rejected the same as on any other repository.
+required ruleset. The exclusion applies only to that requirement; Memory retains
+the rest of the governed baseline.
 
 ## Where this connects
 

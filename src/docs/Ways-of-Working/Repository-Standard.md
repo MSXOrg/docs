@@ -7,7 +7,7 @@ description: The baseline files and behaviours every repository must expose so i
 
 A repository is the smallest unit of ownership in the MSX ecosystem. It must explain what it is, how to contribute, how security is handled, how dependencies are kept current, and which standards govern its automation.
 
-The Repository Standard is the default for every repository across the MSX Enterprise, regardless of initiative, organization, or technology. It defines the baseline contract a repository must meet to be understandable, secure, and maintainable on its own.
+The Repository Standard is the default for every governed repository across the MSX Enterprise, regardless of initiative, organization, or technology. It defines the baseline contract a repository must meet to be understandable, secure, and maintainable on its own.
 
 Initiative standards operate at the same altitude as this standard, not beneath it. An initiative such as PSModule adds to and adjusts these defaults for its repository types rather than merely implementing them. A repository inherits every rule this standard sets unless its initiative explicitly changes it; where an initiative standard adds or overrides a rule, the initiative standard governs that initiative's repositories.
 
@@ -17,7 +17,9 @@ Which natural language each repository artifact is written in follows [Natural L
 
 ## Required files
 
-Every repository must carry the files that make it understandable and governable on its own.
+Every governed repository must carry the files that make it understandable and
+governable on its own. An Unmanaged repository carries the explicit
+discoverability minimum defined below instead.
 
 | File | Requirement |
 | --- | --- |
@@ -38,9 +40,11 @@ Repository types may require additional files. For example, a PowerShell module 
 
 ### Required files by type
 
-The table above is the mandatory set: it applies to every repository, whatever its
-type. A [repository type](../Capabilities/repository-governance/design-types.md)
-adds to that set; no type subtracts from it.
+The table above is the mandatory set for every governed repository. A
+[repository type](../Capabilities/repository-governance/design-types.md) adds to
+that set; no governed type subtracts from it. `Unmanaged` is the explicit
+full-governance exemption: it is audited only for the discoverability minimum
+stated below, not for the governed baseline.
 
 | Type | Adds |
 | --- | --- |
@@ -51,8 +55,9 @@ adds to that set; no type subtracts from it.
 | **Memory** | The structure documented by the [memory repository template](../Capabilities/agentic-development/memory-template.md). |
 | **Unmanaged** | Nothing — but the exemption does not extend to discoverability: `README.md`, `SECURITY.md`, and the agent router remain required, because a repository nobody governs is still a repository someone will open. |
 
-The set a repository is audited against is the mandatory set plus the additions of
-every type it declares. Presence is verified by
+The set a governed repository is audited against is the mandatory set plus the
+additions of every type it declares; an Unmanaged repository is audited only
+against its discoverability minimum. Presence is verified by
 [reconciliation](../Capabilities/repository-governance/design.md#required-files-by-type),
 not by review.
 

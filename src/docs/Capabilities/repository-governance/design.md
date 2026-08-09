@@ -39,13 +39,14 @@ coverage — is owned by [Repository Type
 Property](../../Ways-of-Working/Repository-Type-Property.md). This design does not
 restate it.
 
-Moving an organization from a single-select property to a multi-select one is a
-schema change the platform does not perform in place. The migration is therefore
-the same shape as any condition migration: create the multi-select property
-alongside the existing one, populate it from the current values, verify that every
-ruleset's computed coverage is unchanged, repoint the conditions, and only then
-retire the old property. Coverage is verified by asking the platform which rules
-apply to each repository rather than by reasoning about condition JSON.
+Moving an organization from a single-select property to a multi-select `Type`
+property is a schema change the platform does not perform in place. The migration
+uses a uniquely named temporary multi-select property to keep every control
+covered while the canonical name is recreated; the precise sequence and API
+semantics are owned by [Repository Type
+Property](../../Ways-of-Working/Repository-Type-Property.md#migrating-from-a-single-select-property).
+Coverage is verified by asking the platform which rules apply to each repository
+rather than by reasoning about condition JSON.
 
 ## Rulesets by type
 
@@ -56,17 +57,24 @@ definition of the same control, and two definitions are two truths
 
 | Ruleset | Selects | Branches | Enforces |
 | --- | --- | --- | --- |
-| **Baseline** | Every type except the exemption and memory types | Protected branches | Pull request required, no deletion, no force-push, required checks, auto-delete head branch |
-| **Artifact history** | Type includes Artifact | Default branch | Squash-only merge, linear history required |
+| **Baseline protection** | Every type except Unmanaged | Protected branches | No deletion, no force-push, required checks |
+| **Pull-request gate** | Every type except Unmanaged and Memory | Protected branches | Pull request required |
+| **Artifact history** | Type includes Artifact | Default branch or Infrastructure integration branch | Squash-only merge, linear history required |
 | **Promotion — integration** | Type includes Infrastructure | Integration branch | Squash-only merge |
 | **Promotion — production** | Type includes Infrastructure | Production branch | Merge-commit only, promotion-source check required |
 | **Documentation build** | Type includes Docs | Protected branches | Documentation-build check required |
-| **Automated review** | Every type except the exemption type | Default branch | A review is requested on every pull request; advisory, not a gate |
+| **Automated review** | Every type except Unmanaged | Default branch | A review is requested on every pull request; advisory, not a gate |
 
 Two properties of this table matter more than its contents:
 
 - **Conditions are exclusions, not allow-lists.** Each ruleset matches every repository and then subtracts the types that must be exempt. A type value invented later is covered by default; only a type an administrator has explicitly named ever loses coverage ([NFR5](spec.md#non-functional), [filter by exclusion](../../Ways-of-Working/Repository-Type-Property.md#filter-by-exclusion-not-by-inclusion)).
 - **Rulesets layer rather than override.** A repository matching three rulesets is subject to the union of all three. Nothing needs to know what else applies, which is why a layering type can be added without touching a branch-model ruleset.
+
+Automatic deletion of a merged pull request's head branch is not a ruleset rule.
+Reconciliation verifies the repository-level `delete_branch_on_merge` setting for
+every governed repository instead. Memory therefore retains the protection,
+check, review, and branch-cleanup baseline while being exempt only from the
+pull-request gate; Unmanaged is the sole type that removes the baseline.
 
 Bypass is granted on each ruleset to a **named administrative group in
 pull-request mode only** — never to individuals, and never as a blanket write
@@ -113,7 +121,7 @@ the contract below, not the implementation that satisfies it.
 | Exemption is justified | Does an exempted repository carry a recorded reason? |
 | Rulesets apply | Do the rulesets the type implies actually evaluate against this repository? |
 | Branch shape matches | Do the protected branches, merge methods, and required checks match what the type declares? |
-| Required files present | Does the default branch carry the files the type requires? |
+| Required files present | Does the default branch carry the governed baseline and the files its type adds, or the explicit Unmanaged discoverability minimum? |
 
 ### Severity decides the response
 

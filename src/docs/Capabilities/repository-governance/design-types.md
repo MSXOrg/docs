@@ -42,12 +42,14 @@ the absence of a decision MUST produce protection, not the absence of protection
 
 ### Artifact
 
-One protected branch, and a **linear history of one commit per change**.
+Artifact is a **layering type**, not a branch model. It adds a linear-history
+contract to whichever branch model applies.
 
 | | |
 | --- | --- |
-| Protected branches | The default branch |
-| Merge methods | Squash only |
+| Branch model | None of its own — Standard applies by default, or Infrastructure when declared |
+| Protected branches | The default branch, or the Infrastructure integration branch |
+| Merge methods | Squash only where the artifact history rule applies |
 | Additional rule | Linear history required |
 | Applies to | Anything published under a version — packages, modules, container images, Actions, reusable workflows, extensions |
 
@@ -117,10 +119,11 @@ agents in small commits, and read at the start of a session.
 | Branch model | None of its own |
 | Adjusts | The pull-request requirement, which MUST NOT apply — memory is written by direct commit |
 
-Memory is the one layering type that *removes* an obligation rather than adding
-one, and it is why the baseline's conditions are written as exclusions: excluding
-this type from the pull-request requirement is a targeted subtraction, not a
-rewrite of who the requirement covers ([filter by
+Memory removes only that one obligation. Its protected branches still reject
+deletion and force-pushes, its required checks and automated review still apply,
+and merged pull-request branches still use the repository-level cleanup setting.
+This targeted subtraction is why the pull-request gate is written as an exclusion
+([filter by
 exclusion](../../Ways-of-Working/Repository-Type-Property.md#filter-by-exclusion-not-by-inclusion)).
 
 ## The exemption type
@@ -152,12 +155,12 @@ in is not.
 | --- | --- |
 | Nothing | Standard branch model, baseline applied |
 | Standard | Standard branch model, baseline applied |
-| Artifact | Artifact branch model, baseline applied |
+| Artifact | Standard branch model by default, plus the artifact history rule |
 | Infrastructure | Promotion flow, baseline applied |
 | Standard **+** Docs | Standard branch model, plus the documentation-build check |
-| Artifact **+** Docs | Artifact branch model, plus the documentation-build check |
+| Artifact **+** Docs | Standard branch model by default, plus the artifact history and documentation-build rules |
 | Infrastructure **+** Docs | Promotion flow, plus the documentation-build check on both protected branches |
-| Infrastructure **+** Artifact | Promotion flow; the artifact history rule applies to merges into the integration branch, and the promotion merge is exempt from it |
+| Infrastructure **+** Artifact | Promotion flow; the artifact history rule applies to merges into the integration branch, and the promotion merge remains a merge commit |
 | Docs alone | Standard branch model by default, plus the documentation-build check |
 | Memory | Baseline applied except the pull-request requirement |
 | Unmanaged | No baseline; the recorded reason applies |
@@ -167,9 +170,10 @@ Precedence, stated once:
 1. **Unmanaged wins over everything, and combines with nothing.** If it is
    declared alongside another type, the declaration is contradictory, not
    permissive.
-2. **Infrastructure wins the branch model.** Where Infrastructure is declared with
-   another branch-model type, the promotion flow governs the branch structure and
-   the other type's rules layer onto merges into the integration branch.
+2. **Exactly one branch model applies.** Standard is the default where no
+   branch-model value is declared; Infrastructure replaces that default when it is
+   declared. Artifact is a layering type, so it never competes for the branch
+   model.
 3. **Layering types always apply.** A layering type never loses to a branch-model
    type; it adds to whichever one wins.
 
@@ -179,7 +183,8 @@ A declaration MUST be rejected when:
 
 - It contains a value outside the organization's allowed list ([FR3](spec.md#classification)).
 - It contains **Unmanaged together with any other type**. Exemption is total or absent.
-- It contains **Standard together with Artifact** without Infrastructure. Both claim the same single-branch model with incompatible merge methods, so the combination has no defined meaning.
+- It contains more than one explicit branch-model type. Standard and Infrastructure
+  cannot both be declared because each decides the protected-branch shape.
 - It declares **Unmanaged without a reason** ([FR14](spec.md#exemption)).
 
 A declaration MUST be accepted when it contains one branch-model type and any set

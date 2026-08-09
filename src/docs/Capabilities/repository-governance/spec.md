@@ -62,7 +62,7 @@ subject to the same baseline, regardless of type:
 - **FR6 — Protected branches cannot be deleted or force-pushed.** History on a protected branch is append-only.
 - **FR7 — Required checks gate the merge.** A pull request MUST NOT be mergeable until the checks its type declares have passed.
 - **FR8 — A review is requested automatically.** Every pull request MUST have a review requested without the author asking. Whether that review *gates* the merge is a separate rule ([the review gate](#the-review-gate)).
-- **FR9 — Merged branches are deleted.** The head branch of a merged pull request MUST be deleted automatically. A protected branch MUST NOT be deleted by this rule.
+- **FR9 — Merged branches are deleted.** The repository-level `delete_branch_on_merge` setting MUST delete the head branch of a merged pull request automatically. A protected branch MUST NOT be deleted by this setting.
 - **FR10 — Contribution rules are present.** Every governed repository MUST carry the [required files](../../Ways-of-Working/Repository-Standard.md#required-files) its type declares, so a contributor arriving at the repository can act without leaving it.
 
 ### The review gate
