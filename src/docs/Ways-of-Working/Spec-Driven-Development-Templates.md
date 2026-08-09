@@ -350,6 +350,10 @@ description: <One line: the decision and its scope.>
 
 - <what this makes easy>
 - <what this makes hard, and what would have to change to revisit it>
+
+## Supersession
+
+<Nothing, or: superseded by <link>, which now carries this choice.>
 ````
 
 ## Where this connects

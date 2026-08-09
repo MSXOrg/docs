@@ -30,11 +30,11 @@ flowchart LR
   code -. "production feedback" .-> spec
 ```
 
-The spec is the durable artifact. Code is its expression in a particular language and framework; when the two disagree, the spec is what we meant and the code is what we did.
+The spec is the durable artifact. Code is its expression in a particular language and framework; when the two disagree, the spec is the intent and the code is the outcome.
 
 ## The artifact tiers
 
-The spec and the design are the two required artifacts; a capability MAY carry four more when its content genuinely needs a different altitude or a different reader. Each tier answers one question for one audience, and no tier restates another — it links.
+The spec and the design are the two required artifacts; a capability MAY carry five more when its content genuinely needs a different altitude or a different reader. Each tier answers one question for one audience, and no tier restates another — it links.
 
 | Artifact | Answers | Reader | Required |
 |---|---|---|---|
@@ -43,6 +43,7 @@ The spec and the design are the two required artifacts; a capability MAY carry f
 | **[Implementation docs](#what-implementation-docs-are)** | The concrete settings, names, and mappings | whoever operates or changes the concrete detail | MAY |
 | **[Guides](#what-a-guide-is)** | How to carry out a task against the shipped capability | whoever uses it | MAY |
 | **[References](#what-a-reference-is)** | Stable facts, for fast lookup | whoever needs one value | MAY |
+| **[Decision records](#what-a-decision-record-is)** | Which choice was made, and why that one | whoever inherits or questions the choice | MAY |
 | **[Research](#what-research-is)** | What was explored and what was found | whoever revisits a decision | MAY |
 
 A tier is added when content that belongs in it already exists and is crowding out the tier above. A capability with no concrete detail needs no implementation doc; a capability nobody operates by hand needs no guide. Empty tiers are not created in advance — **[delete, don't stub](Documentation-Model.md#concise-by-default)**.
@@ -159,7 +160,7 @@ A design is **logical**: technical, naming the approach and the technology, and 
 
 The **design/implementation altitude test**: would this sentence change if exact settings, counts, or names changed, while the technology and the approach stayed the same? If yes, the detail belongs in [implementation docs](#what-implementation-docs-are); if no, it belongs in the design. This keeps the design readable without discarding the concrete detail.
 
-One-way-door decisions taken in the design are recorded where they are made, following [Decision Before Change](Principles/AI-First-Development.md#decision-before-change), and kept as Architecture Decision Records beside the spec.
+One-way-door decisions taken in the design are recorded as [decision records](#what-a-decision-record-is) beside the spec, not left implicit in the design prose.
 
 A design MAY be a single `design.md` or a `design/` folder when it grows past one page. The name stays singular either way.
 
@@ -182,6 +183,16 @@ A guide states the steps and nothing else. It links to the spec for context and 
 A reference is a page for fast lookup of stable facts — schemas, endpoints, parameters, labels, identifiers, supported values. It is uniform and neutral: tables over prose, no narrative, no steps, no rationale.
 
 Each fact lives on exactly **one** reference page, and everything else links to it. A reference is not owned by a single design, because more than one design may depend on the same fact.
+
+## What a decision record is
+
+A decision record captures one choice that constrains everything built after it: the context that forced a choice, the options weighed, the option taken, and the consequences accepted. It is written once, at the moment of the decision.
+
+A decision record is required when a choice is a **one-way door** — when reversing it later would cost materially more than making it differently now. Public contracts, data formats that outlive a release, identity and permission models, and anything a consumer will depend on all qualify. A choice that can be changed in an afternoon does not; it belongs in the design.
+
+A decision record is **immutable**. It is not edited when the decision is revisited — a later decision is a new record that supersedes it, and the superseded record says so. This is what makes the reasoning of a past choice recoverable instead of overwritten. Decision records live in a `decisions/` folder beside the spec of the scope they constrain, one decision per page, named for the choice made and following [Decision Before Change](Principles/AI-First-Development.md#decision-before-change).
+
+The design states what is built; the decision record states what was rejected and why. A design that has started arguing with alternatives has a decision record hiding inside it.
 
 ## What research is
 

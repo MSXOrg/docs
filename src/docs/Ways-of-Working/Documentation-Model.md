@@ -18,11 +18,11 @@ Each capability the ecosystem builds is documented by two evergreen documents:
 | Document | Owns | Answers | Written for |
 | --- | --- | --- | --- |
 | **Spec** | Requirements, expectations, needs | **Why** it exists and **what** it must do | Whoever decides *whether* and *what* to build |
-| **Design** | Implementation approach | **How** and **what** we build to deliver the spec | Whoever *builds* and maintains it |
+| **Design** | Implementation approach | **How** and **what** is built to deliver the spec | Whoever *builds* and maintains it |
 
 The **spec** is the contract — the behaviour, guarantees, and success criteria a
 user (human or agent) can rely on. It never prescribes implementation. The
-**design** is the current answer to *how we deliver that contract*: the
+**design** is the current answer to *how that contract is delivered*: the
 mechanism, the moving parts, the configuration. Both are durable, and both
 evolve — neither is a one-time plan.
 
@@ -75,6 +75,9 @@ Capabilities/
       index.md
       <task>.md
     references.md     # lookup tables
+    decisions/        # one-way-door choices, immutable
+      index.md
+      <decision>.md
     research/         # point-in-time exploration
       index.md
       <exploration>.md
@@ -92,12 +95,13 @@ with no reader, so a folder appears the first time it has something to hold
 | Concern | Owned by |
 | --- | --- |
 | **Why / what** a capability must do | the capability's **spec** |
-| **How / what** we build to deliver it | the capability's **design** |
+| **How / what** is built to deliver it | the capability's **design** |
 | **Which exact value or name** was chosen | the capability's **implementation** docs |
 | **How to perform a task** with it | the capability's **guides** |
 | **What the settings are** | the capability's **references** |
+| **Which one-way-door choice** was made, and why | the capability's **decisions** |
 | **What was explored** before deciding | the capability's **research** |
-| **How we work** — process, principles, conventions | [Ways of Working](index.md) |
+| **How the work is done** — process, principles, conventions | [Ways of Working](index.md) |
 | **How code looks** — style applied to code | [Coding Standards](../Coding-Standards/index.md) |
 | **How this one change is implemented** — paths, trade-offs | the Task or Bug delivery leaf and its PR; see [Issue Planning](Issues/Process/Planning.md) |
 
@@ -115,9 +119,9 @@ then code — and loops:
 1. **Need** — a request, a bug, a review observation, a platform change.
 2. **Spec** — agree the next version's requirements: why it matters and what it
    must do. Nothing is committed to building yet.
-3. **Design** — once committed to deliver, describe how and what we will build.
+3. **Design** — once committed to deliver, describe how and what will be built.
 4. **Build** — ready Task and Bug leaves implement the gap, evolving the design
-   *and* the spec as development teaches you things.
+   *and* the spec as development reveals more.
 5. **Operate** — running the system surfaces new needs, and the loop returns.
 
 ```mermaid
