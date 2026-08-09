@@ -53,9 +53,7 @@ stale, unpatched code.
 - **Enable automated updates for the `github-actions` ecosystem** in
   `.github/dependabot.yml`. The updater opens a pull request that rewrites the
   pin to the new commit SHA and refreshes the trailing version comment.
-- **Apply a cooldown** before adopting a freshly published version, and
-  **group** low-risk action bumps so routine updates arrive as one reviewable
-  pull request rather than many.
+- **Apply a cooldown** before adopting a freshly published version.
 - **Label the update PR** with `dependencies` + `github-actions`, plus the
   dependency's own level (`update:major` / `update:minor` / `update:patch`).
   These update-level labels are deliberately **distinct from the release-bump
@@ -65,7 +63,7 @@ stale, unpatched code.
 - **Review `update:major` by hand** — a major action bump can change inputs,
   outputs, or behaviour. Lower levels may auto-merge once checks pass.
 
-The full mechanism — schedule, grouping, labels, and auto-merge policy — is the
+The full mechanism — schedule, cooldown, labels, and auto-merge policy — is the
 [Dependency Updates](../Capabilities/dependency-updates/design.md) capability;
 this section is the Actions-specific view of it.
 

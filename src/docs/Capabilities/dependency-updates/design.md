@@ -66,11 +66,10 @@ bad now, and waiting for a schedule window or a cooldown would be waiting on pur
 
 ## The updater
 
-Dependabot opens **one PR per outdated or vulnerable dependency** — or one per
-configured **group** of related dependencies — carrying the bump and the
-upstream release notes. SHA-pinned dependencies get the new commit SHA with the
-version as a trailing comment. Ecosystems, directories, schedule, cooldown,
-grouping, and the static labels all live in `.github/dependabot.yml`.
+Dependabot opens **one PR per outdated or vulnerable dependency**, carrying the
+bump and the upstream release notes. SHA-pinned dependencies get the new commit
+SHA with the version as a trailing comment. Ecosystems, directories, schedule,
+cooldown, and the static labels all live in `.github/dependabot.yml`.
 
 ```mermaid
 flowchart TD
@@ -133,24 +132,6 @@ The `skip-release` workaround sometimes suggested for this is a **no-op on hoste
 Dependabot**; the labelling behavior cannot be configured from the repository. Which label
 names exist is the only control, which is why both dimensions are namespaced.
 
-## Grouping
-
-Grouping trades review granularity for review cost, and the trade is only worth
-making where the granularity carries no information:
-
-| Group | Contents | Rationale |
-| --- | --- | --- |
-| Per-ecosystem minor and patch | Every minor and patch update within one ecosystem, in one pull request | Twelve patch bumps reviewed separately cost twelve reviews and reveal no more than one |
-| Isolated major | One pull request per major update | This is the diff a reviewer has to read; batching it hides it |
-
-A group MUST NOT span ecosystems. Reviewing an ecosystem's updates requires knowing
-that ecosystem's conventions, and a pull request mixing several leaves no reviewer
-qualified for the whole diff.
-
-Grouping also bounds the blast radius of a failure. When a grouped pull request goes
-red, the failure is attributable to one ecosystem; when a cross-ecosystem batch goes
-red, isolating the cause means splitting the pull request by hand.
-
 ## Review posture
 
 | Update level | Handling |
@@ -181,7 +162,6 @@ and the same release path as any other update.
 | Unsupported ecosystems | Central exception register | Centrally managed shared mechanism |
 | Schedule interval, day, time, timezone | `.github/dependabot.yml` | Organization configuration |
 | Cooldown | `.github/dependabot.yml` | Organization configuration |
-| Grouping | `.github/dependabot.yml` | Generated: per-ecosystem minor/patch groups, majors isolated |
 | Static labels (`dependencies` + ecosystem) | `.github/dependabot.yml` | Generated |
 | `update:*` labels | Update metadata → labelling step | Derived per pull request |
 | Automatic-merge policy | Branch protection and merge automation | Organization configuration |

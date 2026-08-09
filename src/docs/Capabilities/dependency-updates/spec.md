@@ -66,18 +66,13 @@ Management](../release-management/spec.md).
 - **FR8 — Freshly published versions wait.** A version MUST NOT be proposed the moment it appears. A cooldown between publication and proposal lets an upstream project withdraw or supersede a bad release before every consumer has a pull request open against it.
 - **FR9 — Security advisories bypass the schedule.** An advisory affecting a pin raises an update on disclosure, out of band, and MUST be prioritised over scheduled currency updates.
 
-### Batching
-
-- **FR10 — Low-risk updates MAY be grouped; breaking ones MUST NOT be.** Minor and patch updates within one ecosystem MAY share a pull request, because reviewing twelve patch bumps separately costs twelve reviews and yields no more information than one. A major update MUST be isolated, because it is the update whose diff has to be read.
-- **FR11 — Grouping never crosses ecosystems.** A group's review requires knowing one ecosystem's conventions; mixing ecosystems in one pull request means no single reviewer is qualified for the whole diff.
-
 ### Review and labelling
 
-- **FR12 — One reviewed pull request per update or group.** Each update is a pull request that passes the full check suite before merge. Nothing is applied unreviewed, and no update takes a side channel around the gate.
-- **FR13 — Update level is labelled.** Every update pull request MUST carry the category, the ecosystem, and the dependency's own version-change level, so review routing and triage do not require opening the diff.
-- **FR14 — Update labels MUST NOT reuse the release bump vocabulary.** The label that signals the *dependency's* version level MUST be namespaced away from the release-bump labels ([automation labels](../../Ways-of-Working/Automation-Labels.md#every-set-is-namespaced)). A dependency update is artifact-affecting and therefore produces a release; one shared vocabulary across the two dimensions would set this repository's version from the upstream project's decision.
-- **FR15 — Review posture follows update level.** Patch and minor updates MAY merge automatically once every required check passes. A major update MUST require human review and MUST NOT merge automatically. A repository MAY tighten this and MUST NOT loosen it.
-- **FR16 — Automatic merge is never a bypass.** Where an update merges without review, it does so because the checks passed, not because the checks were skipped.
+- **FR10 — One reviewed pull request per update.** Each dependency update is a pull request that passes the full check suite before merge. Nothing is applied unreviewed, and no update takes a side channel around the gate.
+- **FR11 — Update level is labelled.** Every update pull request MUST carry the category, the ecosystem, and the dependency's own version-change level, so review routing and triage do not require opening the diff.
+- **FR12 — Update labels MUST NOT reuse the release bump vocabulary.** The label that signals the *dependency's* version level MUST be namespaced away from the release-bump labels ([automation labels](../../Ways-of-Working/Automation-Labels.md#every-set-is-namespaced)). A dependency update is artifact-affecting and therefore produces a release; one shared vocabulary across the two dimensions would set this repository's version from the upstream project's decision.
+- **FR13 — Review posture follows update level.** Patch and minor updates MAY merge automatically once every required check passes. A major update MUST require human review and MUST NOT merge automatically. A repository MAY tighten this and MUST NOT loosen it.
+- **FR14 — Automatic merge is never a bypass.** Where an update merges without review, it does so because the checks passed, not because the checks were skipped.
 
 ### Non-functional
 
