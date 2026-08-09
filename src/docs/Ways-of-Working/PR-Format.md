@@ -34,14 +34,14 @@ Pull requests in the MSX ecosystem double as **release notes**. The description 
 
 ## Change types
 
-| Type        | Icon | Label       | Description                                           |
-| ----------- | ---- | ----------- | ----------------------------------------------------- |
-| Major       | 🌟   | `Major`     | Breaking changes that affect compatibility            |
-| Feature     | 🚀   | `Minor`     | New features or enhancements                          |
-| Patch       | 🩹   | `Patch`     | Small fixes or improvements                           |
-| Fix         | 🪲   | `Patch`     | Bugfixes (Patch-level release impact)                 |
-| Docs        | 📖   | `NoRelease` | Documentation changes only                            |
-| Maintenance | ⚙️   | `NoRelease` | CI/CD, build configs, AI/agent files, internal upkeep |
+| Type        | Icon | Label            | Description                                           |
+| ----------- | ---- | ---------------- | ----------------------------------------------------- |
+| Major       | 🌟   | `release:major`  | Breaking changes that affect compatibility            |
+| Feature     | 🚀   | `release:minor`  | New features or enhancements                          |
+| Patch       | 🩹   | `release:patch`  | Small fixes or improvements                           |
+| Fix         | 🪲   | `release:patch`  | Bugfixes (patch-level release impact)                 |
+| Docs        | 📖   | `release:none`   | Documentation changes only                            |
+| Maintenance | ⚙️   | `release:none`   | CI/CD, build configs, AI/agent files, internal upkeep |
 
 ### Detecting the change type
 

@@ -103,23 +103,35 @@ actual bump.
 
 ### Separation from release versioning
 
-The `update:*` labels **must not** reuse the release-bump labels
-(`Major` / `Minor` / `Patch` / `NoRelease`). The two are different dimensions on
-the same pull request:
+Both label sets are namespaced, and they name two different dimensions of the same pull
+request. The `update:*` set MUST NOT reuse the `release:*` set, and neither set may use
+bare words:
 
 | Dimension | Question | Label set | Owned by |
 | --- | --- | --- | --- |
-| **Release bump** | How much does *this repository's* version change? | `Major` · `Minor` · `Patch` · `NoRelease` | [Release Management](../release-management/spec.md) |
+| **Release bump** | How much does *this repository's* version change? | `release:major` · `release:minor` · `release:patch` · `release:none` | [Release Management](../release-management/spec.md) |
 | **Dependency update level** | How much did the *upstream dependency* change? | `update:major` · `update:minor` · `update:patch` | This capability |
 
 A dependency update is an **artifact-affecting change**, so merging it produces a
-release. If the PR carried a `Major` label to describe the *dependency's* jump,
-the release workflow would read it as a **major release of this repository** — a
-major upstream bump is very often only a patch, or no user-visible change, to the
-consuming artifact. So the two coexist: the **release bump** label (default
-`Patch`) governs this repository's version and is the label the release workflow
-reads; the **`update:*`** label is advisory metadata that drives review routing,
-never the bump.
+release. If one pull request carried a single `major` label meaning *the dependency's*
+jump, the release workflow would read it as a **major release of this repository** — and a
+major upstream bump is very often only a patch, or no user-visible change at all, to the
+consuming artifact. So the two coexist: the **`release:*`** label governs this
+repository's version and is the label the release workflow reads; the **`update:*`** label
+is advisory metadata that drives review routing, never the bump.
+
+Namespacing both sides is what makes this hold in practice rather than by convention.
+Hosted Dependabot applies a semver label to its own pull requests **when a repository has
+labels named `major`, `minor`, or `patch`** — it matches on those bare words. Had the
+release set kept the bare vocabulary, every Dependabot pull request would arrive with the
+repository's own version decision pre-set by a bot, describing the upstream bump. Because
+no bare label exists, Dependabot finds nothing to apply, and a dependency pull request is
+release-safe by default: it carries an accurate `update:*` level and no release decision
+until a maintainer makes one.
+
+The `skip-release` workaround sometimes suggested for this is a **no-op on hosted
+Dependabot**; the labelling behavior cannot be configured from the repository. Which label
+names exist is the only control, which is why both dimensions are namespaced.
 
 ## Grouping
 
