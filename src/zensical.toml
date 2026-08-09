@@ -152,7 +152,10 @@ nav = [
     {"Deployment" = [
       "Capabilities/deployment/index.md",
       {"Spec" = "Capabilities/deployment/spec.md"},
-      {"Deploying Azure from GitHub" = "Capabilities/deployment/designs/azure-from-github.md"},
+      {"Designs" = [
+        "Capabilities/deployment/designs/index.md",
+        {"Deploying Azure from GitHub" = "Capabilities/deployment/designs/azure-from-github.md"},
+      ]},
     ]},
     {"VS Code Extension Framework" = [
       "Capabilities/vscode-extension-framework/index.md",
@@ -175,6 +178,10 @@ nav = [
       {"Agent Interaction" = "Capabilities/agentic-development/agent-interaction.md"},
       {"Advisory Agents" = "Capabilities/agentic-development/advisory-agents.md"},
       {"Conformance" = "Capabilities/agentic-development/conformance.md"},
+      {"Decisions" = [
+        "Capabilities/agentic-development/decisions/index.md",
+        {"Document Architecture and Memory Boundaries" = "Capabilities/agentic-development/decisions/document-architecture-and-memory-boundaries.md"},
+      ]},
     ]},
   ]},
   {"Dictionary" = "Dictionary/index.md"},

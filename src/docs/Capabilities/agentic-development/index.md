@@ -22,5 +22,6 @@ A repository adopts the framework by carrying a short router and the client rout
 | [Agent Interaction](agent-interaction.md) | How humans and agents coordinate through issues, labels, and pull requests, and why intent and implementation are kept in separate artifacts. |
 | [Advisory Agents](advisory-agents.md) | The pattern for automation that analyses work and publishes its conclusion as advice, without deciding, relabelling, or committing. |
 | [Conformance](conformance.md) | What a repository must provide to be conformant with the agentic development framework, what it may add, and the duplication checks that keep the router thin. |
+| [Agentic Development decisions](decisions/index.md) | Immutable records of one-way-door choices in the agentic development framework. |
 
 <!-- INDEX:END -->
