@@ -30,7 +30,7 @@ That structure is what lets a reader and an agent find the same page by the same
   workflows/Docs.yml   # lint, validate links, build, and publish to GitHub Pages
   scripts/             # documentation tooling (index generation, link validation)
   linters/             # shared linter configuration
-plugins/               # portable Agent Plugins that point into the documentation
+.github/plugin/        # portable Agent Plugins that point into the documentation
 src/
   zensical.toml        # site configuration
   docs/                # the documentation content

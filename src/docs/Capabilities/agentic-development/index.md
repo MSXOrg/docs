@@ -19,6 +19,7 @@ A repository adopts the framework by carrying a short router and the client rout
 | [MCP Servers](mcp-servers.md) | How one logical set of tool servers is defined once and declared by every runtime in its own format, so a documented procedure does not depend on which client runs it. |
 | [Runtime Integration](runtime-integration.md) | How a runtime is wired into the framework — the entry file it reads, the lifecycle point its refresh attaches to, the permissions it needs, and what a new runtime must supply to be supported. |
 | [Plugin Distribution](plugin-distribution.md) | How recurring workflows are packaged as named intents that point to canonical documentation, and why a packaged shortcut never carries a copy of the procedure. |
+| [Plugin Marketplaces](design-plugin-marketplaces.md) | How shared and initiative-owned Agent Plugin marketplaces are named, laid out, versioned, and updated. |
 | [Agent Interaction](agent-interaction.md) | How humans and agents coordinate through issues, labels, and pull requests, and why intent and implementation are kept in separate artifacts. |
 | [Advisory Agents](advisory-agents.md) | The pattern for automation that analyses work and publishes its conclusion as advice, without deciding, relabelling, or committing. |
 | [Conformance](conformance.md) | What a repository must provide to be conformant with the agentic development framework, what it may add, and the duplication checks that keep the router thin. |

@@ -84,43 +84,11 @@ load `SKILL.md` when the request matches, and read referenced resources only whe
 active skill needs them. A description therefore names both the capability and its trigger;
 the body stays a short route and runtime procedure.
 
-## Skill granularity follows the documentation
+## Marketplace structure and skill boundaries
 
-A skill SHOULD map to the nearest canonical index that can route the whole intent. It SHOULD
-NOT be split per language, framework, or document merely because those pages exist.
-
-The coding standards already have the right progressive shape:
-
-1. `Coding-Standards/index.md` separates the shared baseline from language and tool pages.
-2. The language entry adds its own rules.
-3. A large standard, such as PowerShell, carries another index that routes to the applicable
-   construct.
-
-One coding skill can therefore inspect the artifact, enter the coding standards index, and
-follow its descriptions to every applicable page. Separate language skills would duplicate
-the dispatch boundary and make cross-language changes depend on several skills activating
-correctly. Split a skill only when an intent needs distinct runtime mechanics, scripts,
-assets, permissions, or tools — not when it only needs a different documentation branch.
-
-The repository implementation follows this model:
-
-```text
-.github/plugin/marketplace.json
-plugins/
-  msx-standards/
-    plugin.json
-    skills/
-      msx-coding/
-        SKILL.md
-      msx-documentation/
-        SKILL.md
-      msx-ways-of-working/
-        SKILL.md
-```
-
-The package and marketplace carry discovery metadata and mechanics. Coding requirements
-remain under `src/docs/Coding-Standards/`; documentation and process requirements remain
-under `src/docs/Ways-of-Working/`.
+The [Plugin Marketplaces design](design-plugin-marketplaces.md) is the single source of truth
+for marketplace ownership, repository layout, plugin identities, and skill granularity. This
+page covers how named intents are distributed; it does not repeat those structural rules.
 
 ## GitHub Copilot distribution
 
@@ -128,7 +96,7 @@ An individual registers the marketplace and installs its standards plugin with C
 
 ```shell
 copilot plugin marketplace add MSXOrg/docs
-copilot plugin install msx-standards@msxorg
+copilot plugin install msx@msxorg
 ```
 
 Skills configured for Copilot CLI are also available in the
@@ -142,7 +110,7 @@ governance repository:
 ```json
 {
   "enabledPlugins": {
-    "msx-coding@msxorg": true
+    "msx@msxorg": true
   },
   "extraKnownMarketplaces": {
     "msxorg": {

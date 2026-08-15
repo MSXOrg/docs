@@ -172,6 +172,7 @@ nav = [
       {"MCP Servers" = "Capabilities/agentic-development/mcp-servers.md"},
       {"Runtime Integration" = "Capabilities/agentic-development/runtime-integration.md"},
       {"Plugin Distribution" = "Capabilities/agentic-development/plugin-distribution.md"},
+      {"Plugin Marketplaces" = "Capabilities/agentic-development/design-plugin-marketplaces.md"},
       {"Agent Interaction" = "Capabilities/agentic-development/agent-interaction.md"},
       {"Advisory Agents" = "Capabilities/agentic-development/advisory-agents.md"},
       {"Conformance" = "Capabilities/agentic-development/conformance.md"},

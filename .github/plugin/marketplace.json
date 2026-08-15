@@ -9,10 +9,10 @@
   },
   "plugins": [
     {
-      "name": "msx-standards",
+      "name": "msx",
       "description": "Routes coding, documentation, and work lifecycle tasks to current MSX standards.",
       "version": "0.1.0",
-      "source": "plugins/msx-standards"
+      "source": ".github/plugin/msx"
     }
   ]
 }
