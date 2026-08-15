@@ -28,7 +28,7 @@ corresponding directory. Every plugin directory must contain `plugin.json`; its
 Each skill is a single pointer to one canonical document. The shared `msx`
 plugin uses `msx-coding-*` skills for each coding language or tool,
 `msx-documentation-*` skills for each documentation artifact type, and
-`msx-ways-of-working-*` skills for each direct child of the Ways of Working
+`msx-ways-of-working-*` skills for each child listed by the Ways of Working
 index. Skill bodies do not copy the documentation; they identify the one page
 to read.
 

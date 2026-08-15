@@ -58,7 +58,7 @@ must match that entry.
 Every skill is one pointer to one canonical document. The shared `msx` plugin
 uses `msx-coding-*` for each coding language or tool,
 `msx-documentation-*` for each documentation artifact type, and
-`msx-ways-of-working-*` for each direct child of the Ways of Working index.
+`msx-ways-of-working-*` for each child listed by the Ways of Working index.
 The skill body contains the route, not a duplicate of the documentation.
 
 ## Versioning and update flow

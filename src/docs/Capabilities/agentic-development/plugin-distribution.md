@@ -88,8 +88,8 @@ the body stays a short route and runtime procedure.
 
 Each skill is a single pointer to one canonical document. The shared `msx` plugin has a
 `msx-coding-*` skill for each coding language or tool, an `msx-documentation-*` skill for
-each documentation artifact type, and an `msx-ways-of-working-*` skill for each direct child
-of the Ways of Working index. A skill body routes to its document; it does not duplicate the
+each documentation artifact type, and an `msx-ways-of-working-*` skill for each child listed
+by the Ways of Working index. A skill body routes to its document; it does not duplicate the
 document's rules.
 
 The repository implementation follows this model:
