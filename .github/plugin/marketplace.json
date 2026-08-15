@@ -13,12 +13,6 @@
       "description": "Routes coding, documentation, and work lifecycle tasks to current MSX standards.",
       "version": "0.1.0",
       "source": "plugins/msx-standards"
-    },
-    {
-      "name": "psmodule-process",
-      "description": "PSModule process guidance and reusable skills for PowerShell module repositories.",
-      "version": "1.0.0",
-      "source": "plugins/psmodule-process"
     }
   ]
 }
