@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-  "name": "msx-coding",
+  "name": "msx-standards",
   "version": "0.1.0",
-  "description": "Routes coding tasks to the current MSX baseline and applicable language standards.",
+  "description": "Routes coding, documentation, and work lifecycle tasks to current MSX standards.",
   "author": {
     "name": "MSXOrg",
     "url": "https://github.com/MSXOrg"
@@ -11,7 +11,9 @@
   "repository": "https://github.com/MSXOrg/docs",
   "keywords": [
     "coding-standards",
+    "documentation",
     "github-copilot",
-    "msx"
+    "msx",
+    "workflow"
   ]
 }
