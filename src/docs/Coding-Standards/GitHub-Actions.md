@@ -67,6 +67,34 @@ The full mechanism — schedule, cooldown, labels, and auto-merge policy — is 
 [Dependency Updates](../Capabilities/dependency-updates/design.md) capability;
 this section is the Actions-specific view of it.
 
+### Audit and synchronize pins manually
+
+[Dependabot](https://docs.github.com/code-security/dependabot/dependabot-version-updates) remains the ongoing updater for the `github-actions` ecosystem. It proposes reviewable pull requests as releases are published, applies the configured cooldown and labels, and is the normal way a repository stays current.
+
+Use the reusable [`Update-GitHubActionPin.ps1`](https://github.com/MSXOrg/docs/blob/main/.github/scripts/Update-GitHubActionPin.ps1) utility for an audit or a deliberate manual synchronization: for example, when onboarding an existing repository, reconciling a repository after a Dependabot outage, or checking proposed changes before an update pull request is opened. It is not a replacement for enabling Dependabot.
+
+The script needs PowerShell 7, network access to the GitHub REST API, and a target repository with a `.github` directory. Public actions can be resolved anonymously; set `GITHUB_TOKEN` or `GH_TOKEN` to raise the API rate limit or to resolve actions that require authentication. The token is sent only as an API request header.
+
+From this checkout, preview a target repository without changing it:
+
+```powershell
+pwsh .github/scripts/Update-GitHubActionPin.ps1 -RepositoryPath ../service -WhatIf
+```
+
+Run the same command without `-WhatIf` to write the synchronized pins:
+
+```powershell
+pwsh .github/scripts/Update-GitHubActionPin.ps1 -RepositoryPath ../service
+```
+
+When the current directory is the target repository, the path is optional:
+
+```powershell
+pwsh ../docs/.github/scripts/Update-GitHubActionPin.ps1 -WhatIf
+```
+
+The utility recursively scans `.github` YAML files and updates only `uses:` references in the form `owner/repository[/subpath]@<40-character-SHA>`. It resolves the latest stable release to its commit SHA, including annotated tags, replaces the trailing release-tag comment, and adds that comment when omitted. It preserves UTF-8 BOM state and existing line endings. Local (`./...`) and Docker (`docker://...`) references, mutable tags or branches, non-YAML files, and expressions outside this shape are intentionally outside its scope. An action with no resolvable stable release or tag-to-commit mapping stops the run with an explicit error so a partial audit does not appear successful.
+
 ## Grant least-privilege permissions
 
 - **Set `permissions:` explicitly.** Never rely on the default token scope.

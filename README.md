@@ -12,6 +12,7 @@ Published with [Zensical](https://zensical.org) to GitHub Pages: **[msxorg.githu
 - **Coding Standards** — language-agnostic standards for naming, layout, documentation, testing, and security.
 - **Capabilities** — the reusable specs and designs for what the ecosystem builds.
 - **Dictionary** — the shared vocabulary every reader and agent uses.
+- **Agent Plugins** — installable entry points that route Copilot to the current canonical documentation.
 
 The vision is written once, here, and referenced everywhere. Products change; the principles they express stay put.
 
@@ -25,9 +26,11 @@ That structure is what lets a reader and an agent find the same page by the same
 
 ```text
 .github/
+  plugin/marketplace.json # Copilot plugin marketplace
   workflows/Docs.yml   # lint, validate links, build, and publish to GitHub Pages
   scripts/             # documentation tooling (index generation, link validation)
   linters/             # shared linter configuration
+plugins/               # portable Agent Plugins that point into the documentation
 src/
   zensical.toml        # site configuration
   docs/                # the documentation content
