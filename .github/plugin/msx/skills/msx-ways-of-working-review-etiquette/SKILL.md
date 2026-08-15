@@ -5,4 +5,4 @@ description: Review MSX changes with the expected tone, scope, severity, and dis
 
 # Follow MSX review etiquette
 
-Read and follow [MSX Review Etiquette](https://msxorg.github.io/docs/Ways-of-Working/Review-Etiquette/).
+Read and follow [MSX Review Etiquette](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/Review-Etiquette.md).

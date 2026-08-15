@@ -5,4 +5,4 @@ description: Write an MSX capability design using the canonical documentation te
 
 # Write an MSX design
 
-Read and follow the [design template](https://msxorg.github.io/docs/Ways-of-Working/Spec-Driven-Development-Templates/#design).
+Read and follow the [design template](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/Spec-Driven-Development-Templates.md#design).

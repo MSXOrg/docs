@@ -5,4 +5,4 @@ description: Distinguish MSX integration, delivery, deployment, and release prac
 
 # Follow MSX continuous delivery and release
 
-Read and follow [MSX Continuous Delivery and Release](https://msxorg.github.io/docs/Ways-of-Working/Continuous-Delivery-And-Release/).
+Read and follow [MSX Continuous Delivery and Release](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/Continuous-Delivery-And-Release.md).

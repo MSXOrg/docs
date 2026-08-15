@@ -5,4 +5,4 @@ description: Decide what belongs in an MSX repository and when to split or combi
 
 # Follow MSX repository segmentation
 
-Read and follow [MSX Repository Segmentation](https://msxorg.github.io/docs/Ways-of-Working/Repository-Segmentation/).
+Read and follow [MSX Repository Segmentation](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/Repository-Segmentation.md).

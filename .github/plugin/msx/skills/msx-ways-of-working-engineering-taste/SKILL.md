@@ -5,4 +5,4 @@ description: Apply MSX engineering judgment when standards do not settle a choic
 
 # Apply MSX engineering taste
 
-Read and follow [MSX Engineering Taste](https://msxorg.github.io/docs/Ways-of-Working/Engineering-Taste/).
+Read and follow [MSX Engineering Taste](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/Engineering-Taste.md).

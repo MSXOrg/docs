@@ -5,4 +5,4 @@ description: Apply the MSX Continuous X, Continuous AI, and DevOps Dojo practice
 
 # Follow MSX continuous practices
 
-Read and follow [MSX Continuous Practices](https://msxorg.github.io/docs/Ways-of-Working/Continuous-Practices/).
+Read and follow [MSX Continuous Practices](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/Continuous-Practices.md).

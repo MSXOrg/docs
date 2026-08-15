@@ -5,4 +5,4 @@ description: Write an MSX reference document using the canonical documentation t
 
 # Write an MSX reference
 
-Read and follow the [reference template](https://msxorg.github.io/docs/Ways-of-Working/Spec-Driven-Development-Templates/#reference).
+Read and follow the [reference template](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/Spec-Driven-Development-Templates.md#reference).

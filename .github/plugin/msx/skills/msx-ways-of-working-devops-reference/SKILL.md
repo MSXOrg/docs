@@ -5,4 +5,4 @@ description: Consult the MSX DevOps and SRE reference for ways of working.
 
 # Consult the MSX DevOps reference
 
-Read and follow [MSX DevOps Reference](https://msxorg.github.io/docs/Ways-of-Working/DevOps-Reference/).
+Read and follow [MSX DevOps Reference](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/DevOps-Reference.md).

@@ -5,4 +5,4 @@ description: Review an MSX target against reference sources using the comparativ
 
 # Follow MSX comparative review orchestration
 
-Read and follow [MSX Comparative Review Orchestration](https://msxorg.github.io/docs/Ways-of-Working/Comparative-Review-Orchestration/).
+Read and follow [MSX Comparative Review Orchestration](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/Comparative-Review-Orchestration.md).

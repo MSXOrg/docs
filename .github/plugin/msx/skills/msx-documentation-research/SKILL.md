@@ -5,4 +5,4 @@ description: Write MSX research findings using the canonical documentation templ
 
 # Write MSX research
 
-Read and follow the [research template](https://msxorg.github.io/docs/Ways-of-Working/Spec-Driven-Development-Templates/#research).
+Read and follow the [research template](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/Spec-Driven-Development-Templates.md#research).

@@ -5,4 +5,4 @@ description: Write an MSX implementation document using the canonical documentat
 
 # Write an MSX implementation document
 
-Read and follow the [implementation document template](https://msxorg.github.io/docs/Ways-of-Working/Spec-Driven-Development-Templates/#implementation-doc).
+Read and follow the [implementation document template](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/Spec-Driven-Development-Templates.md#implementation-doc).

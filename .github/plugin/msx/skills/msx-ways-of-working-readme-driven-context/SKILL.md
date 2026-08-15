@@ -5,4 +5,4 @@ description: Use the README as the MSX repository context front door and source 
 
 # Follow MSX README-driven context
 
-Read and follow [MSX README-Driven Context](https://msxorg.github.io/docs/Ways-of-Working/Readme-Driven-Context/).
+Read and follow [MSX README-Driven Context](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/Readme-Driven-Context.md).

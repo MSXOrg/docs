@@ -5,4 +5,4 @@ description: Apply the MSX PowerShell coding standard when writing or reviewing 
 
 # Apply the MSX PowerShell coding standard
 
-Read and follow the [PowerShell coding standard](https://msxorg.github.io/docs/Coding-Standards/PowerShell/).
+Read and follow the [PowerShell coding standard](https://github.com/MSXOrg/docs/blob/main/src/docs/Coding-Standards/PowerShell/index.md).

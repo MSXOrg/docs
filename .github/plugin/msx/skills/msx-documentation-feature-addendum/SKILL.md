@@ -5,4 +5,4 @@ description: Write an MSX feature addendum using the canonical documentation tem
 
 # Write an MSX feature addendum
 
-Read and follow the [feature addendum template](https://msxorg.github.io/docs/Ways-of-Working/Spec-Driven-Development-Templates/#feature-addendum).
+Read and follow the [feature addendum template](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/Spec-Driven-Development-Templates.md#feature-addendum).
