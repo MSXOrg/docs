@@ -15,7 +15,7 @@ versions, and release changes.
 MSXOrg publishes the shared `msxorg` marketplace in `MSXOrg/docs`. It contains
 the `msx` plugin for guidance that applies across MSX organizations,
 repositories, and initiatives, including the `msx-coding`,
-`msx-documentation`, and `msx-ways-of-working` skills.
+`msx-documentation`, and `msx-ways-of-working` skill families.
 
 An initiative publishes its own marketplace in its owning repository. For
 example, PSModule publishes a `psmodule` plugin for PowerShell-module
@@ -52,6 +52,14 @@ plugin it is `.github/plugin/msx`; an initiative plugin uses the corresponding
 path, such as `.github/plugin/psmodule`. A source must resolve to the plugin
 directory named by the marketplace entry, and the plugin manifest's `name`
 must match that entry.
+
+## Skill granularity
+
+Every skill is one pointer to one canonical document. The shared `msx` plugin
+uses `msx-coding-*` for each coding language or tool,
+`msx-documentation-*` for each documentation artifact type, and
+`msx-ways-of-working-*` for each direct child of the Ways of Working index.
+The skill body contains the route, not a duplicate of the documentation.
 
 ## Versioning and update flow
 

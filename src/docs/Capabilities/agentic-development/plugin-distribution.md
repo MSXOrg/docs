@@ -86,21 +86,11 @@ the body stays a short route and runtime procedure.
 
 ## Skill granularity follows the documentation
 
-A skill SHOULD map to the nearest canonical index that can route the whole intent. It SHOULD
-NOT be split per language, framework, or document merely because those pages exist.
-
-The coding standards already have the right progressive shape:
-
-1. `Coding-Standards/index.md` separates the shared baseline from language and tool pages.
-2. The language entry adds its own rules.
-3. A large standard, such as PowerShell, carries another index that routes to the applicable
-   construct.
-
-One coding skill can therefore inspect the artifact, enter the coding standards index, and
-follow its descriptions to every applicable page. Separate language skills would duplicate
-the dispatch boundary and make cross-language changes depend on several skills activating
-correctly. Split a skill only when an intent needs distinct runtime mechanics, scripts,
-assets, permissions, or tools — not when it only needs a different documentation branch.
+Each skill is a single pointer to one canonical document. The shared `msx` plugin has a
+`msx-coding-*` skill for each coding language or tool, an `msx-documentation-*` skill for
+each documentation artifact type, and an `msx-ways-of-working-*` skill for each direct child
+of the Ways of Working index. A skill body routes to its document; it does not duplicate the
+document's rules.
 
 The repository implementation follows this model:
 
@@ -109,11 +99,11 @@ The repository implementation follows this model:
 .github/plugin/msx/
   plugin.json
   skills/
-    msx-coding/
+    msx-coding-powershell/
       SKILL.md
-    msx-documentation/
+    msx-documentation-design/
       SKILL.md
-    msx-ways-of-working/
+    msx-ways-of-working-workflow/
       SKILL.md
 ```
 
