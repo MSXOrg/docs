@@ -325,6 +325,6 @@ Because Copilot code review reads the head branch, a pull request that changes `
 - [Agent Interaction](agent-interaction.md) — how agents and humans coordinate through platform artifacts.
 - [Advisory Agents](advisory-agents.md) — agents that produce advice rather than commits.
 - [Conformance](conformance.md) — the checklist a repository is measured against.
-- [Agentic Development](../../Ways-of-Working/Agentic-Development.md) — the way-of-working standard this framework implements.
+- [Agentic Development framework](index.md) — the framework this design delivers.
 - [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — why spec and design are split.
 - [README-Driven Context](../../Ways-of-Working/Readme-Driven-Context.md) — why local repository context remains the front door.

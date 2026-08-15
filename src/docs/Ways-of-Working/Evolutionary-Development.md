@@ -110,7 +110,7 @@ A turn is only as good as the context it runs on — output quality tracks input
 
 - The [spec](Spec-Driven-Development.md) (why, what, acceptance criteria) and its design (how), or the marked unknowns where they do not exist yet.
 - The constraints, non-goals, and dependencies that bound the solution.
-- Pointers to the code, standards, and prior decisions that already apply — read in layers, local context before central standards ([Agentic Development](Agentic-Development.md)).
+- Pointers to the code, standards, and prior decisions that already apply — read in layers, local context before central standards ([Agentic Development](../Capabilities/agentic-development/index.md)).
 
 This is [context-first development](Principles/AI-First-Development.md#context-first-development) made operational: the context is created up front — in specs, issues, and ADRs — and the loop runs on it. Context loss is the most common cause of wasted effort; a bet made without context is a bet made blind. Context is not read-only, though: when a turn shows a standard or instruction is wrong — or teaches a better one — updating it is part of the turn (see [The instructions evolve too](#the-instructions-evolve-too)).
 
@@ -129,7 +129,7 @@ When a turn exposes a defect or discovers a better way of working — whether a 
 - A turn goes wrong in a way a clearer instruction would have prevented.
 - A turn finds a better way — a sharper prompt, a cleaner sequence, a rule worth making the default — worth keeping for the next one.
 
-Because a standard is defined once and pointed to everywhere ([Agentic Development](Agentic-Development.md)), one change propagates to every repo and every agent that reads it — improve it in one place and the whole fleet's behavior evolves. This is the method turned on itself: the same living-documentation discipline that keeps a spec true keeps the instructions true and refines them as understanding grows, so the way of working gets better every time a turn teaches something worth keeping.
+Because a standard is defined once and pointed to everywhere ([Agentic Development](../Capabilities/agentic-development/index.md)), one change propagates to every repo and every agent that reads it — improve it in one place and the whole fleet's behavior evolves. This is the method turned on itself: the same living-documentation discipline that keeps a spec true keeps the instructions true and refines them as understanding grows, so the way of working gets better every time a turn teaches something worth keeping.
 
 ## Working a v1
 

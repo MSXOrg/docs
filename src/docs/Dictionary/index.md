@@ -15,7 +15,7 @@ The 2018 book by Nicole Forsgren, Jez Humble, and Gene Kim presenting the resear
 
 ### Agent
 
-An AI participant that reads the same documentation as a human and acts on the platform — opening issues, proposing pull requests, and reviewing changes. See [Agentic Development](../Ways-of-Working/Agentic-Development.md).
+An AI participant that reads the same documentation as a human and acts on the platform — opening issues, proposing pull requests, and reviewing changes. See [Agentic Development](../Capabilities/agentic-development/index.md).
 
 ### Anthropic API
 

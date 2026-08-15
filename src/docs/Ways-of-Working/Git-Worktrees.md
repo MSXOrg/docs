@@ -5,13 +5,13 @@ description: How agentic development is implemented locally — a bare-clone and
 
 # Git Worktrees
 
-Git worktrees are how [agentic development](Agentic-Development.md) is implemented on a local machine. They are purely a **local development** convenience: a way for one person — or a person and an agent, or several agents — to work on multiple repository-delivery leaves at the same time, without stashing, committing half-finished work, or switching branches. They change nothing about how a repository is built, reviewed, or shipped — that still happens through branches and pull requests, exactly as it would with an ordinary clone.
+Git worktrees are how [agentic development](../Capabilities/agentic-development/index.md) is implemented on a local machine. They are purely a **local development** convenience: a way for one person — or a person and an agent, or several agents — to work on multiple repository-delivery leaves at the same time, without stashing, committing half-finished work, or switching branches. They change nothing about how a repository is built, reviewed, or shipped — that still happens through branches and pull requests, exactly as it would with an ordinary clone.
 
 All repositories are set up as **bare clones with worktrees**. Each repository-delivery Task or Bug gets its own worktree — an independent working directory for one branch — so parallel work never collides. Epic and PBI aggregates, and operational Tasks without repository artifacts, do not get worktrees.
 
 ## Why this matters: working agentically in parallel
 
-The reason this layout is the default — not the occasional convenience it is in most projects — is **parallelism**. [Agentic development](Agentic-Development.md) does not proceed one delivery leaf at a time. A single developer can have several agents working at once, each on a different Task or Bug, alongside their own hands-on changes. Worktrees are what make running many streams at once safe instead of chaotic:
+The reason this layout is the default — not the occasional convenience it is in most projects — is **parallelism**. [Agentic development](../Capabilities/agentic-development/index.md) does not proceed one delivery leaf at a time. A single developer can have several agents working at once, each on a different Task or Bug, alongside their own hands-on changes. Worktrees are what make running many streams at once safe instead of chaotic:
 
 - **One worktree per repository-delivery Task or Bug, one agent per worktree.** Each agent gets its own working directory, its own branch, and its own uncommitted state. Two agents never write to the same checkout, so their edits cannot corrupt one another.
 - **No stashing, no branch-switching, no waiting.** Because the worktrees are independent, the agent finishing Task #42 never disturbs the one still working on Bug #99 — and neither touches the clean canonical `<repo>/` worktree you read from. Nobody has to reach a clean tree before anyone else can move.
@@ -135,6 +135,6 @@ git --git-dir="${repo}.git" worktree prune
 
 ## Where this connects
 
-- [Agentic Development](Agentic-Development.md) — the framework these worktrees implement locally, so several pieces of work run in parallel.
+- [Agentic Development](../Capabilities/agentic-development/index.md) — the framework these worktrees implement locally, so several pieces of work run in parallel.
 - [Branching and Merging](Branching-and-Merging.md) — the branch-per-delivery-leaf model each worktree holds.
 - [Workflow](Workflow.md) — where creating a worktree fits in the flow from issue to delivery.

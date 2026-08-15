@@ -102,7 +102,7 @@ Humans and agents must read the same standards. Do not create a separate hidden 
 
 Agent files are allowed when they point to, summarize, or operationalize the central standard. They must not become a second source of truth.
 
-The repository-level entry point is `AGENTS.md`, as defined by [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries). Agent runtimes do not agree on a filename, so a repository also carries a route file for each client that reads a different one. A route holds a pointer to the router and, at most, genuinely runtime-specific configuration — never a duplicated standard or workflow. The same limit applies to any organization-level instruction setting an agent vendor offers: use it for organization-wide preferences, never as a second copy of a standard.
+The repository-level entry point is `AGENTS.md`, as defined by [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior). Agent runtimes do not agree on a filename, so a repository also carries a route file for each client that reads a different one. A route holds a pointer to the router and, at most, genuinely runtime-specific configuration — never a duplicated standard or workflow. The same limit applies to any organization-level instruction setting an agent vendor offers: use it for organization-wide preferences, never as a second copy of a standard.
 
 ## Where this connects
 
