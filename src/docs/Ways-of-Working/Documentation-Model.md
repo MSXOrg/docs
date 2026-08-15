@@ -208,12 +208,12 @@ The same pages serve both. A contributor reads the index, follows the
 description inward, and drills from section to page until they reach the answer;
 an agent does exactly the same before it acts. Because the docs are the single
 source, there is no separate "agent manual" to drift —
-[Agentic Development](Agentic-Development.md) explains how agent configuration
+[Agentic Development](../Capabilities/agentic-development/index.md) explains how agent configuration
 points at these pages rather than copying them.
 
 ## Where this connects
 
 - [Workflow](Workflow.md) — the loop specs and designs revolve around.
-- [Agentic Development](Agentic-Development.md) — how humans and agents consume these docs.
+- [Agentic Development](../Capabilities/agentic-development/index.md) — how humans and agents consume these docs.
 - [README-Driven Context](Readme-Driven-Context.md) — why the README is the front door and the spec goes ahead of the code.
 - [Coding Standards](../Coding-Standards/index.md) — how the code a design describes is written.

@@ -41,11 +41,8 @@ nav = [
     {"Spec-Driven Development" = "Ways-of-Working/Spec-Driven-Development.md"},
     {"Spec-Driven Development Templates" = "Ways-of-Working/Spec-Driven-Development-Templates.md"},
     {"Evolutionary Development" = "Ways-of-Working/Evolutionary-Development.md"},
-    {"Agentic Development" = [
-      "Ways-of-Working/Agentic-Development.md",
-      {"Git Worktrees" = "Ways-of-Working/Git-Worktrees.md"},
-      {"Session Interactions" = "Ways-of-Working/Session-Interactions.md"},
-    ]},
+    {"Git Worktrees" = "Ways-of-Working/Git-Worktrees.md"},
+    {"Session Interactions" = "Ways-of-Working/Session-Interactions.md"},
     {"Organization Standard" = "Ways-of-Working/Organization-Standard.md"},
     {"Repository Standard" = "Ways-of-Working/Repository-Standard.md"},
     {"Repository Type Property" = "Ways-of-Working/Repository-Type-Property.md"},
