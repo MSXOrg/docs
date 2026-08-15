@@ -158,7 +158,7 @@ and ref with `cancel-in-progress` disabled, inherited from the
 [GitHub Actions standard](../../Coding-Standards/GitHub-Actions.md#concurrency).
 Pull-request validation runs, by contrast, use a per-branch concurrency group
 with `cancel-in-progress` enabled, so a new push supersedes stale in-flight runs.
-Every Action is pinned to a commit SHA.
+Every external Action is pinned to a commit SHA; organization- or initiative-owned automation may use the [controlled major-tag exception](../../Coding-Standards/GitHub-Actions.md#pin-actions-according-to-ownership).
 
 ## Configuration surface
 

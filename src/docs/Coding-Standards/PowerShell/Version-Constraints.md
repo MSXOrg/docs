@@ -100,4 +100,4 @@ Here a bare `Version="16.0.0"` is a *minimum* — NuGet's own semantics — the 
 
 ## Not a version range — pin by digest
 
-Ranges are for packages resolved from a gallery. Dependencies that are not gallery packages are pinned differently: **GitHub Actions and container images pin to an immutable commit SHA or image digest** — an [identity pin](../Dependencies.md#two-decisions-two-axes) — never a moving tag or a range. See [Security → Supply chain](../Security.md#supply-chain) and [GitHub Actions](../GitHub-Actions.md).
+Ranges are for packages resolved from a gallery. Dependencies that are not gallery packages are pinned differently: **external GitHub Actions and container images pin to an immutable commit SHA or image digest** — an [identity pin](../Dependencies.md#two-decisions-two-axes) — never a moving tag or a range. Organization- or initiative-owned Actions may use the controlled major-tag exception in the [GitHub Actions standard](../GitHub-Actions.md#pin-actions-according-to-ownership). See [Security → Supply chain](../Security.md#supply-chain).

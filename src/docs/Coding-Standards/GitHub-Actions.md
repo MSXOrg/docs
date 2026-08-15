@@ -572,9 +572,9 @@ Both follow the same lifecycle: **start as a local action or workflow**,
 referenced by path (`./.github/...`) so it runs at the checked-out commit, and
 **promote it to a standalone repository only once a second consumer appears**
 (see [Start local; promote when it is reused](#start-local-promote-when-it-is-reused)).
-Once standalone — like any third-party dependency — it is **consumed by full
-commit SHA** (see
-[Pin every action to a full commit SHA](#pin-every-action-to-a-full-commit-sha)).
+Once standalone, it is consumed by a controlled major tag while its release path
+remains organization- or initiative-owned, or by full commit SHA when external
+(see [Pin actions according to ownership](#pin-actions-according-to-ownership)).
 A reusable workflow additionally takes its secrets **explicitly by name, never
 `secrets: inherit`** (see
 [Distinguish `vars` from `secrets`](#distinguish-vars-from-secrets)).
@@ -644,9 +644,10 @@ A same-repository caller may still name the workflow itself by a local path; the
 constraint is on the actions the workflow reaches for.
 
 - **Reference every action from a shared reusable workflow by full path** —
-  `OWNER/REPO/path@<sha>`, which resolves the same way regardless of which
-  repository is checked out. Pin it by SHA like any other dependency (see
-  [Pin every action to a full commit SHA](#pin-every-action-to-a-full-commit-sha)).
+  `OWNER/REPO/path@<ref>`, which resolves the same way regardless of which
+  repository is checked out. Use a full SHA for an external action or a
+  controlled major tag for owned automation (see
+  [Pin actions according to ownership](#pin-actions-according-to-ownership)).
 - **A composite action may still call a sibling with `./`.** Inside a composite
   action, `./` resolves within *that action's own repository at the same ref* —
   the opposite of the workflow case — so colocated actions call each other with
@@ -846,8 +847,9 @@ appears.
   the right home for logic used by one repository.
 - **Promote to a standalone repository** only when the action is genuinely
   reused across repositories. At that point it gains its own versioning and is
-  consumed by SHA like any other third-party action (see
-  [Pin every action to a full commit SHA](#pin-every-action-to-a-full-commit-sha)).
+  consumed according to ownership: a controlled major tag while its release path
+  remains organization- or initiative-owned, or a full SHA when external (see
+  [Pin actions according to ownership](#pin-actions-according-to-ownership)).
   Do not reach for a separate repo preemptively — the cost of a shared release
   surface is only worth paying once there is a second consumer.
 - **A reusable workflow's actions are the exception** — a shared reusable
@@ -1028,8 +1030,9 @@ concurrency:
   code as in the portal**, stays a **stable handle** for links and log searches
   when the command underneath it changes, and names a failure by intent rather
   than by a decoded command line. Under the
-  [SHA-pinning rule](#pin-every-action-to-a-full-commit-sha) it matters all the
-  more: an unnamed action step wears its 40-character SHA as its label.
+  [external SHA-pinning rule](#pin-actions-according-to-ownership) it matters all
+  the more: an unnamed external action step wears its 40-character SHA as its
+  label.
 - **Separate each job and each step with a single blank line.** One blank line
   between consecutive steps, and one between consecutive jobs, makes every unit a
   self-contained block that is easy to scan, reorder, and read in a diff. Use

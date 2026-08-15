@@ -72,7 +72,7 @@ The `#Requires -Modules` lines inside `*.Tests.ps1` files stay as they are. Pest
 Match the constraint to how much drift you can safely absorb:
 
 - **Modules** — declare a **minimum** by default so security patches flow in; **major-lock** (`ModuleVersion` + `MaximumVersion = 'N.*'`) a dependency whose next major would break you; avoid **exact** pins. Add a `GUID` only when identity assurance is required.
-- **GitHub Actions / container images** — pin to an immutable **commit SHA** / **digest**, not a moving tag (see [Security → Supply chain](../Security.md#supply-chain) and [GitHub Actions](../GitHub-Actions.md)).
+- **External GitHub Actions / container images** — pin to an immutable **commit SHA** / **digest**, not a moving tag. Organization- or initiative-owned Actions may use the [controlled major-tag exception](../GitHub-Actions.md#pin-actions-according-to-ownership) (see [Security → Supply chain](../Security.md#supply-chain)).
 - Keep pins current with automated update PRs — see [Dependency Updates](../../Capabilities/dependency-updates/index.md).
 
 ## Proof

@@ -40,7 +40,7 @@ All code is written to be free of the vulnerabilities in the [OWASP Top 10](http
 
 Dependencies are part of the attack surface.
 
-- **Pin dependencies** to a known-good version. Pin GitHub Actions to a full commit SHA, not a moving tag.
+- **Pin external automation** to immutable identity. External GitHub Actions and reusable workflows use a full commit SHA, never a moving tag. Organization- or initiative-owned automation may use a floating major tag only when controlled release automation exclusively maintains it and keeps it within that compatible major line.
 - **Automate updates** with a dependency bot, so patches land quickly and reviewably.
 - **Make builds reproducible.** Lock or vendor dependencies so a build resolves the same inputs every time — and can run without network access where that matters.
 - **Generate provenance.** Build artifacts carry a software bill of materials (SBOM) and build attestations, so what is inside a release is verifiable.
