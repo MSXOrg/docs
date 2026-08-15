@@ -18,10 +18,10 @@ points to a plugin directory alongside the manifest:
   <skill-name>/SKILL.md
 ```
 
-The `source` value in a marketplace entry is `<plugin-name>` and must resolve
-to the corresponding directory under `.github/plugin/`. Every plugin directory
-must contain `plugin.json`; its `skills` directory contains the skills
-advertised by the manifest.
+The `source` value is repository-root-relative: use
+`.github/plugin/<plugin-name>` in the marketplace entry. It must resolve to the
+corresponding directory. Every plugin directory must contain `plugin.json`; its
+`skills` directory contains the skills advertised by the manifest.
 
 ## Versions
 
