@@ -84,32 +84,11 @@ load `SKILL.md` when the request matches, and read referenced resources only whe
 active skill needs them. A description therefore names both the capability and its trigger;
 the body stays a short route and runtime procedure.
 
-## Skill granularity follows the documentation
+## Marketplace structure and skill boundaries
 
-Each skill is a single pointer to one canonical document. The shared `msx` plugin has a
-`msx-coding-*` skill for each coding language or tool, an `msx-documentation-*` skill for
-each documentation artifact type, and an `msx-ways-of-working-*` skill for each child listed
-by the Ways of Working index. A skill body routes to its document; it does not duplicate the
-document's rules.
-
-The repository implementation follows this model:
-
-```text
-.github/plugin/marketplace.json
-.github/plugin/msx/
-  plugin.json
-  skills/
-    msx-coding-powershell/
-      SKILL.md
-    msx-documentation-design/
-      SKILL.md
-    msx-ways-of-working-workflow/
-      SKILL.md
-```
-
-The package and marketplace carry discovery metadata and mechanics. Coding requirements
-remain under `src/docs/Coding-Standards/`; documentation and process requirements remain
-under `src/docs/Ways-of-Working/`.
+The [Plugin Marketplaces design](design-plugin-marketplaces.md) is the single source of truth
+for marketplace ownership, repository layout, plugin identities, and skill granularity. This
+page covers how named intents are distributed; it does not repeat those structural rules.
 
 ## GitHub Copilot distribution
 
