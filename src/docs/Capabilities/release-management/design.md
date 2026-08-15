@@ -198,9 +198,16 @@ Three rules keep them safe:
   so a sliding tag never points at something not promoted for adoption.
 - **A sliding tag never moves backwards.** It only advances, so a consumer
   following it never silently downgrades.
-- **Sliding tags are conveniences, not references.** They are how a consumer
-  *finds* a version, not how one **pins** to it; anything requiring
-  reproducibility pins to the immutable version, digest, or SHA
+- **Only controlled release automation moves a sliding tag.** Humans and ad hoc
+  workflows do not create or repoint one. The automation publishes the immutable
+  version first, then moves only the aliases that release is eligible to advance.
+- **A major tag stays inside its compatibility line.** `vMAJOR` advances only
+  for compatible stable patch and minor releases in that major. A breaking
+  release creates the next major tag and leaves the previous one in place.
+- **Sliding tags are controlled references only for owned automation.** An
+  organization- or initiative-owned Action or reusable workflow may be consumed
+  through its controlled `vMAJOR` tag. External automation and anything requiring
+  byte-for-byte reproducibility pins to the immutable version, digest, or SHA
   ([supply chain](../../Coding-Standards/Security.md#supply-chain)).
 
 ## Serialised releases

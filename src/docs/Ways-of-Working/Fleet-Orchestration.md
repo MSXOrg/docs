@@ -25,6 +25,9 @@ tool, can read and drive a campaign with the GitHub CLI alone.
 - Use it when the *same* change must land in *many* repositories: a shared
   workflow or dependency bump rolled out to every consumer, a convention applied
   fleet-wide, or a mechanical migration.
+- Use it when consumers of an organization- or initiative-owned Action or
+  reusable workflow must move to a new breaking major. Compatible releases stay
+  on the existing controlled major tag and do not need a consumer campaign.
 - For a change in a single repository, there is no campaign — just follow the
   [Contribution Workflow](Contribution-Workflow.md).
 
@@ -163,6 +166,20 @@ flowchart TD
    Task or Bug through the pull request's one closing reference.
    The campaign's job is to get every pull request to *Ready*;
    [Branching and Merging](Branching-and-Merging.md) governs how it merges.
+
+## Breaking-major migrations
+
+Organization- or initiative-owned Actions and reusable workflows may publish
+compatible patch and minor releases through a controlled floating major tag.
+That central rollout stops at the major boundary. A breaking release publishes a
+new major tag and leaves the previous major line in place; consumers do not move
+until a deliberate campaign changes each `uses:` reference.
+
+The campaign records the compatibility decision rather than hiding it in release
+automation. Its delivery leaves update the major reference, apply any required
+input, output, permission, or behavior migration, and verify the consumer before
+merge. The producer's controlled release automation MUST NOT repoint an existing
+major tag to perform this migration.
 
 ## What a rollout surfaces
 
