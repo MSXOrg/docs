@@ -60,6 +60,8 @@ proposal. It costs a few days of currency and buys the chance for an upstream pr
 to withdraw or supersede a bad release before every consumer has a pull request open
 against it. Currency is the goal; being first is not.
 
+The organization standard is Dependabot's implicit **three-day** cooldown for version updates. Repositories omit `cooldown` when they use that standard; an explicit mapping records a deliberate non-default duration.
+
 Security updates ignore both settings. An advisory means the pinned version is known
 bad now, and waiting for a schedule window or a cooldown would be waiting on purpose.
 
@@ -67,8 +69,9 @@ bad now, and waiting for a schedule window or a cooldown would be waiting on pur
 
 Dependabot opens **one PR per outdated or vulnerable dependency**, carrying the
 bump and the upstream release notes. SHA-pinned dependencies get the new commit
-SHA with the version as a trailing comment. Ecosystems, directories, schedule,
-cooldown, and the static labels all live in `.github/dependabot.yml`.
+SHA with the version as a trailing comment. Ecosystems, directories, schedule, and
+the static labels live in `.github/dependabot.yml`; a non-default cooldown belongs
+there too, while the standard three-day cooldown remains implicit.
 
 ```mermaid
 flowchart TD
@@ -160,7 +163,7 @@ and the same release path as any other update.
 | Native ecosystems and directories | `.github/dependabot.yml` | Generated from supported manifests |
 | Unsupported ecosystems | Central exception register | Centrally managed shared mechanism |
 | Schedule (`interval`, `day` and `time`, or `cronjob`) and `timezone` | `.github/dependabot.yml` | Organization configuration |
-| Cooldown | `.github/dependabot.yml` | Organization configuration |
+| Cooldown | Dependabot default (three days); explicit mapping only for a deliberate non-default duration | Organization configuration |
 | Static labels (`dependencies` + ecosystem) | `.github/dependabot.yml` | Generated |
 | `update:*` labels | Update metadata → labelling step | Derived per pull request |
 | Automatic-merge policy | Branch protection and merge automation | Organization configuration |
