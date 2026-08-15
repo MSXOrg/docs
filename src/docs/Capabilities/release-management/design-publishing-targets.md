@@ -19,14 +19,14 @@ A target is described by six answers. They are the questions the release process
 | **Prerelease representation** | how a prerelease is expressed, and how the target sorts it relative to stable versions |
 | **Immutability** | whether a published version can be replaced, and what happens on a repeated publish of the same version |
 | **Unpublish** | whether a version can be withdrawn, what withdrawal does to existing consumers, and whether the version number becomes reusable |
-| **Sliding tags** | whether the target supports mutable pointers such as `latest`, and how they are moved |
+| **Floating tags** | whether the target supports mutable pointers such as `latest`, and how they are moved |
 | **Release record** | where the durable, linkable evidence of the release lives |
 
 A target MUST document all six before it is used. An undocumented dimension is a surprise waiting for the first failed release — most often around immutability, where publishing the same version twice is a success on one target and a hard error on another.
 
 ## Target summary
 
-| Target | Version scheme | Prerelease | Immutable | Unpublish | Sliding tags | Release record |
+| Target | Version scheme | Prerelease | Immutable | Unpublish | Floating tags | Release record |
 | --- | --- | --- | --- | --- | --- | --- |
 | **GitHub Releases** | `vMAJOR.MINOR.PATCH` git tag | SemVer suffix, flagged as prerelease | tag and assets are treated as immutable | delete is possible; treated as exceptional | yes — git tags | the Release itself |
 | **PowerShell Gallery** | `MAJOR.MINOR.PATCH` module version | SemVer suffix on the module version | yes — a version is published once | unlist only; the version is never reusable | no | the gallery listing |
@@ -47,7 +47,7 @@ GitHub Releases is the reference implementation: every repository governed by th
 - **Prerelease.** The SemVer prerelease suffix, with the Release marked as a prerelease so it is excluded from *latest*.
 - **Immutability.** The tag points at one commit and is not moved. Assets are uploaded once. A published version is never rewritten in place.
 - **Unpublish.** A Release and its tag can be deleted, but doing so breaks consumers that resolved it, so it is reserved for a release that must not exist — a leaked secret, a legal removal — and the version number is not reused.
-- **Sliding tags.** Supported as additional git tags, subject to the [sliding-tag rules](design.md#sliding-tags).
+- **Floating tags.** Supported as additional git tags, subject to the [floating-tag rules](design.md#floating-tags).
 - **Release record.** The Release itself: the version as its name, the release note as its body, and the immutable reference to whatever was published elsewhere.
 
 Because every release produces a GitHub Release, it is also the **join point** across targets: a release published to a registry or marketplace records its reference there, so one link answers *what shipped, in what version, and where it went*.
