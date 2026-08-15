@@ -106,16 +106,15 @@ The repository implementation follows this model:
 
 ```text
 .github/plugin/marketplace.json
-plugins/
-  msx-standards/
-    plugin.json
-    skills/
-      msx-coding/
-        SKILL.md
-      msx-documentation/
-        SKILL.md
-      msx-ways-of-working/
-        SKILL.md
+.github/plugin/msx/
+  plugin.json
+  skills/
+    msx-coding/
+      SKILL.md
+    msx-documentation/
+      SKILL.md
+    msx-ways-of-working/
+      SKILL.md
 ```
 
 The package and marketplace carry discovery metadata and mechanics. Coding requirements
@@ -128,7 +127,7 @@ An individual registers the marketplace and installs its standards plugin with C
 
 ```shell
 copilot plugin marketplace add MSXOrg/docs
-copilot plugin install msx-standards@msxorg
+copilot plugin install msx@msxorg
 ```
 
 Skills configured for Copilot CLI are also available in the
@@ -142,7 +141,7 @@ governance repository:
 ```json
 {
   "enabledPlugins": {
-    "msx-coding@msxorg": true
+    "msx@msxorg": true
   },
   "extraKnownMarketplaces": {
     "msxorg": {

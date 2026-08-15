@@ -1,6 +1,6 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
-  "name": "msx-standards",
+  "name": "msx",
   "version": "0.1.0",
   "description": "Routes coding, documentation, and work lifecycle tasks to current MSX standards.",
   "author": {

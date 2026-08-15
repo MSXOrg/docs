@@ -33,7 +33,7 @@ managed independently.
 ## Ownership
 
 Use this shared marketplace for guidance that applies across MSX
-organizations, repositories, and initiatives, such as `msx-standards`. Use an
+organizations, repositories, and initiatives, such as `msx`. Use an
 initiative-owned marketplace for guidance that depends on one initiative's
 process or implementation. Consumers should install both marketplaces when
 they need shared standards and initiative-specific guidance; neither replaces
