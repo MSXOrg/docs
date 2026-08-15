@@ -1,0 +1,18 @@
+{
+  "name": "msxorg",
+  "owner": {
+    "name": "MSXOrg"
+  },
+  "metadata": {
+    "description": "Agent plugins that route Copilot to MSX standards and workflows.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "msx-coding",
+      "description": "Routes coding tasks to the current MSX baseline and applicable language standards.",
+      "version": "0.1.0",
+      "source": "plugins/msx-coding"
+    }
+  ]
+}

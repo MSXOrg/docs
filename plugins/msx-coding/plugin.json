@@ -1,0 +1,17 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "msx-coding",
+  "version": "0.1.0",
+  "description": "Routes coding tasks to the current MSX baseline and applicable language standards.",
+  "author": {
+    "name": "MSXOrg",
+    "url": "https://github.com/MSXOrg"
+  },
+  "homepage": "https://msxorg.github.io/docs/Coding-Standards/",
+  "repository": "https://github.com/MSXOrg/docs",
+  "keywords": [
+    "coding-standards",
+    "github-copilot",
+    "msx"
+  ]
+}
