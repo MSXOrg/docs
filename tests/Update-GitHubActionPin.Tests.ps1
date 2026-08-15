@@ -1,5 +1,11 @@
 #Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.0.0'; MaximumVersion = '6.*' }
 
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    'PSUseShouldProcessForStateChangingFunctions', '',
+    Justification = 'Pester setup helpers must create disposable fixtures and register mocks without WhatIf semantics.'
+)]
+param()
+
 Describe 'Update-GitHubActionPin' {
     BeforeAll {
         $script:sourceScript = Join-Path $PSScriptRoot '../.github/scripts/Update-GitHubActionPin.ps1'
