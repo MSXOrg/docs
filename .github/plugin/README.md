@@ -9,21 +9,19 @@ than copying it into this marketplace.
 ## Layout
 
 The marketplace manifest is `.github/plugin/marketplace.json`. Each entry
-points to a plugin directory under the repository root:
+points to a plugin directory alongside the manifest:
 
 ```text
 .github/plugin/marketplace.json
-plugins/
-  msx-standards/
-    plugin.json
-    skills/
-      <skill-name>/
-        SKILL.md
+.github/plugin/<plugin-name>/plugin.json
+.github/plugin/<plugin-name>/skills/
+  <skill-name>/SKILL.md
 ```
 
-The `source` value in the marketplace entry must resolve to the plugin
-directory. Every plugin directory must contain `plugin.json`; its `skills`
-directory contains the skills advertised by the manifest.
+The `source` value in a marketplace entry is `<plugin-name>` and must resolve
+to the corresponding directory under `.github/plugin/`. Every plugin directory
+must contain `plugin.json`; its `skills` directory contains the skills
+advertised by the manifest.
 
 ## Versions
 
