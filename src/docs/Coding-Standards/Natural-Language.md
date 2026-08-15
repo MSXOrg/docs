@@ -1,13 +1,13 @@
 ---
 title: Natural Language
-description: Which language each artifact is written in, and the plain-language writing rules for docs, issues, pull requests, comments, prompts, and agent-facing text — with US English as the project dialect.
+description: Which language each artifact is written in, and the plain-language writing rules for docs, issues, pull requests, comments, prompts, and agent-facing text — with American English as the project dialect.
 ---
 
 # Natural Language
 
 Natural language is source code for humans and agents. It drives issues, pull requests, documentation, prompts, comments, error messages, release notes, and memory. Write it with the same care as code: clear, testable, consistent, and easy to change.
 
-This standard defines which language each artifact is written in, and how English prose is written in the MSX ecosystem. The project dialect is **US English**.
+This standard defines which language each artifact is written in, and how English prose is written in the MSX ecosystem. The project dialect is **American English (`en-US`)**.
 
 ## Write artifacts in English
 
@@ -37,9 +37,9 @@ The split is per artifact, not per repository. A repository that serves a Norweg
 
 Repository artifacts are read by contributors, reviewers, and agents who do not share one first language, and by tooling built for English. Mixed-language automation splinters the vocabulary — `-Frakoblet` and `-Offline` are the same switch — and makes shared standards, linters, and scripts unreusable across repositories.
 
-## Use US English
+## Use American English
 
-Use US spelling and vocabulary in all new and changed prose.
+Use American spelling and vocabulary in all new and changed prose.
 
 | Use | Avoid |
 | --- | --- |
@@ -182,7 +182,7 @@ Prompts are requests, not guesses. A good prompt names the desired outcome, the 
 Prefer:
 
 ```text
-Create a spec and design for org-scoped agent docs and memory in MSXOrg/docs. Follow the existing spec/design documentation model and use US English.
+Create a spec and design for org-scoped agent docs and memory in MSXOrg/docs. Follow the existing spec/design documentation model and use American English.
 ```
 
 Avoid:
