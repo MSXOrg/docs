@@ -107,23 +107,28 @@ The repository implementation follows this model:
 ```text
 .github/plugin/marketplace.json
 plugins/
-  msx-coding/
+  msx-standards/
     plugin.json
     skills/
       msx-coding/
         SKILL.md
+      msx-documentation/
+        SKILL.md
+      msx-ways-of-working/
+        SKILL.md
 ```
 
-The package and marketplace carry discovery metadata and mechanics. The coding requirements
-remain under `src/docs/Coding-Standards/`.
+The package and marketplace carry discovery metadata and mechanics. Coding requirements
+remain under `src/docs/Coding-Standards/`; documentation and process requirements remain
+under `src/docs/Ways-of-Working/`.
 
 ## GitHub Copilot distribution
 
-An individual registers the marketplace and installs its coding plugin with Copilot CLI:
+An individual registers the marketplace and installs its standards plugin with Copilot CLI:
 
 ```shell
 copilot plugin marketplace add MSXOrg/docs
-copilot plugin install msx-coding@msxorg
+copilot plugin install msx-standards@msxorg
 ```
 
 Skills configured for Copilot CLI are also available in the
