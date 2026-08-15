@@ -15,44 +15,56 @@ threat model behind action pinning and vendoring, see
 [Security → Supply chain](Security.md#supply-chain); this standard is the
 canonical "how to author" reference that the security control points to.
 
-## Pin every action to a full commit SHA
+## Pin actions according to ownership
 
-Pinning an action by SHA is the GitHub Actions expression of the [Dependencies](Dependencies.md) standard — an **identity pin** to immutable bytes, kept current by automation (below).
+An external `uses:` dependency is pinned by SHA, which is the GitHub Actions
+expression of the [Dependencies](Dependencies.md) standard: an **identity pin**
+to immutable bytes, kept current by automation (below).
 
 A `uses:` reference accepts a tag, a branch, or a commit SHA. Tags and branches
 are **mutable** — a maintainer (or an attacker who compromises one) can move
-them to point at different code. A full commit SHA is **immutable**.
+them to different code. A full commit SHA is **immutable**. The only controlled
+exception is a floating major tag on automation whose release path MSX controls:
 
-- **Pin every `uses:` to a full 40-character commit SHA.** Keep the human
-  version as a trailing comment so reviewers know the intended release.
-- This applies to **all** actions — third-party, first-party, and internally authored
-  internal actions alike.
+- **External actions and reusable workflows MUST use a full 40-character commit
+  SHA.** Keep the human version as a trailing comment so reviewers know the
+  intended release. GitHub-owned and marketplace actions are external because
+  the organization or initiative does not control their release automation.
+- **Organization- or initiative-owned actions and reusable workflows MAY use a
+  floating major tag** such as `@v8`. Only controlled release automation may
+  create or move that tag, and it may advance only to compatible stable releases
+  within the same major line.
+- **Humans and ad hoc workflows MUST NOT move a floating major tag.** A breaking
+  release creates the next major tag; it never repoints the existing major tag
+  across the compatibility boundary.
 
 ```yaml
-# Correct — immutable SHA; comment carries the readable version
+# External — immutable SHA; comment carries the readable version
 - name: Check out the repository
   uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-- name: Set up Node
-  uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+# Owned — controlled major tag rolls compatible releases out centrally
+jobs:
+  process:
+    uses: PSModule/Process-PSModule/.github/workflows/Process-PSModule.yml@v8
 
-# Avoid — mutable tag; the referenced code can change without notice
+# Avoid — the organization does not control this external tag
 - name: Check out the repository
   uses: actions/checkout@v6
 ```
 
-Internal actions follow the same rule.
-
 ## Keep pinned actions current
 
-A SHA pin is immutable — which also means it does not move when the action
-publishes a fix. Pinning and updating are two halves of one practice: pin to a
-SHA for safety, then let automation propose the newer SHA so pins never rot into
-stale, unpatched code.
+The update path follows ownership. An external SHA pin is immutable, so the
+consumer's dependency automation proposes each newer SHA. An owned floating
+major tag is advanced once by the producer's controlled release automation, so
+compatible patch and minor releases reach every consumer on that major without
+a fleet of pin-update pull requests.
 
 - **Enable automated updates for the `github-actions` ecosystem** in
-  `.github/dependabot.yml`. The updater opens a pull request that rewrites the
-  pin to the new commit SHA and refreshes the trailing version comment.
+  `.github/dependabot.yml`. For external dependencies, the updater opens a pull
+  request that rewrites the pin to the new commit SHA and refreshes the trailing
+  version comment.
 - **Apply Dependabot's default three-day cooldown** before adopting a freshly published version. Omit an explicit `cooldown` mapping unless the repository deliberately adopts a non-default duration.
 - **Label the update PR** with `dependencies` + `github-actions`, plus the
   dependency's own level (`update:major` / `update:minor` / `update:patch`).
@@ -62,6 +74,13 @@ stale, unpatched code.
   share one label set.
 - **Review `update:major` by hand** — a major action bump can change inputs,
   outputs, or behaviour. Lower levels may auto-merge once checks pass.
+- **Publish owned floating major tags only through controlled release
+  automation.** The release gate validates compatibility, publishes the immutable
+  version tag first, and then advances the major tag to that stable release.
+- **Move consumers to a new owned major through a deliberate
+  [fleet campaign](../Ways-of-Working/Fleet-Orchestration.md#breaking-major-migrations).**
+  A breaking release publishes the next major tag, but consumers remain on their
+  current line until that campaign changes their `uses:` references.
 
 The full mechanism — schedule, cooldown, labels, and auto-merge policy — is the
 [Dependency Updates](../Capabilities/dependency-updates/design.md) capability;
@@ -71,7 +90,7 @@ this section is the Actions-specific view of it.
 
 [Dependabot](https://docs.github.com/code-security/dependabot/dependabot-version-updates) remains the ongoing updater for the `github-actions` ecosystem. It proposes reviewable pull requests as releases are published, applies the configured cooldown and labels, and is the normal way a repository stays current.
 
-Use the reusable [`Update-GitHubActionPin.ps1`](https://github.com/MSXOrg/docs/blob/main/.github/scripts/Update-GitHubActionPin.ps1) utility for an audit or a deliberate manual synchronization: for example, when onboarding an existing repository, reconciling a repository after a Dependabot outage, or checking proposed changes before an update pull request is opened. It is not a replacement for enabling Dependabot.
+Use the reusable [`Update-GitHubActionPin.ps1`](https://github.com/MSXOrg/docs/blob/main/.github/scripts/Update-GitHubActionPin.ps1) utility to audit or deliberately synchronize external SHA pins: for example, when onboarding an existing repository, reconciling a repository after a Dependabot outage, or checking proposed changes before an update pull request is opened. It is not a replacement for enabling Dependabot and does not move owned floating major tags.
 
 The script needs PowerShell 7, network access to the GitHub REST API, and a target repository with a `.github` directory. Public actions can be resolved anonymously; set `GITHUB_TOKEN` or `GH_TOKEN` to raise the API rate limit or to resolve actions that require authentication. The token is sent only as an API request header.
 
