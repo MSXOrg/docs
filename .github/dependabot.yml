@@ -14,8 +14,6 @@ updates:
       interval: cron
       cronjob: "0 9 * * 1,3,5"
       timezone: Europe/Oslo
-    cooldown:
-      default-days: 3 # zizmor: ignore[dependabot-cooldown] Three days is the approved organizational cooldown.
 
   - package-ecosystem: pip # Build toolchain pinned in requirements.txt
     directory: /
@@ -26,5 +24,3 @@ updates:
       interval: cron
       cronjob: "0 9 * * 1,3,5"
       timezone: Europe/Oslo
-    cooldown:
-      default-days: 3 # zizmor: ignore[dependabot-cooldown] Three days is the approved organizational cooldown.
