@@ -53,7 +53,7 @@ stale, unpatched code.
 - **Enable automated updates for the `github-actions` ecosystem** in
   `.github/dependabot.yml`. The updater opens a pull request that rewrites the
   pin to the new commit SHA and refreshes the trailing version comment.
-- **Apply a cooldown** before adopting a freshly published version.
+- **Apply Dependabot's default three-day cooldown** before adopting a freshly published version. Omit an explicit `cooldown` mapping unless the repository deliberately adopts a non-default duration.
 - **Label the update PR** with `dependencies` + `github-actions`, plus the
   dependency's own level (`update:major` / `update:minor` / `update:patch`).
   These update-level labels are deliberately **distinct from the release-bump

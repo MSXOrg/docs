@@ -63,7 +63,7 @@ Management](../release-management/spec.md).
 
 - **FR6 — Currency is checked on a schedule.** No human watches upstream releases.
 - **FR7 — The schedule is configuration.** Frequency and the timezone it is expressed in MUST be configurable per organization. There is no correct global cadence: a repository whose consumers deploy continuously wants updates sooner than one that ships quarterly, and a schedule expressed in a timezone nobody works in produces pull requests nobody triages.
-- **FR8 — Freshly published versions wait.** A version MUST NOT be proposed the moment it appears. A cooldown between publication and proposal lets an upstream project withdraw or supersede a bad release before every consumer has a pull request open against it.
+- **FR8 — Freshly published versions wait three days.** A version MUST NOT be proposed the moment it appears. The organization standard is Dependabot's default three-day cooldown, so a repository MUST omit an explicit `cooldown` mapping unless it deliberately adopts a non-default duration. The delay lets an upstream project withdraw or supersede a bad release before every consumer has a pull request open against it.
 - **FR9 — Security advisories bypass the schedule.** An advisory affecting a pin raises an update on disclosure, out of band, and MUST be prioritised over scheduled currency updates.
 
 ### Review and labelling
