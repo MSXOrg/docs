@@ -61,6 +61,99 @@ receives it, and no one can tell whether the difference is intended. Because an 
 only a pointer plus mechanics, translating one into another runtime's format is mechanical —
 there is no logic to port.
 
+## Standards profile
+
+MSX distributes named intents as [Agent Plugins 1.0](https://agent-plugins.org/) packages.
+That open package standard is the shared model; a supported client loads the portable
+components it understands, while client-specific behavior stays namespaced.
+
+| Layer | Standard | MSX use |
+| --- | --- | --- |
+| Package | [Agent Plugins](https://agent-plugins.org/plugin-authors) | A root `plugin.json` selects the `1.0.0` schema and identifies the package. |
+| Intent | [Agent Skills](https://agentskills.io/specification) | Each immediate child of `skills/` contains a `SKILL.md` with a matching `name` and a trigger-oriented `description`. |
+| Catalog | [GitHub Copilot marketplace](https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-marketplace) | `.github/plugin/marketplace.json` names the marketplace and points each entry at its plugin directory. |
+| Client | [GitHub Copilot plugins](https://docs.github.com/en/copilot/concepts/agents/about-plugins) | Copilot CLI, the GitHub Copilot app, and managed Copilot environments install the same package. |
+
+The portable package root contains only the Agent Plugins components. Skills live under
+`skills/`; an MCP configuration, when needed, lives at `mcp.json`. Copilot-only agents,
+commands, hooks, rules, or extensions belong under `com.github.copilot/`, where another
+client can ignore them without changing the portable contract.
+
+Agent Skills use progressive disclosure: clients discover the `name` and `description`,
+load `SKILL.md` when the request matches, and read referenced resources only when the
+active skill needs them. A description therefore names both the capability and its trigger;
+the body stays a short route and runtime procedure.
+
+## Skill granularity follows the documentation
+
+A skill SHOULD map to the nearest canonical index that can route the whole intent. It SHOULD
+NOT be split per language, framework, or document merely because those pages exist.
+
+The coding standards already have the right progressive shape:
+
+1. `Coding-Standards/index.md` separates the shared baseline from language and tool pages.
+2. The language entry adds its own rules.
+3. A large standard, such as PowerShell, carries another index that routes to the applicable
+   construct.
+
+One coding skill can therefore inspect the artifact, enter the coding standards index, and
+follow its descriptions to every applicable page. Separate language skills would duplicate
+the dispatch boundary and make cross-language changes depend on several skills activating
+correctly. Split a skill only when an intent needs distinct runtime mechanics, scripts,
+assets, permissions, or tools — not when it only needs a different documentation branch.
+
+The repository implementation follows this model:
+
+```text
+.github/plugin/marketplace.json
+plugins/
+  msx-coding/
+    plugin.json
+    skills/
+      msx-coding/
+        SKILL.md
+```
+
+The package and marketplace carry discovery metadata and mechanics. The coding requirements
+remain under `src/docs/Coding-Standards/`.
+
+## GitHub Copilot distribution
+
+An individual registers the marketplace and installs its coding plugin with Copilot CLI:
+
+```shell
+copilot plugin marketplace add MSXOrg/docs
+copilot plugin install msx-coding@msxorg
+```
+
+Skills configured for Copilot CLI are also available in the
+[GitHub Copilot app](https://docs.github.com/en/copilot/how-tos/github-copilot-app/customize-github-copilot-app).
+The app also exposes installed plugins under **Settings > Plugins**.
+
+An enterprise can publish the same marketplace and plugin to the app and every other
+supported Copilot client through `copilot/managed-settings.json` in its `.github-private`
+governance repository:
+
+```json
+{
+  "enabledPlugins": {
+    "msx-coding@msxorg": true
+  },
+  "extraKnownMarketplaces": {
+    "msxorg": {
+      "source": {
+        "source": "github",
+        "repo": "MSXOrg/docs"
+      }
+    }
+  }
+}
+```
+
+`enabledPlugins` and `extraKnownMarketplaces` are additive across enterprise and team
+settings. Use `strictKnownMarketplaces` only when governance intends an allowlist; an empty
+allowlist blocks every non-built-in marketplace.
+
 ## Distribution is by reference
 
 An intent MUST NOT bundle a copy of the documentation it points to.
@@ -95,3 +188,7 @@ to a pointer.
 - [MCP Servers](mcp-servers.md) — the tool layer an intent's mechanics may enable, which likewise defines no procedure.
 - [Workflow](../../Ways-of-Working/Workflow.md) — the canonical stage procedures intents point at.
 - [Conformance](conformance.md) — the anti-duplication checks that catch an intent carrying a copy.
+- [Agent Plugins 1.0](https://agent-plugins.org/) — the portable package standard.
+- [Agent Skills](https://agentskills.io/specification) — the skill directory and `SKILL.md` standard.
+- [GitHub Copilot CLI plugin reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference) — Copilot manifests, marketplaces, commands, and precedence.
+- [Enterprise managed settings](https://docs.github.com/en/copilot/reference/enterprise-administrators/enterprise-managed-settings) — cross-client plugin and marketplace governance.
