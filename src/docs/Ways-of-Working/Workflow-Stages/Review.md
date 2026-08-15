@@ -31,7 +31,7 @@ Check each dimension per [Review Etiquette](../Review-Etiquette.md):
 
 - **Delivery** — does the diff meet the acceptance criteria, without scope it did not ask for?
 - **Taste** — readability, naming, structure, tests that exercise behaviour.
-- **Security** — input validation, no secrets in logs, SHA-pinned actions, least privilege. Escalate a deep pass to [Security Review](Security-Review.md).
+- **Security** — input validation, no secrets in logs, external action and reusable-workflow references pinned to full commit SHAs, owned major-tag references meeting the controlled-release exception, and least privilege. Escalate a deep pass to [Security Review](Security-Review.md).
 - **Documentation** — updated where user-facing behaviour changed.
 - **Standards and framework alignment** — the pull request records the author's [alignment pass](Implement.md#5-standards-and-framework-alignment-pass), the result covers every changed surface, and each exception links a real follow-up issue. Spot-check at least one row against the canonical standard or framework page rather than trusting the summary; a missing or hollow pass is a blocking finding.
 - **Issue convergence sweep** — the pull request records the author's [sweep](Implement.md#6-issue-convergence-sweep), including scoped search coverage and any convergent issues linked with closing keywords. Spot-check at least one linked closing issue against the delivered diff; a claimed convergence with no visible delivery evidence is a blocking finding.

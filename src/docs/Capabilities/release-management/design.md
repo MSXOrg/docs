@@ -163,7 +163,7 @@ registry.
 The release process is written against the target *contract*, never against a
 specific target. Each target documents how it answers six questions — version
 scheme, prerelease representation and sort order, immutability, unpublish
-behaviour, sliding-tag support, and where its release record lives — in
+behaviour, floating-tag support, and where its release record lives — in
 [Publishing Targets](design-publishing-targets.md). Adding a destination means
 writing that contract and a publish step; it does not change Resolve, Build,
 Test, or the spec.
@@ -181,9 +181,9 @@ a version:
   version. It never resolves a new version to work around a single failed target,
   because the targets that already succeeded hold that immutable version.
 
-## Sliding tags
+## Floating tags
 
-Sliding tags are optional, mutable pointers published alongside the immutable
+Floating tags are optional, mutable pointers published alongside the immutable
 version tag, for consumers that want to track a line rather than a point:
 
 | Tag | Points at | Moves when |
@@ -194,13 +194,20 @@ version tag, for consumers that want to track a line rather than a point:
 
 Three rules keep them safe:
 
-- **Prereleases never move a sliding tag.** Only a stable release advances one,
-  so a sliding tag never points at something not promoted for adoption.
-- **A sliding tag never moves backwards.** It only advances, so a consumer
+- **Prereleases never move a floating tag.** Only a stable release advances one,
+  so a floating tag never points at something not promoted for adoption.
+- **A floating tag never moves backwards.** It only advances, so a consumer
   following it never silently downgrades.
-- **Sliding tags are conveniences, not references.** They are how a consumer
-  *finds* a version, not how one **pins** to it; anything requiring
-  reproducibility pins to the immutable version, digest, or SHA
+- **Only controlled release automation moves a floating tag.** Humans and ad hoc
+  workflows do not create or repoint one. The automation publishes the immutable
+  version first, then moves only the aliases that release is eligible to advance.
+- **A major tag stays inside its compatibility line.** `vMAJOR` advances only
+  for compatible stable patch and minor releases in that major. A breaking
+  release creates the next major tag and leaves the previous one in place.
+- **Floating tags are controlled references only for owned automation.** An
+  organization- or initiative-owned Action or reusable workflow may be consumed
+  through its controlled `vMAJOR` tag. External automation and anything requiring
+  byte-for-byte reproducibility pins to the immutable version, digest, or SHA
   ([supply chain](../../Coding-Standards/Security.md#supply-chain)).
 
 ## Serialised releases

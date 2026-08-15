@@ -131,7 +131,7 @@ Dependency update pull requests must:
 - Use the provisioned update namespace to identify the dependency category and
   ecosystem, separate from the `release:*` bump namespace.
 - Pass the same CI and review gates as human-authored changes.
-- Keep SHA-pinned actions pinned to immutable commit SHAs with a version comment when possible.
+- Keep external actions and reusable workflows pinned to immutable commit SHAs with a version comment when possible; allow an owned floating major only under the controlled-release conditions in the [GitHub Actions standard](../Coding-Standards/GitHub-Actions.md#pin-actions-according-to-ownership).
 - Be reviewed before merge, even when auto-merge is allowed for low-risk updates.
 
 See [Dependency Updates](../Capabilities/dependency-updates/spec.md) for the central requirements.
