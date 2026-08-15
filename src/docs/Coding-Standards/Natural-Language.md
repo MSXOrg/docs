@@ -208,5 +208,5 @@ Do not include secrets, private personal notes, or speculation.
 
 - [Documentation](Documentation.md) — where documentation lives and what it explains.
 - [Markdown](Markdown.md) — Markdown syntax and linted formatting rules.
-- [Agentic Development](../Ways-of-Working/Agentic-Development.md) — how agents consume the same docs as humans.
+- [Agentic Development](../Capabilities/agentic-development/index.md) — how agents consume the same docs as humans.
 - [README-Driven Context](../Ways-of-Working/Readme-Driven-Context.md) — why the README is the repository front door.

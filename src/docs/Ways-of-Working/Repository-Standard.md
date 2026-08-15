@@ -29,7 +29,7 @@ discoverability minimum defined below instead.
 | `SECURITY.md` | Explains supported versions and private vulnerability reporting. |
 | `SUPPORT.md` | Explains where users ask for help. |
 | `CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
-| `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation, then to memory. [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries) names the files and the path each one sits at. |
+| `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation, then to memory. [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior) names the files and the path each one sits at. |
 | `.github/dependabot.yml` | Configures platform-native dependency-update pull requests for supported ecosystems. The `github-actions` ecosystem is expected in virtually every repository; an unsupported ecosystem follows the centrally managed exception path rather than a repository-local updater. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
 | `.github/pull_request_template.md` | Scaffolds pull requests in the MSX [PR Format](PR-Format.md) (PR Manager) style — an icon + change-type + user-facing-outcome title, user-facing description sections, an optional technical-details block, and a related-issues block. |
@@ -61,7 +61,7 @@ against its discoverability minimum. Presence is verified by
 [reconciliation](../Capabilities/repository-governance/design.md#required-files-by-type),
 not by review.
 
-The agent-file row is the one entry this table does not spell out in full. [Agentic Development](Agentic-Development.md#which-agent-files-a-repository-carries) owns that set — one router at the repository root, plus a route for every client that reads a different filename — and the [agentic development spec](../Capabilities/agentic-development/spec.md) limits what a route may contain: a pointer to the router and, at most, genuinely runtime-specific configuration such as permission scopes, never a reading order, a workflow, or a standard. A repository is audited against that one list, so a second copy here would be a second list to keep in step.
+The agent-file row is the one entry this table does not spell out in full. [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior) owns that set — one router at the repository root, plus a route for every client that reads a different filename — and the [agentic development spec](../Capabilities/agentic-development/spec.md) limits what a route may contain: a pointer to the router and, at most, genuinely runtime-specific configuration such as permission scopes, never a reading order, a workflow, or a standard. A repository is audited against that one list, so a second copy here would be a second list to keep in step.
 
 ## README defaults
 
@@ -201,7 +201,7 @@ For example, PSModule can define its module-specific managed files in `PSModule/
 - [Organization Standard](Organization-Standard.md) — what an initiative organization must define centrally.
 - [Repository Governance](../Capabilities/repository-governance/spec.md) — how a repository's type selects the controls and the file set it is audited against.
 - [Automation Labels](Automation-Labels.md) — the namespacing rule every label a repository's automation reads must follow.
-- [Agentic Development](Agentic-Development.md) — which agent files a repository carries and why the entry point is a pointer.
+- [Agentic Development](../Capabilities/agentic-development/index.md) — which agent files a repository carries and why the entry point is a pointer.
 - [Repository Type Property](Repository-Type-Property.md) — the `Type` custom property that classifies a repository and drives which type-specific files and controls apply.
 - [README-Driven Context](Readme-Driven-Context.md) — why the README is the front door.
 - [PR Format](PR-Format.md) — the PR Manager-style title and description format.

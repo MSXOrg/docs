@@ -29,7 +29,7 @@ Write the stage as a page in this section, following the shape of its siblings: 
 
 ### 3. Keep pointers thin
 
-A repository never carries a copy of the workflow. Its `AGENTS.md` — with the client routes that reach it — lists these pages as a destination and nothing more. Repository-specific nuance lives in `README.md`, `CONTRIBUTING.md`, and the repository's own `docs/`; the router points at those files rather than restating them. When a new runtime is adopted, add a route under the filename it reads; do not move process knowledge into it. See [Agentic Development](../Agentic-Development.md#which-agent-files-a-repository-carries).
+A repository never carries a copy of the workflow. Its `AGENTS.md` — with the client routes that reach it — lists these pages as a destination and nothing more. Repository-specific nuance lives in `README.md`, `CONTRIBUTING.md`, and the repository's own `docs/`; the router points at those files rather than restating them. When a new runtime is adopted, add a route under the filename it reads; do not move process knowledge into it. See [Agentic Development](../../Capabilities/agentic-development/design.md#client-behavior).
 
 ### 4. Validate
 
@@ -45,5 +45,5 @@ A repository never carries a copy of the workflow. Its `AGENTS.md` — with the 
 
 ## Where this connects
 
-- [Agentic Development](../Agentic-Development.md) — the pointer model this maintains.
+- [Agentic Development](../../Capabilities/agentic-development/index.md) — the pointer model this maintains.
 - [Documentation Model](../Documentation-Model.md) — how these pages stay evergreen.
