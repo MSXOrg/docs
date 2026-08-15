@@ -37,8 +37,7 @@
     None. This script does not accept pipeline input.
 
 .OUTPUTS
-    [pscustomobject] with Path, Updates, and Updated properties for every YAML file that
-    contains a supported action reference.
+    [pscustomobject] with Path, Updates, and Updated properties for every changed YAML file.
 #>
 [OutputType([pscustomobject])]
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
@@ -238,11 +237,20 @@ function Update-GitHubActionPin {
         foreach ($match in $referenceMatches) {
             $replacement = Get-GitHubActionReplacement -Match $match -ReleaseCache $releaseCache -ApiBaseUri $ApiBaseUri -Headers $headers
             $null = $updatedContent.Append($content, $position, $match.Index - $position)
-            $null = $updatedContent.Append($replacement)
+            if ($replacement -cne $match.Value) {
+                $null = $updatedContent.Append($replacement)
+                $updates++
+            } else {
+                $null = $updatedContent.Append($match.Value)
+            }
             $position = $match.Index + $match.Length
-            $updates++
         }
         $null = $updatedContent.Append($content, $position, $content.Length - $position)
+
+        if ($updates -eq 0) {
+            Write-Verbose "All action references are current in $($file.FullName)."
+            continue
+        }
 
         $updated = $false
         if ($PSCmdlet.ShouldProcess($file.FullName, "Update $updates GitHub Action SHA pin(s)")) {

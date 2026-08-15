@@ -101,6 +101,22 @@ jobs:
         [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($fixture.Path)) | Should -BeExactly $before
     }
 
+    It 'does not rewrite an action pin that already matches the latest release' {
+        $fixture = New-ActionFixture -NewLine "`n" -Content @'
+jobs:
+  build:
+    steps:
+      - uses: actions/checkout@2222222222222222222222222222222222222222 # v2.0.0
+'@
+        $before = [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($fixture.Path))
+        Set-GitHubApiMock
+
+        $result = Update-GitHubActionPin -RepositoryPath $fixture.Root -ApiBaseUri 'https://api.example.test'
+
+        $result | Should -BeNullOrEmpty
+        [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($fixture.Path)) | Should -BeExactly $before
+    }
+
     It 'fails explicitly when GitHub returns no latest stable release tag' {
         $fixture = New-ActionFixture -NewLine "`n" -Content @'
 jobs:
