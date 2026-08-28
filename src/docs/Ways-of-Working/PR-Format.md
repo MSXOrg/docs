@@ -40,8 +40,12 @@ Pull requests in the MSX ecosystem double as **release notes**. The description 
 | Feature     | 🚀   | `release:minor`  | New features or enhancements                          |
 | Patch       | 🩹   | `release:patch`  | Small fixes or improvements                           |
 | Fix         | 🪲   | `release:patch`  | Bugfixes (patch-level release impact)                 |
-| Docs        | 📖   | `release:none`   | Documentation changes only                            |
-| Maintenance | ⚙️   | `release:none`   | CI/CD, build configs, AI/agent files, internal upkeep |
+| Docs        | 📖   | `release:skip`   | Documentation changes only                            |
+| Maintenance | ⚙️   | `release:skip`   | CI/CD, build configs, AI/agent files, internal upkeep |
+
+`release:pre-release` is a release mode, not a change type. Apply it alongside
+exactly one of `release:patch`, `release:minor`, or `release:major` when an open
+pull request must publish a prerelease. Never combine it with `release:skip`.
 
 ### Detecting the change type
 

@@ -5,9 +5,9 @@ description: How dependency updates are built — Dependabot update PRs, a label
 
 # Dependency Updates — Design
 
-The behaviour in the [spec](spec.md) is delivered by the platform-native updater
-([Dependabot](https://docs.github.com/code-security/dependabot)) configured in
-`.github/dependabot.yml`, plus a small labelling and auto-merge layer.
+The baseline updater for dependency management on GitHub is
+[Dependabot](https://docs.github.com/code-security/dependabot), configured in
+`.github/dependabot.yml` and extended by a small labeling and auto-merge layer.
 
 ## What gets checked
 
@@ -110,7 +110,7 @@ bare words:
 
 | Dimension | Question | Label set | Owned by |
 | --- | --- | --- | --- |
-| **Release bump** | How much does *this repository's* version change? | `release:major` · `release:minor` · `release:patch` · `release:none` | [Release Management](../release-management/spec.md) |
+| **Release decision** | Does *this repository* release, by how much, and in which mode? | `release:patch` · `release:minor` · `release:major` · `release:pre-release` · `release:skip` | [Release Management](../release-management/spec.md) |
 | **Dependency update level** | How much did the *upstream dependency* change? | `update:major` · `update:minor` · `update:patch` | This capability |
 
 A dependency update is an **artifact-affecting change**, so merging it produces a
@@ -122,17 +122,19 @@ repository's version and is the label the release workflow reads; the **`update:
 is advisory metadata that drives review routing, never the bump.
 
 Namespacing both sides is what makes this hold in practice rather than by convention.
-Hosted Dependabot applies a SemVer label to its own pull requests **when a repository has
-labels named `major`, `minor`, or `patch`** — it matches on those bare words. Had the
-release set kept the bare vocabulary, every Dependabot pull request would arrive with the
+Dependabot's
+[pull-request labeler](https://github.com/dependabot/dependabot-core/blob/main/common/lib/dependabot/pull_request_creator/labeler.rb)
+applies one of `major`, `minor`, or `patch` when all three bare labels exist. Had the
+release set kept that vocabulary, a Dependabot pull request would arrive with the
 repository's own version decision pre-set by a bot, describing the upstream bump. Because
 no bare label exists, Dependabot finds nothing to apply, and a dependency pull request is
 release-safe by default: it carries an accurate `update:*` level and no release decision
 until a maintainer makes one.
 
-The `skip-release` workaround sometimes suggested for this is a **no-op on hosted
-Dependabot**; the labelling behavior cannot be configured from the repository. Which label
-names exist is the only control, which is why both dimensions are namespaced.
+Dependabot recognizes a bare `skip-release` label as a repository-level compatibility
+sentinel that suppresses its SemVer labels. MSX does not depend on that special case:
+`release:skip` is an owned release-management instruction, and structural namespacing
+keeps both dimensions safe without reserving another bare label.
 
 ## Review posture
 

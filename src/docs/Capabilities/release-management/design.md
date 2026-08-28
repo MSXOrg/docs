@@ -71,11 +71,23 @@ Two consequences follow, and they are the point of the model:
 
 ## Version computation
 
-- The bump comes from the PR label (`release:major` / `release:minor` / `release:patch` / `release:none`).
-  Exactly one is required; **no default** is applied. A missing label, multiple
-  SemVer labels, or a SemVer label alongside `release:none` are all **rejected**, so
-  the version is always a decision someone made. For `workflow_dispatch`, the
-  bump is an input.
+Release automation reads only labels in its `release:` namespace:
+
+| Label | Meaning | Valid combination |
+| --- | --- | --- |
+| `release:patch` | Resolve the next patch version. | Exactly one bump label. |
+| `release:minor` | Resolve the next minor version. | Exactly one bump label. |
+| `release:major` | Resolve the next major version. | Exactly one bump label. |
+| `release:pre-release` | Publish the open pull request as a prerelease. | With exactly one bump label. |
+| `release:skip` | Run validation without resolving or publishing a version. | Alone. |
+
+Exactly one bump label or `release:skip` is required; **no default** is applied.
+`release:pre-release` is an optional mode label, not a bump. A missing decision,
+multiple bump labels, `release:skip` with another release label, or
+`release:pre-release` without one bump label is **rejected**, so the outcome is
+always a decision someone made. Bare `major`, `minor`, and `patch` labels are
+ignored. For `workflow_dispatch`, the same decision is an input.
+
 - **First release** starts from a baseline (`v0.1.0` or `v1.0.0`). Pre-`1.0.0`
   breaking changes are `release:minor` per [SemVer §4](https://semver.org/#spec-item-4);
   `release:major` is never auto-detected pre-`1.0.0`.
@@ -84,24 +96,27 @@ Two consequences follow, and they are the point of the model:
 
 ### Why the labels are namespaced
 
-The bump vocabulary is namespaced under `release:` rather than using the bare words
-`Major`, `Minor`, and `Patch`, and the reason is concrete rather than cosmetic.
+The release vocabulary is namespaced under `release:` rather than using bare words,
+and the reason is concrete rather than cosmetic.
 
-Hosted Dependabot applies a SemVer label to its own pull requests **when a repository has
-labels named `major`, `minor`, or `patch`**. It matches on those bare words. In a
-repository where the release bump set is unprefixed, an upstream patch bump therefore
-arrives already carrying a label that this workflow reads as the repository's own version
-decision — set by a bot, describing something else entirely, with nobody having decided it.
+Dependabot is the baseline updater for dependencies managed on GitHub. Its
+[pull-request labeler](https://github.com/dependabot/dependabot-core/blob/main/common/lib/dependabot/pull_request_creator/labeler.rb)
+applies one of the bare `major`, `minor`, or `patch` labels when all three exist.
+In a repository where the release bump set is unprefixed, an upstream patch bump
+therefore arrives already carrying a label that this workflow reads as the
+repository's own version decision — set by a bot, describing something else
+entirely, with nobody having decided it.
 
 Namespacing removes the collision at its source. There is no bare `major`, `minor`, or
 `patch` label for Dependabot to find, so a dependency pull request arrives with **no**
-release decision attached, fails closed like any other unlabelled pull request, and a
+release decision attached, fails closed like any other unlabeled pull request, and a
 maintainer makes the call at the pull request gate.
 
-Do not reach for a suppression workaround instead. The `skip-release` label and the
-equivalent configuration flag are a **no-op on hosted Dependabot** — the labelling
-behavior is not configurable from the repository. The only lever a repository actually has
-is which label names exist, so that is the lever this design pulls.
+Dependabot suppresses its SemVer labels when a repository contains the bare
+`skip-release` compatibility label. This design does not rely on that special case.
+It removes the collision structurally by not provisioning bare bump labels.
+`release:skip` remains an owned instruction to release management and has no
+Dependabot meaning.
 
 See [Automation Labels](../../Ways-of-Working/Automation-Labels.md#every-set-is-namespaced)
 for the general rule.
@@ -110,9 +125,9 @@ for the general rule.
 
 - **Branch-level** — a prerelease-type branch publishes on every push, using the
   branch name as the identifier: `v1.3.0-dev.1`, `v1.3.0-dev.2`, …
-- **PR-level** — a prerelease label on an open PR publishes
+- **PR-level** — `release:pre-release` alongside exactly one bump label on an open PR publishes
   `v<base>-<identifier>.<counter>`: `base` is the next version from the PR's bump
-  label, `identifier` is the normalised branch name, and `counter`
+  label, `identifier` is the normalized branch name, and `counter`
   auto-increments per push.
 - Artifact-specific conventions replace the SemVer suffix where they exist
   (`-alpha.N` for npm, `.devN` for Python). Release candidates use `-rc.N`,
@@ -236,7 +251,7 @@ release, and its runs are serialised like any other.
 | Surface | Where |
 | --- | --- |
 | Release branches + type | `.github/release.config.yml` |
-| Bump label / prerelease / RC | PR label, or `workflow_dispatch` input |
+| Release decision / prerelease / RC | `release:` PR label, or `workflow_dispatch` input |
 | Path filter | `.github/release.config.yml` |
 | Prerelease cleanup toggle | release config / workflow input |
 | Publishing targets | reusable-workflow input + GitHub environment; see [Publishing Targets](design-publishing-targets.md) |

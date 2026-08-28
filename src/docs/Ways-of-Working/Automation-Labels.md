@@ -51,16 +51,21 @@ pull request, and only a namespace keeps them apart
 ## Every set is namespaced
 
 There is no reserved unprefixed vocabulary. Every label set an automation reads is
-namespaced, including the release bump set:
+namespaced, including the release set:
 
-```text
-release:major         release:none
-release:minor
-release:patch
-```
+| Label | Instruction |
+| --- | --- |
+| `release:patch` | Publish a patch release. |
+| `release:minor` | Publish a minor release. |
+| `release:major` | Publish a major release. |
+| `release:pre-release` | Publish a prerelease from the open pull request. |
+| `release:skip` | Validate the change without publishing a release. |
 
-`release:major`, `release:minor`, `release:patch`, and `release:none` are read by
+These labels are read by
 [release management](../Capabilities/release-management/spec.md) and by nothing else.
+Exactly one bump label or `release:skip` records the release decision.
+`release:pre-release` is an optional mode used with exactly one bump label, never
+with `release:skip`.
 
 Reserving bare words would be the weaker mechanism, because it depends on a documented
 prohibition rather than on the label's own name — and for the release set specifically,
@@ -68,21 +73,23 @@ the prohibition is not the only thing at stake.
 
 ### Why the release set in particular
 
-Hosted Dependabot applies a SemVer label to its own pull requests **when a repository
-has labels named `major`, `minor`, or `patch`**. It matches on those bare words. A
-repository that reserves the bare bump vocabulary for release management therefore hands
-Dependabot the ability to set the repository's next published version as a side effect of
-an upstream patch bump — with no human deciding it.
+Dependabot is the baseline updater for dependencies managed on GitHub across MSX.
+Its
+[pull-request labeler](https://github.com/dependabot/dependabot-core/blob/main/common/lib/dependabot/pull_request_creator/labeler.rb)
+applies one of `major`, `minor`, or `patch` when all three bare labels exist in a
+repository. A repository that reserves that bare vocabulary for release management
+therefore hands Dependabot the ability to set the repository's next published version
+as a side effect of an upstream bump — with no human deciding it.
 
 Namespacing removes the collision at the source. Dependabot finds no bare `major`,
 `minor`, or `patch` label to apply, so its pull requests arrive with no release decision
 attached and a maintainer makes that call at the pull request gate like any other.
 
-There is a documented workaround for suppressing Dependabot's labelling, sometimes
-written as a `skip-release` label or a configuration flag. On **hosted** Dependabot it is
-a no-op: the labelling behavior is not configurable from the repository, so the only
-control a repository actually has is which label names exist. Namespacing is that
-control.
+Dependabot suppresses those SemVer labels when a repository contains a bare
+`skip-release` label. MSX does not depend on that Dependabot-specific compatibility
+sentinel: release safety comes from not provisioning the bare bump labels at all.
+`release:skip` is a different label with a different owner — it tells release
+management not to publish this change.
 
 ## Automation ignores what it does not own
 
