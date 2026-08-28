@@ -72,7 +72,7 @@ framework itself.
 ## Success criteria
 
 - Creating a repository from the template and pushing a first change yields a green build, a passing test run, and a packaged VSIX with no configuration written.
-- A labelled pull request merged to a release branch produces a GitHub Release carrying an installable VSIX whose version matches the label's bump — a conflicting or ambiguous label set is rejected, never guessed.
+- A labeled pull request merged to a release branch produces a GitHub Release carrying an installable VSIX whose version matches the label's bump — a conflicting or ambiguous label set is rejected, never guessed.
 - The tests that gate the release exercise the exact VSIX that is released, on every supported host version and operating system.
 - A documentation-only or CI-only change runs its checks but produces no new version.
 - A user installs any released version straight from its GitHub Release with no marketplace account; where marketplace publishing is enabled, that same version also appears in the marketplace.
