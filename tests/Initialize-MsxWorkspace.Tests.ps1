@@ -387,6 +387,36 @@ exit `$LASTEXITCODE
             Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.memory -Arguments @('rev-parse', 'HEAD')).Trim()
     }
 
+    It 'treats configured repository paths literally during preflight' {
+        $literalRoot = Join-Path $fixture.Root 'literal-path-workspace'
+        New-Item -ItemType Directory -Path (Join-Path $literalRoot 'context1/docs/.git') -Force | Out-Null
+        New-Item -ItemType Directory -Path (Join-Path $literalRoot 'context1/memory/.git') -Force | Out-Null
+        $runner = Join-Path $fixture.Root 'invoke-literal-path-bootstrap.ps1'
+        $bootstrap = $script:bootstrap.Replace("'", "''")
+        $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
+        $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
+        @"
+`$repositories = @(
+    @{ Name = 'Literal/docs'; Path = 'context[1]/docs'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'Literal/memory'; Path = 'context[1]/memory'; Url = '$memoryRemote'; Kind = 'memory' }
+)
+& '$bootstrap' -Root '$literalRoot' -Repository `$repositories -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+exit `$LASTEXITCODE
+"@ | Set-Content -LiteralPath $runner
+
+        $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
+
+        $LASTEXITCODE | Should -Be 0 -Because $output
+        Test-Path -LiteralPath (Join-Path $literalRoot 'context[1]/docs/.git') -PathType Leaf |
+            Should -BeTrue
+        Test-Path -LiteralPath (Join-Path $literalRoot 'context[1]/memory/.git') -PathType Container |
+            Should -BeTrue
+        Test-Path -LiteralPath (Join-Path $literalRoot 'context1/docs/.git') -PathType Container |
+            Should -BeTrue
+        Test-Path -LiteralPath (Join-Path $literalRoot 'context1/memory/.git') -PathType Container |
+            Should -BeTrue
+    }
+
     It 'rejects duplicate repository paths after normalization' {
         $runner = Join-Path $fixture.Root 'invoke-duplicate-bootstrap.ps1'
         $bootstrap = $script:bootstrap.Replace("'", "''")

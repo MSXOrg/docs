@@ -386,10 +386,13 @@ foreach ($repository in $contextRepositories) {
 foreach ($repository in $contextRepositories | Where-Object Kind -eq 'memory') {
     $memoryPath = Join-Path $Root $repository.RelativePath
     $memoryGitEntry = Join-Path $memoryPath '.git'
-    if (Test-Path $memoryGitEntry -PathType Leaf) {
+    if (Test-Path -LiteralPath $memoryGitEntry -PathType Leaf) {
         throw "Memory context '$memoryPath' is a worktree, but memory requires a simple checkout with a .git directory."
     }
-    if ((Test-Path $memoryPath) -and -not (Test-Path $memoryGitEntry -PathType Container)) {
+    if (
+        (Test-Path -LiteralPath $memoryPath) -and
+        -not (Test-Path -LiteralPath $memoryGitEntry -PathType Container)
+    ) {
         throw "Memory context '$memoryPath' is not a supported simple git checkout."
     }
 }
@@ -397,18 +400,18 @@ foreach ($repository in $contextRepositories | Where-Object Kind -eq 'memory') {
 foreach ($repository in $contextRepositories) {
     $contextPath = Join-Path $Root $repository.RelativePath
     $gitEntry = Join-Path $contextPath '.git'
-    if ($repository.Kind -eq 'memory' -and (Test-Path $gitEntry -PathType Container)) {
+    if ($repository.Kind -eq 'memory' -and (Test-Path -LiteralPath $gitEntry -PathType Container)) {
         Assert-ContextOrigin -GitPath $contextPath -RepositoryUrl $repository.Url
     } elseif ($repository.Kind -eq 'docs') {
-        if (Test-Path $gitEntry -PathType Container) {
+        if (Test-Path -LiteralPath $gitEntry -PathType Container) {
             Assert-ContextOrigin -GitPath $contextPath -RepositoryUrl $repository.Url
-        } elseif (Test-Path $gitEntry -PathType Leaf) {
+        } elseif (Test-Path -LiteralPath $gitEntry -PathType Leaf) {
             $commonDir = (git -C $contextPath rev-parse --path-format=absolute --git-common-dir | Out-String).Trim()
             if ($LASTEXITCODE -ne 0) {
                 throw "Cannot resolve docs backing repository for '$contextPath'."
             }
             Assert-ContextOrigin -GitPath $commonDir -RepositoryUrl $repository.Url -Bare
-        } elseif (Test-Path "$contextPath.git") {
+        } elseif (Test-Path -LiteralPath "$contextPath.git") {
             Assert-ContextOrigin -GitPath "$contextPath.git" -RepositoryUrl $repository.Url -Bare
         }
     }
@@ -422,11 +425,11 @@ $results = foreach ($repo in $contextRepositories) {
     $path = Join-Path $Root $repo.RelativePath
     if ($repo.Kind -eq 'memory') {
         $memoryGitEntry = Join-Path $path '.git'
-        if (Test-Path $memoryGitEntry -PathType Leaf) {
+        if (Test-Path -LiteralPath $memoryGitEntry -PathType Leaf) {
             throw "Memory context '$path' is a worktree, but memory requires a simple checkout with a .git directory."
         }
-        if (-not (Test-Path $memoryGitEntry -PathType Container)) {
-            if (Test-Path $path) {
+        if (-not (Test-Path -LiteralPath $memoryGitEntry -PathType Container)) {
+            if (Test-Path -LiteralPath $path) {
                 throw "Cannot clone memory into '$path': it exists but is not a supported simple git checkout."
             }
             if ($PSCmdlet.ShouldProcess($repo.Url, "Clone memory into '$path'")) {
@@ -451,15 +454,15 @@ $results = foreach ($repo in $contextRepositories) {
     $expectedBackingPath = "$path.git"
     $backingPath = $null
     $gitEntry = Join-Path $path '.git'
-    if (Test-Path $gitEntry -PathType Container) {
+    if (Test-Path -LiteralPath $gitEntry -PathType Container) {
         # Safe simple-clone migration: synchronize first, preserve all refs in a
         # new bare backing repository, and retain the old clone as a backup.
         $remote = Sync-ContextCheckout -Path $path -RepositoryUrl $repo.Url -Confirm:$false
-        if (Test-Path $expectedBackingPath) {
+        if (Test-Path -LiteralPath $expectedBackingPath) {
             throw "Cannot migrate '$path': backing path '$expectedBackingPath' already exists."
         }
         $backupPath = "$path.simple-clone-backup"
-        if (Test-Path $backupPath) {
+        if (Test-Path -LiteralPath $backupPath) {
             throw "Cannot migrate '$path': backup path '$backupPath' already exists. Reconcile it first."
         }
         if ($PSCmdlet.ShouldProcess($path, "Migrate simple clone to '$expectedBackingPath'")) {
@@ -482,7 +485,7 @@ $results = foreach ($repo in $contextRepositories) {
                     throw "Bare backing repository '$expectedBackingPath' did not preserve every local branch and tag."
                 }
             } catch {
-                if (Test-Path $expectedBackingPath) {
+                if (Test-Path -LiteralPath $expectedBackingPath) {
                     Remove-Item -LiteralPath $expectedBackingPath -Recurse -Force
                 }
                 throw "Migration preparation failed for '$path'; the original clone is unchanged. $($_.Exception.Message)"
@@ -506,7 +509,7 @@ $results = foreach ($repo in $contextRepositories) {
             } catch {
                 $activationError = $_
                 $rollbackErrors = [Collections.Generic.List[string]]::new()
-                if ($moved -and (Test-Path $path)) {
+                if ($moved -and (Test-Path -LiteralPath $path)) {
                     git --git-dir=$expectedBackingPath worktree remove --force $path 2>$null
                     if ($LASTEXITCODE -ne 0) {
                         $rollbackErrors.Add("git worktree remove failed for '$path'.")
@@ -517,14 +520,18 @@ $results = foreach ($repo in $contextRepositories) {
                         $rollbackErrors.Add("Could not remove partial worktree '$path': $($_.Exception.Message)")
                     }
                 }
-                if ($moved -and -not (Test-Path $path) -and (Test-Path $backupPath)) {
+                if (
+                    $moved -and
+                    -not (Test-Path -LiteralPath $path) -and
+                    (Test-Path -LiteralPath $backupPath)
+                ) {
                     try {
                         Move-Item -LiteralPath $backupPath -Destination $path -ErrorAction Stop
                     } catch {
                         $rollbackErrors.Add("Could not restore '$backupPath' to '$path': $($_.Exception.Message)")
                     }
                 }
-                if (Test-Path $expectedBackingPath) {
+                if (Test-Path -LiteralPath $expectedBackingPath) {
                     try {
                         Remove-Item -LiteralPath $expectedBackingPath -Recurse -Force -ErrorAction Stop
                     } catch {
@@ -539,7 +546,7 @@ $results = foreach ($repo in $contextRepositories) {
             Write-Warning "Migrated '$path' to bare+worktree layout. Verify it, then remove retained backup '$backupPath'."
         }
         $backingPath = $expectedBackingPath
-    } elseif (Test-Path $gitEntry -PathType Leaf) {
+    } elseif (Test-Path -LiteralPath $gitEntry -PathType Leaf) {
         $backingPath = (git -C $path rev-parse --path-format=absolute --git-common-dir | Out-String).Trim()
         if ($LASTEXITCODE -ne 0) {
             throw "Cannot resolve the backing repository for docs worktree '$path'."
@@ -548,11 +555,11 @@ $results = foreach ($repo in $contextRepositories) {
         if ($LASTEXITCODE -ne 0 -or $isBare -ne 'true') {
             throw "Docs worktree '$path' is not backed by a bare repository. Repair it before using context."
         }
-    } elseif (Test-Path $path) {
+    } elseif (Test-Path -LiteralPath $path) {
         throw "Cannot install docs at '$path': it exists but is not a supported git checkout."
     } else {
         $backingPath = $expectedBackingPath
-        if (-not (Test-Path $backingPath)) {
+        if (-not (Test-Path -LiteralPath $backingPath)) {
             if ($PSCmdlet.ShouldProcess($repo.Url, "Clone bare docs backing into '$backingPath'")) {
                 New-Item -ItemType Directory -Path (Split-Path -Parent $backingPath) -Force | Out-Null
                 git clone --bare --quiet $repo.Url $backingPath
