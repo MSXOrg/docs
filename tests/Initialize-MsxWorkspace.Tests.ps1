@@ -782,4 +782,118 @@ exit `$LASTEXITCODE
         (Invoke-Git -Arguments @("--git-dir=$backing", 'rev-parse', 'main')).Trim() | Should -BeExactly $remoteHead
         (Invoke-Git -WorkingDirectory $docs -Arguments @('rev-parse', 'HEAD')).Trim() | Should -BeExactly $remoteHead
     }
+
+    It 'declares the canonical repositories at their preferred local paths' {
+        $bootstrapText = Get-Content -LiteralPath $script:bootstrap -Raw
+
+        $expectedRepositories = @(
+            @{
+                Name = 'MSXOrg/docs'
+                Path = '.msxorg/docs'
+                Url = 'https://github.com/MSXOrg/docs.git'
+            }
+            @{
+                Name = 'MSXOrg/memory'
+                Path = '.msxorg/memory'
+                Url = 'https://github.com/MSXOrg/memory.git'
+            }
+            @{
+                Name = 'PSModule/Process-PSModule'
+                Path = '.psmodule/process-psmodule'
+                Url = 'https://github.com/PSModule/Process-PSModule.git'
+            }
+            @{
+                Name = 'PSModule/memory'
+                Path = '.psmodule/memory'
+                Url = 'https://github.com/PSModule/memory.git'
+            }
+        )
+
+        foreach ($repository in $expectedRepositories) {
+            $bootstrapText | Should -Match ([regex]::Escape("Name = '$($repository.Name)'"))
+            $bootstrapText | Should -Match ([regex]::Escape("Path = '$($repository.Path)'"))
+            $bootstrapText | Should -Match ([regex]::Escape("Url = '$($repository.Url)'"))
+        }
+        $bootstrapText | Should -Not -Match 'PSModule/docs'
+        $bootstrapText | Should -Not -Match "Join-Path `$HOME '\.msx'"
+    }
+
+    It 'keeps every router example repository-addressable and access-method neutral' {
+        $directive = 'Read nearest first, prefer documentation over memory, and always use the newest version.'
+        $routerPaths = @(
+            (Join-Path $PSScriptRoot '../AGENTS.md')
+            (Join-Path $PSScriptRoot '../bootstrap/AGENTS.template.md')
+            (Join-Path $PSScriptRoot '../src/docs/Capabilities/agentic-development/design.md')
+        )
+
+        foreach ($routerPath in $routerPaths) {
+            $router = Get-Content -LiteralPath $routerPath -Raw
+            $router | Should -Match ([regex]::Escape($directive))
+            $router | Should -Match 'MSXOrg/docs'
+            $router | Should -Match 'MSXOrg/memory'
+            $router | Should -Match '~/.msxorg/docs'
+            $router | Should -Match '~/.msxorg/memory'
+        }
+
+        $design = Get-Content -LiteralPath $routerPaths[2] -Raw
+        $design | Should -Match 'PSModule/Process-PSModule'
+        $design | Should -Match 'PSModule/memory'
+        $design | Should -Match '~/.psmodule/process-psmodule'
+        $design | Should -Match '~/.psmodule/memory'
+        $design | Should -Match 'https://msxorg\.github\.io/docs/'
+        $design | Should -Match 'https://psmodule\.io/docs/Modules/Process-PSModule/'
+        $design | Should -Match '(?i)private.+MSXOrg/memory|MSXOrg/memory.+private'
+        $design | Should -Match '(?i)private.+PSModule/memory|PSModule/memory.+private'
+        $design | Should -Match '(?i)CLI.+web.+published.+local clone'
+    }
+
+    It 'ignores former layout content and creates fresh canonical clones with diagnostics' {
+        $homeRoot = Join-Path $fixture.Root 'migration-home'
+        $legacyPaths = @(
+            '.msx/docs'
+            '.msx/memory'
+            '.msx/projects/PSModule/docs'
+            '.msx/projects/PSModule/memory'
+        )
+        foreach ($legacyPath in $legacyPaths) {
+            $path = Join-Path $homeRoot $legacyPath
+            New-Item -ItemType Directory -Path $path -Force | Out-Null
+            Set-Content -LiteralPath (Join-Path $path 'stale.txt') -Value 'must not be trusted'
+        }
+
+        $runner = Join-Path $fixture.Root 'invoke-layout-migration.ps1'
+        $bootstrap = $script:bootstrap.Replace("'", "''")
+        $root = $homeRoot.Replace("'", "''")
+        $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
+        $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
+        @"
+`$repositories = @(
+    @{ Name = 'MSXOrg/docs'; Path = '.msxorg/docs'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'MSXOrg/memory'; Path = '.msxorg/memory'; Url = '$memoryRemote'; Kind = 'memory' }
+    @{ Name = 'PSModule/Process-PSModule'; Path = '.psmodule/process-psmodule'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'PSModule/memory'; Path = '.psmodule/memory'; Url = '$memoryRemote'; Kind = 'memory' }
+)
+& '$bootstrap' -Root '$root' -Repository `$repositories -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+exit `$LASTEXITCODE
+"@ | Set-Content -LiteralPath $runner
+
+        $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
+
+        $LASTEXITCODE | Should -Be 0 -Because $output
+        $output | Should -Match 'Former context path'
+        $output | Should -Match 'will not be used'
+        foreach ($legacyPath in $legacyPaths) {
+            Test-Path -LiteralPath (Join-Path $homeRoot "$legacyPath/stale.txt") | Should -BeTrue
+        }
+        foreach ($canonicalPath in @(
+                '.msxorg/docs'
+                '.msxorg/memory'
+                '.psmodule/process-psmodule'
+                '.psmodule/memory'
+            )) {
+            $path = Join-Path $homeRoot $canonicalPath
+            Test-Path -LiteralPath (Join-Path $path 'stale.txt') | Should -BeFalse
+            Test-Path -LiteralPath (Join-Path $path '.git') | Should -BeTrue
+        }
+    }
 }
