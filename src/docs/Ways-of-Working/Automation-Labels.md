@@ -36,16 +36,12 @@ A label set MUST be namespaced as `namespace:value`, where the namespace names t
 owning function and the value is the instruction to it.
 
 ```text
-dependency:github-actions
-dependency:containers
 release:minor
 ```
 
 Namespacing is not decoration. It is what lets two functions describe the *same kind
 of thing* about one pull request without either one silently reading the other's
-signal. Dependency scope and release impact are separate concerns, so they use
-separate namespaces
-([dependency updates](../Capabilities/dependency-updates/design.md#dependency-labels)).
+signal.
 
 ## Every set is namespaced
 
@@ -96,6 +92,5 @@ decision applies, and unambiguous about who acts on it.
 ## Where this connects
 
 - [Release Management](../Capabilities/release-management/spec.md) — the namespaced bump vocabulary and why exactly one of its values is required.
-- [Dependency Updates](../Capabilities/dependency-updates/design.md#dependency-labels) — dependency-scope labels and the separate release decision.
 - [Repository Governance](../Capabilities/repository-governance/design.md) — the controls that read repository state, of which labels are one.
 - [Repository Standard](Repository-Standard.md) — the repository-level requirement that labels be provisioned rather than improvised.

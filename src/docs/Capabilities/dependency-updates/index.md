@@ -1,6 +1,6 @@
 ---
 title: Dependency Updates
-description: How a repository's pinned dependencies are kept current and secure through automated, labelled update pull requests.
+description: How a repository's pinned dependencies are kept current and secure through automated update pull requests.
 ---
 
 # Dependency Updates

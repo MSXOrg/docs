@@ -66,11 +66,8 @@ a fleet of pin-update pull requests.
   request that rewrites the pin to the new commit SHA and refreshes the trailing
   version comment.
 - **Apply the updater's default three-day cooldown** before adopting a freshly published version. Omit an explicit `cooldown` mapping unless the repository deliberately adopts a non-default duration.
-- **Label the update PR** with `dependency:github-actions` so routing identifies
-  the affected ecosystem. This label does not decide the repository release.
 - **Make the release decision separately** after dependency changes are
-  collected, using the `release:*` labels defined by
-  [Release Management](../Capabilities/release-management/design.md).
+  collected, under [Release Management](../Capabilities/release-management/design.md).
 - **Publish owned floating major tags only through controlled release
   automation.** The release gate validates compatibility, publishes the immutable
   version tag first, and then advances the major tag to that stable release.
@@ -79,7 +76,7 @@ a fleet of pin-update pull requests.
   A breaking release publishes the next major tag, but consumers remain on their
   current line until that campaign changes their `uses:` references.
 
-The full mechanism — schedule, cooldown, dependency labels, and merge policy — is the
+The full mechanism — schedule, cooldown, and merge policy — is the
 [Dependency Updates](../Capabilities/dependency-updates/design.md) capability;
 this section is the Actions-specific view of it.
 

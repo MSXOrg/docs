@@ -44,7 +44,7 @@ The resolution is not to pick a point and freeze — it is to **control integrit
 
 1. **Pin tightly by default** — an identity pin plus a deliberate version, or a lockfile — so every build is reproducible and nothing changes unvetted. A controlled owned-major tag is the narrow exception for automation whose release path the organization or initiative operates.
 2. **Automate updates** so currency never depends on a human watching upstream: the [Dependency Updates](../Capabilities/dependency-updates/index.md) bot opens one reviewed pull request per bump.
-3. **Gate every update through CI and review** — every update passes the repository's normal merge policy; security advisories are raised out of band and prioritized. After related changes are collected, decide the repository release bump with a `release:*` label under [Release Management](../Capabilities/release-management/design.md).
+3. **Gate every update through CI and review** — every update passes the repository's normal merge policy; security advisories are raised out of band and prioritized. After related changes are collected, decide the repository release bump under [Release Management](../Capabilities/release-management/design.md).
 
 Tight pinning is safe *because* the updates are automated: the bot closes the currency gap and CI plus review close the vetting gap. A controlled owned-major tag applies the same principle at the producer: compatible releases pass the controlled release gate once, then the major pointer rolls them out centrally. It trades consumer-level reproducibility for coordinated rollout and is never valid for an external dependency.
 

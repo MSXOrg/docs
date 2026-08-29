@@ -69,40 +69,25 @@ bad now, and waiting for a schedule window or a cooldown would be waiting on pur
 
 The updater opens **one PR per outdated or vulnerable dependency**, carrying the
 change and the upstream release notes. SHA-pinned dependencies get the new
-commit SHA with the version as a trailing comment. Ecosystems, directories,
-schedule, and dependency labels live in `.github/dependabot.yml`; a non-default
+commit SHA with the version as a trailing comment. Ecosystems, directories, and
+schedule live in `.github/dependabot.yml`; a non-default
 cooldown belongs there too, while the standard three-day cooldown remains
 implicit.
 
 ```mermaid
 flowchart TD
-  check["Scheduled check / advisory"] --> pr["Open dependency update PR<br/>dependency:ECOSYSTEM"]
+  check["Scheduled check / advisory"] --> pr["Open dependency update PR"]
   pr --> ci["Required checks run<br/>(same gate as any PR)"]
   ci --> review["Review and merge"]
   review --> merged["Merged"]
   merged --> release["Separate release decision<br/>see Release Management"]
 ```
 
-## Dependency labels
-
-Every automated update PR carries one `dependency:<ecosystem>` label for
-routing. The label identifies the affected dependency scope; it does not decide
-the repository version.
-
-| Label | Meaning |
-| --- | --- | --- |
-| `dependency:github-actions` · `dependency:docker` · `dependency:terraform` · `dependency:npm` · `dependency:python` · `dependency:powershell` | The ecosystem the update targets. One per PR. |
-
-The dependency label is applied by the updater configuration and is not a
-release signal.
-
 ### Release decision
 
 Dependency changes are collected before the repository release decision is
-made. A bot or reviewer applies exactly one `release:*` label for the
-repository-wide effect, following [Release Management](../release-management/design.md).
-That label is the only version-bump signal used when the merged changes are
-released.
+made. The repository-wide effect follows [Release
+Management](../release-management/design.md).
 
 ## Review and merge
 
@@ -112,8 +97,8 @@ gates. Automatic merge, where configured, never bypasses those gates.
 ## Security updates
 
 Raised on advisory disclosure, independently of the schedule, and
-**prioritised**. They otherwise follow the same labels, the same review policy,
-and the same release path as any other update.
+**prioritised**. They otherwise follow the same review policy and release path as
+any other update.
 
 ## Configuration surface
 
@@ -123,8 +108,7 @@ and the same release path as any other update.
 | Unsupported ecosystems | Central exception register | Centrally managed shared mechanism |
 | Schedule (`interval`, `day` and `time`, or `cronjob`) and `timezone` | `.github/dependabot.yml` | Organization configuration |
 | Cooldown | Updater default (three days); explicit mapping only for a deliberate non-default duration | Organization configuration |
-| Dependency labels (`dependency:<ecosystem>`) | `.github/dependabot.yml` | Generated |
-| Release bump | `release:*` pull-request label | Decided for the collected repository change |
+| Release decision | Release Management | Decided for the collected repository change |
 | Merge policy | Branch protection and merge automation | Organization configuration |
 | Security updates | Repository security settings | On by default |
 
@@ -136,7 +120,6 @@ rather than overwrite.
 ## Where this connects
 
 - [Spec](spec.md) — the requirements this design delivers.
-- [Automation Labels](../../Ways-of-Working/Automation-Labels.md) — the ownership and namespacing rules the label scheme follows.
 - [Repository Governance](../repository-governance/design.md#drift-detection-and-reconciliation) — the reconciliation that compares generated configuration against what is committed.
 - [Release Management](../release-management/design.md) — the release an update PR cuts.
 - [Downstream Release Propagation](../downstream-release-propagation/design.md) — the internal counterpart; propagation PRs are dependency updates too.
