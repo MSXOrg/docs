@@ -79,7 +79,7 @@ Release automation reads only labels in its `release:` namespace:
 | `release:patch` | Override `DefaultBump` and resolve the next patch version. | Alone or with `release:pre-release`. |
 | `release:minor` | Override `DefaultBump` and resolve the next minor version. | Alone or with `release:pre-release`. |
 | `release:major` | Override `DefaultBump` and resolve the next major version. | Alone or with `release:pre-release`. |
-| `release:pre-release` | Publish the open pull request as a prerelease. | Alone or with one bump label. |
+| `release:pre-release` | Publish the open pull request as a prerelease. | Alone or with one owned bump label. |
 | `release:skip` | Run validation without resolving or publishing a version. | Alone. |
 
 `DefaultBump` in `.github/release.config.yml` accepts exactly `patch`, `minor`,
@@ -87,9 +87,9 @@ or `major`; omitting it resolves to `patch`. Any other value is rejected before
 Resolve begins. With no owned bump label, Resolve uses `DefaultBump`. Exactly one
 of `release:patch`, `release:minor`, or `release:major` overrides it.
 `release:pre-release` is a mode label, not a bump, and uses that same resolved
-bump. Multiple bump labels and `release:skip` with any other owned release label
-are rejected. Bare `major`, `minor`, and `patch` labels and all unrelated labels
-are ignored.
+bump. Multiple owned bump labels and `release:skip` with any other owned release
+label are rejected. Bare `major`, `minor`, and `patch` labels and all unrelated
+labels are ignored.
 
 - **First release** starts from a baseline (`v0.1.0` or `v1.0.0`). Pre-`1.0.0`
   breaking changes are `release:minor` per [SemVer §4](https://semver.org/#spec-item-4);
@@ -122,7 +122,7 @@ either: rerun the existing release with the same artifact and version under the
   branch name as the identifier: `v1.3.0-dev.1`, `v1.3.0-dev.2`, …
 - **PR-level** — `release:pre-release` on an open PR publishes
   `v<base>-<identifier>.<counter>`: `base` is the next version from one explicit
-  bump label when present, otherwise from the resolved `DefaultBump`;
+  owned bump label when present, otherwise from the resolved `DefaultBump`;
   `identifier` is the normalized branch name, and `counter` auto-increments per
   push.
 - Artifact-specific conventions replace the SemVer suffix where they exist

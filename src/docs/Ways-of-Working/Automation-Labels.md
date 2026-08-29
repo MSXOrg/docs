@@ -53,15 +53,15 @@ namespaced, including the release set:
 | `release:patch` | Override the configured default and publish a patch release. |
 | `release:minor` | Override the configured default and publish a minor release. |
 | `release:major` | Override the configured default and publish a major release. |
-| `release:pre-release` | Publish a prerelease using the explicit bump or configured default. |
+| `release:pre-release` | Publish a prerelease using an owned bump label or the resolved `DefaultBump`. |
 | `release:skip` | Validate the change without publishing a release. |
 
 These labels are read by
 [release management](../Capabilities/release-management/spec.md) and by nothing else.
 The configured `DefaultBump` supplies the release decision when no owned bump
-label is present. One bump label overrides it. `release:pre-release` is an
-optional mode used alone or with one bump label, while `release:skip` is used
-alone and prevents publication. Conflicting owned labels fail.
+label is present. One owned bump label overrides it. `release:pre-release` is an
+optional mode used alone or with one owned bump label, while `release:skip` is
+used alone and prevents publication. Conflicting owned labels fail.
 
 Reserving bare words would be weaker because it depends on a documented
 prohibition rather than making ownership visible in the label itself.

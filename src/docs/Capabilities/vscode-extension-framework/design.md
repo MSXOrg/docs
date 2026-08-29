@@ -101,13 +101,14 @@ VSIX artifact — this framework does not re-implement it:
 
 - `DefaultBump` accepts exactly `patch`, `minor`, or `major` and resolves to
   `patch` when omitted. When present, one of `release:patch`, `release:minor`, or
-  `release:major` overrides it. Multiple bump labels and `release:skip` with any
-  other owned release label are rejected; bare and unrelated labels are ignored.
+  `release:major` overrides it. Multiple owned bump labels and `release:skip`
+  with any other owned release label are rejected; bare and unrelated labels are
+  ignored.
 - `release:skip` prevents publication.
 - The version is computed once and stamped into the manifest; it is never
   hand-edited.
 - A prerelease is requested by `release:pre-release` on an open pull request (or
-  by a prerelease branch), using one explicit bump label when present and
+  by a prerelease branch), using one explicit owned bump label when present and
   the resolved `DefaultBump` otherwise. It produces a prerelease VSIX that is
   never promoted to latest. When such a build is also published to the VS Code
   Marketplace, it goes out with `@vscode/vsce publish --pre-release` and an odd

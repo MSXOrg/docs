@@ -59,7 +59,7 @@ A repository on the promotion model MAY keep a **standing draft pull request** f
 - **One long-lived pull request, not one per promotion.** Merging it promotes; a new draft opens immediately, so the candidate view is never absent.
 - **Draft is the resting state.** It is marked ready when the integrated state is deemed promotable, which is what turns review and any promotion gate on.
 - **Its description is the promotion note.** Assembled from the changes it carries, it is the record of what a promotion contained, written for whoever operates the destination.
-- **The resolved release policy decides the production version.** Promotion is a release like any other, so the version comes from an explicit bump label on this pull request when present, otherwise from the configured `DefaultBump` — never from the versions of the changes it bundles ([release management](../Capabilities/release-management/spec.md)).
+- **The resolved release policy decides the production version.** Promotion is a release like any other, so the version comes from an explicit owned `release:` bump label on this pull request when present, otherwise from the configured `DefaultBump` — never from the versions of the changes it bundles ([release management](../Capabilities/release-management/spec.md)).
 
 The value is continuous visibility: at any moment, the difference between what is integrated and what is live is one link. It suits repositories where promotion is a deliberate, gated event and costs more than it returns where every merge already ships.
 

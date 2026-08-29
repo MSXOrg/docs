@@ -154,9 +154,7 @@ A good error message includes:
 
 Prefer:
 
-```text
-Release labels conflict: release:patch and release:minor cannot be combined. Keep one bump label, or remove both to use DefaultBump.
-```
+> Release labels conflict: `release:patch` and `release:minor` cannot be combined. Keep one owned bump label, or remove both to use `DefaultBump`.
 
 Avoid:
 
