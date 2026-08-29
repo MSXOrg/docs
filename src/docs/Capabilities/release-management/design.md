@@ -82,30 +82,6 @@ Two consequences follow, and they are the point of the model:
 - The tag is created on the commit now at the head of the release branch —
   squash, merge-commit, and rebase strategies alike.
 
-### Why the labels are namespaced
-
-The bump vocabulary is namespaced under `release:` rather than using the bare words
-`Major`, `Minor`, and `Patch`, and the reason is concrete rather than cosmetic.
-
-Hosted Dependabot applies a SemVer label to its own pull requests **when a repository has
-labels named `major`, `minor`, or `patch`**. It matches on those bare words. In a
-repository where the release bump set is unprefixed, an upstream patch bump therefore
-arrives already carrying a label that this workflow reads as the repository's own version
-decision — set by a bot, describing something else entirely, with nobody having decided it.
-
-Namespacing removes the collision at its source. There is no bare `major`, `minor`, or
-`patch` label for Dependabot to find, so a dependency pull request arrives with **no**
-release decision attached, fails closed like any other unlabelled pull request, and a
-maintainer makes the call at the pull request gate.
-
-Do not reach for a suppression workaround instead. The `skip-release` label and the
-equivalent configuration flag are a **no-op on hosted Dependabot** — the labelling
-behavior is not configurable from the repository. The only lever a repository actually has
-is which label names exist, so that is the lever this design pulls.
-
-See [Automation Labels](../../Ways-of-Working/Automation-Labels.md#every-set-is-namespaced)
-for the general rule.
-
 ## Prereleases
 
 - **Branch-level** — a prerelease-type branch publishes on every push, using the

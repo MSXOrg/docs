@@ -1,6 +1,6 @@
 ---
 title: Dependency Updates
-description: How a repository's pinned dependencies are kept current and secure through automated, labelled update pull requests.
+description: How a repository's pinned dependencies are kept current and secure through automated update pull requests.
 ---
 
 # Dependency Updates
@@ -15,6 +15,6 @@ pull requests that are reviewed and released like any other change.
 | Page | Description |
 | --- | --- |
 | [Spec](spec.md) | Requirements for dependency updates — pinned dependencies kept current and secure through reviewed, released update pull requests. |
-| [Design](design.md) | How dependency updates are built — Dependabot update PRs, a label scheme kept disjoint from release labels, and level-based auto-merge. |
+| [Design](design.md) | How dependency updates are handled — automated update pull requests, coverage, cooldown, security updates, and review. |
 
 <!-- INDEX:END -->
