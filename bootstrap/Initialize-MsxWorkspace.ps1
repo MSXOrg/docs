@@ -6,10 +6,10 @@
     Clone or update canonical project context repositories in a git-isolated workspace under $HOME.
 
 .DESCRIPTION
-    The single starting point for every agent. It ensures the central
-    documentation and memory repositories for each configured project exist
-    locally under one dedicated workspace, so an agent reads current canonical
-    context regardless of which repository it is working in.
+    The single starting point for every agent. It ensures each configured
+    canonical context repository exists at its preferred local path under one
+    dedicated root, so an agent reads current canonical context regardless of
+    which repository it is working in.
 
     The workspace is deliberately kept separate from the repositories an agent
     works in:
@@ -28,23 +28,20 @@
 
 .EXAMPLE
     ./Initialize-MsxWorkspace.ps1
-    Clones missing repositories and exactly synchronizes existing ones under ~/.msx.
+    Clones or synchronizes the canonical MSXOrg and PSModule context under the
+    current user's home directory.
 
 .EXAMPLE
-    ./Initialize-MsxWorkspace.ps1 -Root /work/.msx -Verbose
-    Uses a custom workspace root and logs each step.
+    ./Initialize-MsxWorkspace.ps1 -Root /work -Verbose
+    Uses a custom context root and logs each step.
 
 .EXAMPLE
-    $projects = @(
-        @{
-            Name = 'PSModule'
-            Path = 'projects/PSModule'
-            DocsUrl = 'https://github.com/PSModule/docs.git'
-            MemoryUrl = 'https://github.com/PSModule/memory.git'
-        }
+    $repositories = @(
+        @{ Name = 'MSXOrg/docs'; Path = '.msxorg/docs'; Url = 'https://github.com/MSXOrg/docs.git'; Kind = 'docs' }
+        @{ Name = 'MSXOrg/memory'; Path = '.msxorg/memory'; Url = 'https://github.com/MSXOrg/memory.git'; Kind = 'memory' }
     )
-    ./Initialize-MsxWorkspace.ps1 -Project $projects
-    Installs a project's docs and memory under a project-specific workspace path.
+    ./Initialize-MsxWorkspace.ps1 -Repository $repositories
+    Synchronizes an explicit repository set at explicit paths.
 
 .OUTPUTS
     [pscustomobject] with Repository, Path, BackingPath, and Changes for each
@@ -52,10 +49,10 @@
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
-    # The workspace root under which 'docs' and 'memory' are placed.
+    # The root under which repository paths are resolved.
     [Parameter()]
     [ValidateNotNullOrEmpty()]
-    [string] $Root = (Join-Path $HOME '.msx'),
+    [string] $Root = $HOME,
 
     # The git author name written to each clone's local config.
     [Parameter()]
@@ -67,15 +64,34 @@ param(
     [ValidateNotNullOrEmpty()]
     [string] $UserEmail = 'MariusStorhaug@users.noreply.github.com',
 
-    # Projects whose canonical docs and memory repositories must be synchronized.
+    # Canonical context repositories and their paths relative to Root.
     [Parameter()]
+    [Alias('Repository')]
     [ValidateNotNullOrEmpty()]
-    [hashtable[]] $Project = @(
+    [hashtable[]] $Repositories = @(
         @{
-            Name = 'MSXOrg'
-            Path = ''
-            DocsUrl = 'https://github.com/MSXOrg/docs.git'
-            MemoryUrl = 'https://github.com/MSXOrg/memory.git'
+            Name = 'MSXOrg/docs'
+            Path = '.msxorg/docs'
+            Url = 'https://github.com/MSXOrg/docs.git'
+            Kind = 'docs'
+        }
+        @{
+            Name = 'MSXOrg/memory'
+            Path = '.msxorg/memory'
+            Url = 'https://github.com/MSXOrg/memory.git'
+            Kind = 'memory'
+        }
+        @{
+            Name = 'PSModule/Process-PSModule'
+            Path = '.psmodule/process-psmodule'
+            Url = 'https://github.com/PSModule/Process-PSModule.git'
+            Kind = 'docs'
+        }
+        @{
+            Name = 'PSModule/memory'
+            Path = '.psmodule/memory'
+            Url = 'https://github.com/PSModule/memory.git'
+            Kind = 'memory'
         }
     )
 )
@@ -278,72 +294,58 @@ function Set-ContextIdentity {
     if ($LASTEXITCODE -ne 0) { throw "git config user.email failed for '$Path' (exit $LASTEXITCODE)." }
 }
 
-$projectNames = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
-$repositories = foreach ($projectDefinition in $Project) {
-    foreach ($key in @('Name', 'Path', 'DocsUrl', 'MemoryUrl')) {
-        if (-not $projectDefinition.ContainsKey($key) -or $null -eq $projectDefinition[$key]) {
-            throw "Project definitions require Name, Path, DocsUrl, and MemoryUrl. Missing '$key'."
+$repositoryNames = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+$contextRepositories = foreach ($repositoryDefinition in $Repositories) {
+    foreach ($key in @('Name', 'Path', 'Url', 'Kind')) {
+        if (-not $repositoryDefinition.ContainsKey($key) -or $null -eq $repositoryDefinition[$key]) {
+            throw "Repository definitions require Name, Path, Url, and Kind. Missing '$key'."
         }
     }
 
-    $projectName = [string] $projectDefinition.Name
-    $projectPath = ([string] $projectDefinition.Path).Trim()
-    if (-not $projectName.Trim()) {
-        throw 'Project Name must not be empty.'
+    $repositoryName = ([string] $repositoryDefinition.Name).Trim()
+    if (-not $repositoryName) {
+        throw 'Repository Name must not be empty.'
     }
-    $projectName = $projectName.Trim()
-    if (-not $projectNames.Add($projectName)) {
-        throw "Project definitions require unique names. Duplicate: '$projectName'."
+    if (-not $repositoryNames.Add($repositoryName)) {
+        throw "Repository definitions require unique names. Duplicate: '$repositoryName'."
     }
-    $pathSegments = @($projectPath -split '[\\/]' | Where-Object { $_ -and $_ -ne '.' })
-    if ([IO.Path]::IsPathRooted($projectPath) -or '..' -in $pathSegments) {
-        throw "Project Path '$projectPath' must be a safe path relative to the workspace root."
-    }
-    $projectPath = $pathSegments -join [IO.Path]::DirectorySeparatorChar
 
-    $docsPath = if ($projectPath) { Join-Path $projectPath 'docs' } else { 'docs' }
-    $memoryPath = if ($projectPath) { Join-Path $projectPath 'memory' } else { 'memory' }
-    [pscustomobject]@{
-        Name = "$projectName/docs"
-        Project = $projectName
-        ProjectPath = $projectPath
-        Kind = 'docs'
-        RelativePath = $docsPath
-        Url = [string] $projectDefinition.DocsUrl
-        Changes = 'pull requests'
+    $repositoryPath = ([string] $repositoryDefinition.Path).Trim()
+    $pathSegments = @($repositoryPath -split '[\\/]' | Where-Object { $_ -and $_ -ne '.' })
+    if (
+        -not $pathSegments -or
+        [IO.Path]::IsPathRooted($repositoryPath) -or
+        '..' -in $pathSegments
+    ) {
+        throw "Repository Path '$repositoryPath' must be a non-empty safe path relative to Root."
     }
+    $repositoryPath = $pathSegments -join [IO.Path]::DirectorySeparatorChar
+
+    $kind = ([string] $repositoryDefinition.Kind).Trim().ToLowerInvariant()
+    if ($kind -notin @('docs', 'memory')) {
+        throw "Repository Kind for '$repositoryName' must be 'docs' or 'memory', not '$kind'."
+    }
+
     [pscustomobject]@{
-        Name = "$projectName/memory"
-        Project = $projectName
-        ProjectPath = $projectPath
-        Kind = 'memory'
-        RelativePath = $memoryPath
-        Url = [string] $projectDefinition.MemoryUrl
-        Changes = 'repository policy'
+        Name = $repositoryName
+        Kind = $kind
+        RelativePath = $repositoryPath
+        Url = [string] $repositoryDefinition.Url
+        Changes = if ($kind -eq 'docs') { 'pull requests' } else { 'repository policy' }
     }
 }
 
-$occupiedPaths = foreach ($repository in $repositories) {
+$occupiedPaths = foreach ($repository in $contextRepositories) {
     [pscustomobject]@{
-        Project = $repository.Project
         Repository = $repository.Name
         Path = $repository.RelativePath
     }
     if ($repository.Kind -eq 'docs') {
-        if ($repository.ProjectPath) {
-            [pscustomobject]@{
-                Project = $repository.Project
-                Repository = "$($repository.Project) root"
-                Path = $repository.ProjectPath
-            }
-        }
         [pscustomobject]@{
-            Project = $repository.Project
             Repository = "$($repository.Name) backing"
             Path = "$($repository.RelativePath).git"
         }
         [pscustomobject]@{
-            Project = $repository.Project
             Repository = "$($repository.Name) migration backup"
             Path = "$($repository.RelativePath).simple-clone-backup"
         }
@@ -352,9 +354,6 @@ $occupiedPaths = foreach ($repository in $repositories) {
 for ($left = 0; $left -lt $occupiedPaths.Count; $left++) {
     $leftPath = ($occupiedPaths[$left].Path -replace '\\', '/').Trim('/').ToLowerInvariant()
     for ($right = $left + 1; $right -lt $occupiedPaths.Count; $right++) {
-        if ($occupiedPaths[$left].Project -eq $occupiedPaths[$right].Project) {
-            continue
-        }
         $rightPath = ($occupiedPaths[$right].Path -replace '\\', '/').Trim('/').ToLowerInvariant()
         $collision = (
             $leftPath -eq $rightPath -or
@@ -362,12 +361,29 @@ for ($left = 0; $left -lt $occupiedPaths.Count; $left++) {
             $rightPath.StartsWith("$leftPath/", [StringComparison]::Ordinal)
         )
         if ($collision) {
-            throw "Project workspace paths overlap: '$($occupiedPaths[$left].Path)' and '$($occupiedPaths[$right].Path)'."
+            throw "Repository paths overlap: '$($occupiedPaths[$left].Path)' and '$($occupiedPaths[$right].Path)'."
         }
     }
 }
 
-foreach ($repository in $repositories | Where-Object Kind -eq 'memory') {
+$formerPaths = @{
+    'MSXOrg/docs' = '.msx/docs'
+    'MSXOrg/memory' = '.msx/memory'
+    'PSModule/Process-PSModule' = '.msx/projects/PSModule/docs'
+    'PSModule/memory' = '.msx/projects/PSModule/memory'
+}
+foreach ($repository in $contextRepositories) {
+    if (-not $formerPaths.ContainsKey($repository.Name)) {
+        continue
+    }
+    $formerPath = Join-Path $Root $formerPaths[$repository.Name]
+    if (Test-Path -LiteralPath $formerPath) {
+        $canonicalPath = Join-Path $Root $repository.RelativePath
+        Write-Warning "Former context path '$formerPath' for '$($repository.Name)' will not be used. Bootstrap will refresh the canonical repository at '$canonicalPath'. Remove the former path only after verifying the canonical clone."
+    }
+}
+
+foreach ($repository in $contextRepositories | Where-Object Kind -eq 'memory') {
     $memoryPath = Join-Path $Root $repository.RelativePath
     $memoryGitEntry = Join-Path $memoryPath '.git'
     if (Test-Path $memoryGitEntry -PathType Leaf) {
@@ -378,7 +394,7 @@ foreach ($repository in $repositories | Where-Object Kind -eq 'memory') {
     }
 }
 
-foreach ($repository in $repositories) {
+foreach ($repository in $contextRepositories) {
     $contextPath = Join-Path $Root $repository.RelativePath
     $gitEntry = Join-Path $contextPath '.git'
     if ($repository.Kind -eq 'memory' -and (Test-Path $gitEntry -PathType Container)) {
@@ -402,7 +418,7 @@ if ($PSCmdlet.ShouldProcess($Root, 'Create workspace root')) {
     New-Item -ItemType Directory -Force -Path $Root | Out-Null
 }
 
-$results = foreach ($repo in $repositories) {
+$results = foreach ($repo in $contextRepositories) {
     $path = Join-Path $Root $repo.RelativePath
     if ($repo.Kind -eq 'memory') {
         $memoryGitEntry = Join-Path $path '.git'

@@ -103,15 +103,11 @@ Describe 'Initialize-MsxWorkspace context freshness' {
             $docsRemote = $Fixture.Remotes.docs.Replace("'", "''")
             $memoryRemote = $Fixture.Remotes.memory.Replace("'", "''")
             @"
-`$projects = @(
-    @{
-        Name = 'Fixture'
-        Path = ''
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
+`$repositories = @(
+    @{ Name = 'Fixture/docs'; Path = 'docs'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'Fixture/memory'; Path = 'memory'; Url = '$memoryRemote'; Kind = 'memory' }
 )
-& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+& '$bootstrap' -Root '$workspace' -Repository `$repositories -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
 exit `$LASTEXITCODE
 "@ | Set-Content -LiteralPath $runner
             $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
@@ -349,41 +345,33 @@ exit `$LASTEXITCODE
             Should -BeExactly $memoryBefore
     }
 
-    It 'installs additional project context through plug-in coordinates' {
+    It 'installs additional context through explicit repository coordinates' {
         $runner = Join-Path $fixture.Root 'invoke-project-bootstrap.ps1'
         $bootstrap = $script:bootstrap.Replace("'", "''")
         $workspace = $fixture.Workspace.Replace("'", "''")
         $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
         $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
         @"
-`$projects = @(
-    @{
-        Name = 'MSXOrg'
-        Path = ''
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
-    @{
-        Name = 'Project'
-        Path = './projects/Project/'
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
+`$repositories = @(
+    @{ Name = 'MSXOrg/docs'; Path = 'docs'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'MSXOrg/memory'; Path = 'memory'; Url = '$memoryRemote'; Kind = 'memory' }
+    @{ Name = 'Project/process'; Path = './projects/Project/process/'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'Project/memory'; Path = './projects/Project/memory/'; Url = '$memoryRemote'; Kind = 'memory' }
 )
-& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+& '$bootstrap' -Root '$workspace' -Repository `$repositories -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
 exit `$LASTEXITCODE
 "@ | Set-Content -LiteralPath $runner
 
         $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
 
         $LASTEXITCODE | Should -Be 0 -Because $output
-        $projectDocs = Join-Path $fixture.Workspace 'projects/Project/docs'
+        $projectDocs = Join-Path $fixture.Workspace 'projects/Project/process'
         $projectMemory = Join-Path $fixture.Workspace 'projects/Project/memory'
         Test-Path -LiteralPath (Join-Path $projectDocs '.git') | Should -BeTrue
         Test-Path -LiteralPath (Join-Path $projectMemory '.git') | Should -BeTrue
-        Test-Path -LiteralPath (Join-Path $fixture.Workspace 'projects/Project/docs.git') | Should -BeTrue
+        Test-Path -LiteralPath (Join-Path $fixture.Workspace 'projects/Project/process.git') | Should -BeTrue
         (Invoke-Git -Arguments @(
-            "--git-dir=$(Join-Path $fixture.Workspace 'projects/Project/docs.git')",
+            "--git-dir=$(Join-Path $fixture.Workspace 'projects/Project/process.git')",
             'rev-parse',
             '--is-bare-repository'
         )).Trim() | Should -BeExactly 'true'
@@ -400,28 +388,18 @@ exit `$LASTEXITCODE
         $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
         $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
         @"
-`$projects = @(
-    @{
-        Name = 'One'
-        Path = ''
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
-    @{
-        Name = 'Two'
-        Path = '.'
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
+`$repositories = @(
+    @{ Name = 'One/docs'; Path = 'same'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'Two/memory'; Path = './same/'; Url = '$memoryRemote'; Kind = 'memory' }
 )
-& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+& '$bootstrap' -Root '$workspace' -Repository `$repositories -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
 exit `$LASTEXITCODE
 "@ | Set-Content -LiteralPath $runner
 
         $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
 
         $LASTEXITCODE | Should -Not -Be 0
-        $output | Should -Match 'workspace paths overlap'
+        $output | Should -Match 'Repository paths overlap'
     }
 
     It 'rejects duplicate project names before mutation' -ForEach @(
@@ -436,21 +414,11 @@ exit `$LASTEXITCODE
         $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
         $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
         @"
-`$projects = @(
-    @{
-        Name = 'Duplicate'
-        Path = ''
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
-    @{
-        Name = 'Duplicate'
-        Path = '$SecondPath'
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
+`$repositories = @(
+    @{ Name = 'Duplicate'; Path = 'docs'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'Duplicate'; Path = '$SecondPath'; Url = '$memoryRemote'; Kind = 'memory' }
 )
-& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+& '$bootstrap' -Root '$workspace' -Repository `$repositories -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
 exit `$LASTEXITCODE
 "@ | Set-Content -LiteralPath $runner
 
@@ -488,28 +456,20 @@ exit `$LASTEXITCODE
         $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
         $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
         @"
-`$projects = @(
-    @{
-        Name = 'MSXOrg'
-        Path = ''
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
-    @{
-        Name = 'Unsafe'
-        Path = '$UnsafePath'
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
+`$repositories = @(
+    @{ Name = 'MSXOrg/docs'; Path = 'docs'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'MSXOrg/memory'; Path = 'memory'; Url = '$memoryRemote'; Kind = 'memory' }
+    @{ Name = 'Unsafe/docs'; Path = '$UnsafePath/docs'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'Unsafe/memory'; Path = '$UnsafePath/memory'; Url = '$memoryRemote'; Kind = 'memory' }
 )
-& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+& '$bootstrap' -Root '$workspace' -Repository `$repositories -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
 exit `$LASTEXITCODE
 "@ | Set-Content -LiteralPath $runner
 
         $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
 
         $LASTEXITCODE | Should -Not -Be 0
-        $output | Should -Match 'workspace paths overlap'
+        $output | Should -Match 'Repository paths overlap'
         $unsafeRoot = Join-Path $fixture.Workspace $UnsafePath
         foreach ($child in @('docs', 'docs.git', 'memory', 'docs.simple-clone-backup')) {
             Test-Path -LiteralPath (Join-Path $unsafeRoot $child) | Should -BeFalse
@@ -531,28 +491,18 @@ exit `$LASTEXITCODE
         $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
         $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
         @"
-`$projects = @(
-    @{
-        Name = 'Parent'
-        Path = 'projects/Parent'
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
-    @{
-        Name = 'Child'
-        Path = 'projects/Parent/Child'
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
+`$repositories = @(
+    @{ Name = 'Parent'; Path = 'projects/Parent'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'Child'; Path = 'projects/Parent/Child'; Url = '$memoryRemote'; Kind = 'memory' }
 )
-& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+& '$bootstrap' -Root '$workspace' -Repository `$repositories -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
 exit `$LASTEXITCODE
 "@ | Set-Content -LiteralPath $runner
 
         $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
 
         $LASTEXITCODE | Should -Not -Be 0
-        $output | Should -Match 'workspace paths overlap'
+        $output | Should -Match 'Repository paths overlap'
         Test-Path -LiteralPath (Join-Path $fixture.Workspace 'projects') | Should -BeFalse
     }
 
@@ -589,15 +539,11 @@ exit `$LASTEXITCODE
         $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
         $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
         @"
-`$projects = @(
-    @{
-        Name = 'Fixture'
-        Path = ''
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
+`$repositories = @(
+    @{ Name = 'Fixture/docs'; Path = 'docs'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'Fixture/memory'; Path = 'memory'; Url = '$memoryRemote'; Kind = 'memory' }
 )
-& '$bootstrap' -Root '$emptyRoot' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+& '$bootstrap' -Root '$emptyRoot' -Repository `$repositories -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
 exit `$LASTEXITCODE
 "@ | Set-Content -LiteralPath $runner
 
@@ -653,15 +599,11 @@ exit `$LASTEXITCODE
         $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
         $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
         @"
-`$projects = @(
-    @{
-        Name = 'Fixture'
-        Path = ''
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
+`$repositories = @(
+    @{ Name = 'Fixture/docs'; Path = 'docs'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'Fixture/memory'; Path = 'memory'; Url = '$memoryRemote'; Kind = 'memory' }
 )
-& '$bootstrap' -Root '$emptyRoot' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+& '$bootstrap' -Root '$emptyRoot' -Repository `$repositories -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
 exit `$LASTEXITCODE
 "@ | Set-Content -LiteralPath $runner
 
@@ -682,15 +624,11 @@ exit `$LASTEXITCODE
         $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
         @"
 `$env:MSX_BOOTSTRAP_TEST_FAIL_AFTER_DOCS_MOVE = '1'
-`$projects = @(
-    @{
-        Name = 'Fixture'
-        Path = ''
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
+`$repositories = @(
+    @{ Name = 'Fixture/docs'; Path = 'docs'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'Fixture/memory'; Path = 'memory'; Url = '$memoryRemote'; Kind = 'memory' }
 )
-& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+& '$bootstrap' -Root '$workspace' -Repository `$repositories -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
 exit `$LASTEXITCODE
 "@ | Set-Content -LiteralPath $runner
 
@@ -713,15 +651,11 @@ exit `$LASTEXITCODE
         $memoryRemote = $fixture.Remotes.memory.Replace("'", "''")
         @"
 `$env:MSX_BOOTSTRAP_TEST_FAIL_DOCS_MOVE = '1'
-`$projects = @(
-    @{
-        Name = 'Fixture'
-        Path = ''
-        DocsUrl = '$docsRemote'
-        MemoryUrl = '$memoryRemote'
-    }
+`$repositories = @(
+    @{ Name = 'Fixture/docs'; Path = 'docs'; Url = '$docsRemote'; Kind = 'docs' }
+    @{ Name = 'Fixture/memory'; Path = 'memory'; Url = '$memoryRemote'; Kind = 'memory' }
 )
-& '$bootstrap' -Root '$workspace' -Project `$projects -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
+& '$bootstrap' -Root '$workspace' -Repository `$repositories -UserName 'Fixture User' -UserEmail 'fixture@example.invalid'
 exit `$LASTEXITCODE
 "@ | Set-Content -LiteralPath $runner
 
@@ -814,7 +748,7 @@ exit `$LASTEXITCODE
             $bootstrapText | Should -Match ([regex]::Escape("Path = '$($repository.Path)'"))
             $bootstrapText | Should -Match ([regex]::Escape("Url = '$($repository.Url)'"))
         }
-        $bootstrapText | Should -Not -Match 'PSModule/docs'
+        $bootstrapText | Should -Not -Match 'github\.com/PSModule/docs'
         $bootstrapText | Should -Not -Match "Join-Path `$HOME '\.msx'"
     }
 
