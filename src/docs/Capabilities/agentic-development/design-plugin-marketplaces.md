@@ -17,7 +17,7 @@ its own marketplace in its owning repository; for example, PSModule publishes
 `psmodule` for PowerShell-module guidance. Consumers install both when they
 need both scopes. Neither marketplace republishes the other's plugin.
 
-A pointer skill MUST be co-located with its canonical governing documentation,
+A pointer skill MUST be colocated with its canonical governing documentation,
 or with the repository that owns that guidance. One pull request can then
 update the governing content, pointer skills, plugin metadata and version, and
 marketplace entry atomically. A `.github` repository is suitable only when it
@@ -59,7 +59,7 @@ The plugin version in its marketplace entry and `plugin.json` MUST match and
 increment together when the plugin changes. The marketplace metadata version
 describes the catalog and changes independently.
 
-1. Change the canonical guidance and its co-located pointer skills.
+1. Change the canonical guidance and its colocated pointer skills.
 2. Update the plugin manifest and marketplace entry, including the synchronized
    plugin version when required.
 3. Validate JSON, source paths, names, versions, and Agent Skills format.
