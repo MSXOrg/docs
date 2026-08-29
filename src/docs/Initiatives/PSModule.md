@@ -22,4 +22,4 @@ Cross-org standards and reusable architecture are canonical in MSXOrg/docs, incl
 - [Capabilities](../Capabilities/index.md)
 - [PowerShell on GitHub capability](../Capabilities/powershell-on-github/index.md)
 
-PSModule/docs is now intentionally scoped to module-specific operational details: module catalog pages, Process-PSModule repository anatomy, and template onboarding for module repositories.
+`PSModule/Process-PSModule` is the canonical PSModule documentation source. It owns module-specific operational details, process and standards content, repository anatomy, and template onboarding.

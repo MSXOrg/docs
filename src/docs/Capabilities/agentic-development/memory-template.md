@@ -5,8 +5,8 @@ description: The concrete, copy-pasteable scaffold every organization's memory r
 
 # Memory Repository Template
 
-[Spec](spec.md) and [Design](design.md) require every adopting organization to have a
-`memory` repository, and the design's [organization anatomy](design.md#organization-anatomy)
+[Spec](spec.md) and [Design](design.md) require every adopting organization to identify a
+`memory` source repository, and the design's [organization anatomy](design.md#organization-anatomy)
 already names `MSXOrg/memory` and `PSModule/memory` as canonical examples. Neither design
 document defines an exact file layout — this page is that layout. It is the one scaffold
 every adopting organization's `memory` repository instantiates. Content differs per

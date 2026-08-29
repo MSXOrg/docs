@@ -9,10 +9,10 @@ description: Requirements for refresh-first, index-first agentic development thr
 
 An agent does useful work only when it knows which project it is serving, which standards apply, and what the team has already learned. That context MUST be project-scoped, durable, reviewable, and readable by humans and agents alike. The project boundary is the GitHub organization — `github.com/MSXOrg`, `github.com/PSModule`, and any other organization that adopts the framework, on any GitHub host.
 
-Each organization owns two canonical repositories:
+Each organization identifies canonical documentation and memory source repositories:
 
-- `docs` — the reviewed knowledge base: vision, standards, workflows, specs, designs, glossary, onboarding, and project-wide rules.
-- `memory` — the durable agent working memory: lessons learned, recurring gotchas, active context, workflow-stage knowledge, and project-specific operating notes.
+- A documentation source — the reviewed knowledge base: vision, standards, workflows, specs, designs, glossary, onboarding, and project-wide rules. The repository is commonly named `docs`, but an organization MAY designate a repository such as `PSModule/Process-PSModule` when that repository owns its process and standards.
+- A `memory` source — the durable agent working memory: lessons learned, recurring gotchas, active context, workflow-stage knowledge, and project-specific operating notes.
 
 Product repositories do not copy that knowledge. They carry thin pointer files that identify the organization context and direct agents to the relevant `docs` and `memory` roots before acting.
 
@@ -31,7 +31,7 @@ Applies to any organization that wants a shared project knowledge base and memor
 
 **In scope**
 
-- Organization-level `docs` and `memory` repositories.
+- Organization-level documentation and memory source repositories.
 - Markdown documents with YAML frontmatter, following the [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) model.
 - Thin repository pointer files: a required `AGENTS.md` router, and a route to it for every client that cannot read it.
 - Path-scoped rule files, reserved for local caveats that cannot live in repository or central documentation.
@@ -54,23 +54,25 @@ Applies to any organization that wants a shared project knowledge base and memor
 ## Requirements
 
 - **Organization is the project boundary.** The framework MUST resolve project context from the Git host and organization before resolving repository-specific context.
-- **Canonical docs repository.** Each adopting organization MUST have a `docs` repository that owns the reviewed knowledge base.
+- **Canonical documentation repository.** Each adopting organization MUST identify a repository that owns its reviewed knowledge base.
 - **Canonical memory repository.** Each adopting organization MUST have a `memory` repository that owns durable project memory and agent working knowledge.
-- **Pluggable project context.** The bootstrap MUST accept project-specific docs and memory coordinates and collision-free relative workspace paths without requiring a fork of its synchronization logic.
+- **Repository identity is authoritative.** Routers and bootstrap configuration MUST name each source as `<organization>/<repository>`. CLI, web, published-site, and refreshed-local-clone access are interchangeable delivery methods and MUST NOT redefine the source identity.
+- **Pluggable project context.** The bootstrap MUST accept repository identities, transport URLs, kinds, and collision-free relative workspace paths without requiring a fork of its synchronization logic.
 - **OKF-style documents.** Knowledge and memory documents MUST be Markdown files with YAML frontmatter, one primary concept per page, and stable paths that act as identity.
 - **Small pages and indexes.** Documentation and memory SHOULD prefer small pages, each folder SHOULD have an `index.md`, and indexes MUST let a human or agent navigate inward from the root.
-- **Thin pointer files.** Product repositories MUST carry an `AGENTS.md` at the repository root that routes an agent from the repository's own files outward to the organization documentation, any inherited ecosystem documentation, and memory. It MUST be limited to that route list and the repository's own coordinates. It MUST NOT duplicate standards, workflow stages, or reusable process knowledge, and MUST NOT carry build commands, contribution mechanics, or workspace bootstrap steps, each of which has an owning file of its own.
-- **Refresh-first, index-first workflow discovery.** After every canonical context repository passes the freshness gate, a human or agent MUST be able to follow the docs root index to Ways of Working, the canonical Workflow, and the procedure for the current stage.
+- **Thin pointer files.** Product repositories MUST carry an `AGENTS.md` at the repository root that routes an agent from the repository's own files outward to the organization documentation, any inherited ecosystem documentation, and memory. It MUST lead with `Read nearest first, prefer documentation over memory, and always use the newest version.` and identify each source repository, entry file, published documentation when available, private memory status, and preferred local clone. It MUST allow CLI, web, published-site, or refreshed-local-clone access rather than requiring one method. It MUST NOT duplicate standards, workflow stages, or reusable process knowledge, and MUST NOT carry build commands, contribution mechanics, or workspace bootstrap steps, each of which has an owning file of its own.
+- **Freshness-first, index-first workflow discovery.** After every canonical source is resolved to its newest accessible version, a human or agent MUST be able to follow the documentation entry index to the applicable workflow and the procedure for the current stage.
 - **Stage resolution from work.** Agents MUST infer the current stage from the prompt and current artifacts. Explicit task language MAY shortcut to the matching stage, but the shortcut MUST resolve to the canonical documentation.
 - **One process source.** Skills, commands, named agents, and tool-specific instruction files MUST NOT redefine Workflow stages. A client convenience MAY link to a stage procedure and add only runtime mechanics.
 - **Segmentation before loading.** An agent MUST segment work by host, organization, repository, path, and task before loading project standards or memory. The repository router MUST supply the coordinates that make this possible by naming its host and organization. The instruction to segment belongs to the user-global bootstrap, which runs before any repository file is read; a per-repository file MUST NOT restate it.
 - **Client routes.** A runtime that cannot read `AGENTS.md` under its own filename MUST be given a route file — `.claude/CLAUDE.md`, `.github/copilot-instructions.md`, or the equivalent path for that runtime. A route file MUST contain only a pointer to `AGENTS.md` plus, at most, genuinely runtime-specific configuration that cannot be expressed as documentation. It MUST NOT restate standards, describe workflow behavior, or repeat the reading order. Duplication is a property of content rather than of filenames: a route holds nothing that can drift, so the number of route files is unconstrained while their contents are strictly limited. [Client behavior](design.md#client-behavior) names the exact set an MSX repository carries; an adopting organization MAY carry a different set for the runtimes it uses.
 - **Reading order and authority order are distinct.** An agent MUST read nearest context first, in the order the repository router defines. Precedence on conflict MUST run the opposite way: repository-local files MAY add nuance and narrow exceptions but MUST NOT override an organization or inherited ecosystem standard unless that standard permits a local exception, and memory MUST NOT override documentation.
-- **Deterministic context resolution.** Agents MUST resolve context in layers: system and client policy, user preferences, the repository router, the context-repository freshness gate, repository context, path-scoped repository rules, organization docs, any inherited ecosystem docs, organization memory, then current task context.
-- **Local-first availability.** The docs and memory repositories SHOULD be available locally in a predictable workspace so agents can read them without relying on search or web access.
-- **Fresh context before use.** Every canonical context repository MUST be fetched and exactly synchronized with its remote default branch before its contents are read. Dirty, locally ahead, diverged, wrong-branch, or unreachable repositories MUST stop context resolution rather than fall back to stale content.
+- **Deterministic context resolution.** Agents MUST resolve context in layers: system and client policy, user preferences, the repository router, the source freshness gate, repository context, path-scoped repository rules, organization documentation, any inherited ecosystem documentation, organization memory, then current task context.
+- **Predictable local availability.** Canonical sources SHOULD be available at organization-addressable paths. The preferred paths are `~/.msxorg/docs`, `~/.msxorg/memory`, `~/.psmodule/process-psmodule`, and `~/.psmodule/memory`.
+- **Fresh context before use.** Agents MUST use the newest accessible source version. Remote CLI, web, and published documentation MAY satisfy this directly. A local clone MUST be fetched and exactly synchronized with its remote default branch before its contents are read. Dirty, locally ahead, diverged, wrong-branch, or unreachable local clones MUST stop local context resolution rather than fall back to stale content.
+- **Former layouts are never implicit fallbacks.** Bootstrap MUST diagnose recognized context under the former `~/.msx/` layout and MUST NOT read it as canonical context. Migration MUST create or refresh the canonical organization-addressable clone without destructively moving the former path; the former path remains available for manual verification and removal.
 - **Working checkouts are not context sources.** Canonical context MUST be read from the context repository clones that passed the freshness gate. A working checkout of a `docs` or `memory` repository — one cloned in order to change it rather than to be governed by it — MUST NOT be used as a context source, whatever path it occupies, because it sits outside the gate: nothing fetches it, and a superseded page in it is readable rather than missing, so the failure is silent. A reader MAY establish whether any checkout is current with `git rev-list --left-right --count HEAD...origin/<default-branch>` after fetching, which reports commits ahead and behind without changing the working tree.
-- **Refresh once per session, not once per machine.** The freshness gate MUST run at the start of every agent session, in every runtime. A workspace that was synchronized at some earlier point MUST NOT be treated as current, because elapsed time is not a state the agent can observe. The refresh MUST be idempotent, so that running it when nothing has changed is cheap and silent; a refresh that is expensive or noisy at steady state gets bypassed, and a bypassed gate is worse than none because the workspace still appears synchronized.
+- **Refresh local clones once per session, not once per machine.** When a runtime uses preferred local clones, the freshness gate MUST run at the start of every agent session. A workspace synchronized at an earlier point MUST NOT be treated as current, because elapsed time is not a state the agent can observe. The refresh MUST be idempotent, so running it when nothing has changed is cheap and silent.
 - **Memory is scoped by horizon.** Memory MUST separate entries that apply organization-wide, entries that apply to one repository, and notes that apply only to the task in hand. Session-scoped notes MUST NOT be shared: they MUST be excluded from the repository's history so that a scratchpad cannot be inherited as knowledge. Making a session note durable MUST be a deliberate act of promotion, which is where the entry is checked for whether it is actually true.
 - **Durable memory is committed as it is written.** A memory entry MUST be committed and pushed when it is written, one commit per discrete lesson, so that no remembered thing depends on a session ending cleanly.
 - **One tool layer, declared per runtime.** Where agents use external tools, the set of tool servers MUST be defined once as a logical layer and each runtime MUST declare that same set in its own native configuration format. A runtime MUST NOT define tools of its own that other runtimes lack, because a capability available in one client and absent in another makes the documented procedure conditional on which client is running it.
@@ -83,7 +85,7 @@ Applies to any organization that wants a shared project knowledge base and memor
 
 ## Success criteria
 
-- An agent working in `github.com/PSModule/<repo>` reads PSModule docs and memory, not another organization's rules.
+- An agent working in `github.com/PSModule/<repo>` resolves `github.com/PSModule/Process-PSModule` and `github.com/PSModule/memory`, plus inherited `github.com/MSXOrg/docs` and `github.com/MSXOrg/memory`.
 - An agent working in `github.com/MSXOrg/<repo>` resolves `github.com/MSXOrg/docs` and `github.com/MSXOrg/memory` as the canonical project context.
 - An agent working in `<host>/<org>/<repo>` for any adopting organization resolves `<host>/<org>/docs` and `<host>/<org>/memory` as the canonical project context, with no change to the framework.
 - A new product repository can adopt the framework by adding a router and the client routes that reach it, without copying standards or memory pages.
@@ -91,7 +93,7 @@ Applies to any organization that wants a shared project knowledge base and memor
 - A human can start at `docs/index.md` or `memory/index.md` and navigate to the same context an agent uses.
 - A human or agent can follow `docs/index.md` → Ways of Working → Workflow → the current stage procedure without knowing a file path in advance.
 - A prompt such as `Review this PR <link>` reaches the Review procedure directly, while `Make this issue <description>` reaches Define, without a parallel process definition.
-- A missing, dirty, locally ahead, diverged, wrong-branch, or unreachable canonical context repository stops discovery before any context index is read.
+- A missing, dirty, locally ahead, diverged, wrong-branch, or unreachable preferred local clone stops local discovery before any context index is read; an agent may instead resolve the named source through another current access method.
 - A working checkout of a `docs` repository present on disk is not read as canonical context, and a reader can tell a current checkout from a stale one before trusting either.
 - Updating a standard in `docs` changes the canonical guidance without editing every repository.
 - Capturing a recurring lesson in `memory` makes it available to later agents working in the same organization.
@@ -103,10 +105,10 @@ The framework uses this normative reading order:
 1. **System and client policy** — non-project instructions imposed by the agent runtime.
 2. **User-global preferences** — the human operator's baseline style and risk posture.
 3. **Repository router** — `AGENTS.md` identifies the host, organization, and the context sources below, in the order they are read.
-4. **Freshness gate** — fetch every canonical context repository and stop unless each clean default-branch checkout exactly matches its remote head.
+4. **Freshness gate** — use the newest accessible source version; if using local clones, fetch each one and stop local resolution unless every clean default-branch checkout exactly matches its remote head.
 5. **Repository context** — README, CONTRIBUTING, local docs, and narrow repository exceptions.
 6. **Path-scoped repository rules** — local rules that apply to the files being read, generated, reviewed, or edited.
-7. **Organization documentation** — the `docs` repository for the resolved organization: start at `docs/index.md`, traverse to Ways of Working and Workflow, resolve the current stage, then load the relevant standards, specs, and designs.
+7. **Organization documentation** — the designated documentation source repository for the resolved organization: start at its declared entry file, traverse to the applicable workflow, then load the relevant standards, specs, and designs.
 8. **Inherited ecosystem documentation** — where the organization inherits from a broader standard set, the layer it inherits from.
 9. **Organization memory** — start at `memory/index.md`, then load relevant lessons, gotchas, and active context.
 10. **Current task context** — issue, pull request, prompt, branch, diff, diagnostics, terminal output, and open files; use these artifacts to re-evaluate the stage after each handoff.
