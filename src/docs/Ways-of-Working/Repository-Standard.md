@@ -108,16 +108,15 @@ namespace-qualified as `namespace:value`. The namespace identifies the owning
 function, so automation can read only its own labels and label sets cannot collide.
 Repositories MUST NOT use bare labels as automation inputs.
 
-For example, repositories that use Release Management use the `release:*` bump set;
-dependency update automation uses a distinct update namespace. See [Automation
-Labels](Automation-Labels.md) for ownership, provisioning, and the complete
-namespacing rule.
+For example, repositories that use Release Management use the `release:*` bump set.
+See [Automation Labels](Automation-Labels.md) for ownership, provisioning, and the
+complete namespacing rule.
 
 ## Dependency and supply-chain defaults
 
 Every repository that has external dependencies must have automated update coverage.
-Dependabot is the default GitHub-native mechanism for its supported ecosystems; an
-unsupported ecosystem uses the centrally managed exception path defined by
+Supported ecosystems use the platform-native updater; an unsupported ecosystem uses
+the centrally managed exception path defined by
 [Dependency Updates](../Capabilities/dependency-updates/spec.md#coverage), never a
 repository-specific updater.
 
@@ -128,8 +127,6 @@ recorded centrally for shared update coverage.
 
 Dependency update pull requests must:
 
-- Use the provisioned update namespace to identify the dependency category and
-  ecosystem, separate from the `release:*` bump namespace.
 - Pass the same CI and review gates as human-authored changes.
 - Keep external actions and reusable workflows pinned to immutable commit SHAs with a version comment when possible; allow an owned floating major only under the controlled-release conditions in the [GitHub Actions standard](../Coding-Standards/GitHub-Actions.md#pin-actions-according-to-ownership).
 - Be reviewed before merge, even when auto-merge is allowed for low-risk updates.

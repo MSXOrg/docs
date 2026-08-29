@@ -44,7 +44,7 @@ The resolution is not to pick a point and freeze — it is to **control integrit
 
 1. **Pin tightly by default** — an identity pin plus a deliberate version, or a lockfile — so every build is reproducible and nothing changes unvetted. A controlled owned-major tag is the narrow exception for automation whose release path the organization or initiative operates.
 2. **Automate updates** so currency never depends on a human watching upstream: the [Dependency Updates](../Capabilities/dependency-updates/index.md) bot opens one reviewed pull request per bump.
-3. **Gate every update through CI and review** — patch and minor updates auto-merge on green checks; **major** updates require a human; security advisories are raised out of band and prioritized.
+3. **Gate every update through CI and review** — every update passes the repository's normal merge policy; security advisories are raised out of band and prioritized. After related changes are collected, decide the repository release bump under [Release Management](../Capabilities/release-management/design.md).
 
 Tight pinning is safe *because* the updates are automated: the bot closes the currency gap and CI plus review close the vetting gap. A controlled owned-major tag applies the same principle at the producer: compatible releases pass the controlled release gate once, then the major pointer rolls them out centrally. It trades consumer-level reproducibility for coordinated rollout and is never valid for an external dependency.
 
@@ -56,9 +56,9 @@ A "track" is how a given dependency is allowed to move. You do **not** need ever
 | --- | --- | --- |
 | **Identity + exact** | runs with privilege or has a wide blast radius (Actions, base images), or must be byte-for-byte reproducible | the bot still opens the re-pin PR, but a human reviews every one — never auto-merged |
 | **Controlled owned major** | is an Action or reusable workflow owned by the organization or initiative, with a compatible release line and centrally controlled release automation | release automation alone advances the major tag for patch and minor releases; a fleet campaign moves consumers to a breaking major |
-| **Patch** | is trusted and whose patches are fixes you always want (most dependencies) | auto-merge on green CI |
-| **Minor** | is trusted and whose additive releases are safe to absorb | auto-merge on green CI (a repo may require review) |
-| **Major** | you actively co-evolve with and can absorb breaking changes for | always human-reviewed |
+| **Patch** | is trusted and whose patches are fixes you always want (most dependencies) | merge through the normal repository gate |
+| **Minor** | is trusted and whose additive releases are safe to absorb | merge through the normal repository gate |
+| **Major** | you actively co-evolve with and can absorb breaking changes for | human review before merge |
 | **Latest / floating** | is throwaway — an ephemeral local experiment, never shipped or run in CI | not for shipped or CI-run code |
 
 Two questions decide the mix:
@@ -66,7 +66,7 @@ Two questions decide the mix:
 - **Are you a library or an application?** A **library** — a module or Action others consume — declares the *widest range it is compatible with* (a floor, rarely a ceiling) so it does not over-constrain its consumers. An **application or end artifact** — a workflow, a deployable, a CI pipeline — pins external dependencies to *exact resolved versions* for reproducibility and relies on the updater to move them. The controlled owned-major exception trades that consumer-level reproducibility for central rollout only where the producer and release path are owned.
 - **How much control do you have over the source and release path, and how large is the blast radius?** External sources stay toward identity + exact regardless of reputation. Owned automation may use a controlled major only when the organization or initiative operates the release gate and accepts the central rollout blast radius.
 
-The healthy default across the ecosystem: **identity-pin external code that runs (SHAs, digests), use controlled major tags only for owned automation, floor-declare what you are a library for, lockfile-pin what you ship, and let the [updater](../Capabilities/dependency-updates/index.md) auto-merge patch and minor while a human reviews major.** Floating latest remains unsuitable for shipped or CI-run code.
+The healthy default across the ecosystem: **identity-pin external code that runs (SHAs, digests), use controlled major tags only for owned automation, floor-declare what you are a library for, lockfile-pin what you ship, and let the [updater](../Capabilities/dependency-updates/index.md) open reviewed pull requests.** Floating latest remains unsuitable for shipped or CI-run code.
 
 ## Where this is implemented
 

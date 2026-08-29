@@ -34,7 +34,7 @@ Every initiative organization must define standards for these shared file famili
 | Community health files | Code of conduct, contribution guide, support policy, security policy, and license expectations. |
 | Repository context | README defaults, documentation ownership, and repository metadata expectations. |
 | Review workflow | Pull request template, review routing, CODEOWNERS, namespace-qualified automation label sets, and change-type conventions. |
-| Supply chain | Dependabot configuration, namespace-qualified dependency update labels, security update behavior, and review expectations. |
+| Supply chain | Dependency update configuration, security update behavior, and review expectations. |
 | Linters and enforcement | Linter configuration derived from the written standards. |
 | Agent context | Instructions, prompts, hooks, and any repository-local agent guidance. |
 | Release automation | Release notes, changelog categorization, and release workflow defaults where applicable. |
@@ -43,7 +43,7 @@ These standards must be written down before broad alignment work starts. File al
 
 ## Repository-local files are the enforceable surface
 
-GitHub's special organization `.github` repository can provide fallback community files, but it is not the MSX enforcement model. Repository-local files are still required because they are what humans, agents, linters, Dependabot, CODEOWNERS, release workflows, and pull requests actually read and review.
+GitHub's special organization `.github` repository can provide fallback community files, but it is not the MSX enforcement model. Repository-local files are still required because they are what humans, agents, linters, dependency updaters, CODEOWNERS, release workflows, and pull requests actually read and review.
 
 Use organization-level `.github` fallbacks only as a convenience, never as the only copy of a required standard file.
 

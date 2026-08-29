@@ -141,10 +141,9 @@ request closes; stable releases are never touched.
   documentation ([Documentation Model](../../Ways-of-Working/Documentation-Model.md)) —
   there is no internal-versus-user split. This framework's own documentation is
   this capability.
-- **Dependencies.** The template ships a Dependabot configuration that keeps npm
-  packages and pinned Actions current through
-  [Dependency Updates](../dependency-updates/design.md); those update pull
-  requests are artifact-affecting and release through the same pipeline.
+- **Dependencies.** The template configures automated updates for npm packages and
+  pinned Actions through [Dependency Updates](../dependency-updates/design.md);
+  those pull requests use the normal review and release path.
 
 ## Least privilege and serialisation
 

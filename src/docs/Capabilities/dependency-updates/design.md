@@ -1,13 +1,13 @@
 ---
 title: Design
-description: How dependency updates are built — Dependabot update PRs, a label scheme kept disjoint from release labels, and level-based auto-merge.
+description: How dependency updates are handled — automated update pull requests, coverage, cooldown, security updates, and review.
 ---
 
 # Dependency Updates — Design
 
-The baseline updater for dependency management on GitHub is
-[Dependabot](https://docs.github.com/code-security/dependabot), configured in
-`.github/dependabot.yml` and extended by a small labeling and auto-merge layer.
+The behaviour in the [spec](spec.md) is delivered by an automated updater
+configured in `.github/dependabot.yml`, plus the review and merge controls that
+handle its pull requests.
 
 ## What gets checked
 
@@ -60,103 +60,45 @@ proposal. It costs a few days of currency and buys the chance for an upstream pr
 to withdraw or supersede a bad release before every consumer has a pull request open
 against it. Currency is the goal; being first is not.
 
-The organization standard is Dependabot's implicit **three-day** cooldown for version updates. Repositories omit `cooldown` when they use that standard; an explicit mapping records a deliberate non-default duration.
+The organization standard is an implicit **three-day** cooldown for version updates. Repositories omit `cooldown` when they use that standard; an explicit mapping records a deliberate non-default duration.
 
 Security updates ignore both settings. An advisory means the pinned version is known
 bad now, and waiting for a schedule window or a cooldown would be waiting on purpose.
 
 ## The updater
 
-Dependabot opens **one PR per outdated or vulnerable dependency**, carrying the
-bump and the upstream release notes. SHA-pinned dependencies get the new commit
-SHA with the version as a trailing comment. Ecosystems, directories, schedule, and
-the static labels live in `.github/dependabot.yml`; a non-default cooldown belongs
-there too, while the standard three-day cooldown remains implicit.
+The updater opens **one PR per outdated or vulnerable dependency**, carrying the
+change and the upstream release notes. SHA-pinned dependencies get the new
+commit SHA with the version as a trailing comment. Ecosystems, directories, and
+schedule live in `.github/dependabot.yml`; a non-default
+cooldown belongs there too, while the standard three-day cooldown remains
+implicit.
 
 ```mermaid
 flowchart TD
-  check["Scheduled check / advisory"] --> pr["Open labelled update PR<br/>dependencies + ecosystem + update:LEVEL"]
+  check["Scheduled check / advisory"] --> pr["Open dependency update PR"]
   pr --> ci["Required checks run<br/>(same gate as any PR)"]
-  ci --> route{"Update level"}
-  route -->|"patch / minor"| auto["Eligible for auto-merge"]
-  route -->|"major"| review["Human review required"]
-  auto --> merged["Merged"]
-  review --> merged
-  merged --> release["Artifact-affecting change<br/>→ release"]
+  ci --> review["Review and merge"]
+  review --> merged["Merged"]
+  merged --> release["Separate release decision<br/>see Release Management"]
 ```
 
-## Labels
+### Release decision
 
-Every update PR carries **two independent dimensions**:
+Dependency changes are collected before the repository release decision is
+made. The repository-wide effect follows [Release
+Management](../release-management/design.md).
 
-| Label | Dimension | Meaning |
-| --- | --- | --- |
-| `dependencies` | category | Applied to **every** automated update PR. |
-| `github-actions` · `docker` · `terraform` · `npm` · `python` · `powershell` | ecosystem | Which ecosystem the update targets. One per PR. |
-| `update:major` | update level | The dependency crossed a **major** version — potentially breaking. |
-| `update:minor` | update level | The dependency gained a **minor** version — additive. |
-| `update:patch` | update level | The dependency took a **patch** — fix-level. |
+## Review and merge
 
-`dependencies` and the ecosystem label are applied statically by the updater
-config. The `update:*` label is derived from the update metadata
-(`version-update:semver-{major,minor,patch}`), so it is always accurate to the
-actual bump.
-
-### Separation from release versioning
-
-Both label sets are namespaced, and they name two different dimensions of the same pull
-request. The `update:*` set MUST NOT reuse the `release:*` set, and neither set may use
-bare words:
-
-| Dimension | Question | Label set | Owned by |
-| --- | --- | --- | --- |
-| **Release decision** | Does *this repository* release, by how much, and in which mode? | `release:patch` · `release:minor` · `release:major` · `release:pre-release` · `release:skip` | [Release Management](../release-management/spec.md) |
-| **Dependency update level** | How much did the *upstream dependency* change? | `update:major` · `update:minor` · `update:patch` | This capability |
-
-A dependency update is an **artifact-affecting change**, so merging it produces a
-release. If one pull request carried a single `major` label meaning *the dependency's*
-jump, the release workflow would read it as a **major release of this repository** — and a
-major upstream bump is very often only a patch, or no user-visible change at all, to the
-consuming artifact. So the two coexist: the **`release:*`** label governs this
-repository's version and is the label the release workflow reads; the **`update:*`** label
-is advisory metadata that drives review routing, never the bump.
-
-Namespacing both sides is what makes this hold in practice rather than by convention.
-Dependabot's
-[pull-request labeler](https://github.com/dependabot/dependabot-core/blob/main/common/lib/dependabot/pull_request_creator/labeler.rb)
-applies one of `major`, `minor`, or `patch` when all three bare labels exist. Had the
-release set kept that vocabulary, a Dependabot pull request would arrive with the
-repository's own version decision pre-set by a bot, describing the upstream bump. Because
-no bare label exists, Dependabot finds nothing to apply, and a dependency pull request is
-release-safe by default: it carries an accurate `update:*` level and no release decision
-until a maintainer makes one.
-
-Dependabot recognizes a bare `skip-release` label as a repository-level compatibility
-sentinel that suppresses its SemVer labels. MSX does not depend on that special case:
-`release:skip` is an owned release-management instruction, and structural namespacing
-keeps both dimensions safe without reserving another bare label.
-
-## Review posture
-
-| Update level | Handling |
-| --- | --- |
-| `update:patch`, `update:minor` | Eligible for **automatic merge** once every required check passes. |
-| `update:major` | **Human review required**; never merged automatically. |
-
-The asymmetry follows [SemVer](https://semver.org/): a minor or patch release
-promises compatibility, so passing checks is evidence enough, and a human reading the
-diff adds ceremony rather than information. A major release promises nothing, so the
-checks cannot substitute for reading it.
-
-Automatic merge is gated on green checks, never a bypass — every update passes the
-full suite before it can merge. A repository MAY tighten this (requiring review for
-`update:minor` too) and MUST NOT loosen it to merge `update:major` automatically.
+Every automated update passes the repository's normal review and required-check
+gates. Automatic merge, where configured, never bypasses those gates.
 
 ## Security updates
 
 Raised on advisory disclosure, independently of the schedule, and
-**prioritised**. They otherwise follow the same labels, the same review policy,
-and the same release path as any other update.
+**prioritised**. They otherwise follow the same review policy and release path as
+any other update.
 
 ## Configuration surface
 
@@ -165,10 +107,9 @@ and the same release path as any other update.
 | Native ecosystems and directories | `.github/dependabot.yml` | Generated from supported manifests |
 | Unsupported ecosystems | Central exception register | Centrally managed shared mechanism |
 | Schedule (`interval`, `day` and `time`, or `cronjob`) and `timezone` | `.github/dependabot.yml` | Organization configuration |
-| Cooldown | Dependabot default (three days); explicit mapping only for a deliberate non-default duration | Organization configuration |
-| Static labels (`dependencies` + ecosystem) | `.github/dependabot.yml` | Generated |
-| `update:*` labels | Update metadata → labelling step | Derived per pull request |
-| Automatic-merge policy | Branch protection and merge automation | Organization configuration |
+| Cooldown | Updater default (three days); explicit mapping only for a deliberate non-default duration | Organization configuration |
+| Release decision | Release Management | Decided for the collected repository change |
+| Merge policy | Branch protection and merge automation | Organization configuration |
 | Security updates | Repository security settings | On by default |
 
 Everything marked *generated* is reproducible from the repository, so a difference
@@ -179,7 +120,6 @@ rather than overwrite.
 ## Where this connects
 
 - [Spec](spec.md) — the requirements this design delivers.
-- [Automation Labels](../../Ways-of-Working/Automation-Labels.md) — the ownership and namespacing rules the label scheme follows.
 - [Repository Governance](../repository-governance/design.md#drift-detection-and-reconciliation) — the reconciliation that compares generated configuration against what is committed.
 - [Release Management](../release-management/design.md) — the release an update PR cuts.
 - [Downstream Release Propagation](../downstream-release-propagation/design.md) — the internal counterpart; propagation PRs are dependency updates too.

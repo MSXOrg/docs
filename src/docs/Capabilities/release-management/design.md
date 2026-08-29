@@ -113,33 +113,6 @@ happen. Retrying failed validation or publication is not an ad hoc release
 either: rerun the existing release with the same artifact and version under the
 [recovery rule](#the-pipeline).
 
-### Why the labels are namespaced
-
-The release vocabulary is namespaced under `release:` rather than using bare words,
-and the reason is concrete rather than cosmetic.
-
-Dependabot is the baseline updater for dependencies managed on GitHub. Its
-[pull-request labeler](https://github.com/dependabot/dependabot-core/blob/main/common/lib/dependabot/pull_request_creator/labeler.rb)
-applies one of the bare `major`, `minor`, or `patch` labels when all three exist.
-In a repository where the release bump set is unprefixed, an upstream patch bump
-therefore arrives already carrying a label that this workflow reads as the
-repository's own version decision — set by a bot, describing something else
-entirely, with nobody having decided it.
-
-Namespacing removes the collision at its source. There is no bare `major`, `minor`, or
-`patch` label for Dependabot to find, so a dependency pull request arrives with **no**
-release decision attached, fails closed like any other unlabeled pull request, and a
-maintainer makes the call at the pull request gate.
-
-Dependabot suppresses its SemVer labels when a repository contains the bare
-`skip-release` compatibility label. This design does not rely on that special case.
-It removes the collision structurally by not provisioning bare bump labels.
-`release:skip` remains an owned instruction to release management and has no
-Dependabot meaning.
-
-See [Automation Labels](../../Ways-of-Working/Automation-Labels.md#every-set-is-namespaced)
-for the general rule.
-
 ## Prereleases
 
 - **Branch-level** — a prerelease-type branch publishes on every push, using the
