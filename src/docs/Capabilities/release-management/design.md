@@ -1,6 +1,6 @@
 ---
 title: Design
-description: How release management is built — a shared reusable workflow that reads pull-request labels, computes the SemVer bump, and cuts the release.
+description: How release management is built — a shared reusable workflow that resolves a configured or label-selected SemVer bump, builds once, and publishes.
 ---
 
 # Release Management — Design
@@ -30,6 +30,7 @@ A **release branch** is any branch configured as a release target, each with a
 
 ```yaml
 # .github/release.config.yml
+DefaultBump: patch
 release-branches:
   - branch: main
     release-type: stable
@@ -75,18 +76,20 @@ Release automation reads only labels in its `release:` namespace:
 
 | Label | Meaning | Valid combination |
 | --- | --- | --- |
-| `release:patch` | Resolve the next patch version. | Exactly one bump label. |
-| `release:minor` | Resolve the next minor version. | Exactly one bump label. |
-| `release:major` | Resolve the next major version. | Exactly one bump label. |
-| `release:pre-release` | Publish the open pull request as a prerelease. | With exactly one bump label. |
+| `release:patch` | Override `DefaultBump` and resolve the next patch version. | Alone or with `release:pre-release`. |
+| `release:minor` | Override `DefaultBump` and resolve the next minor version. | Alone or with `release:pre-release`. |
+| `release:major` | Override `DefaultBump` and resolve the next major version. | Alone or with `release:pre-release`. |
+| `release:pre-release` | Publish the open pull request as a prerelease. | Alone or with one bump label. |
 | `release:skip` | Run validation without resolving or publishing a version. | Alone. |
 
-Exactly one bump label or `release:skip` is required; **no default** is applied.
-`release:pre-release` is an optional mode label, not a bump. A missing decision,
-multiple bump labels, `release:skip` with another release label, or
-`release:pre-release` without one bump label is **rejected**, so the outcome is
-always a decision someone made. Bare `major`, `minor`, and `patch` labels are
-ignored.
+`DefaultBump` in `.github/release.config.yml` accepts exactly `patch`, `minor`,
+or `major`; omitting it resolves to `patch`. Any other value is rejected before
+Resolve begins. With no owned bump label, Resolve uses `DefaultBump`. Exactly one
+of `release:patch`, `release:minor`, or `release:major` overrides it.
+`release:pre-release` is a mode label, not a bump, and uses that same resolved
+bump. Multiple bump labels and `release:skip` with any other owned release label
+are rejected. Bare `major`, `minor`, and `patch` labels and all unrelated labels
+are ignored.
 
 - **First release** starts from a baseline (`v0.1.0` or `v1.0.0`). Pre-`1.0.0`
   breaking changes are `release:minor` per [SemVer §4](https://semver.org/#spec-item-4);
@@ -117,10 +120,11 @@ either: rerun the existing release with the same artifact and version under the
 
 - **Branch-level** — a prerelease-type branch publishes on every push, using the
   branch name as the identifier: `v1.3.0-dev.1`, `v1.3.0-dev.2`, …
-- **PR-level** — `release:pre-release` alongside exactly one bump label on an open PR publishes
-  `v<base>-<identifier>.<counter>`: `base` is the next version from the PR's bump
-  label, `identifier` is the normalized branch name, and `counter`
-  auto-increments per push.
+- **PR-level** — `release:pre-release` on an open PR publishes
+  `v<base>-<identifier>.<counter>`: `base` is the next version from one explicit
+  bump label when present, otherwise from the resolved `DefaultBump`;
+  `identifier` is the normalized branch name, and `counter` auto-increments per
+  push.
 - Artifact-specific conventions replace the SemVer suffix where they exist
   (`-alpha.N` for npm, `.devN` for Python). Release candidates use `-rc.N`,
   auto-incrementing.
@@ -243,7 +247,8 @@ release, and its runs are serialised like any other.
 | Surface | Where |
 | --- | --- |
 | Release branches + type | `.github/release.config.yml` |
-| Release decision / prerelease / RC | `release:` PR label |
+| Default bump | `DefaultBump` in `.github/release.config.yml` |
+| Bump override / prerelease / skip | `release:` PR label |
 | Optional ad hoc release | `workflow_dispatch` inputs |
 | Path filter | `.github/release.config.yml` |
 | Prerelease cleanup toggle | release config / workflow input |
