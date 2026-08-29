@@ -25,16 +25,17 @@ discoverability minimum defined below instead.
 | --- | --- |
 | `README.md` | Acts as the repository start page: purpose, value, access, first mental model, and where to go next. |
 | `LICENSE` | States the legal terms for reuse and redistribution. |
-| `CONTRIBUTING.md` | Explains how to contribute or links to the initiative contribution guide. |
-| `SECURITY.md` | Explains supported versions and private vulnerability reporting. |
-| `SUPPORT.md` | Explains where users ask for help. |
-| `CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
+| `.github/CONTRIBUTING.md` | Explains how to contribute, including how the organization defaults and central pull request template apply. |
 | `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation, then to memory. [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior) names the files and the path each one sits at. |
 | `.github/dependabot.yml` | Configures platform-native dependency-update pull requests for supported ecosystems. The `github-actions` ecosystem is expected in virtually every repository; an unsupported ecosystem follows the centrally managed exception path rather than a repository-local updater. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
-| `.github/pull_request_template.md` | Scaffolds pull requests in the MSX [PR Format](PR-Format.md) (PR Manager) style — an icon + change-type + user-facing-outcome title, user-facing description sections, an optional technical-details block, and a related-issues block. |
 | `.gitattributes` | Normalizes line endings and declares text/binary handling so the repository can be developed and built consistently on Linux, macOS, and Windows. |
 | `.gitignore` | Ignores files that must never be committed, tailored to the repository's ecosystem: operating-system files, editor and developer-tooling files, language and test-harness artifacts, and all local build outputs and files created during build and test. |
+
+The organization provides `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`,
+and `.github/pull_request_template.md` as GitHub community defaults. Do not
+copy them into a repository unless it needs a documented local exception; see
+[Organization Standard](Organization-Standard.md#community-files-are-organization-defaults).
 
 Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
 
@@ -53,7 +54,7 @@ stated below, not for the governed baseline.
 | **Infrastructure** | Documentation of each environment the repository deploys to and how a change reaches it, plus the promotion automation the [promotion flow](../Capabilities/repository-governance/design-types.md#infrastructure) requires. |
 | **Docs** | The documentation source root and the build configuration the documentation-build check runs. |
 | **Memory** | The structure documented by the [memory repository template](../Capabilities/agentic-development/memory-template.md). |
-| **Unmanaged** | Nothing — but the exemption does not extend to discoverability: `README.md`, `SECURITY.md`, and the agent router remain required, because a repository nobody governs is still a repository someone will open. |
+| **Unmanaged** | Nothing — but the exemption does not extend to discoverability: `README.md`, `.github/CONTRIBUTING.md`, and the agent router remain required, because a repository nobody governs is still a repository someone will open. |
 
 The set a governed repository is audited against is the mandatory set plus the
 additions of every type it declares; an Unmanaged repository is audited only
@@ -77,7 +78,11 @@ A README answers these questions, in this order:
 | How does it work? | Give a concise introduction to the main capability or operating model. |
 | How do I get more info? | Point to the documentation surface that owns the details. |
 
-Do not use the README as a community-file index. Assume readers can find standard repository files such as `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, and `CODE_OF_CONDUCT.md` through GitHub's UI and repository conventions. The README should mention them only when the repository has an unusual rule that readers must know before using the product.
+Do not use the README as a community-file index. Assume readers can find the
+organization's standard community defaults and repository-local files such as
+`LICENSE` and `.github/CONTRIBUTING.md` through GitHub's UI and repository
+conventions. The README should mention them only when the repository has an
+unusual rule that readers must know before using the product.
 
 Do not repeat repository-sidebar information in prose. If GitHub already exposes the repository description, deployments, releases, or site URL, the README may rely on those surfaces unless the information is necessary to answer the start-page questions.
 
@@ -95,7 +100,7 @@ Default expectations by repository type:
 | Libraries, services, CLIs, and applications | Product docs live under `docs/` and are published when the product needs more than a small README. |
 | GitHub Actions | The README is the main documentation surface because GitHub Actions users expect inputs, outputs, permissions, and examples next to `action.yml`. |
 | Reusable workflows | The README is the main documentation surface because callers need workflow interface, permissions, secrets, and examples in the repository. |
-| Documentation repositories | The published site is the product. The repository README explains what the source repository is and how it is laid out, and points to `CONTRIBUTING.md` for the authoring conventions and the local build. |
+| Documentation repositories | The published site is the product. The repository README explains what the source repository is and how it is laid out, and points to `.github/CONTRIBUTING.md` for the authoring conventions and the local build. |
 
 Documentation content lives in one folder, never spread across the repository root. A repository whose product is content — a documentation site, a reference collection, an archive of external material — keeps that content under a single documentation root: `docs/` by default, or a generator's source root such as `src/docs/` when the site tooling needs one. The repository root stays reserved for the README, the tooling, and the governance files, so a reader can tell content from machinery without opening a folder.
 
@@ -165,7 +170,10 @@ Default title pattern:
 
 The description should lead with user-facing impact, continue with user-facing change sections, include optional technical details after those sections, and end with the related-issues block. It closes one scoped Task or Bug as required by [PR Format](PR-Format.md), with any additional closing links limited to issues the session-end convergence sweep shows are fully delivered by the same diff.
 
-Repository templates may be simpler than the full PR Manager body, but they must gather enough information to reconstruct it.
+The organization-level `.github` repository supplies the default template.
+The repository-local contribution guide directs humans and agents to the
+organization template and its required format. A repository carries a local
+template only for a documented exception.
 
 ## Managed files
 

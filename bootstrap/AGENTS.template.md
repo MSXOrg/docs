@@ -164,7 +164,7 @@ Read `Ways-of-Working/Session-Interactions.md` in the canonical docs for what ea
 ## Work in the selected repository
 
 1. Read its `README.md` to understand the repository and its build.
-2. Read its `CONTRIBUTING.md` for the contribution and review contract.
+2. Read its `.github/CONTRIBUTING.md` for the contribution and review contract.
 3. Use a dedicated worktree and the branch naming defined by the canonical Ways of Working.
 4. Make small, descriptive micro-commits and push every commit so remote state, CI, and the draft pull request stay current.
 5. Capture verified reusable lessons in organization memory, following that repository's own instructions.
@@ -172,4 +172,4 @@ Read `Ways-of-Working/Session-Interactions.md` in the canonical docs for what ea
 ## Two write rules
 
 - **Docs change through topic worktrees and pull requests.** Create a topic worktree from `~/.msx/docs.git`; never branch or work inside the canonical `~/.msx/docs` main worktree.
-- **Memory follows repository policy.** Read the selected memory repository's `AGENTS.md` and `CONTRIBUTING.md` before writing.
+- **Memory follows repository policy.** Read the selected memory repository's `AGENTS.md` and `CONTRIBUTING.md` before writing. Memory repositories retain the documented root-level contribution-guide exception.

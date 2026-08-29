@@ -65,15 +65,15 @@ Product repositories carry local context and thin pointers:
   .claude/
     CLAUDE.md                      # required: routes Claude Code — @../AGENTS.md
   .github/
+    CONTRIBUTING.md                # how a change is made here
     copilot-instructions.md        # required: routes the Copilot surfaces that need it
     instructions/
       <scope>.instructions.md      # exceptional: a path-scoped local caveat
   README.md                        # what it is, how it builds
-  CONTRIBUTING.md                  # how a change is made here
   docs/                            # architecture and domain context
 ```
 
-The repository owns only repository-specific nuance, and each kind has a file that owns it: `README.md` for what the repository is and how it builds, `CONTRIBUTING.md` for contribution mechanics, `docs/` for architecture and domain context, and path-scoped rule files for local caveats. `AGENTS.md` points at them and holds none of it. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract" — the contract lives, it just lives in the file a human would read.
+The repository owns only repository-specific nuance, and each kind has a file that owns it: `README.md` for what the repository is and how it builds, `.github/CONTRIBUTING.md` for contribution mechanics, `docs/` for architecture and domain context, and path-scoped rule files for local caveats. `AGENTS.md` points at them and holds none of it. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract" — the contract lives, it just lives in the file a human would read.
 
 ## OKF page model
 
@@ -172,7 +172,7 @@ Resolution is deterministic. If the active repository remote is `github.com/PSMo
 This repository is `github.com/MSXOrg/<repo>`. Read in this order:
 
 1. `README.md` — what this repository is and how it builds.
-2. `CONTRIBUTING.md` — how a change is made and reviewed here.
+2. `.github/CONTRIBUTING.md` — how a change is made and reviewed here.
 3. `docs/index.md` — this repository's own documentation.
 4. `~/.msx/docs/src/docs/index.md` — the organization standards.
 5. `~/.msx/memory/index.md` — durable lessons, read last.
@@ -203,7 +203,7 @@ Follow the instructions in [AGENTS.md](../AGENTS.md).
 
 That is the entire file. It holds no reading order, no workflow, and no standard, so there is nothing in it that can fall out of step with the router. Any future runtime is handled the same way: give it a route under whatever filename it reads, and leave the content in `AGENTS.md`.
 
-Path-scoped instruction files are reserved for local rules that cannot live centrally because they apply only to a repository path, and only when the rule does not belong in `README.md` or `CONTRIBUTING.md` instead. They never define workflow stages.
+Path-scoped instruction files are reserved for local rules that cannot live centrally because they apply only to a repository path, and only when the rule does not belong in `README.md` or `.github/CONTRIBUTING.md` instead. They never define workflow stages.
 
 ## Local workspace
 

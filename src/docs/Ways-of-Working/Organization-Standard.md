@@ -31,7 +31,7 @@ Every initiative organization must define standards for these shared file famili
 
 | File family | Standard owns |
 | --- | --- |
-| Community health files | Code of conduct, contribution guide, support policy, security policy, and license expectations. |
+| Community health files | Central code of conduct, contribution guide, support policy, security policy, and pull request template defaults. |
 | Repository context | README defaults, documentation ownership, and repository metadata expectations. |
 | Review workflow | Pull request template, review routing, CODEOWNERS, namespace-qualified automation label sets, and change-type conventions. |
 | Supply chain | Dependabot configuration, namespace-qualified dependency update labels, security update behavior, and review expectations. |
@@ -41,11 +41,37 @@ Every initiative organization must define standards for these shared file famili
 
 These standards must be written down before broad alignment work starts. File alignment without a written standard only spreads local preference faster.
 
-## Repository-local files are the enforceable surface
+## Community files are organization defaults
 
-GitHub's special organization `.github` repository can provide fallback community files, but it is not the MSX enforcement model. Repository-local files are still required because they are what humans, agents, linters, Dependabot, CODEOWNERS, release workflows, and pull requests actually read and review.
+Community policies are organization-wide commitments, not repository-specific
+configuration. Each initiative organization MUST provide its code of conduct,
+security policy, support policy, and pull request template as defaults in its
+special `.github` repository. These defaults apply whenever a repository does
+not need a documented local exception.
 
-Use organization-level `.github` fallbacks only as a convenience, never as the only copy of a required standard file.
+Store every organization community default under the `.github/` directory of
+the special `.github` repository:
+
+| File | Purpose |
+| --- | --- |
+| `.github/CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
+| `.github/SECURITY.md` | Defines supported versions and private vulnerability reporting. |
+| `.github/SUPPORT.md` | Defines where users ask for help. |
+| `.github/pull_request_template.md` | Scaffolds pull requests in the organization's required format. |
+
+A repository MAY carry a local copy only when it needs a material,
+repository-specific exception. The local copy takes precedence, so the
+exception and its owner MUST be documented in the initiative guidance.
+
+## Repository-local context is the enforceable surface
+
+Every repository still carries the context that cannot be inferred from an
+organization default: its `README.md`, `.github/CONTRIBUTING.md`, and
+`AGENTS.md` with its client routes. The contribution guide tells humans and
+agents how the organization defaults apply and where the central pull request
+template lives. Automation configuration, ownership, and repository-specific
+legal terms also remain repository-local where the
+[Repository Standard](Repository-Standard.md) requires them.
 
 ## Managed files
 
@@ -74,7 +100,12 @@ Organizations must distinguish mandatory files from optional or type-specific fi
 | Type-specific | Files that apply only to a repository type, such as a PowerShell module, GitHub Action, Terraform module, or docs repo. |
 | Repository-specific | Local files that are intentionally owned by one repository and not managed centrally. |
 
-Security, contribution, conduct, support, dependency update, and license files are candidates for mandatory file sets. Linter settings, agent instructions, and workflow defaults may be global or type-specific depending on the initiative.
+Repository-local context, dependency updates, ownership, license terms, and
+type-specific files are candidates for mandatory file sets. Organization
+community defaults are mandatory at the organization level; repositories use
+them through GitHub's fallback unless they have a documented exception. Linter
+settings, agent instructions, and workflow defaults may be global or
+type-specific depending on the initiative.
 
 Which set applies to a repository is derived from its classification rather than decided per repository, so that adding a repository requires classifying it and nothing else. The classification mechanism, the per-type required-file matrix, and the composition rules for a repository that is more than one type are defined by [Repository Governance](../Capabilities/repository-governance/spec.md).
 
