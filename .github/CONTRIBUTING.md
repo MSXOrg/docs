@@ -1,4 +1,4 @@
-# Contributing to MSX Docs
+# Contributing
 
 Every change lands through a pull request — nothing goes directly to `main`. See the
 [Contribution Workflow](https://msxorg.github.io/docs/Ways-of-Working/Contribution-Workflow/)
