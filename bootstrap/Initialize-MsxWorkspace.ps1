@@ -418,7 +418,7 @@ foreach ($repository in $contextRepositories) {
 }
 
 if ($PSCmdlet.ShouldProcess($Root, 'Create workspace root')) {
-    New-Item -ItemType Directory -Force -Path $Root | Out-Null
+    [void] [IO.Directory]::CreateDirectory($Root)
 }
 
 $results = foreach ($repo in $contextRepositories) {
@@ -433,7 +433,7 @@ $results = foreach ($repo in $contextRepositories) {
                 throw "Cannot clone memory into '$path': it exists but is not a supported simple git checkout."
             }
             if ($PSCmdlet.ShouldProcess($repo.Url, "Clone memory into '$path'")) {
-                New-Item -ItemType Directory -Path (Split-Path -Parent $path) -Force | Out-Null
+                [void] [IO.Directory]::CreateDirectory((Split-Path -Parent $path))
                 git clone --quiet $repo.Url $path
                 if ($LASTEXITCODE -ne 0) {
                     throw "git clone failed for $($repo.Url) (exit $LASTEXITCODE). Check access and credentials."
@@ -561,7 +561,7 @@ $results = foreach ($repo in $contextRepositories) {
         $backingPath = $expectedBackingPath
         if (-not (Test-Path -LiteralPath $backingPath)) {
             if ($PSCmdlet.ShouldProcess($repo.Url, "Clone bare docs backing into '$backingPath'")) {
-                New-Item -ItemType Directory -Path (Split-Path -Parent $backingPath) -Force | Out-Null
+                [void] [IO.Directory]::CreateDirectory((Split-Path -Parent $backingPath))
                 git clone --bare --quiet $repo.Url $backingPath
                 if ($LASTEXITCODE -ne 0) {
                     throw "Bare clone failed for $($repo.Url) (exit $LASTEXITCODE)."

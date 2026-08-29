@@ -388,7 +388,8 @@ exit `$LASTEXITCODE
     }
 
     It 'treats configured repository paths literally during preflight' {
-        $literalRoot = Join-Path $fixture.Root 'literal-path-workspace'
+        $literalRoot = Join-Path $fixture.Root 'literal-path-workspace[1]'
+        [void] [IO.Directory]::CreateDirectory((Join-Path $fixture.Root 'literal-path-workspace1'))
         New-Item -ItemType Directory -Path (Join-Path $literalRoot 'context1/docs/.git') -Force | Out-Null
         New-Item -ItemType Directory -Path (Join-Path $literalRoot 'context1/memory/.git') -Force | Out-Null
         $runner = Join-Path $fixture.Root 'invoke-literal-path-bootstrap.ps1'
