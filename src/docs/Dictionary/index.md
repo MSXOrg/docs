@@ -53,9 +53,10 @@ A commit-message convention that puts a machine-readable type and optional scope
 
 Melvin Conway's 1968 observation that a system's structure mirrors the communication structure of the organization that built it. The practical consequence is that team boundaries are an architectural decision, whether or not anyone treats them as one.
 
-### Dependabot
+### Dependency updater
 
-GitHub's dependency-update service: it watches a repository's manifests and opens pull requests when a dependency has a newer version. See [Dependency Updates](../Capabilities/dependency-updates/design.md).
+A service that proposes pull requests when a repository's dependencies need
+updating. See [Dependency Updates](../Capabilities/dependency-updates/design.md).
 
 ### Design
 

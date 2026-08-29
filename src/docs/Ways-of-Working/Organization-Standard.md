@@ -34,7 +34,7 @@ Every initiative organization must define standards for these shared file famili
 | Community health files | Central code of conduct, contribution guide, support policy, security policy, and pull request template defaults. |
 | Repository context | README defaults, documentation ownership, and repository metadata expectations. |
 | Review workflow | Pull request template, review routing, CODEOWNERS, namespace-qualified automation label sets, and change-type conventions. |
-| Supply chain | Dependabot configuration, namespace-qualified dependency update labels, security update behavior, and review expectations. |
+| Supply chain | Dependency update configuration, security update behavior, and review expectations. |
 | Linters and enforcement | Linter configuration derived from the written standards. |
 | Agent context | Instructions, prompts, hooks, and any repository-local agent guidance. |
 | Release automation | Release notes, changelog categorization, and release workflow defaults where applicable. |
