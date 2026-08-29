@@ -65,15 +65,12 @@ a fleet of pin-update pull requests.
   `.github/dependabot.yml`. For external dependencies, the updater opens a pull
   request that rewrites the pin to the new commit SHA and refreshes the trailing
   version comment.
-- **Apply Dependabot's default three-day cooldown** before adopting a freshly published version. Omit an explicit `cooldown` mapping unless the repository deliberately adopts a non-default duration.
-- **Label the update PR** with `dependencies` + `github-actions`, plus the
-  dependency's own level (`update:major` / `update:minor` / `update:patch`).
-  These update-level labels are deliberately **distinct from the release-bump
-  labels** (`release:major` / `release:minor` / `release:patch`) — a bumped action is an
-  artifact-affecting change that itself cuts a release, so the two must not
-  share one label set.
-- **Review `update:major` by hand** — a major action bump can change inputs,
-  outputs, or behaviour. Lower levels may auto-merge once checks pass.
+- **Apply the updater's default three-day cooldown** before adopting a freshly published version. Omit an explicit `cooldown` mapping unless the repository deliberately adopts a non-default duration.
+- **Label the update PR** with `dependency:github-actions` so routing identifies
+  the affected ecosystem. This label does not decide the repository release.
+- **Make the release decision separately** after dependency changes are
+  collected, using the `release:*` labels defined by
+  [Release Management](../Capabilities/release-management/design.md).
 - **Publish owned floating major tags only through controlled release
   automation.** The release gate validates compatibility, publishes the immutable
   version tag first, and then advances the major tag to that stable release.
@@ -82,15 +79,17 @@ a fleet of pin-update pull requests.
   A breaking release publishes the next major tag, but consumers remain on their
   current line until that campaign changes their `uses:` references.
 
-The full mechanism — schedule, cooldown, labels, and auto-merge policy — is the
+The full mechanism — schedule, cooldown, dependency labels, and merge policy — is the
 [Dependency Updates](../Capabilities/dependency-updates/design.md) capability;
 this section is the Actions-specific view of it.
 
 ### Audit and synchronize pins manually
 
-[Dependabot](https://docs.github.com/code-security/dependabot/dependabot-version-updates) remains the ongoing updater for the `github-actions` ecosystem. It proposes reviewable pull requests as releases are published, applies the configured cooldown and labels, and is the normal way a repository stays current.
+Use the repository's automated dependency-update path for the `github-actions`
+ecosystem. When an action update pull request arrives, verify the new SHA and
+version comment, run the required checks, and merge it through the normal gate.
 
-Use the reusable [`Update-GitHubActionPin.ps1`](https://github.com/MSXOrg/docs/blob/main/.github/scripts/Update-GitHubActionPin.ps1) utility to audit or deliberately synchronize external SHA pins: for example, when onboarding an existing repository, reconciling a repository after a Dependabot outage, or checking proposed changes before an update pull request is opened. It is not a replacement for enabling Dependabot and does not move owned floating major tags.
+Use the reusable [`Update-GitHubActionPin.ps1`](https://github.com/MSXOrg/docs/blob/main/.github/scripts/Update-GitHubActionPin.ps1) utility to audit or deliberately synchronize external SHA pins: for example, when onboarding an existing repository, reconciling a repository after an update-service outage, or checking proposed changes before an update pull request is opened. It does not move owned floating major tags.
 
 The script needs PowerShell 7, network access to the GitHub REST API, and a target repository with a `.github` directory. Public actions can be resolved anonymously; set `GITHUB_TOKEN` or `GH_TOKEN` to raise the API rate limit or to resolve actions that require authentication. The token is sent only as an API request header.
 

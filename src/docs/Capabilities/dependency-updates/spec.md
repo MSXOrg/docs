@@ -19,7 +19,7 @@ through the same gate as any change — never a side channel that bypasses revie
 This capability rests on the [Principles](../../Ways-of-Working/Principles/index.md):
 
 - **[Everything as Code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).** What is checked and how often is version-controlled configuration, not a manual audit.
-- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** Every update is a pull request; its review gate approves the bump and the release it produces.
+- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** Every update is a pull request; its review gate approves the bump, while its release impact is decided separately.
 - **[Least-privilege](../../Ways-of-Working/Principles/Purpose-and-Direction.md#least-privilege).** The updater and any auto-merge automation carry only the permissions they need.
 - **[Extensible by default](../../Ways-of-Working/Principles/Software-Design.md#extensible-by-default).** Adding a package ecosystem is a configuration entry, not new machinery.
 
@@ -63,16 +63,16 @@ Management](../release-management/spec.md).
 
 - **FR6 — Currency is checked on a schedule.** No human watches upstream releases.
 - **FR7 — The schedule is configuration.** Frequency and the timezone it is expressed in MUST be configurable per organization. There is no correct global cadence: a repository whose consumers deploy continuously wants updates sooner than one that ships quarterly, and a schedule expressed in a timezone nobody works in produces pull requests nobody triages.
-- **FR8 — Freshly published versions wait three days.** A version MUST NOT be proposed the moment it appears. The organization standard is Dependabot's default three-day cooldown, so a repository MUST omit an explicit `cooldown` mapping unless it deliberately adopts a non-default duration. The delay lets an upstream project withdraw or supersede a bad release before every consumer has a pull request open against it.
+- **FR8 — Freshly published versions wait three days.** A version MUST NOT be proposed the moment it appears. The organization standard is a three-day cooldown, so a repository MUST omit an explicit `cooldown` mapping unless it deliberately adopts a non-default duration. The delay lets an upstream project withdraw or supersede a bad release before every consumer has a pull request open against it.
 - **FR9 — Security advisories bypass the schedule.** An advisory affecting a pin raises an update on disclosure, out of band, and MUST be prioritised over scheduled currency updates.
 
-### Review and labelling
+### Review and release decision
 
 - **FR10 — One reviewed pull request per update.** Each dependency update is a pull request that passes the full check suite before merge. Nothing is applied unreviewed, and no update takes a side channel around the gate.
-- **FR11 — Update level is labelled.** Every update pull request MUST carry the category, the ecosystem, and the dependency's own version-change level, so review routing and triage do not require opening the diff.
-- **FR12 — Update labels MUST NOT reuse the release bump vocabulary.** The label that signals the *dependency's* version level MUST be namespaced away from the release-bump labels ([automation labels](../../Ways-of-Working/Automation-Labels.md#every-set-is-namespaced)). A dependency update is artifact-affecting and therefore produces a release; one shared vocabulary across the two dimensions would set this repository's version from the upstream project's decision.
-- **FR13 — Review posture follows update level.** Patch and minor updates MAY merge automatically once every required check passes. A major update MUST require human review and MUST NOT merge automatically. A repository MAY tighten this and MUST NOT loosen it.
-- **FR14 — Automatic merge is never a bypass.** Where an update merges without review, it does so because the checks passed, not because the checks were skipped.
+- **FR11 — Dependency scope is labelled.** Every update pull request MUST identify the affected ecosystem with a `dependency:<ecosystem>` label for routing and triage.
+- **FR12 — Release impact is decided separately.** The dependency updater MUST NOT choose the repository's release bump. After dependency changes are collected, a bot or reviewer applies exactly one `release:*` label according to [Release Management](../release-management/spec.md).
+- **FR13 — Review and merge follow the repository gate.** An update MUST pass the repository's normal review and required-check policy before merge.
+- **FR14 — Automatic merge is never a bypass.** Where automatic merge is configured, it MUST preserve review requirements and required checks.
 
 ### Non-functional
 
@@ -84,13 +84,13 @@ Management](../release-management/spec.md).
 
 - An outdated or vulnerable pin produces a labelled pull request with no human trigger.
 - An ecosystem added to a repository without a corresponding updater entry is a detectable finding, not a silent gap.
-- The dependency's version level is legible from labels without opening the diff, and never changes this repository's release bump by itself.
+- The affected ecosystem is legible from the dependency label, and the repository's release bump is decided separately with a `release:*` label.
 - No dependency pull request merges without passing the same checks as any other pull request.
 
 ## Where this connects
 
 - [Design](design.md) — the label scheme, the updater, and the automatic-merge policy.
-- [Release Management](../release-management/spec.md) — the versioning update pull requests feed into, and the bump vocabulary these must not reuse.
+- [Release Management](../release-management/spec.md) — the separate repository-wide release decision for merged dependency changes.
 - [Automation Labels](../../Ways-of-Working/Automation-Labels.md) — the namespacing rule that keeps the two version dimensions disjoint.
 - [Repository Governance](../repository-governance/spec.md) — the reconciliation that detects an uncovered ecosystem.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md#keep-pinned-actions-current) — keeping pinned Actions current.
