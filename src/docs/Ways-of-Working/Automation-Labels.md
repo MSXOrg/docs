@@ -50,17 +50,18 @@ namespaced, including the release set:
 
 | Label | Instruction |
 | --- | --- |
-| `release:patch` | Publish a patch release. |
-| `release:minor` | Publish a minor release. |
-| `release:major` | Publish a major release. |
-| `release:pre-release` | Publish a prerelease from the open pull request. |
+| `release:patch` | Override the configured default and publish a patch release. |
+| `release:minor` | Override the configured default and publish a minor release. |
+| `release:major` | Override the configured default and publish a major release. |
+| `release:pre-release` | Publish a prerelease using the explicit bump or configured default. |
 | `release:skip` | Validate the change without publishing a release. |
 
 These labels are read by
 [release management](../Capabilities/release-management/spec.md) and by nothing else.
-Exactly one bump label or `release:skip` records the release decision.
-`release:pre-release` is an optional mode used with exactly one bump label, never
-with `release:skip`.
+The configured `DefaultBump` supplies the release decision when no owned bump
+label is present. One bump label overrides it. `release:pre-release` is an
+optional mode used alone or with one bump label, while `release:skip` is used
+alone and prevents publication. Conflicting owned labels fail.
 
 Reserving bare words would be weaker because it depends on a documented
 prohibition rather than making ownership visible in the label itself.
@@ -95,6 +96,6 @@ decision applies, and unambiguous about who acts on it.
 
 ## Where this connects
 
-- [Release Management](../Capabilities/release-management/spec.md) — the namespaced bump vocabulary and why exactly one of its values is required.
+- [Release Management](../Capabilities/release-management/spec.md) — the configured default, namespaced override vocabulary, and conflict rules.
 - [Repository Governance](../Capabilities/repository-governance/design.md) — the controls that read repository state, of which labels are one.
 - [Repository Standard](Repository-Standard.md) — the repository-level requirement that labels be provisioned rather than improvised.

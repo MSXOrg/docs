@@ -84,24 +84,26 @@ the thing that ships. A rebuilt artifact behaves like continuous deployment — 
 pipeline reproduces it from a verified source, and reproducibility is what carries the
 guarantee instead.
 
-### D2 — Version signals feed in, the label decides, at the PR gate
+### D2 — Version signals feed in, the release policy decides, at the PR gate
 
 Several signals suggest what kind of change a pull request contains: the shape of the
 diff, whether tests were added or changed, the commit messages, and an AI-assisted
-reading of the change. Those signals MUST be treated as input. The
-[release label](Automation-Labels.md) on the pull request is authoritative, and the
-decision is taken at the pull-request gate.
+reading of the change. Those signals MUST be treated as input. The resolved
+[release policy](../Capabilities/release-management/spec.md) is authoritative:
+the repository's configured `DefaultBump`, overridden by one owned bump label
+when present. The decision is taken at the pull-request gate.
 
 This deliberately moves the version decision **right** — off the contributing agent or
 author, onto the gate where a reviewer is already looking. An author guessing at a
 version level is guessing about consumers they cannot see; a reviewer at the gate has
-the whole change in front of them. It also means the decision is recorded on the
-artifact everyone can see, rather than inferred later from history.
+the whole change in front of them. It also means the normal decision is recorded
+in version-controlled configuration and an override on the pull request, rather
+than inferred later from history.
 
 ### D3 — Prerelease by default, stabilized on merge
 
 Every build from a topic branch MUST be published as a prerelease. The stable version
-is cut on merge, from the label.
+is cut on merge, from the resolved default or its explicit label override.
 
 A prerelease version (`1.3.0-add-widgets.1`) sorts below every stable version, which
 is the entire mechanism: a consumer who has not opted in cannot resolve it, so
@@ -141,6 +143,6 @@ recorded as bad in its release notes rather than erased.
 
 - [Continuous Practices](Continuous-Practices.md) — the wider Continuous X family and where each term comes from.
 - [Release Management](../Capabilities/release-management/spec.md) — how the version decision and the prerelease flow are implemented.
-- [Automation Labels](Automation-Labels.md) — why the release label is the authoritative signal and why it is namespaced.
+- [Automation Labels](Automation-Labels.md) — why an explicit release override is authoritative and namespaced.
 - [Pre-Commit](../Coding-Standards/Pre-Commit.md) — the local half of the integration gate.
 - [Branching and Merging](Branching-and-Merging.md) — the PR → main boundary the build-once decision is taken across.
