@@ -137,19 +137,25 @@ exit `$LASTEXITCODE
             }
             $runner = Join-Path $Fixture.Root "seed-$([IO.Path]::GetFileNameWithoutExtension($MarkdownPath)).ps1"
             Set-Content -LiteralPath $runner -Value $match.Groups[1].Value
-            $previousRoot = $env:MSX_WORKSPACE_ROOT
-            $previousDocs = $env:MSX_DOCS_URL
-            $previousMemory = $env:MSX_MEMORY_URL
+            $previousRoot = $env:MSX_CONTEXT_ROOT
+            $previousMsxDocs = $env:MSXORG_DOCS_URL
+            $previousMsxMemory = $env:MSXORG_MEMORY_URL
+            $previousPsmoduleDocs = $env:PSMODULE_DOCS_URL
+            $previousPsmoduleMemory = $env:PSMODULE_MEMORY_URL
             try {
-                $env:MSX_WORKSPACE_ROOT = $Workspace
-                $env:MSX_DOCS_URL = $Fixture.Remotes.docs
-                $env:MSX_MEMORY_URL = $Fixture.Remotes.memory
+                $env:MSX_CONTEXT_ROOT = $Workspace
+                $env:MSXORG_DOCS_URL = $Fixture.Remotes.docs
+                $env:MSXORG_MEMORY_URL = $Fixture.Remotes.memory
+                $env:PSMODULE_DOCS_URL = $Fixture.Remotes.docs
+                $env:PSMODULE_MEMORY_URL = $Fixture.Remotes.memory
                 $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
                 return [pscustomobject]@{ ExitCode = $LASTEXITCODE; Output = $output }
             } finally {
-                $env:MSX_WORKSPACE_ROOT = $previousRoot
-                $env:MSX_DOCS_URL = $previousDocs
-                $env:MSX_MEMORY_URL = $previousMemory
+                $env:MSX_CONTEXT_ROOT = $previousRoot
+                $env:MSXORG_DOCS_URL = $previousMsxDocs
+                $env:MSXORG_MEMORY_URL = $previousMsxMemory
+                $env:PSMODULE_DOCS_URL = $previousPsmoduleDocs
+                $env:PSMODULE_MEMORY_URL = $previousPsmoduleMemory
             }
         }
     }
@@ -672,19 +678,20 @@ exit `$LASTEXITCODE
             Should -BeNullOrEmpty
     }
 
-    It 'installs canonical topology from the <Name> seed block' -ForEach @(
-        @{ Name = 'agent template'; MarkdownPath = '../bootstrap/AGENTS.template.md' }
-        @{ Name = 'bootstrap README'; MarkdownPath = '../bootstrap/README.md' }
-    ) {
+    It 'installs canonical topology from the agent template seed block' {
+        $Name = 'agent template'
+        $MarkdownPath = '../bootstrap/AGENTS.template.md'
         $workspace = Join-Path $fixture.Root "seed-$($Name.Replace(' ', '-'))"
         $seedPath = Join-Path $PSScriptRoot $MarkdownPath
 
         $result = Invoke-BootstrapSeed -Fixture $fixture -MarkdownPath $seedPath -Workspace $workspace
 
         $result.ExitCode | Should -Be 0 -Because $result.Output
-        $docs = Join-Path $workspace 'docs'
-        $backing = Join-Path $workspace 'docs.git'
-        $memory = Join-Path $workspace 'memory'
+        $docs = Join-Path $workspace '.msxorg/docs'
+        $backing = Join-Path $workspace '.msxorg/docs.git'
+        $memory = Join-Path $workspace '.msxorg/memory'
+        $psmoduleDocs = Join-Path $workspace '.psmodule/process-psmodule'
+        $psmoduleMemory = Join-Path $workspace '.psmodule/memory'
         Test-Path -LiteralPath (Join-Path $docs '.git') -PathType Leaf | Should -BeTrue
         (Invoke-Git -Arguments @("--git-dir=$backing", 'rev-parse', '--is-bare-repository')).Trim() |
             Should -BeExactly 'true'
@@ -694,6 +701,10 @@ exit `$LASTEXITCODE
             Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.docs -Arguments @('rev-parse', 'HEAD')).Trim()
         Test-Path -LiteralPath (Join-Path $memory '.git') -PathType Container |
             Should -BeTrue -Because $result.Output
+        Test-Path -LiteralPath (Join-Path $psmoduleDocs '.git') -PathType Leaf |
+            Should -BeTrue -Because $result.Output
+        Test-Path -LiteralPath (Join-Path $psmoduleMemory '.git') -PathType Container |
+            Should -BeTrue -Because $result.Output
         (Invoke-Git -WorkingDirectory $docs -Arguments @('config', '--local', 'user.name')).Trim() |
             Should -BeExactly 'Marius Storhaug'
         (Invoke-BootstrapSeed -Fixture $fixture -MarkdownPath $seedPath -Workspace $workspace).ExitCode |
@@ -702,8 +713,8 @@ exit `$LASTEXITCODE
 
     It 'refreshes a stale bare backing before the seed creates its canonical worktree' {
         $workspace = Join-Path $fixture.Root 'seed-stale-backing'
-        New-Item -ItemType Directory -Path $workspace | Out-Null
-        $backing = Join-Path $workspace 'docs.git'
+        New-Item -ItemType Directory -Path (Join-Path $workspace '.msxorg') -Force | Out-Null
+        $backing = Join-Path $workspace '.msxorg/docs.git'
         Invoke-Git -Arguments @('clone', '--bare', '--quiet', $fixture.Remotes.docs, $backing) | Out-Null
         Add-TestCommit -Repository $fixture.Writers.docs -Name 'Advance before seed'
         Invoke-Git -WorkingDirectory $fixture.Writers.docs -Arguments @('push', '--quiet') | Out-Null
@@ -712,7 +723,7 @@ exit `$LASTEXITCODE
         $result = Invoke-BootstrapSeed -Fixture $fixture -MarkdownPath $script:agentTemplate -Workspace $workspace
 
         $result.ExitCode | Should -Be 0 -Because $result.Output
-        $docs = Join-Path $workspace 'docs'
+        $docs = Join-Path $workspace '.msxorg/docs'
         (Invoke-Git -Arguments @("--git-dir=$backing", 'rev-parse', 'main')).Trim() | Should -BeExactly $remoteHead
         (Invoke-Git -WorkingDirectory $docs -Arguments @('rev-parse', 'HEAD')).Trim() | Should -BeExactly $remoteHead
     }

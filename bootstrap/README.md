@@ -1,178 +1,80 @@
 # Bootstrap
 
-The single starting point for agents: a git-isolated local clone of the MSX central repositories under `~/.msx`, plus the instruction that sends every agent there first.
+The bootstrap refreshes repository-addressable organization context before an agent reads it. Repository identity is authoritative; a CLI, the web, published documentation, or a refreshed local clone may deliver the content.
 
 ## Contents
 
-- `Initialize-MsxWorkspace.ps1` — idempotent setup. Clones `MSXOrg/docs` and `MSXOrg/memory` under `~/.msx`, requires existing clones to exactly match their remote default branches, and writes a repository-local git identity so the workspace never modifies the global git config.
-- `AGENTS.template.md` — the user-global entry instruction. It bootstraps the workspace, then points the agent at the docs and memory. Install it once per machine (below).
+- `Initialize-MsxWorkspace.ps1` — the idempotent freshness gate for configured context repositories.
+- `AGENTS.template.md` — the user-global entry instruction and first-run seed.
 
-## The model
+## Canonical repositories
 
-- `~/.msx/docs` is **read context** — the ways of working, coding standards, and agent workflow. Changes to it go through **pull requests**.
-- `~/.msx/docs.git` is the bare backing repository for the readable, clean `~/.msx/docs` main worktree.
-- `~/.msx/memory` is **durable context** — notes and session history governed by that repository's contribution policy.
-- `~/.msx/projects/<project>/docs.git` and `docs/` provide the same bare+main-worktree model for optional project docs; `memory/` remains a simple checkout.
+| Source repository | Entry file | Published documentation | Visibility | Preferred local clone |
+| --- | --- | --- | --- | --- |
+| [MSXOrg/docs](https://github.com/MSXOrg/docs) | `src/docs/index.md` | <https://msxorg.github.io/docs/> | Public | `~/.msxorg/docs` |
+| `MSXOrg/memory` | `index.md` | None | Private | `~/.msxorg/memory` |
+| [PSModule/Process-PSModule](https://github.com/PSModule/Process-PSModule) | `docs/index.md` | <https://psmodule.io/docs/Modules/Process-PSModule/> | Public | `~/.psmodule/process-psmodule` |
+| `PSModule/memory` | `index.md` | None | Private | `~/.psmodule/memory` |
 
-> **Prerequisite:** `MSXOrg/memory` is a private repository — the bootstrap needs access to it (and working github.com credentials) to clone or update memory.
+The documentation clones use a bare backing repository plus a clean default-branch worktree. The backing paths are `~/.msxorg/docs.git` and `~/.psmodule/process-psmodule.git`. Memory repositories remain simple checkouts.
 
-Before either repository is used, bootstrap fetches it and requires a clean checkout on the remote default branch at the exact remote head. A dirty, locally ahead, diverged, wrong-branch, or unreachable context repository stops bootstrap; stale context is never treated as a successful fallback.
+Private memory requires authenticated access. Failure to clone or refresh either private repository stops context resolution instead of falling back to an older copy.
 
-Keeping the workspace separate and git-isolated means an agent reads the same docs and memory in every repository, and its commits there use the workspace identity rather than whatever the working repository or the global config happens to be set to.
+## Freshness gate
 
-The loaded `AGENTS.md` points to the roots; discovery happens in documentation. Start at `~/.msx/docs/src/docs/index.md`, follow Ways of Working to Workflow, infer the current stage, and read the linked procedure. Clear task language can shortcut stage selection, but no skill or instruction file owns a separate copy of the process.
+Run bootstrap at the start of every agent session. It:
 
-## Install (once per machine)
+1. validates every configured repository identity and collision-free relative path;
+2. clones missing repositories;
+3. fetches existing repositories and resolves their remote default branches;
+4. requires clean default-branch checkouts at the exact fetched remote heads; and
+5. writes repository-local git identity without modifying global git configuration.
 
-Run the bootstrap:
+A dirty, locally ahead, diverged, wrong-branch, noncanonical, or unreachable repository stops the gate. Context is read only after every selected repository succeeds.
 
-```powershell
-$workspaceRoot = if ($env:MSX_WORKSPACE_ROOT) { $env:MSX_WORKSPACE_ROOT } else { Join-Path $HOME '.msx' }
-$docsUrl = if ($env:MSX_DOCS_URL) { $env:MSX_DOCS_URL } else { 'https://github.com/MSXOrg/docs.git' }
-$memoryUrl = if ($env:MSX_MEMORY_URL) { $env:MSX_MEMORY_URL } else { 'https://github.com/MSXOrg/memory.git' }
-$docs = Join-Path $workspaceRoot 'docs'
-$docsBacking = "$docs.git"
-if ((Test-Path $docs) -and -not (Test-Path (Join-Path $docs '.git'))) {
-    throw "$docs exists but is not a git repository. Remove it and re-run."
-}
-if (-not (Test-Path (Join-Path $docs '.git'))) {
-    if (-not (Test-Path $docsBacking)) {
-        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $docs) | Out-Null
-        git clone --bare $docsUrl $docsBacking
-        if ($LASTEXITCODE -ne 0) {
-            throw "Bare clone of MSXOrg/docs failed (exit $LASTEXITCODE). Check network access and credentials."
-        }
-    }
-    if ((git --git-dir=$docsBacking rev-parse --is-bare-repository) -ne 'true') {
-        throw "$docsBacking exists but is not a bare repository."
-    }
-    if ((git --git-dir=$docsBacking remote get-url origin) -ne $docsUrl) {
-        throw "$docsBacking origin does not match canonical $docsUrl."
-    }
-    $refspec = '+refs/heads/*:refs/remotes/origin/*'
-    if ($refspec -notin @(git --git-dir=$docsBacking config --get-all remote.origin.fetch)) {
-        git --git-dir=$docsBacking config --add remote.origin.fetch $refspec
-        if ($LASTEXITCODE -ne 0) { throw "Could not configure $docsBacking." }
-    }
-    git --git-dir=$docsBacking fetch origin --prune --quiet
-    if ($LASTEXITCODE -ne 0) { throw "Could not refresh $docsBacking. Do not use stale context." }
-    git --git-dir=$docsBacking remote set-head origin --auto | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw "Could not detect the MSXOrg/docs default branch." }
-    $defaultRef = (git --git-dir=$docsBacking symbolic-ref --short refs/remotes/origin/HEAD | Out-String).Trim()
-    if ($LASTEXITCODE -ne 0) { throw "Could not resolve origin/HEAD in $docsBacking." }
-    $defaultBranch = $defaultRef -replace '^origin/', ''
-    $remoteHead = (git --git-dir=$docsBacking rev-parse $defaultRef | Out-String).Trim()
-    if ($LASTEXITCODE -ne 0) { throw "Could not resolve $defaultRef in $docsBacking." }
-    $localRef = "refs/heads/$defaultBranch"
-    $localHead = (git --git-dir=$docsBacking rev-parse --verify $localRef 2>$null | Out-String).Trim()
-    if ($LASTEXITCODE -eq 128) {
-        git --git-dir=$docsBacking update-ref $localRef $remoteHead
-    } elseif ($LASTEXITCODE -ne 0) {
-        throw "Could not inspect $localRef in $docsBacking."
-    } elseif ($localHead -ne $remoteHead) {
-        git --git-dir=$docsBacking merge-base --is-ancestor $localHead $remoteHead
-        if ($LASTEXITCODE -ne 0) { throw "$localRef is ahead or diverged in $docsBacking." }
-        if ("branch $localRef" -in @(git --git-dir=$docsBacking worktree list --porcelain)) {
-            throw "$localRef is checked out elsewhere. Update that worktree first."
-        }
-        git --git-dir=$docsBacking update-ref $localRef $remoteHead $localHead
-    }
-    if ($LASTEXITCODE -ne 0 -or (git --git-dir=$docsBacking rev-parse $localRef) -ne $remoteHead) {
-        throw "$localRef is not exactly synchronized with $defaultRef."
-    }
-    git --git-dir=$docsBacking worktree add $docs $defaultBranch
-    if ($LASTEXITCODE -ne 0) {
-        throw "Could not create the canonical MSXOrg/docs worktree at $docs."
-    }
-} else {
-    if ((git -C $docs remote get-url origin) -ne $docsUrl) {
-        throw "$docs origin does not match canonical $docsUrl."
-    }
-    $refspec = '+refs/heads/*:refs/remotes/origin/*'
-    if ($refspec -notin @(git -C $docs config --get-all remote.origin.fetch)) {
-        git -C $docs config --add remote.origin.fetch $refspec
-        if ($LASTEXITCODE -ne 0) {
-            throw "Could not configure remote tracking branches for MSXOrg/docs (exit $LASTEXITCODE)."
-        }
-    }
-    git -C $docs fetch origin --prune --quiet
-    if ($LASTEXITCODE -ne 0) {
-        throw "git fetch of MSXOrg/docs failed (exit $LASTEXITCODE). Do not use stale context."
-    }
-    git -C $docs remote set-head origin --auto | Out-Null
-    if ($LASTEXITCODE -ne 0) { throw "Could not detect the MSXOrg/docs default branch." }
-    $defaultRef = (git -C $docs symbolic-ref --short refs/remotes/origin/HEAD | Out-String).Trim()
-    if ($LASTEXITCODE -ne 0) { throw "Could not resolve origin/HEAD in $docs." }
-    $defaultBranch = $defaultRef -replace '^origin/', ''
-    $branch = (git -C $docs branch --show-current | Out-String).Trim()
-    if ($branch -ne $defaultBranch) {
-        throw "$docs is on '$branch', not '$defaultBranch'. Switch branches before using this context."
-    }
-    if (@(git -C $docs status --porcelain).Count -gt 0) {
-        throw "$docs has uncommitted changes. Resolve them before using this context."
-    }
-    git -C $docs merge --ff-only --quiet $defaultRef
-    if ($LASTEXITCODE -ne 0) {
-        throw "MSXOrg/docs cannot fast-forward to $defaultRef. Do not use stale context."
-    }
-    if ((git -C $docs rev-parse HEAD) -ne (git -C $docs rev-parse $defaultRef)) {
-        throw "$docs is not exactly synchronized with $defaultRef. Reconcile local commits before using this context."
-    }
-}
-$projects = @(
-    @{
-        Name = 'MSXOrg'
-        Path = ''
-        DocsUrl = $docsUrl
-        MemoryUrl = $memoryUrl
-    }
-)
-& (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1') -Root $workspaceRoot -Project $projects
-if ($LASTEXITCODE -ne 0) {
-    throw "MSX workspace synchronization failed. Do not read context until every repository is current."
-}
+## First installation
+
+Install `AGENTS.template.md` as the user-global agent instruction and run its first PowerShell block. The seed refreshes `MSXOrg/docs`, then invokes the canonical bootstrap script from that refreshed repository for all four sources.
+
+For Claude Code, route the user instruction to the refreshed template:
+
+```text
+@~/.msxorg/docs/bootstrap/AGENTS.template.md
 ```
 
-## Add project context
+Copilot reads user-level instructions natively. Repository `AGENTS.md` files stay thin routers and do not contain bootstrap logic.
 
-The default project is MSXOrg. A repository in another project declares additional docs and memory coordinates in its agent installation chapter and passes them to the same bootstrap:
+## Repository configuration
+
+The script accepts explicit repository coordinates. `Path` is relative to `Root`, which defaults to the current user's home directory.
 
 ```powershell
-$projects = @(
-    @{
-        Name = 'MSXOrg'
-        Path = ''
-        DocsUrl = 'https://github.com/MSXOrg/docs.git'
-        MemoryUrl = 'https://github.com/MSXOrg/memory.git'
-    }
-    @{
-        Name = 'PSModule'
-        Path = 'projects/PSModule'
-        DocsUrl = 'https://github.com/PSModule/docs.git'
-        MemoryUrl = 'https://github.com/PSModule/memory.git'
-    }
+$repositories = @(
+    @{ Name = 'MSXOrg/docs'; Path = '.msxorg/docs'; Url = 'https://github.com/MSXOrg/docs.git'; Kind = 'docs' }
+    @{ Name = 'MSXOrg/memory'; Path = '.msxorg/memory'; Url = 'https://github.com/MSXOrg/memory.git'; Kind = 'memory' }
+    @{ Name = 'PSModule/Process-PSModule'; Path = '.psmodule/process-psmodule'; Url = 'https://github.com/PSModule/Process-PSModule.git'; Kind = 'docs' }
+    @{ Name = 'PSModule/memory'; Path = '.psmodule/memory'; Url = 'https://github.com/PSModule/memory.git'; Kind = 'memory' }
 )
-& (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1') -Project $projects
+& ./Initialize-MsxWorkspace.ps1 -Repository $repositories
 ```
 
-Each plug-in uses the same fail-closed freshness validation. `Path` is relative to `~/.msx`, so projects can choose a collision-free location without forking the bootstrap.
+URLs are transport configuration, not repository identity. They may use any git transport that resolves the named source repository.
 
-Existing clean simple docs clones are migrated automatically. The original clone is retained beside the new layout as `docs.simple-clone-backup` for manual verification and removal. Existing docs worktrees backed by another bare path are reused in place. Dirty, ahead, diverged, wrong-branch, conflicting-path, or otherwise unsafe layouts stop with actionable guidance before conversion.
+## Former `~/.msx/` layout
 
-Docs changes use topic worktrees created from `~/.msx/docs.git`; never branch or work inside the canonical `~/.msx/docs` main worktree.
+The former layout is never a fallback context source. When bootstrap finds one of these paths, it emits an actionable warning, leaves the path unchanged, and creates or refreshes the corresponding canonical clone:
 
-Wire it into the tools so it runs as the first instruction:
+| Former path | Canonical replacement |
+| --- | --- |
+| `~/.msx/docs` | `~/.msxorg/docs` |
+| `~/.msx/memory` | `~/.msxorg/memory` |
+| `~/.msx/projects/PSModule/docs` | `~/.psmodule/process-psmodule` |
+| `~/.msx/projects/PSModule/memory` | `~/.psmodule/memory` |
 
-- **Claude Code** reads `CLAUDE.md`. Add an import to `~/.claude/CLAUDE.md`:
+Verify the canonical clone before removing a former path. This copy-and-diagnose approach avoids trusting stale content, moving dirty work, or repairing a checkout destructively.
 
-  ```text
-  @~/.msx/docs/bootstrap/AGENTS.template.md
-  ```
+Existing simple documentation clones already at a canonical path are migrated to the bare-plus-worktree layout only after they pass the freshness gate. The original clone is retained beside the new layout as `<path>.simple-clone-backup` for manual verification and removal. Unsafe layouts stop with recovery guidance.
 
-- **Copilot** reads `AGENTS.md` natively. Install the contents of `AGENTS.template.md` as your **user-level** Copilot instructions so it applies in every repository. Per-repository `AGENTS.md` files stay thin pointers to the central docs — don't put the bootstrap there.
+## Writing context
 
-## Identity
-
-The script writes a repository-local git identity to each clone. The default is the maintainer's GitHub **noreply** identity, so no personal email is written into git config and commits still attribute to the maintainer. Override it with `-UserName` / `-UserEmail`, or point it at a dedicated agent account when one exists.
-
-> **Override this if you are not the maintainer.** With the default, commits — including memory pushes to `main` — are attributed to the maintainer's account. Pass `-UserName` and `-UserEmail` (for example `-UserEmail 'you@users.noreply.github.com'`), or point the script at a dedicated agent account, so your commits are attributed correctly.
+Documentation changes use topic worktrees created from the relevant bare backing repository; never work in a canonical context worktree. Memory follows the selected private repository's own `AGENTS.md` and `CONTRIBUTING.md`.

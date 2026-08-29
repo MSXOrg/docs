@@ -1,12 +1,14 @@
 # Agent Instructions
 
-This repository is `github.com/MSXOrg/docs`. Read in this order:
+Read nearest first, prefer documentation over memory, and always use the newest version.
+
+This repository is `github.com/MSXOrg/docs`. Read these sources in order:
 
 1. [README.md](README.md) — what this repository is, how it is laid out, and how it builds.
 2. [CONTRIBUTING.md](CONTRIBUTING.md) — how a change is made and reviewed here.
-3. [src/docs/index.md](src/docs/index.md) — the documentation this repository owns. Follow the index inward.
-4. `~/.msx/memory/index.md` — durable lessons from earlier work, read last.
+3. [MSXOrg/docs](https://github.com/MSXOrg/docs) — this repository; entry file [src/docs/index.md](src/docs/index.md); published at <https://msxorg.github.io/docs/>; preferred clone `~/.msxorg/docs`.
+4. `MSXOrg/memory` — private organization memory; entry file `index.md`; preferred clone `~/.msxorg/memory`; read last.
 
 Step 3 is also the MSX organization standard, so nothing governs this repository from above it.
 
-Read nearest first. A local file never overrides a standard, and memory never overrides documentation.
+Use a CLI, the web, published documentation, or a refreshed local clone, whichever provides the newest accessible source.
