@@ -172,4 +172,4 @@ Read `Ways-of-Working/Session-Interactions.md` in the canonical docs for what ea
 ## Two write rules
 
 - **Docs change through topic worktrees and pull requests.** Create a topic worktree from `~/.msx/docs.git`; never branch or work inside the canonical `~/.msx/docs` main worktree.
-- **Memory follows repository policy.** Read the selected memory repository's `AGENTS.md` and `CONTRIBUTING.md` before writing. Memory repositories retain the documented root-level contribution-guide exception.
+- **Memory follows repository policy.** Read the selected memory repository's `AGENTS.md` and `CONTRIBUTING.md` before writing.
