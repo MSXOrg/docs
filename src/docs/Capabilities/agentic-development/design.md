@@ -346,7 +346,7 @@ Because Copilot code review reads the head branch, a pull request that changes `
 4. Add the canonical Workflow and linked stage procedures to `docs`.
 5. Add starter memory sections to `memory`.
 6. Add the `AGENTS.md` router to each product repository, plus a route for every client that cannot read it.
-7. Add a bootstrap that keeps local docs and memory clones present and exactly synchronized before use.
+7. Add a bootstrap that keeps preferred local documentation and memory clones present and exactly synchronized before use.
 8. Review new work for pointer discipline: facts live once, links point to them.
 
 ## Where this connects

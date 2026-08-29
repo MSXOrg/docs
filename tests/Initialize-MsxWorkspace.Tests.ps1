@@ -352,7 +352,7 @@ exit `$LASTEXITCODE
     }
 
     It 'installs additional context through explicit repository coordinates' {
-        $runner = Join-Path $fixture.Root 'invoke-project-bootstrap.ps1'
+        $runner = Join-Path $fixture.Root 'invoke-repository-bootstrap.ps1'
         $bootstrap = $script:bootstrap.Replace("'", "''")
         $workspace = $fixture.Workspace.Replace("'", "''")
         $docsRemote = $fixture.Remotes.docs.Replace("'", "''")
@@ -371,23 +371,23 @@ exit `$LASTEXITCODE
         $output = & $script:pwsh -NoProfile -File $runner 2>&1 | Out-String
 
         $LASTEXITCODE | Should -Be 0 -Because $output
-        $projectDocs = Join-Path $fixture.Workspace 'projects/Project/process'
-        $projectMemory = Join-Path $fixture.Workspace 'projects/Project/memory'
-        Test-Path -LiteralPath (Join-Path $projectDocs '.git') | Should -BeTrue
-        Test-Path -LiteralPath (Join-Path $projectMemory '.git') | Should -BeTrue
+        $additionalDocs = Join-Path $fixture.Workspace 'projects/Project/process'
+        $additionalMemory = Join-Path $fixture.Workspace 'projects/Project/memory'
+        Test-Path -LiteralPath (Join-Path $additionalDocs '.git') | Should -BeTrue
+        Test-Path -LiteralPath (Join-Path $additionalMemory '.git') | Should -BeTrue
         Test-Path -LiteralPath (Join-Path $fixture.Workspace 'projects/Project/process.git') | Should -BeTrue
         (Invoke-Git -Arguments @(
             "--git-dir=$(Join-Path $fixture.Workspace 'projects/Project/process.git')",
             'rev-parse',
             '--is-bare-repository'
         )).Trim() | Should -BeExactly 'true'
-        (Invoke-Git -WorkingDirectory $projectDocs -Arguments @('rev-parse', 'HEAD')).Trim() |
+        (Invoke-Git -WorkingDirectory $additionalDocs -Arguments @('rev-parse', 'HEAD')).Trim() |
             Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.docs -Arguments @('rev-parse', 'HEAD')).Trim()
-        (Invoke-Git -WorkingDirectory $projectMemory -Arguments @('rev-parse', 'HEAD')).Trim() |
+        (Invoke-Git -WorkingDirectory $additionalMemory -Arguments @('rev-parse', 'HEAD')).Trim() |
             Should -BeExactly (Invoke-Git -WorkingDirectory $fixture.Writers.memory -Arguments @('rev-parse', 'HEAD')).Trim()
     }
 
-    It 'rejects duplicate project paths after normalization' {
+    It 'rejects duplicate repository paths after normalization' {
         $runner = Join-Path $fixture.Root 'invoke-duplicate-bootstrap.ps1'
         $bootstrap = $script:bootstrap.Replace("'", "''")
         $workspace = $fixture.Workspace.Replace("'", "''")
@@ -408,7 +408,7 @@ exit `$LASTEXITCODE
         $output | Should -Match 'Repository paths overlap'
     }
 
-    It 'rejects duplicate project names before mutation' -ForEach @(
+    It 'rejects duplicate repository names before mutation' -ForEach @(
         @{ SecondPath = '' }
         @{ SecondPath = 'docs' }
     ) {
@@ -443,7 +443,7 @@ exit `$LASTEXITCODE
             Should -BeNullOrEmpty
     }
 
-    It 'rejects project paths overlapping canonical context storage' -ForEach @(
+    It 'rejects repository paths overlapping canonical context storage' -ForEach @(
         @{ UnsafePath = 'docs' }
         @{ UnsafePath = 'docs.git' }
         @{ UnsafePath = 'memory' }
@@ -490,7 +490,7 @@ exit `$LASTEXITCODE
             Should -BeNullOrEmpty
     }
 
-    It 'rejects overlapping non-empty project roots before mutation' {
+    It 'rejects overlapping non-empty repository paths before mutation' {
         $runner = Join-Path $fixture.Root 'invoke-overlapping-roots.ps1'
         $bootstrap = $script:bootstrap.Replace("'", "''")
         $workspace = $fixture.Workspace.Replace("'", "''")

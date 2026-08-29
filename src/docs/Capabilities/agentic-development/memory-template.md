@@ -157,7 +157,7 @@ of the shared history.
 
 `memory` repositories default to **private**. Working memory can capture internal
 context, half-finished reasoning, and organization-specific detail that isn't meant for a
-public audience, even when the adjoining `docs` repository is public.
+public audience, even when the adjoining documentation source is public.
 
 Privacy and the `session/` ignore rule solve different problems and neither substitutes for
 the other. Privacy decides *who* may read durable memory; the ignore rule decides *what*

@@ -20,7 +20,7 @@ Product repositories do not copy that knowledge. They carry thin pointer files t
 
 This framework rests on the [Principles](../../Ways-of-Working/Principles/index.md):
 
-- **[Documentation lives close to the thing it documents](../../Ways-of-Working/Principles/Engineering-Practices.md#documentation-lives-close-to-the-thing-it-documents).** Organization-wide ways of working live in the organization `docs` repository; repository-specific nuance lives in the repository.
+- **[Documentation lives close to the thing it documents](../../Ways-of-Working/Principles/Engineering-Practices.md#documentation-lives-close-to-the-thing-it-documents).** Organization-wide ways of working live in the designated organization documentation source; repository-specific nuance lives in the repository.
 - **[Everything as Code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).** Standards and memory are plain files in git. Changes are reviewed, diffed, and reverted like code.
 - **[Written once, referenced everywhere](../../Ways-of-Working/Principles/Software-Design.md#dry-with-judgment).** Agent instructions point to canonical docs and memory rather than duplicating them.
 - **[AI-first development](../../Ways-of-Working/Principles/AI-First-Development.md).** Humans create durable context; agents consume that context and leave useful improvements behind.
@@ -79,7 +79,7 @@ Applies to any organization that wants a shared project knowledge base and memor
 - **Named intents stay pointer-based.** A packaged shortcut for a recurring workflow — however a runtime names it — MUST resolve to the canonical documentation for that workflow and MUST contain only the runtime mechanics needed to get there. It MUST NOT restate the procedure, since a shortcut that carries a copy of the process becomes a second, silently diverging definition of it.
 - **Advice and authority are separate.** An automated agent MAY analyse work and publish its conclusion as advice on the artifact under review. It MUST NOT be the thing that decides: it MUST NOT overwrite a human's decision, MUST NOT re-apply a decision a human has changed, and MUST NOT commit to the branch it is advising on. Its output is an input to the review, not a substitute for it.
 - **Coordination happens on durable artifacts.** Where agents and humans coordinate, they MUST do so through the platform's own artifacts — issues, labels, and pull requests — rather than through a channel that leaves no trace in the repository. Intent MUST be separable from implementation: the issue states *what* is wanted and *why*, and the pull request proposes *how*, so that a rejected implementation does not discard the intent.
-- **Reviewed knowledge changes.** Changes to the `docs` repository MUST happen through pull requests. Changes to memory MAY be lighter-weight, but MUST remain versioned in git.
+- **Reviewed knowledge changes.** Changes to the designated documentation source MUST happen through pull requests. Changes to memory MAY be lighter-weight, but MUST remain versioned in git.
 - **No cross-project bleed.** An agent working in one organization MUST NOT apply another organization's standards or memory unless the current task explicitly asks for cross-organization work.
 - **Traceable memory.** Memory entries SHOULD identify the context they came from and SHOULD be short, factual, and linked to the relevant issue, pull request, document, or repository when one exists.
 
@@ -87,14 +87,14 @@ Applies to any organization that wants a shared project knowledge base and memor
 
 - An agent working in `github.com/PSModule/<repo>` resolves `github.com/PSModule/Process-PSModule` and `github.com/PSModule/memory`, plus inherited `github.com/MSXOrg/docs` and `github.com/MSXOrg/memory`.
 - An agent working in `github.com/MSXOrg/<repo>` resolves `github.com/MSXOrg/docs` and `github.com/MSXOrg/memory` as the canonical project context.
-- An agent working in `<host>/<org>/<repo>` for any adopting organization resolves `<host>/<org>/docs` and `<host>/<org>/memory` as the canonical project context, with no change to the framework.
+- An agent working in `<host>/<org>/<repo>` for any adopting organization resolves the documentation and memory repositories declared by its router, with no change to the framework.
 - A new product repository can adopt the framework by adding a router and the client routes that reach it, without copying standards or memory pages.
 - An agent reads the repository's own README and CONTRIBUTING before it reads an organization standard, and still applies the organization standard when the two disagree.
 - A human can start at `docs/index.md` or `memory/index.md` and navigate to the same context an agent uses.
 - A human or agent can follow `docs/index.md` → Ways of Working → Workflow → the current stage procedure without knowing a file path in advance.
 - A prompt such as `Review this PR <link>` reaches the Review procedure directly, while `Make this issue <description>` reaches Define, without a parallel process definition.
 - A missing, dirty, locally ahead, diverged, wrong-branch, or unreachable preferred local clone stops local discovery before any context index is read; an agent may instead resolve the named source through another current access method.
-- A working checkout of a `docs` repository present on disk is not read as canonical context, and a reader can tell a current checkout from a stale one before trusting either.
+- A working checkout of a documentation source repository present on disk is not read as canonical context, and a reader can tell a current checkout from a stale one before trusting either.
 - Updating a standard in `docs` changes the canonical guidance without editing every repository.
 - Capturing a recurring lesson in `memory` makes it available to later agents working in the same organization.
 

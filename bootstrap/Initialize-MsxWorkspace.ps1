@@ -3,7 +3,7 @@
 
 <#
 .SYNOPSIS
-    Clone or update canonical project context repositories in a git-isolated workspace under $HOME.
+    Clone or update canonical organization context repositories under $HOME.
 
 .DESCRIPTION
     The single starting point for every agent. It ensures each configured
