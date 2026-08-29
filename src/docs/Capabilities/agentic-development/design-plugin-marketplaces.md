@@ -11,11 +11,12 @@ to canonical guidance.
 
 ## Ownership and co-location
 
-`MSXOrg/docs` publishes the shared `msxorg` marketplace and its `msx` plugin
-for organization-wide standards and ways of working. An initiative publishes
-its own marketplace in its owning repository; for example, PSModule publishes
-`psmodule` for PowerShell-module guidance. Consumers install both when they
-need both scopes. Neither marketplace republishes the other's plugin.
+MSXOrg owns the shared `msxorg` marketplace and its `msx` plugin, published
+from `MSXOrg/docs` for organization-wide standards and ways of working. The
+PSModule organization owns the `psmodule` marketplace and plugin, published
+from its authoritative repository for PowerShell-module guidance. Consumers
+install both when they need both scopes. Neither marketplace republishes the
+other's plugin.
 
 A pointer skill MUST be colocated with its canonical governing documentation,
 or with the repository that owns that guidance. One pull request can then
