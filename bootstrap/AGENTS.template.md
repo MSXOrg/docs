@@ -21,7 +21,7 @@ if ((Test-Path -LiteralPath $docs) -and -not (Test-Path -LiteralPath (Join-Path 
 }
 if (-not (Test-Path -LiteralPath (Join-Path $docs '.git'))) {
     if (-not (Test-Path -LiteralPath $docsBacking)) {
-        New-Item -ItemType Directory -Force -Path (Split-Path -Parent $docs) | Out-Null
+        [void] [IO.Directory]::CreateDirectory((Split-Path -Parent $docs))
         git clone --bare $msxDocsUrl $docsBacking
         if ($LASTEXITCODE -ne 0) {
             throw "Bare clone of MSXOrg/docs failed (exit $LASTEXITCODE). Check network access and credentials."

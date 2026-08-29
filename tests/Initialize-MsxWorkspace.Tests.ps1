@@ -712,7 +712,7 @@ exit `$LASTEXITCODE
     It 'installs canonical topology from the agent template seed block' {
         $Name = 'agent template'
         $MarkdownPath = '../bootstrap/AGENTS.template.md'
-        $workspace = Join-Path $fixture.Root "seed-$($Name.Replace(' ', '-'))"
+        $workspace = Join-Path $fixture.Root "seed-$($Name.Replace(' ', '-'))[1]"
         $seedPath = Join-Path $PSScriptRoot $MarkdownPath
 
         $result = Invoke-BootstrapSeed -Fixture $fixture -MarkdownPath $seedPath -Workspace $workspace
