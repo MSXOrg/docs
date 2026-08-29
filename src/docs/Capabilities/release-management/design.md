@@ -86,13 +86,32 @@ Exactly one bump label or `release:skip` is required; **no default** is applied.
 multiple bump labels, `release:skip` with another release label, or
 `release:pre-release` without one bump label is **rejected**, so the outcome is
 always a decision someone made. Bare `major`, `minor`, and `patch` labels are
-ignored. For `workflow_dispatch`, the same decision is an input.
+ignored.
 
 - **First release** starts from a baseline (`v0.1.0` or `v1.0.0`). Pre-`1.0.0`
   breaking changes are `release:minor` per [SemVer §4](https://semver.org/#spec-item-4);
   `release:major` is never auto-detected pre-`1.0.0`.
 - The tag is created on the commit now at the head of the release branch —
   squash, merge-commit, and rebase strategies alike.
+
+### Optional ad hoc releases
+
+The standard release path is a labeled pull request merged into a release
+branch. `workflow_dispatch` is an optional extension, not part of the minimum
+implementation. An implementation SHOULD omit it unless its product has a real
+need to release already-reviewed content outside the merge flow.
+
+Where an ad hoc path exists, it requires an explicit bump, source ref, release-note
+summary, and reason. It resolves the source ref to an immutable commit and enters
+the same Resolve → Build → Test → Publish pipeline as a merged pull request. It
+does not infer a bump, bypass validation, rebuild an existing version, or make a
+direct push into a release interface.
+
+Do not create an empty pull request to manufacture a release. It contains no
+artifact-affecting change and makes the review trail imply a change that did not
+happen. Retrying failed validation or publication is not an ad hoc release
+either: rerun the existing release with the same artifact and version under the
+[recovery rule](#the-pipeline).
 
 ### Why the labels are namespaced
 
@@ -153,10 +172,10 @@ release-paths:
 
 ## Release notes
 
-The GitHub Release **name** is the version; the **body** depends on the trigger:
-`# <PR title>` + description (merged PR), `# <first commit line>` + remainder
-(direct push), or `# <summary>` + collected history (dispatch). The same note is
-handed to [Downstream Release Propagation](../downstream-release-propagation/design.md).
+The GitHub Release **name** is the version. Its **body** is the pull request title
+and description for the standard merge path, or the required release-note summary
+for an optional ad hoc dispatch. The same note is handed to
+[Downstream Release Propagation](../downstream-release-propagation/design.md).
 
 ## Release output
 
@@ -251,7 +270,8 @@ release, and its runs are serialised like any other.
 | Surface | Where |
 | --- | --- |
 | Release branches + type | `.github/release.config.yml` |
-| Release decision / prerelease / RC | `release:` PR label, or `workflow_dispatch` input |
+| Release decision / prerelease / RC | `release:` PR label |
+| Optional ad hoc release | `workflow_dispatch` inputs |
 | Path filter | `.github/release.config.yml` |
 | Prerelease cleanup toggle | release config / workflow input |
 | Publishing targets | reusable-workflow input + GitHub environment; see [Publishing Targets](design-publishing-targets.md) |
