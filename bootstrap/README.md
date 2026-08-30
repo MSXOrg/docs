@@ -12,7 +12,7 @@ The suggested repository-local router is:
 ```markdown
 # AGENTS
 
-This repository is `github.com/MSXOrg/<repo>`. Read in this order:
+Read in this order:
 
 1. `README.md` — what this repository is and how it builds.
 2. `.github/CONTRIBUTING.md` — how a change is made and reviewed here.

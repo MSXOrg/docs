@@ -131,12 +131,14 @@ Resolution is deterministic. If the active repository remote is `github.com/PSMo
 
 ## Pointer files
 
-`AGENTS.md` is the cross-runtime router. It names the project and lists where to read, in order. It holds nothing else — no context synchronization mechanics, no build commands, no contribution mechanics, no standards.
+`AGENTS.md` is the cross-runtime router. It lists where to read, in order. It
+holds nothing else — no context synchronization mechanics, no build commands,
+no contribution mechanics, no standards.
 
 ```markdown
 # AGENTS
 
-This repository is `github.com/MSXOrg/<repo>`. Read in this order:
+Read in this order:
 
 1. `README.md` — what this repository is and how it builds.
 2. `.github/CONTRIBUTING.md` — how a change is made and reviewed here.
