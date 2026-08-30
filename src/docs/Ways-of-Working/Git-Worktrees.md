@@ -43,7 +43,7 @@ In a single ordinary clone the opposite is forced: one branch checked out at a t
 - **`<N>-<slug>/`** — one worktree folder per repository-delivery Task or Bug in flight, named by issue number and a short slug. The folder is a concise local path; its branch uses the required `<type>/<issue>-<slug>` name, so the two names do not need to match.
 
 Canonical documentation context is a normal Git clone, such as
-`~/.msxorg/docs` or `~/.psmodule/docs`, and is not part of this worktree
+`~/.msxorg/docs` or `~/.psmodule/process-psmodule`, and is not part of this worktree
 topology. The bare-clone layout applies to delivery repositories only.
 
 ## Remotes

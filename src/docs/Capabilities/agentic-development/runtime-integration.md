@@ -19,7 +19,7 @@ MUST supply, and nothing else.
 | Obligation | What it means | Where it is defined |
 | --- | --- | --- |
 | **Entry file** | The instruction file the runtime reads first, which routes to the canonical router rather than restating it | [Pointer files](design.md#pointer-files) |
-| **Lifecycle point** | The moment before the first turn where the runtime verifies and synchronizes context | [Context freshness](design.md#context-freshness) |
+| **Lifecycle point** | The moment before the first turn where the runtime verifies that context is current | [Context freshness](design.md#context-freshness) |
 | **Tool declaration** | The shared tool server set, expressed in the runtime's own configuration format | [MCP Servers](mcp-servers.md#same-contract-different-declaration-syntax) |
 | **Identity** | The credential the runtime authenticates with, and the permissions that identity holds | [Permissions](#permissions-follow-the-identity-not-the-runtime) |
 
@@ -45,8 +45,9 @@ Four shapes cover the field:
 | **Review-time** | Triggered by a platform event on a pull request | Reads instructions from the branch under review, not from a local clone |
 | **Scheduled** | On a timer, with no human present | No earlier lifecycle point exists, and no one is watching a failure |
 
-The same Git synchronization contract, the same router, and the same tool contract serve all
-four. What changes is only where synchronization runs.
+The same freshness contract, router, and tool contract serve all four. What
+changes is how the runtime reaches the named source and, when it uses a local
+clone, where synchronization runs.
 
 ### Local interactive
 
@@ -54,21 +55,23 @@ The durable workspace is the hazard. A local runtime is the only shape whose con
 survives between sessions, which means it is the only shape that can read a week-old standard
 while believing it is canonical.
 
-So Git synchronization MUST attach to a session-start lifecycle point in the runtime's own
-configuration, and it MUST run before the first turn rather than on first use of context.
+When the runtime uses local clones, Git synchronization MUST attach to a
+session-start lifecycle point in the runtime's own configuration and run before
+the first turn rather than on first use of context.
 
-Where the runtime offers no session-start point, Git synchronization MUST be invoked explicitly
-before context is read.
+Where the runtime offers no session-start point, local clones MUST be
+synchronized explicitly before context is read. A runtime MAY instead use a
+current remote CLI, web, or published-documentation route.
 
 ### Hosted
 
 A hosted runtime gets a fresh workspace per run, so staleness is not the risk — *absence*
 is. The environment either establishes context during setup or the agent works without it.
 
-Git synchronization therefore belongs in the environment's setup steps, and setup failure MUST fail
-the run. An agent that starts successfully against missing context produces work that looks
-finished and was never governed, which is the most expensive failure in the set because it is
-the one that reaches review looking normal.
+Context preparation therefore belongs in the environment's setup steps, and
+failure MUST fail the run. The environment may clone and synchronize the source
+or provide current remote access. An agent that starts successfully against
+missing context produces work that looks finished and was never governed.
 
 ### Review-time
 
@@ -82,10 +85,10 @@ carefully as code, since they are live before merge.
 
 ### Scheduled
 
-A scheduled runtime has no lifecycle point earlier than the job itself, so Git synchronization
-is the job's first step. It also has no human to notice a problem, which raises the bar on
-failure handling: a scheduled run MUST fail loudly and MUST NOT proceed with partial context,
-because a silent partial run repeats on the schedule.
+A scheduled runtime has no lifecycle point earlier than the job itself, so
+context preparation is the job's first step. It also has no human to notice a
+problem, which raises the bar on failure handling: a scheduled run MUST fail
+loudly and MUST NOT proceed with partial context.
 
 ## Permissions follow the identity, not the runtime
 
@@ -118,8 +121,8 @@ Adding a runtime is a documentation change plus four declarations, in this order
 
 1. Identify its **shape** from the table above; the shape determines the lifecycle point.
 2. Add its **entry file** as a route to the canonical router, carrying no process content.
-3. Attach Git synchronization to its lifecycle point, preserving the clean, default-branch,
-   fast-forward-only contract.
+3. Attach source freshness verification to its lifecycle point. For local
+   clones, preserve the clean, default-branch, fast-forward-only contract.
 4. Declare the **shared tool set** in the runtime's native configuration format.
 5. Record the **identity** it authenticates as and the permissions that identity holds.
 

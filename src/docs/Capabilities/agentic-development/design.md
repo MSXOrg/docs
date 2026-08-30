@@ -5,7 +5,7 @@ description: How the agentic development framework is built — OKF documentatio
 
 # Agentic Development — Design
 
-The behavior in the [spec](spec.md) is delivered by an organization-level documentation repository, adopted by each product repository through thin pointer files. The design keeps project knowledge in one reviewed place and lets each agent runtime adapt without copying process knowledge.
+The behavior in the [spec](spec.md) is delivered by repository-addressable documentation sources, adopted by each product repository through thin pointer files. The design keeps project knowledge in one reviewed place and lets each agent runtime adapt without copying process knowledge.
 
 ## Organization anatomy
 
@@ -13,26 +13,26 @@ The GitHub organization is the project boundary. The host distinguishes work fro
 
 ```text
 <host>/<org>/
-  docs/      # canonical knowledge base; changes through pull requests
-  <repo-a>/  # product or component repository
+  <documentation-source>/  # canonical knowledge base; changes through pull requests
+  <repo-a>/                 # product or component repository
   <repo-b>/
 ```
 
-Current project scopes follow the same shape:
+Current project scopes identify these sources:
 
-| Host | Organization | Docs |
-| --- | --- | --- |
-| `github.com` | `MSXOrg` | `MSXOrg/docs` |
-| `github.com` | `PSModule` | `PSModule/docs` |
-| `<host>` | `<org>` | `<org>/docs` |
+| Host | Organization | Documentation source | Entry file | Published documentation | Preferred clone |
+| --- | --- | --- | --- | --- | --- |
+| `github.com` | `MSXOrg` | `MSXOrg/docs` | `src/docs/index.md` | <https://msxorg.github.io/docs/> | `~/.msxorg/docs` |
+| `github.com` | `PSModule` | `PSModule/Process-PSModule` | `docs/index.md` | <https://psmodule.io/docs/Modules/Process-PSModule/> | `~/.psmodule/process-psmodule` |
+| `<host>` | `<org>` | Designated `<org>/<repository>` | Declared by the router | Declared by the router | Declared by the router |
 
-The last row is the general case: any adopting organization on any GitHub host — public or an enterprise instance — plugs into the same shape without changing the framework.
+The last row is the general case. Repository identity remains stable whether an agent uses a CLI, the web, published documentation, or a refreshed local clone.
 
 ## Repository roles
 
-### `docs`
+### Documentation source
 
-The `docs` repository is the canonical knowledge base. It owns:
+The designated documentation source is the canonical knowledge base. It owns:
 
 - vision, principles, and ways of working;
 - coding standards and documentation standards;
@@ -40,7 +40,7 @@ The `docs` repository is the canonical knowledge base. It owns:
 - project glossary and onboarding;
 - the canonical Workflow and its linked stage procedures.
 
-Changes to `docs` happen through pull requests because this repository defines durable project intent.
+Changes happen through pull requests because the source defines durable project intent. `MSXOrg/docs` owns cross-organization guidance. `PSModule/Process-PSModule` owns PSModule process and standards and inherits from `MSXOrg/docs`.
 
 ### Product repositories
 
@@ -64,7 +64,7 @@ The repository owns only repository-specific nuance, and each kind has a file th
 
 ## OKF page model
 
-The `docs` repository uses the [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) style: Markdown with YAML frontmatter, one concept per page, paths as stable identity, and indexes as navigation maps.
+Documentation sources use the [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) style: Markdown with YAML frontmatter, one concept per page, paths as stable identity, and indexes as navigation maps.
 
 Minimum page frontmatter:
 
@@ -102,14 +102,14 @@ flowchart TD
   start["Agent receives task"] --> policy["System and client policy"]
   policy --> user["User-global preferences"]
   user --> pointer["Read AGENTS.md pointer"]
-  pointer --> locate["Resolve host, org, and docs root"]
+  pointer --> locate["Resolve documentation sources"]
 
   locate --> host{"Which project scope?"}
   host -->|"github.com/MSXOrg"| msx["MSXOrg context"]
   host -->|"github.com/PSModule"| psmodule["PSModule context"]
   host -->|"any adopting org"| other["&lt;host&gt;/&lt;org&gt; context"]
 
-  msx --> refresh["Synchronize selected docs with Git<br/>stop unless exactly synchronized"]
+  msx --> refresh["Resolve newest source version<br/>refresh local clones before use"]
   psmodule --> refresh
   other --> refresh
   refresh --> repo["Read README, CONTRIBUTING,<br/>and local docs"]
@@ -131,28 +131,42 @@ Resolution is deterministic. If the active repository remote is `github.com/PSMo
 
 ## Pointer files
 
-`AGENTS.md` is the cross-runtime router. It lists where to read, in order, and
-includes one instruction to prepare linked repositories before reading them. It
-holds no detailed synchronization mechanics, build commands, contribution
-mechanics, or standards.
+`AGENTS.md` is the cross-runtime router. It lists where to read, identifies each
+source, and requires the newest accessible version without selecting an access
+tool. It holds no detailed synchronization mechanics, build commands,
+contribution mechanics, or standards.
 
 ```markdown
 # AGENTS
+
+Read nearest first and always use the newest version.
 
 Read in this order:
 
 1. `README.md` — what this repository is and how it builds.
 2. `.github/CONTRIBUTING.md` — how a change is made and reviewed here.
 3. `docs/index.md` — this repository's own documentation.
-4. [MSXOrg/docs](https://github.com/MSXOrg/docs/) — the organization standards.
+4. [MSXOrg/docs](https://github.com/MSXOrg/docs/) — organization standards;
+   entry file `src/docs/index.md`; published at <https://msxorg.github.io/docs/>;
+   preferred clone `~/.msxorg/docs`.
 
-Clone each linked repository locally, keep its configuration local to that
-clone, and update it before reading it.
+Use a CLI, the web, published documentation, or a refreshed local clone,
+whichever provides the newest accessible source.
 
-Read nearest first. A local file never overrides a standard.
+Repository-local guidance may add nuance but does not override organization or
+inherited standards.
 ```
 
-A router lists the destinations that exist in that repository, written as the paths that repository actually uses — the ones above are an example, not a required layout. A repository with no documentation of its own drops that line; one that publishes the standards resolves steps 3 and 4 to the same tree and drops the duplicate. Writing a real path matters more than matching the example, because the router is read literally.
+A PSModule repository inserts its initiative source before `MSXOrg/docs`:
+
+```markdown
+4. [PSModule/Process-PSModule](https://github.com/PSModule/Process-PSModule/) —
+   PSModule process and standards; entry file `docs/index.md`; published at
+   <https://psmodule.io/docs/Modules/Process-PSModule/>; preferred clone
+   `~/.psmodule/process-psmodule`.
+```
+
+A router lists only destinations that apply to its repository. A repository with no documentation of its own drops that line; one that publishes the standards resolves local and organization documentation to the same source and drops the duplicate. The route does not require a particular client or access method. A local clone is usable only after its freshness gate succeeds.
 
 The index trail is the default. A clear prompt can shortcut stage discovery: `Review this PR <link>` enters Review, `Make this issue <description>` enters Define, and `Implement <issue>` enters Implement. These phrases are routing hints interpreted by [Workflow](../../Ways-of-Working/Workflow.md#find-the-current-stage), not commands with independent procedures.
 
@@ -178,20 +192,21 @@ Path-scoped instruction files are reserved for local rules that cannot live cent
 
 ## Local workspace
 
-A local Git clone makes central context predictable:
+A preferred local clone makes documentation context predictable:
 
 ```text
 ~/.msxorg/
   docs/                        # clean MSXOrg/docs clone
 ~/.psmodule/
-  docs/                        # clean PSModule/docs clone
+  process-psmodule/            # clean PSModule/Process-PSModule clone
 ```
 
-Before context is read, the agent ensures the clone exists, fetches its remote,
-and fast-forwards its default branch. Each clone must be clean, checked out on
-the remote default branch, and exactly equal to the fetched remote head. A
-dirty, locally ahead, diverged, wrong-branch, or unreachable clone stops context
-resolution; the agent does not use a possibly stale local copy.
+When an agent uses a local clone, it ensures the clone exists, fetches its
+remote, and fast-forwards its default branch before reading. Each clone must be
+clean, checked out on the remote default branch, and exactly equal to the
+fetched remote head. A dirty, locally ahead, diverged, wrong-branch, or
+unreachable clone stops local resolution; the agent does not use a stale copy.
+Remote CLI, web, and published documentation remain valid current sources.
 
 Each GitHub organization has its own organization-named workspace root, such as
 `~/.msxorg` for MSXOrg or `~/.psmodule` for PSModule. Repository agent files
@@ -200,37 +215,37 @@ guidance defines how a context checkout is prepared and verified.
 
 ## Context freshness
 
-The freshness gate is only worth as much as the last time it ran. A clone
+The local freshness gate is only worth as much as the last time it ran. A clone
 synchronized once is current at that moment and progressively less so
 afterwards, and an agent reading a week-old clone reads a standard that has
 since changed while believing it is canonical.
 
-So Git synchronization runs at the **start of every session**, not once per
-machine. What differs between runtimes is where the trigger hangs, never what
-it does:
+When a runtime uses local clones, Git synchronization runs at the **start of
+every session**, not once per machine. What differs between runtimes is where
+the trigger hangs, never what it does:
 
 | Runtime shape | Lifecycle point | How context freshness is established |
 | --- | --- | --- |
-| Local interactive agent | Session start | The agent fetches and fast-forwards the context clone before the first turn. |
-| Hosted or remote agent | Environment setup | The environment's setup steps clone or synchronize the context repository while the workspace is being prepared. |
+| Local interactive agent | Session start | The agent resolves a current remote source or fetches and fast-forwards a preferred clone before the first turn. |
+| Hosted or remote agent | Environment setup | Setup provides current documentation through a remote route or a freshly prepared clone. |
 | Review-time agent | Pull request event | Instructions are read from the pull request's head branch, so freshness follows the branch under review rather than a local clone. |
-| Batch or scheduled agent | Job start | The job's first step clones or synchronizes the context repository; a scheduled run has no earlier lifecycle point to rely on. |
+| Batch or scheduled agent | Job start | The job resolves current documentation before acting; a scheduled run has no earlier lifecycle point to rely on. |
 
-Each of these is one **declaration** of the same behavior. The runtime ensures
-the clone is clean, on the remote default branch, and exactly equal to the
-fetched head before context is read. A runtime may use its own lifecycle hook,
-or the agent may perform the Git check explicitly.
+Each of these is one **declaration** of the same behavior: use the newest
+accessible source. When that source is a local clone, the runtime ensures it is
+clean, on the remote default branch, and exactly equal to the fetched head
+before context is read.
 
 The synchronization MUST be idempotent, because it runs far more often than it
 changes anything. A process that is expensive or noisy when everything is
 already current gets disabled, and a disabled process is worse than no process,
 because the workspace still appears synchronized.
 
-Where a runtime offers no lifecycle point at all, Git synchronization MUST be
-invoked explicitly before context is read. It MUST NOT be skipped on the
-grounds that the workspace was synchronized recently; "recently" is not a state
-the agent can observe, and the gate exists precisely to replace that judgment
-with a check.
+Where a runtime uses local clones but offers no lifecycle point, Git
+synchronization MUST be invoked explicitly before context is read. It MUST NOT
+be skipped on the grounds that the workspace was synchronized recently;
+"recently" is not a state the agent can observe, and the gate exists precisely
+to replace that judgment with a check.
 
 Each shape's obligations beyond context freshness — its entry file, tool declaration, and identity —
 are set out in [Runtime Integration](runtime-integration.md).
@@ -254,7 +269,7 @@ Because Copilot code review reads the head branch, a pull request that changes `
 | Failure | Design response |
 | --- | --- |
 | Repository does not identify its organization context | Infer from remote URL; ask when ambiguous. |
-| A docs clone is missing or cannot synchronize | Clone or repair it with Git, then retry. Stop context resolution until the canonical context repository passes the freshness gate. |
+| A preferred clone is missing or cannot synchronize | Use a current remote route, or clone or repair it before reading locally. Never use the stale clone as fallback. |
 | Pointer file duplicates central standards | Replace duplicated content with a route during review. A client file holds a pointer, not a copy. |
 | A skill, command, named agent, or instruction file defines a workflow stage | Delete the duplicate procedure and link to Workflow or its stage page. |
 | Two organizations are open in one workspace | Select by active repository; ask before cross-project changes. |
@@ -263,10 +278,10 @@ Because Copilot code review reads the head branch, a pull request that changes `
 
 ## Adoption path
 
-1. Create or identify the organization `docs` repository.
-2. Add the canonical Workflow and linked stage procedures to `docs`.
+1. Create or identify the organization's canonical documentation source.
+2. Add the canonical Workflow and linked stage procedures to that source.
 3. Add the `AGENTS.md` router to each product repository, plus a route for every client that cannot read it.
-4. Document the canonical docs clone and require Git synchronization before use.
+4. Document source entry files, published documentation, and preferred clones; require Git synchronization only when a clone is used.
 5. Review new work for pointer discipline: facts live once, links point to them.
 
 ## Where this connects
