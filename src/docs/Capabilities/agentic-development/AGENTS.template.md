@@ -1,4 +1,9 @@
-# AGENTS.template.md
+---
+title: AGENTS.md Template
+description: The repository-level agent router template and the guidance for applying it.
+---
+
+# AGENTS.md Template
 
 This document explains the repository-level `AGENTS.md` template. It is not
 itself the router that agents load. Copy the contents of the fenced `markdown`
