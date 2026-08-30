@@ -121,7 +121,7 @@ Prefer:
 Before editing:
 
 1. Resolve the host, organization, repository, path, and task.
-2. Read the organization docs index.
+2. Read the designated organization documentation source entry index.
 3. Read the repository README and local instructions.
 4. Apply path-specific instructions for files being changed.
 ```
