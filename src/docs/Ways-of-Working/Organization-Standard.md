@@ -33,11 +33,12 @@ Every initiative organization must define standards for these shared file famili
 | --- | --- |
 | Community health files | Central code of conduct, support policy, security policy, and pull request template defaults, plus contribution guidance where provided. |
 | Issue intake | Central issue forms and issue-template configuration defaults, where the organization wants a shared intake model. |
+| Organization profile | The public organization introduction and any assets it uses. |
 | Repository context | README defaults, documentation ownership, and repository metadata expectations. |
 | Review workflow | Pull request template, review routing, CODEOWNERS, namespace-qualified automation label sets, and change-type conventions. |
 | Supply chain | Dependency update configuration, security update behavior, and review expectations. |
 | Linters and enforcement | Linter configuration derived from the written standards. |
-| Agent context | Instructions, prompts, hooks, and any repository-local agent guidance. |
+| Agent context | Organization settings plus repository-local instructions, prompts, hooks, and agent guidance. |
 | Release automation | Release notes, changelog categorization, and release workflow defaults where applicable. |
 
 These standards must be written down before broad alignment work starts. File alignment without a written standard only spreads local preference faster.
@@ -70,29 +71,36 @@ An organization MAY also provide optional defaults in the same repository:
 | --- | --- |
 | `.github/CONTRIBUTING.md` | Provides organization-wide contribution guidance that repositories can inherit or use as the source for their local contribution guide. |
 | `.github/ISSUE_TEMPLATE/` | Provides shared issue forms and template configuration for consistent issue intake. |
-| `.github/copilot-instructions.md` | Provides organization-wide Copilot context that points to, and does not replace, the canonical standards. |
 
 These optional defaults are subscriptions, not additional repository baseline
 files. A repository-local contribution guide remains required where the
 [Repository Standard](Repository-Standard.md#required-files) calls for
 repository-specific build, test, or contribution instructions. A repository MAY
-provide local issue templates or agent instructions when it needs a documented
-local variation.
+provide local issue templates when it needs a documented local variation.
 
-The special `.github` repository itself still follows the repository baseline:
-its `README.md`, `AGENTS.md`, and client routes explain and govern that defaults
-repository. Those repository-local context files are not distributed as
-organization defaults.
+The same repository MAY publish `profile/README.md` as the public organization
+profile and MAY keep its supporting assets under `media/`. Neither surface is
+inherited by repositories.
+
+The special `.github` repository has a purpose-specific local baseline:
+`README.md`, `AGENTS.md`, its client routes, `.gitattributes`, and `.gitignore`.
+Those files explain and govern the defaults repository and are not distributed
+as organization defaults. Repository ownership, dependency updates, release
+configuration, and license terms remain repository-specific and are added only
+when the defaults repository itself needs them. The
+[Repository Governance design](../Capabilities/repository-governance/design.md#organization-defaults-repository)
+owns the complete structure and distribution behavior.
 
 ## Repository-local context is the enforceable surface
 
-Every repository still carries the context that cannot be inferred from an
-organization default: its `README.md`, `.github/CONTRIBUTING.md`, and
+Every ordinary repository still carries the context that cannot be inferred
+from an organization default: its `README.md`, `.github/CONTRIBUTING.md`, and
 `AGENTS.md` with its client routes. The contribution guide tells humans and
 agents how the organization defaults apply and where the central pull request
 template lives. Automation configuration, ownership, and repository-specific
 legal terms also remain repository-local where the
-[Repository Standard](Repository-Standard.md) requires them.
+[Repository Standard](Repository-Standard.md) requires them. The special
+`.github` repository uses the purpose-specific baseline above.
 
 ## Managed files
 
@@ -155,6 +163,11 @@ Humans and agents must read the same standards. Do not create a separate hidden 
 Agent files are allowed when they point to, summarize, or operationalize the central standard. They must not become a second source of truth.
 
 The repository-level entry point is `AGENTS.md`, as defined by [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior). Agent runtimes do not agree on a filename, so a repository also carries a route file for each client that reads a different one. A route holds a pointer to the router and, at most, genuinely runtime-specific configuration — never a duplicated standard or workflow. The same limit applies to any organization-level instruction setting an agent vendor offers: use it for organization-wide preferences, never as a second copy of a standard.
+
+The `.github/copilot-instructions.md` route in the special `.github`
+repository applies to that repository only. Organization-wide Copilot
+instructions are configured in the organization settings and point to the
+canonical standards.
 
 ## Where this connects
 

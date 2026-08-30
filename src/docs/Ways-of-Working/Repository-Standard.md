@@ -34,10 +34,17 @@ discoverability minimum defined below instead.
 
 The organization provides `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`,
 and `.github/pull_request_template.md` as GitHub community defaults. It MAY
-also provide `.github/CONTRIBUTING.md`, `.github/ISSUE_TEMPLATE/`, and
-`.github/copilot-instructions.md` as optional defaults. Do not copy any of
-these organization defaults into a repository unless it needs a documented
-local exception; see [Organization Standard](Organization-Standard.md#community-files-are-organization-defaults).
+also provide `.github/CONTRIBUTING.md` and `.github/ISSUE_TEMPLATE/` as
+optional defaults. Do not copy any of these organization defaults into a
+repository unless it needs a documented local exception; see
+[Organization Standard](Organization-Standard.md#community-files-are-organization-defaults).
+
+The special organization `.github` repository uses the purpose-specific file
+set defined by the
+[Repository Governance design](../Capabilities/repository-governance/design.md#organization-defaults-repository)
+instead of carrying repository-specific baseline files that have no function
+there. Its own README, agent routes, text handling, and ignore rules remain
+local; only supported community defaults are inherited by other repositories.
 
 Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
 
