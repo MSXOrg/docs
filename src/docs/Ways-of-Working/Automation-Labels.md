@@ -46,20 +46,24 @@ signal.
 ## Every set is namespaced
 
 There is no reserved unprefixed vocabulary. Every label set an automation reads is
-namespaced, including the release bump set:
+namespaced, including the release set:
 
-```text
-release:major         release:none
-release:minor
-release:patch
-```
+| Label | Instruction |
+| --- | --- |
+| `release:patch` | Publish a patch release. |
+| `release:minor` | Publish a minor release. |
+| `release:major` | Publish a major release. |
+| `release:pre-release` | Publish a prerelease from the open pull request. |
+| `release:skip` | Validate the change without publishing a release. |
 
-`release:major`, `release:minor`, `release:patch`, and `release:none` are read by
+These labels are read by
 [release management](../Capabilities/release-management/spec.md) and by nothing else.
+Exactly one bump label or `release:skip` records the release decision.
+`release:pre-release` is an optional mode used with exactly one bump label, never
+with `release:skip`.
 
-Reserving bare words would be the weaker mechanism, because it depends on a documented
-prohibition rather than on the label's own name — and for the release set specifically,
-the prohibition is not the only thing at stake.
+Reserving bare words would be weaker because it depends on a documented
+prohibition rather than making ownership visible in the label itself.
 
 ## Automation ignores what it does not own
 

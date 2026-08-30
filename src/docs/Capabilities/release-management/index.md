@@ -7,9 +7,10 @@ description: How a source change becomes a versioned, immutable artifact, driven
 
 Turning a merged change into a versioned, immutable artifact — a container
 image, a GitHub Action or reusable workflow, a language package, a Terraform
-module — paired with a GitHub Release and a git tag, driven entirely by
-pull-request labels. No release CLI, no hand-edited version file, no tagging
-ritual.
+module — paired with a GitHub Release and a git tag, normally driven by
+pull-request labels. An implementation may add a GitHub-native ad hoc release
+path when its product needs one. No release CLI, no hand-edited version file,
+no tagging ritual.
 
 <!-- INDEX:START -->
 
