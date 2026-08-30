@@ -1,6 +1,6 @@
 ---
 title: Repository Standard
-description: The baseline files and behaviours every repository must expose so it is understandable, secure, and maintainable.
+description: The baseline files and behaviors every repository must expose so it is understandable, secure, and maintainable.
 ---
 
 # Repository Standard

@@ -56,7 +56,7 @@ the special `.github` repository:
 
 | File | Purpose |
 | --- | --- |
-| `.github/CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
+| `.github/CODE_OF_CONDUCT.md` | Defines expected community behavior. |
 | `.github/SECURITY.md` | Defines supported versions and private vulnerability reporting. |
 | `.github/SUPPORT.md` | Defines where users ask for help. |
 | `.github/pull_request_template.md` | Scaffolds pull requests in the organization's required format. |
