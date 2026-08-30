@@ -9,8 +9,9 @@ This document explains the repository-level `AGENTS.md` template. It is not
 itself the router that agents load. Copy the contents of the fenced `markdown`
 block into an `AGENTS.md` at the repository root.
 
-The router sends agents to repository-local guidance first, then to the
-organization's canonical documentation repository through its public URL.
+The router moves from the most specific guidance to the least specific:
+repository-local guidance first, initiative-specific guidance next, and the
+organization's central guidance last.
 Before using a linked repository, clone it locally, keep its configuration local
 to that clone, and update it from its remote.
 Agentic runtimes and local development may materialize that repository in any
@@ -31,10 +32,10 @@ Read in this order:
 1. `README.md` — what this repository is and how it builds.
 2. `.github/CONTRIBUTING.md` — how a change is made and reviewed here.
 3. `docs/index.md` — this repository's own documentation.
+<!-- Add initiative-specific guidance here, after the local repository entries. -->
 4. [MSXOrg/docs](https://github.com/MSXOrg/docs/) — the organization standards.
 
 Clone each linked repository locally, keep its configuration local to that
 clone, and update it before reading it.
 
-Read nearest first. A local file never overrides a standard.
 ````
