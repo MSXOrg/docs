@@ -22,9 +22,9 @@ A conformant repository MUST provide all of the following.
 | **A router agent file** | The repository root holds a single agent instruction file, and it routes rather than instructs ([design](design.md#pointer-files)) |
 | **Reading order** | The router states the order in which context is read, from repository-local to organization-canonical |
 | **Client routes** | Every supported runtime's expected instruction path exists and resolves to the router, carrying no content of its own ([client behavior](design.md#client-behavior)) |
-| **Canonical coordinates** | The router names each source repository, entry file, published documentation when available, and preferred clone |
-| **Freshness** | The router requires the newest accessible source, and any local clone is synchronized before use ([context freshness](design.md#context-freshness)) |
-| **Precedence** | The router states that repository-local guidance does not override organization or inherited standards |
+| **Canonical coordinates** | The router names the organization's canonical documentation location, so context is reachable without prior knowledge |
+| **Freshness** | Canonical context is synchronized at the start of every session, in every runtime ([context freshness](design.md#context-freshness)) |
+| **Precedence** | The router states that local files never override a standard |
 
 The baseline is small on purpose. Every item is something an agent needs before it can find
 anything else; nothing on the list is a judgement about how the repository should be
