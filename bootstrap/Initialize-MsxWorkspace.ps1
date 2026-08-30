@@ -28,17 +28,17 @@
 
 .EXAMPLE
     ./Initialize-MsxWorkspace.ps1
-    Clones missing repositories and exactly synchronizes existing ones under ~/.msx.
+    Clones missing repositories and exactly synchronizes existing ones under ~/.msxorg.
 
 .EXAMPLE
-    ./Initialize-MsxWorkspace.ps1 -Root /work/.msx -Verbose
+    ./Initialize-MsxWorkspace.ps1 -Root /work/.msxorg -Verbose
     Uses a custom workspace root and logs each step.
 
 .EXAMPLE
     $projects = @(
         @{
             Name = 'PSModule'
-            Path = 'projects/PSModule'
+            Path = ''
             DocsUrl = 'https://github.com/PSModule/docs.git'
             MemoryUrl = 'https://github.com/PSModule/memory.git'
         }
@@ -52,10 +52,10 @@
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
-    # The workspace root under which 'docs' and 'memory' are placed.
+    # The organization workspace root under which 'docs' and 'memory' are placed.
     [Parameter()]
     [ValidateNotNullOrEmpty()]
-    [string] $Root = (Join-Path $HOME '.msx'),
+    [string] $Root = (Join-Path $HOME '.msxorg'),
 
     # The git author name written to each clone's local config.
     [Parameter()]

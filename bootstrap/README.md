@@ -1,18 +1,18 @@
 # Bootstrap
 
-The single starting point for agents: a git-isolated local clone of the MSX central repositories under `~/.msx`, plus the instruction that sends every agent there first.
+The single starting point for agents: a git-isolated local clone of the MSXOrg repositories under `~/.msxorg`, plus the instruction that sends every agent there first.
 
 ## Contents
 
-- `Initialize-MsxWorkspace.ps1` — idempotent setup. Clones `MSXOrg/docs` and `MSXOrg/memory` under `~/.msx`, requires existing clones to exactly match their remote default branches, and writes a repository-local git identity so the workspace never modifies the global git config.
+- `Initialize-MsxWorkspace.ps1` — idempotent setup. Clones `MSXOrg/docs` and `MSXOrg/memory` under `~/.msxorg`, requires existing clones to exactly match their remote default branches, and writes a repository-local git identity so the workspace never modifies the global git config.
 - `AGENTS.template.md` — the user-global entry instruction. It bootstraps the workspace, then points the agent at the docs and memory. Install it once per machine (below).
 
 ## The model
 
-- `~/.msx/docs` is **read context** — the ways of working, coding standards, and agent workflow. Changes to it go through **pull requests**.
-- `~/.msx/docs.git` is the bare backing repository for the readable, clean `~/.msx/docs` main worktree.
-- `~/.msx/memory` is **durable context** — notes and session history governed by that repository's contribution policy.
-- `~/.msx/projects/<project>/docs.git` and `docs/` provide the same bare+main-worktree model for optional project docs; `memory/` remains a simple checkout.
+- `~/.msxorg/docs` is **read context** — the ways of working, coding standards, and agent workflow. Changes to it go through **pull requests**.
+- `~/.msxorg/docs.git` is the bare backing repository for the readable, clean `~/.msxorg/docs` main worktree.
+- `~/.msxorg/memory` is **durable context** — notes and session history governed by that repository's contribution policy.
+- `~/.<organization>/docs.git` and `docs/` provide the same bare+main-worktree model for optional organization docs; `memory/` remains a simple checkout.
 
 > **Prerequisite:** `MSXOrg/memory` is a private repository — the bootstrap needs access to it (and working github.com credentials) to clone or update memory.
 
@@ -20,14 +20,14 @@ Before either repository is used, bootstrap fetches it and requires a clean chec
 
 Keeping the workspace separate and git-isolated means an agent reads the same docs and memory in every repository, and its commits there use the workspace identity rather than whatever the working repository or the global config happens to be set to.
 
-The loaded `AGENTS.md` points to the roots; discovery happens in documentation. Start at `~/.msx/docs/src/docs/index.md`, follow Ways of Working to Workflow, infer the current stage, and read the linked procedure. Clear task language can shortcut stage selection, but no skill or instruction file owns a separate copy of the process.
+The loaded `AGENTS.md` points to the roots; discovery happens in documentation. Start at `~/.msxorg/docs/src/docs/index.md`, follow Ways of Working to Workflow, infer the current stage, and read the linked procedure. Clear task language can shortcut stage selection, but no skill or instruction file owns a separate copy of the process.
 
 ## Install (once per machine)
 
 Run the bootstrap:
 
 ```powershell
-$workspaceRoot = if ($env:MSX_WORKSPACE_ROOT) { $env:MSX_WORKSPACE_ROOT } else { Join-Path $HOME '.msx' }
+$workspaceRoot = if ($env:MSX_WORKSPACE_ROOT) { $env:MSX_WORKSPACE_ROOT } else { Join-Path $HOME '.msxorg' }
 $docsUrl = if ($env:MSX_DOCS_URL) { $env:MSX_DOCS_URL } else { 'https://github.com/MSXOrg/docs.git' }
 $memoryUrl = if ($env:MSX_MEMORY_URL) { $env:MSX_MEMORY_URL } else { 'https://github.com/MSXOrg/memory.git' }
 $docs = Join-Path $workspaceRoot 'docs'
@@ -147,26 +147,26 @@ $projects = @(
     }
     @{
         Name = 'PSModule'
-        Path = 'projects/PSModule'
+        Path = ''
         DocsUrl = 'https://github.com/PSModule/docs.git'
         MemoryUrl = 'https://github.com/PSModule/memory.git'
     }
 )
-& (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1') -Project $projects
+& (Join-Path $docs 'bootstrap/Initialize-MsxWorkspace.ps1') -Root (Join-Path $HOME '.psmodule') -Project $projects
 ```
 
-Each plug-in uses the same fail-closed freshness validation. `Path` is relative to `~/.msx`, so projects can choose a collision-free location without forking the bootstrap.
+Each plug-in uses the same fail-closed freshness validation. `Path` is relative to the organization workspace root, so projects can choose a collision-free location without forking the bootstrap. Run a separate workspace for each GitHub organization, such as `~/.psmodule` for PSModule.
 
 Existing clean simple docs clones are migrated automatically. The original clone is retained beside the new layout as `docs.simple-clone-backup` for manual verification and removal. Existing docs worktrees backed by another bare path are reused in place. Dirty, ahead, diverged, wrong-branch, conflicting-path, or otherwise unsafe layouts stop with actionable guidance before conversion.
 
-Docs changes use topic worktrees created from `~/.msx/docs.git`; never branch or work inside the canonical `~/.msx/docs` main worktree.
+Docs changes use topic worktrees created from `~/.msxorg/docs.git`; never branch or work inside the canonical `~/.msxorg/docs` main worktree.
 
 Wire it into the tools so it runs as the first instruction:
 
 - **Claude Code** reads `CLAUDE.md`. Add an import to `~/.claude/CLAUDE.md`:
 
   ```text
-  @~/.msx/docs/bootstrap/AGENTS.template.md
+  @~/.msxorg/docs/bootstrap/AGENTS.template.md
   ```
 
 - **Copilot** reads `AGENTS.md` natively. Install the contents of `AGENTS.template.md` as your **user-level** Copilot instructions so it applies in every repository. Per-repository `AGENTS.md` files stay thin pointers to the central docs — don't put the bootstrap there.

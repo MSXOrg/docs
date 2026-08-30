@@ -174,8 +174,8 @@ This repository is `github.com/MSXOrg/<repo>`. Read in this order:
 1. `README.md` — what this repository is and how it builds.
 2. `.github/CONTRIBUTING.md` — how a change is made and reviewed here.
 3. `docs/index.md` — this repository's own documentation.
-4. `~/.msx/docs/src/docs/index.md` — the organization standards.
-5. `~/.msx/memory/index.md` — durable lessons, read last.
+4. `~/.msxorg/docs/src/docs/index.md` — the organization standards.
+5. `~/.msxorg/memory/index.md` — durable lessons, read last.
 
 Read nearest first. A local file never overrides a standard, and memory never
 overrides documentation.
@@ -210,20 +210,22 @@ Path-scoped instruction files are reserved for local rules that cannot live cent
 A local bootstrap makes central context predictable:
 
 ```text
-~/.msx/
+~/.msxorg/
   docs.git/                    # MSXOrg/docs bare backing repository
   docs/                        # clean MSXOrg/docs main worktree
   memory/                      # simple MSXOrg/memory checkout
-  projects/
-    PSModule/
-      docs.git/                # optional project docs backing repository
-      docs/                    # optional project docs main worktree
-      memory/                  # optional project memory checkout
+~/.psmodule/
+  docs.git/                    # PSModule/docs bare backing repository
+  docs/                        # PSModule/docs main worktree
+  memory/                      # PSModule/memory checkout
 ```
 
 The bootstrap clones missing repositories and fetches every existing context repository before use. Each clone must be clean, checked out on the remote default branch, and exactly equal to the fetched remote head. A dirty, locally ahead, diverged, wrong-branch, or unreachable clone stops context resolution; the agent does not use a possibly stale local copy. Bootstrap writes repository-local git configuration only.
 
-MSXOrg is the default project. Additional projects plug in a name, relative workspace path, docs URL, and memory URL. For example, PSModule can use `projects/PSModule/{docs,memory}` beneath the same workspace while reusing the identical synchronization and validation path. Repository agent files retain this small coordinate block because it is required before project documentation can be reached; the reusable bootstrap behavior remains central.
+Each GitHub organization has its own organization-named workspace root, such as
+`~/.msxorg` for MSXOrg or `~/.psmodule` for PSModule. Repository agent files
+retain the organization coordinates required before project documentation can be
+reached; the reusable bootstrap behavior remains central.
 
 ## Refresh hooks
 

@@ -8,10 +8,10 @@ Everything is a work in progress and can be updated and improved. Fix a small pr
 
 ## First — bootstrap the workspace
 
-The workspace is a git-isolated clone of the central repositories under `~/.msx`. Set it up before reading context. Existing context repositories must be clean, on their default branch, and exactly synchronized with the remote:
+The workspace is a git-isolated clone of the organization repositories under `~/.msxorg` by default. Set it up before reading context. Use a separate organization-named root, such as `~/.psmodule` for PSModule. Existing context repositories must be clean, on their default branch, and exactly synchronized with the remote:
 
 ```powershell
-$workspaceRoot = if ($env:MSX_WORKSPACE_ROOT) { $env:MSX_WORKSPACE_ROOT } else { Join-Path $HOME '.msx' }
+$workspaceRoot = if ($env:MSX_WORKSPACE_ROOT) { $env:MSX_WORKSPACE_ROOT } else { Join-Path $HOME '.msxorg' }
 $docsUrl = if ($env:MSX_DOCS_URL) { $env:MSX_DOCS_URL } else { 'https://github.com/MSXOrg/docs.git' }
 $memoryUrl = if ($env:MSX_MEMORY_URL) { $env:MSX_MEMORY_URL } else { 'https://github.com/MSXOrg/memory.git' }
 $docs = Join-Path $workspaceRoot 'docs'
@@ -113,7 +113,7 @@ $projects = @(
     # Add project-specific entries when this template is adopted there:
     # @{
     #     Name = 'PSModule'
-    #     Path = 'projects/PSModule'
+    #     Path = ''
     #     DocsUrl = 'https://github.com/PSModule/docs.git'
     #     MemoryUrl = 'https://github.com/PSModule/memory.git'
     # }
@@ -128,9 +128,9 @@ Keep the MSXOrg entry and add only the additional project coordinates required b
 
 This produces:
 
-- `~/.msx/docs.git` — bare backing repository for central docs.
-- `~/.msx/docs` — clean, readable main worktree containing ways of working, standards, and workflow guidance.
-- `~/.msx/memory` — what has been learned before: durable notes and prior session context.
+- `~/.msxorg/docs.git` — bare backing repository for central docs.
+- `~/.msxorg/docs` — clean, readable main worktree containing ways of working, standards, and workflow guidance.
+- `~/.msxorg/memory` — what has been learned before: durable notes and prior session context.
 
 Each clone has repository-local git config only; it never modifies the global git config or the repository being worked in (git still reads them, but only repository-local config is written).
 
@@ -139,10 +139,10 @@ Each clone has repository-local git config only; it never modifies the global gi
 ## Then — read before acting
 
 1. Segment the work by host, organization, repository, path, and task, so the right project context is selected before any of it is loaded.
-2. Start at `~/.msx/docs/src/docs/index.md`.
+2. Start at `~/.msxorg/docs/src/docs/index.md`.
 3. Follow the Ways of Working index to `Workflow.md`.
 4. Infer the current stage from the task and its artifacts, then read the linked stage procedure.
-5. Read the relevant standards, repository context, and `~/.msx/memory`.
+5. Read the relevant standards, repository context, and `~/.msxorg/memory`.
 
 In a repository, its root `AGENTS.md` names the host and organization and lists the order to read in. This file carries the bootstrap and the segmentation step; the repository file carries the route. Neither restates the other.
 
@@ -171,5 +171,5 @@ Read `Ways-of-Working/Session-Interactions.md` in the canonical docs for what ea
 
 ## Two write rules
 
-- **Docs change through topic worktrees and pull requests.** Create a topic worktree from `~/.msx/docs.git`; never branch or work inside the canonical `~/.msx/docs` main worktree.
+- **Docs change through topic worktrees and pull requests.** Create a topic worktree from `~/.msxorg/docs.git`; never branch or work inside the canonical `~/.msxorg/docs` main worktree.
 - **Memory follows repository policy.** Read the selected memory repository's `AGENTS.md` and `CONTRIBUTING.md` before writing.
