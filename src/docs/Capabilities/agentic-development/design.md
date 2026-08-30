@@ -131,9 +131,10 @@ Resolution is deterministic. If the active repository remote is `github.com/PSMo
 
 ## Pointer files
 
-`AGENTS.md` is the cross-runtime router. It lists where to read, in order. It
-holds nothing else — no context synchronization mechanics, no build commands,
-no contribution mechanics, no standards.
+`AGENTS.md` is the cross-runtime router. It lists where to read, in order, and
+includes one instruction to prepare linked repositories before reading them. It
+holds no detailed synchronization mechanics, build commands, contribution
+mechanics, or standards.
 
 ```markdown
 # AGENTS
@@ -143,7 +144,11 @@ Read in this order:
 1. `README.md` — what this repository is and how it builds.
 2. `.github/CONTRIBUTING.md` — how a change is made and reviewed here.
 3. `docs/index.md` — this repository's own documentation.
-4. `~/.msxorg/docs/src/docs/index.md` — the organization standards.
+4. [MSXOrg/docs](https://github.com/MSXOrg/docs/) — the organization standards.
+
+Clone each linked repository locally, keep its configuration local to that
+clone, and update it before reading it.
+
 Read nearest first. A local file never overrides a standard.
 ```
 
@@ -190,8 +195,8 @@ resolution; the agent does not use a possibly stale local copy.
 
 Each GitHub organization has its own organization-named workspace root, such as
 `~/.msxorg` for MSXOrg or `~/.psmodule` for PSModule. Repository agent files
-retain the organization documentation destinations, and the template explains
-how to prepare them with Git.
+retain public organization documentation destinations; runtime and development
+guidance defines how a context checkout is prepared and verified.
 
 ## Context freshness
 
