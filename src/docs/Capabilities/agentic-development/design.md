@@ -131,9 +131,10 @@ Resolution is deterministic. If the active repository remote is `github.com/PSMo
 
 ## Pointer files
 
-`AGENTS.md` is the cross-runtime router. It lists where to read, in order. It
-holds nothing else — no context synchronization mechanics, no build commands,
-no contribution mechanics, no standards.
+`AGENTS.md` is the cross-runtime router. It lists where to read, in order, and
+includes one instruction to prepare linked repositories before reading them. It
+holds no detailed synchronization mechanics, build commands, contribution
+mechanics, or standards.
 
 ```markdown
 # AGENTS
@@ -144,6 +145,10 @@ Read in this order:
 2. `.github/CONTRIBUTING.md` — how a change is made and reviewed here.
 3. `docs/index.md` — this repository's own documentation.
 4. [MSXOrg/docs](https://github.com/MSXOrg/docs/) — the organization standards.
+
+Clone each linked repository locally, keep its configuration local to that
+clone, and update it before reading it.
+
 Read nearest first. A local file never overrides a standard.
 ```
 

@@ -33,5 +33,8 @@ Read in this order:
 3. `docs/index.md` — this repository's own documentation.
 4. [MSXOrg/docs](https://github.com/MSXOrg/docs/) — the organization standards.
 
+Clone each linked repository locally, keep its configuration local to that
+clone, and update it before reading it.
+
 Read nearest first. A local file never overrides a standard.
 ````
