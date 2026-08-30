@@ -109,7 +109,7 @@ flowchart TD
   host -->|"github.com/PSModule"| psmodule["PSModule context"]
   host -->|"any adopting org"| other["&lt;host&gt;/&lt;org&gt; context"]
 
-  msx --> refresh["Refresh selected docs<br/>stop unless exactly synchronized"]
+  msx --> refresh["Synchronize selected docs with Git<br/>stop unless exactly synchronized"]
   psmodule --> refresh
   other --> refresh
   refresh --> repo["Read README, CONTRIBUTING,<br/>and local docs"]
@@ -131,7 +131,7 @@ Resolution is deterministic. If the active repository remote is `github.com/PSMo
 
 ## Pointer files
 
-`AGENTS.md` is the cross-runtime router. It names the project and lists where to read, in order. It holds nothing else — no bootstrap, no build commands, no contribution mechanics, no standards.
+`AGENTS.md` is the cross-runtime router. It names the project and lists where to read, in order. It holds nothing else — no context synchronization mechanics, no build commands, no contribution mechanics, no standards.
 
 ```markdown
 # Agents
@@ -171,56 +171,61 @@ Path-scoped instruction files are reserved for local rules that cannot live cent
 
 ## Local workspace
 
-A local bootstrap makes central context predictable:
+A local Git clone makes central context predictable:
 
 ```text
 ~/.msxorg/
-  docs.git/                    # MSXOrg/docs bare backing repository
-  docs/                        # clean MSXOrg/docs main worktree
+  docs/                        # clean MSXOrg/docs clone
 ~/.psmodule/
-  docs.git/                    # PSModule/docs bare backing repository
-  docs/                        # PSModule/docs main worktree
+  docs/                        # clean PSModule/docs clone
 ```
 
-The bootstrap clones missing repositories and fetches every existing context repository before use. Each clone must be clean, checked out on the remote default branch, and exactly equal to the fetched remote head. A dirty, locally ahead, diverged, wrong-branch, or unreachable clone stops context resolution; the agent does not use a possibly stale local copy. Bootstrap writes repository-local git configuration only.
+Before context is read, the agent ensures the clone exists, fetches its remote,
+and fast-forwards its default branch. Each clone must be clean, checked out on
+the remote default branch, and exactly equal to the fetched remote head. A
+dirty, locally ahead, diverged, wrong-branch, or unreachable clone stops context
+resolution; the agent does not use a possibly stale local copy.
 
 Each GitHub organization has its own organization-named workspace root, such as
 `~/.msxorg` for MSXOrg or `~/.psmodule` for PSModule. Repository agent files
 retain the organization coordinates required before project documentation can be
-reached; the reusable bootstrap behavior remains central.
+reached; the user-global agent instructions explain how to prepare it with Git.
 
-## Refresh hooks
+## Context freshness
 
-The freshness gate is only worth as much as the last time it ran. A workspace bootstrapped
-once is current at that moment and progressively less so afterwards, and an agent reading a
-week-old clone reads a standard that has since changed while believing it is canonical.
+The freshness gate is only worth as much as the last time it ran. A clone
+synchronized once is current at that moment and progressively less so
+afterwards, and an agent reading a week-old clone reads a standard that has
+since changed while believing it is canonical.
 
-So the refresh runs at the **start of every session**, not once per machine. What differs
-between runtimes is where the trigger hangs, never what it does:
+So Git synchronization runs at the **start of every session**, not once per
+machine. What differs between runtimes is where the trigger hangs, never what
+it does:
 
-| Runtime shape | Lifecycle point | How the refresh attaches |
+| Runtime shape | Lifecycle point | How context freshness is established |
 | --- | --- | --- |
-| Local interactive agent | Session start | A session-start hook in the runtime's own configuration invokes the bootstrap before the first turn. |
-| Hosted or remote agent | Environment setup | The environment's setup steps run the bootstrap while the workspace is being prepared, so the agent starts against fresh context. |
+| Local interactive agent | Session start | The agent fetches and fast-forwards the user-global clone before the first turn. |
+| Hosted or remote agent | Environment setup | The environment's setup steps clone or synchronize the context repository while the workspace is being prepared. |
 | Review-time agent | Pull request event | Instructions are read from the pull request's head branch, so freshness follows the branch under review rather than a local clone. |
-| Batch or scheduled agent | Job start | The job's first step is the bootstrap; a scheduled run has no earlier lifecycle point to rely on. |
+| Batch or scheduled agent | Job start | The job's first step clones or synchronizes the context repository; a scheduled run has no earlier lifecycle point to rely on. |
 
-Each of these is one **declaration** of the same behaviour. The bootstrap is a single
-idempotent operation — clone what is missing, fetch what exists, verify each clone is clean,
-on the remote default branch, and exactly equal to the fetched head — and a hook does
-nothing but call it at the right moment. That is what makes a new runtime cheap to support:
-the work is finding its lifecycle point, not writing another refresh.
+Each of these is one **declaration** of the same behavior. The runtime ensures
+the clone is clean, on the remote default branch, and exactly equal to the
+fetched head before context is read. A runtime may use its own lifecycle hook,
+or the agent may perform the Git check explicitly.
 
-The refresh MUST be idempotent, because it runs far more often than it changes anything. A
-hook that is expensive or noisy when everything is already current gets disabled, and a
-disabled hook is worse than no hook, because the workspace still looks bootstrapped.
+The synchronization MUST be idempotent, because it runs far more often than it
+changes anything. A process that is expensive or noisy when everything is
+already current gets disabled, and a disabled process is worse than no process,
+because the workspace still appears synchronized.
 
-Where a runtime offers no lifecycle point at all, the refresh MUST be invoked explicitly
-before context is read. It MUST NOT be skipped on the grounds that the workspace was
-bootstrapped recently; "recently" is not a state the agent can observe, and the gate exists
-precisely to replace that judgement with a check.
+Where a runtime offers no lifecycle point at all, Git synchronization MUST be
+invoked explicitly before context is read. It MUST NOT be skipped on the
+grounds that the workspace was synchronized recently; "recently" is not a state
+the agent can observe, and the gate exists precisely to replace that judgment
+with a check.
 
-Each shape's obligations beyond the refresh — its entry file, tool declaration, and identity —
+Each shape's obligations beyond context freshness — its entry file, tool declaration, and identity —
 are set out in [Runtime Integration](runtime-integration.md).
 
 ## Client behavior
@@ -242,7 +247,7 @@ Because Copilot code review reads the head branch, a pull request that changes `
 | Failure | Design response |
 | --- | --- |
 | Repository does not identify its organization context | Infer from remote URL; ask when ambiguous. |
-| A docs clone is missing or cannot synchronize | Bootstrap or repair it, then retry. Stop context resolution until the canonical context repository passes the freshness gate. |
+| A docs clone is missing or cannot synchronize | Clone or repair it with Git, then retry. Stop context resolution until the canonical context repository passes the freshness gate. |
 | Pointer file duplicates central standards | Replace duplicated content with a route during review. A client file holds a pointer, not a copy. |
 | A skill, command, named agent, or instruction file defines a workflow stage | Delete the duplicate procedure and link to Workflow or its stage page. |
 | Two organizations are open in one workspace | Select by active repository; ask before cross-project changes. |
@@ -254,7 +259,7 @@ Because Copilot code review reads the head branch, a pull request that changes `
 1. Create or identify the organization `docs` repository.
 2. Add the canonical Workflow and linked stage procedures to `docs`.
 3. Add the `AGENTS.md` router to each product repository, plus a route for every client that cannot read it.
-4. Add a bootstrap that keeps the local docs clone present and exactly synchronized before use.
+4. Document the user-global docs clone and require Git synchronization before use.
 5. Review new work for pointer discipline: facts live once, links point to them.
 
 ## Where this connects
