@@ -12,10 +12,11 @@ block into an `AGENTS.md` at the repository root.
 The router moves from the most specific guidance to the least specific:
 repository-local guidance first, initiative-specific guidance next, and the
 organization's central guidance last.
-Each route names its source repository, entry file, published documentation,
-and preferred local clone. An agent may use a CLI, the web, published
-documentation, or a refreshed local clone. Clone and local configuration
-mechanics belong to the runtime or development setup, not to this portable
+Before using a linked repository, clone it locally, keep its configuration local
+to that clone, and update it from its remote.
+Agentic runtimes and local development may materialize that repository in any
+context checkout they control. Clone, freshness, and local configuration
+mechanics belong to that runtime or development setup, not to this portable
 router.
 
 Client-specific files such as `.claude/CLAUDE.md` and
@@ -26,31 +27,15 @@ pointers to canonical documentation pages.
 ````markdown
 # AGENTS
 
-Read nearest first and always use the newest version.
-
 Read in this order:
 
 1. `README.md` — what this repository is and how it builds.
 2. `.github/CONTRIBUTING.md` — how a change is made and reviewed here.
 3. `docs/index.md` — this repository's own documentation.
 <!-- Add initiative-specific guidance here, after the local repository entries. -->
-4. [MSXOrg/docs](https://github.com/MSXOrg/docs/) — organization standards;
-   entry file `src/docs/index.md`; published at <https://msxorg.github.io/docs/>;
-   preferred clone `~/.msxorg/docs`.
+4. [MSXOrg/docs](https://github.com/MSXOrg/docs/) — the organization standards.
 
-Use a CLI, the web, published documentation, or a refreshed local clone,
-whichever provides the newest accessible source.
-
-Repository-local guidance may add nuance but does not override organization or
-inherited standards.
+Clone each linked repository locally, keep its configuration local to that
+clone, and update it before reading it.
 
 ````
-
-A PSModule repository inserts this initiative route before `MSXOrg/docs`:
-
-```markdown
-4. [PSModule/Process-PSModule](https://github.com/PSModule/Process-PSModule/) —
-   PSModule process and standards; entry file `docs/index.md`; published at
-   <https://psmodule.io/docs/Modules/Process-PSModule/>; preferred clone
-   `~/.psmodule/process-psmodule`.
-```
