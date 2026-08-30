@@ -5,7 +5,7 @@ The single starting point for agents: a git-isolated local clone of the MSXOrg d
 ## Contents
 
 - `Initialize-MsxWorkspace.ps1` — idempotent setup. Clones `MSXOrg/docs` under `~/.msxorg`, requires the existing clone to exactly match its remote default branch, and writes a repository-local git identity so the workspace never modifies the global git config.
-- `AGENTS.template.md` — the user-global entry instruction. It bootstraps the workspace, then points the agent at the docs. Install it once per machine (below).
+- `AGENTS.template.md` — the user-global entry instruction. It points agents to the local MSXOrg docs clone. Install it once per machine (below).
 
 ## The model
 
