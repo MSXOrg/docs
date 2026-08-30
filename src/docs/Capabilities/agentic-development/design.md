@@ -190,8 +190,8 @@ resolution; the agent does not use a possibly stale local copy.
 
 Each GitHub organization has its own organization-named workspace root, such as
 `~/.msxorg` for MSXOrg or `~/.psmodule` for PSModule. Repository agent files
-retain the organization documentation destinations, and the template explains
-how to prepare them with Git.
+retain public organization documentation destinations; runtime and development
+guidance defines how a context checkout is prepared and verified.
 
 ## Context freshness
 

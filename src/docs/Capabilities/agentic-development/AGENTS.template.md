@@ -10,16 +10,11 @@ itself the router that agents load. Copy the contents of the fenced `markdown`
 block into an `AGENTS.md` at the repository root.
 
 The router sends agents to repository-local guidance first, then to the
-organization's canonical documentation clone. Prepare that clone with Git
-using `git clone https://github.com/MSXOrg/docs.git ~/.msxorg/docs`, or
-`git -C ~/.msxorg/docs fetch --prune origin` and
-`git -C ~/.msxorg/docs pull --ff-only` when it already exists. Use it only
-when it is clean and synchronized with its remote default branch.
-
-Configure Git identity locally for each context clone with
-`git -C <clone> config --local user.name "<your name>"` and
-`git -C <clone> config --local user.email "<your email>"`; do not rely on
-global Git configuration.
+organization's canonical documentation repository through its public URL.
+Agentic runtimes and local development may materialize that repository in any
+context checkout they control. Clone, freshness, and local configuration
+mechanics belong to that runtime or development setup, not to this portable
+router.
 
 Client-specific files such as `.claude/CLAUDE.md` and
 `.github/copilot-instructions.md` point to the repository router. The shared
