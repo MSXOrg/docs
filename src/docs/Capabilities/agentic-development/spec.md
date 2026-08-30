@@ -52,7 +52,7 @@ Applies to any organization that wants a shared project knowledge base for agent
 
 - **Organization is the project boundary.** The framework MUST resolve project context from the Git host and organization before resolving repository-specific context.
 - **Canonical docs repository.** Each adopting organization MUST have a `docs` repository that owns the reviewed knowledge base.
-- **Predictable project context.** Repository-level agent instructions MUST identify the canonical documentation repository and its local clone path for each adopting organization.
+- **Predictable project context.** Repository-level agent instructions MUST identify the canonical documentation repository with a public repository pointer for each adopting organization.
 - **OKF-style documents.** Knowledge documents MUST be Markdown files with YAML frontmatter, one primary concept per page, and stable paths that act as identity.
 - **Small pages and indexes.** Documentation SHOULD prefer small pages, each folder SHOULD have an `index.md`, and indexes MUST let a human or agent navigate inward from the root.
 - **Thin pointer files.** Product repositories MUST carry an `AGENTS.md` at the repository root that routes an agent from the repository's own files outward to the organization documentation and any inherited ecosystem documentation. It MUST be limited to that route list. It MUST NOT duplicate standards, workflow stages, or reusable process knowledge, and MUST NOT carry build commands, contribution mechanics, or context synchronization steps, each of which has an owning file of its own.

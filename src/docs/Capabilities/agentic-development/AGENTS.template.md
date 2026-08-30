@@ -34,7 +34,7 @@ Read in this order:
 1. `README.md` — what this repository is and how it builds.
 2. `.github/CONTRIBUTING.md` — how a change is made and reviewed here.
 3. `docs/index.md` — this repository's own documentation.
-4. `~/.msxorg/docs/src/docs/index.md` — the organization standards.
+4. [MSXOrg/docs](https://github.com/MSXOrg/docs/) — the organization standards.
 
 Read nearest first. A local file never overrides a standard.
 ````
