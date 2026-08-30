@@ -58,7 +58,7 @@ definition of the same control, and two definitions are two truths
 | Ruleset | Selects | Branches | Enforces |
 | --- | --- | --- | --- |
 | **Baseline protection** | Every type except Unmanaged | Protected branches | No deletion, no force-push, required checks |
-| **Pull-request gate** | Every type except Unmanaged and Memory | Protected branches | Pull request required |
+| **Pull-request gate** | Every type except Unmanaged | Protected branches | Pull request required |
 | **Artifact history** | Type includes Artifact | Default branch or Infrastructure integration branch | Squash-only merge, linear history required |
 | **Promotion — integration** | Type includes Infrastructure | Integration branch | Squash-only merge |
 | **Promotion — production** | Type includes Infrastructure | Production branch | Merge-commit only, promotion-source check required |
@@ -72,9 +72,8 @@ Two properties of this table matter more than its contents:
 
 Automatic deletion of a merged pull request's head branch is not a ruleset rule.
 Reconciliation verifies the repository-level `delete_branch_on_merge` setting for
-every governed repository instead. Memory therefore retains the protection,
-check, review, and branch-cleanup baseline while being exempt only from the
-pull-request gate; Unmanaged is the sole type that removes the baseline.
+every governed repository instead. Unmanaged is the sole type that removes the
+baseline.
 
 Bypass is granted on each ruleset to a **named administrative group in
 pull-request mode only** — never to individuals, and never as a blanket write

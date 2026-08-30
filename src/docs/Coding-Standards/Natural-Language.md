@@ -5,7 +5,7 @@ description: Which language each artifact is written in, and the plain-language 
 
 # Natural Language
 
-Natural language is source code for humans and agents. It drives issues, pull requests, documentation, prompts, comments, error messages, release notes, and memory. Write it with the same care as code: clear, testable, consistent, and easy to change.
+Natural language is source code for humans and agents. It drives issues, pull requests, documentation, prompts, comments, error messages, and release notes. Write it with the same care as code: clear, testable, consistent, and easy to change.
 
 This standard defines which language each artifact is written in, and how English prose is written in the MSX ecosystem. The project dialect is **American English (`en-US`)**.
 
@@ -122,9 +122,8 @@ Before editing:
 
 1. Resolve the host, organization, repository, path, and task.
 2. Read the organization docs index.
-3. Read relevant organization memory.
-4. Read the repository README and local instructions.
-5. Apply path-specific instructions for files being changed.
+3. Read the repository README and local instructions.
+4. Apply path-specific instructions for files being changed.
 ```
 
 Avoid:
@@ -182,7 +181,7 @@ Prompts are requests, not guesses. A good prompt names the desired outcome, the 
 Prefer:
 
 ```text
-Create a spec and design for org-scoped agent docs and memory in MSXOrg/docs. Follow the existing spec/design documentation model and use American English.
+Create a spec and design for org-scoped agent documentation in MSXOrg/docs. Follow the existing spec/design documentation model and use American English.
 ```
 
 Avoid:
@@ -190,19 +189,6 @@ Avoid:
 ```text
 Make something for agents.
 ```
-
-## Memory notes
-
-Memory notes should be short, factual, and reusable. They should not be a transcript of a session.
-
-Include:
-
-- the durable lesson;
-- the affected project or repository;
-- links to the issue, PR, file, or command that proves it;
-- the date when the fact was learned, if timing matters.
-
-Do not include secrets, private personal notes, or speculation.
 
 ## Where this connects
 
