@@ -8,7 +8,7 @@ Read in this order:
 2. .github/CONTRIBUTING.md - how a change is made and reviewed
 3. [MSXOrg/docs](https://github.com/MSXOrg/docs/) - this repository's
    documentation; entry file `src/docs/index.md`; published at
-   <https://msxorg.github.io/docs/>; preferred clone `~/.msxorg/docs`
+   <https://msxorg.github.io/docs/>; preferred clone `~/.msxorg/docs`.
 
 Use a CLI, the web, published documentation, or a refreshed local clone,
 whichever provides the newest accessible source.
