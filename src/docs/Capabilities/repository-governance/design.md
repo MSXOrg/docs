@@ -80,6 +80,48 @@ Bypass is granted on each ruleset to a **named administrative group in
 pull-request mode only** — never to individuals, and never as a blanket write
 exception ([FR16](spec.md#bypass)).
 
+## Organization defaults repository
+
+Each organization carries one public repository named `.github`. It has three
+distinct surfaces: community files that GitHub inherits into repositories,
+content published on the organization's profile, and local context that governs
+the defaults repository itself. Treating those surfaces as one distributable
+file set would copy repository-specific configuration into places where it does
+not belong.
+
+The [MSXOrg defaults repository](https://github.com/MSXOrg/.github) and the
+[PSModule defaults repository](https://github.com/PSModule/.github) implement
+the same structure:
+
+| Surface | Status | Behavior |
+| --- | --- | --- |
+| `.github/CODE_OF_CONDUCT.md` | Required | Inherited by a repository that has no local code of conduct. |
+| `.github/SECURITY.md` | Required | Inherited by a repository that has no local security policy. |
+| `.github/SUPPORT.md` | Required | Inherited by a repository that has no local support policy. |
+| `.github/pull_request_template.md` | Required | Used when a repository has no local pull request template. |
+| `.github/CONTRIBUTING.md` | Optional | Provides an organization-wide fallback where local contribution guidance is absent. |
+| `.github/ISSUE_TEMPLATE/` | Optional | Provides the organization's issue forms and template configuration where a repository defines no local issue-template set. |
+| `profile/README.md` | Optional | Publishes the public organization profile; it is not inherited by repositories. |
+| `media/` | Optional | Holds assets used by the profile or community files; it is not inherited by repositories. |
+| `README.md`, `AGENTS.md`, client routes, `.gitattributes`, and `.gitignore` | Required locally | Explain and govern the defaults repository; they are not organization defaults. |
+
+All inherited community files live under `.github/` in the defaults repository
+so their scope is visible from their path. A local file in a target repository
+takes precedence and therefore records a deliberate repository exception. If a
+target defines any local issue-template set, it owns that complete set rather
+than combining local and central forms.
+
+The defaults repository does not centralize repository ownership, dependency
+updates, release configuration, license terms, or other repository-specific
+configuration. Those files remain in each target repository because either
+their values vary by repository or the platform does not inherit them.
+
+Client routes are also repository-specific. In particular,
+`.github/copilot-instructions.md` in the defaults repository routes Copilot for
+that repository only; it is not an organization-wide file default.
+Organization-wide Copilot instructions are configured through the organization
+settings and point to the same canonical standards rather than copying them.
+
 ### The promotion-source check
 
 Branch protection can require a check; it cannot express "only from this branch".
@@ -173,6 +215,8 @@ change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before
 | Which controls a type implies | Organization rulesets |
 | Required approvals per type | Organization rulesets |
 | Bypass group | Organization rulesets |
+| Organization community defaults | Public organization `.github` repository |
+| Organization-wide Copilot instructions | Organization Copilot settings |
 | Required-file set per type | [Repository Standard](../../Ways-of-Working/Repository-Standard.md#required-files) |
 | Comparison severities | Reconciliation configuration |
 | Reconciliation schedule | Reconciliation configuration |

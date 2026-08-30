@@ -199,8 +199,7 @@ The artifact tiers provide the second classification:
 This maps the useful reader needs behind Diataxis without imposing a second,
 parallel taxonomy in paths or front matter. A page has one home under its
 subject and links to adjacent artifacts rather than being duplicated across
-quadrants. [Document architecture and memory boundaries](../Capabilities/agentic-development/decisions/document-architecture-and-memory-boundaries.md)
-records that decision and the corresponding OKF and memory boundaries.
+quadrants.
 
 ## For humans and agents
 

@@ -168,7 +168,7 @@ nav = [
       "Capabilities/agentic-development/index.md",
       {"Spec" = "Capabilities/agentic-development/spec.md"},
       {"Design" = "Capabilities/agentic-development/design.md"},
-      {"Memory Repository Template" = "Capabilities/agentic-development/memory-template.md"},
+      {"AGENTS.md Template" = "Capabilities/agentic-development/AGENTS.template.md"},
       {"MCP Servers" = "Capabilities/agentic-development/mcp-servers.md"},
       {"Runtime Integration" = "Capabilities/agentic-development/runtime-integration.md"},
       {"Plugin Distribution" = "Capabilities/agentic-development/plugin-distribution.md"},
@@ -178,7 +178,6 @@ nav = [
       {"Conformance" = "Capabilities/agentic-development/conformance.md"},
       {"Decisions" = [
         "Capabilities/agentic-development/decisions/index.md",
-        {"Document Architecture and Memory Boundaries" = "Capabilities/agentic-development/decisions/document-architecture-and-memory-boundaries.md"},
       ]},
     ]},
   ]},

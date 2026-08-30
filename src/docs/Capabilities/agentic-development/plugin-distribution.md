@@ -135,7 +135,7 @@ Bundling is tempting because it makes an intent self-contained and therefore eas
 distribute. It is also how the framework's central premise gets broken: a bundled procedure
 is a snapshot, and a snapshot distributed to many places is drift with extra steps. The
 canonical documentation is available to every agent through the
-[freshness gate](design.md#refresh-hooks); the intent can rely on it being there and current.
+[freshness gate](design.md#context-freshness); the intent can rely on it being there and current.
 
 The practical consequence is that updating a procedure needs no redistribution. The
 documentation changes, and every intent pointing at it is immediately correct — which is the
