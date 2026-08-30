@@ -31,7 +31,8 @@ Every initiative organization must define standards for these shared file famili
 
 | File family | Standard owns |
 | --- | --- |
-| Community health files | Central code of conduct, contribution guide, support policy, security policy, and pull request template defaults. |
+| Community health files | Central code of conduct, support policy, security policy, and pull request template defaults, plus contribution guidance where provided. |
+| Issue intake | Central issue forms and issue-template configuration defaults, where the organization wants a shared intake model. |
 | Repository context | README defaults, documentation ownership, and repository metadata expectations. |
 | Review workflow | Pull request template, review routing, CODEOWNERS, namespace-qualified automation label sets, and change-type conventions. |
 | Supply chain | Dependency update configuration, security update behavior, and review expectations. |
@@ -62,6 +63,26 @@ the special `.github` repository:
 A repository MAY carry a local copy only when it needs a material,
 repository-specific exception. The local copy takes precedence, so the
 exception and its owner MUST be documented in the initiative guidance.
+
+An organization MAY also provide optional defaults in the same repository:
+
+| File or directory | Purpose |
+| --- | --- |
+| `.github/CONTRIBUTING.md` | Provides organization-wide contribution guidance that repositories can inherit or use as the source for their local contribution guide. |
+| `.github/ISSUE_TEMPLATE/` | Provides shared issue forms and template configuration for consistent issue intake. |
+| `.github/copilot-instructions.md` | Provides organization-wide Copilot context that points to, and does not replace, the canonical standards. |
+
+These optional defaults are subscriptions, not additional repository baseline
+files. A repository-local contribution guide remains required where the
+[Repository Standard](Repository-Standard.md#required-files) calls for
+repository-specific build, test, or contribution instructions. A repository MAY
+provide local issue templates or agent instructions when it needs a documented
+local variation.
+
+The special `.github` repository itself still follows the repository baseline:
+its `README.md`, `AGENTS.md`, and client routes explain and govern that defaults
+repository. Those repository-local context files are not distributed as
+organization defaults.
 
 ## Repository-local context is the enforceable surface
 
