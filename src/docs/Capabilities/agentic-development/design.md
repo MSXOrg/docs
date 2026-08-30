@@ -20,11 +20,11 @@ The GitHub organization is the project boundary. The host distinguishes work fro
 
 Current project scopes follow the same shape:
 
-| Host | Organization | Docs |
+| Host | Organization | Canonical documentation repository |
 | --- | --- | --- |
 | `github.com` | `MSXOrg` | `MSXOrg/docs` |
 | `github.com` | `PSModule` | `PSModule/Process-PSModule` |
-| `<host>` | `<org>` | Designated `<org>/<repository>` |
+| `<host>` | `<org>` | Designated `<org>/<documentation-repository>` |
 
 The last row is the general case: any adopting organization on any GitHub host — public or an enterprise instance — plugs into the same shape without changing the framework.
 
