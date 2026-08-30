@@ -1,7 +1,7 @@
 # Bootstrap
 
-`AGENTS.template.md` is the user-global context router. Install its contents
-as user-level instructions so every repository starts by locating and
+`AGENTS.template.md` documents the repository-level `AGENTS.md` router. Copy
+the fenced template into a repository root so agents start by locating and
 synchronizing the current MSX documentation clone with Git.
 
 Configure Git identity locally for each context clone with `git config

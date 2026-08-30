@@ -190,8 +190,8 @@ resolution; the agent does not use a possibly stale local copy.
 
 Each GitHub organization has its own organization-named workspace root, such as
 `~/.msxorg` for MSXOrg or `~/.psmodule` for PSModule. Repository agent files
-retain the organization coordinates required before project documentation can be
-reached; the user-global agent instructions explain how to prepare it with Git.
+retain the organization documentation destinations, and the template explains
+how to prepare them with Git.
 
 ## Context freshness
 
@@ -206,7 +206,7 @@ it does:
 
 | Runtime shape | Lifecycle point | How context freshness is established |
 | --- | --- | --- |
-| Local interactive agent | Session start | The agent fetches and fast-forwards the user-global clone before the first turn. |
+| Local interactive agent | Session start | The agent fetches and fast-forwards the context clone before the first turn. |
 | Hosted or remote agent | Environment setup | The environment's setup steps clone or synchronize the context repository while the workspace is being prepared. |
 | Review-time agent | Pull request event | Instructions are read from the pull request's head branch, so freshness follows the branch under review rather than a local clone. |
 | Batch or scheduled agent | Job start | The job's first step clones or synchronizes the context repository; a scheduled run has no earlier lifecycle point to rely on. |
@@ -261,7 +261,7 @@ Because Copilot code review reads the head branch, a pull request that changes `
 1. Create or identify the organization `docs` repository.
 2. Add the canonical Workflow and linked stage procedures to `docs`.
 3. Add the `AGENTS.md` router to each product repository, plus a route for every client that cannot read it.
-4. Document the user-global docs clone and require Git synchronization before use.
+4. Document the canonical docs clone and require Git synchronization before use.
 5. Review new work for pointer discipline: facts live once, links point to them.
 
 ## Where this connects

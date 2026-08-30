@@ -36,5 +36,5 @@ src/
   docs/                # the documentation content
   includes/            # shared snippets (abbreviations, links)
   overrides/           # theme overrides
-bootstrap/             # the user-global agent workspace setup
+bootstrap/             # the repository-level AGENTS.md template
 ```
