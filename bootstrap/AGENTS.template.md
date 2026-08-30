@@ -8,13 +8,20 @@ the repository's own `AGENTS.md`.
 Ensure `~/.msxorg/docs` is a clean clone of
 [`MSXOrg/docs`](https://github.com/MSXOrg/docs) before reading context:
 
-```powershell
+```sh
 git clone https://github.com/MSXOrg/docs.git ~/.msxorg/docs
 ```
 
 If the clone already exists, use Git to fetch and fast-forward it to its
 default branch. If the path is not a Git clone, or it has local changes or
 local commits, stop and resolve that state rather than reading stale context.
+Configure Git identity locally for each context clone; do not rely on global
+Git configuration:
+
+```sh
+git -C ~/.msxorg/docs config --local user.name "<your name>"
+git -C ~/.msxorg/docs config --local user.email "<your email>"
+```
 
 The repository's `AGENTS.md` is the context router. It reads local guidance
 first — `README.md`, `.github/CONTRIBUTING.md`, and repository documentation —

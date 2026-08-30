@@ -4,6 +4,9 @@
 as user-level instructions so every repository starts by locating and
 synchronizing the current MSX documentation clone with Git.
 
+Configure Git identity locally for each context clone with `git config
+--local`; do not rely on global Git configuration.
+
 The suggested repository-local router is:
 
 ```markdown
