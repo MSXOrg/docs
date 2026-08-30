@@ -42,9 +42,9 @@ In a single ordinary clone the opposite is forced: one branch checked out at a t
 - **`<repo>/`** — the canonical default-branch worktree. Kept clean and exactly synchronized for reading, diffing, and comparisons. Never directly committed to.
 - **`<N>-<slug>/`** — one worktree folder per repository-delivery Task or Bug in flight, named by issue number and a short slug. The folder is a concise local path; its branch uses the required `<type>/<issue>-<slug>` name, so the two names do not need to match.
 
-Canonical documentation context is a normal Git clone, such as
-`~/.msxorg/docs` or `~/.psmodule/process-psmodule`, and is not part of this worktree
-topology. The bare-clone layout applies to delivery repositories only.
+Canonical documentation context uses a normal Git clone at a location chosen by
+the runtime or development setup and is not part of this worktree topology. The
+bare-clone layout applies to delivery repositories only.
 
 ## Remotes
 

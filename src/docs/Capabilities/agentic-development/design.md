@@ -178,14 +178,9 @@ Path-scoped instruction files are reserved for local rules that cannot live cent
 
 ## Local workspace
 
-A local Git clone makes central context predictable:
-
-```text
-~/.msxorg/
-  docs/                        # clean MSXOrg/docs clone
-~/.psmodule/
-  process-psmodule/            # clean PSModule/Process-PSModule clone
-```
+A runtime or development setup may materialize a documentation repository in
+any context checkout it controls. The framework does not prescribe that
+checkout's filesystem location.
 
 Before context is read, the agent ensures the clone exists, fetches its remote,
 and fast-forwards its default branch. Each clone must be clean, checked out on
@@ -193,10 +188,9 @@ the remote default branch, and exactly equal to the fetched remote head. A
 dirty, locally ahead, diverged, wrong-branch, or unreachable clone stops context
 resolution; the agent does not use a possibly stale local copy.
 
-Each GitHub organization has its own organization-named workspace root, such as
-`~/.msxorg` for MSXOrg or `~/.psmodule` for PSModule. Repository agent files
-retain public organization documentation destinations; runtime and development
-guidance defines how a context checkout is prepared and verified.
+Repository agent files retain public organization documentation destinations;
+runtime and development guidance defines how a context checkout is prepared and
+verified.
 
 ## Context freshness
 
