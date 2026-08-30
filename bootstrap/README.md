@@ -2,7 +2,7 @@
 
 `AGENTS.template.md` documents the repository-level `AGENTS.md` router. Copy
 the fenced template into a repository root so agents start by locating and
-synchronizing the current MSX documentation clone with Git.
+synchronizing the canonical MSX documentation clone with Git.
 
 Configure Git identity locally for each context clone with `git config
 --local`; do not rely on global Git configuration.
