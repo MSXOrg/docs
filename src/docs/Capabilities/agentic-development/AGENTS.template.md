@@ -11,6 +11,8 @@ block into an `AGENTS.md` at the repository root.
 
 The router sends agents to repository-local guidance first, then to the
 organization's canonical documentation repository through its public URL.
+Before using a linked repository, clone it locally, keep its configuration local
+to that clone, and update it from its remote.
 Agentic runtimes and local development may materialize that repository in any
 context checkout they control. Clone, freshness, and local configuration
 mechanics belong to that runtime or development setup, not to this portable
