@@ -71,48 +71,55 @@ Two consequences follow, and they are the point of the model:
 
 ## Version computation
 
-- The bump comes from the PR label (`release:major` / `release:minor` / `release:patch` / `release:none`).
-  Exactly one is required; **no default** is applied. A missing label, multiple
-  SemVer labels, or a SemVer label alongside `release:none` are all **rejected**, so
-  the version is always a decision someone made. For `workflow_dispatch`, the
-  bump is an input.
+Release automation reads only labels in its `release:` namespace:
+
+| Label | Meaning | Valid combination |
+| --- | --- | --- |
+| `release:patch` | Resolve the next patch version. | Exactly one bump label. |
+| `release:minor` | Resolve the next minor version. | Exactly one bump label. |
+| `release:major` | Resolve the next major version. | Exactly one bump label. |
+| `release:pre-release` | Publish the open pull request as a prerelease. | With exactly one bump label. |
+| `release:skip` | Run validation without resolving or publishing a version. | Alone. |
+
+Exactly one bump label or `release:skip` is required; **no default** is applied.
+`release:pre-release` is an optional mode label, not a bump. A missing decision,
+multiple bump labels, `release:skip` with another release label, or
+`release:pre-release` without one bump label is **rejected**, so the outcome is
+always a decision someone made. Bare `major`, `minor`, and `patch` labels are
+ignored.
+
 - **First release** starts from a baseline (`v0.1.0` or `v1.0.0`). Pre-`1.0.0`
   breaking changes are `release:minor` per [SemVer §4](https://semver.org/#spec-item-4);
   `release:major` is never auto-detected pre-`1.0.0`.
 - The tag is created on the commit now at the head of the release branch —
   squash, merge-commit, and rebase strategies alike.
 
-### Why the labels are namespaced
+### Optional ad hoc releases
 
-The bump vocabulary is namespaced under `release:` rather than using the bare words
-`Major`, `Minor`, and `Patch`, and the reason is concrete rather than cosmetic.
+The standard release path is a labeled pull request merged into a release
+branch. `workflow_dispatch` is an optional extension, not part of the minimum
+implementation. An implementation SHOULD omit it unless its product has a real
+need to release already-reviewed content outside the merge flow.
 
-Hosted Dependabot applies a SemVer label to its own pull requests **when a repository has
-labels named `major`, `minor`, or `patch`**. It matches on those bare words. In a
-repository where the release bump set is unprefixed, an upstream patch bump therefore
-arrives already carrying a label that this workflow reads as the repository's own version
-decision — set by a bot, describing something else entirely, with nobody having decided it.
+Where an ad hoc path exists, it requires an explicit bump, source ref, release-note
+summary, and reason. It resolves the source ref to an immutable commit and enters
+the same Resolve → Build → Test → Publish pipeline as a merged pull request. It
+does not infer a bump, bypass validation, rebuild an existing version, or make a
+direct push into a release interface.
 
-Namespacing removes the collision at its source. There is no bare `major`, `minor`, or
-`patch` label for Dependabot to find, so a dependency pull request arrives with **no**
-release decision attached, fails closed like any other unlabelled pull request, and a
-maintainer makes the call at the pull request gate.
-
-Do not reach for a suppression workaround instead. The `skip-release` label and the
-equivalent configuration flag are a **no-op on hosted Dependabot** — the labelling
-behavior is not configurable from the repository. The only lever a repository actually has
-is which label names exist, so that is the lever this design pulls.
-
-See [Automation Labels](../../Ways-of-Working/Automation-Labels.md#every-set-is-namespaced)
-for the general rule.
+Do not create an empty pull request to manufacture a release. It contains no
+artifact-affecting change and makes the review trail imply a change that did not
+happen. Retrying failed validation or publication is not an ad hoc release
+either: rerun the existing release with the same artifact and version under the
+[recovery rule](#the-pipeline).
 
 ## Prereleases
 
 - **Branch-level** — a prerelease-type branch publishes on every push, using the
   branch name as the identifier: `v1.3.0-dev.1`, `v1.3.0-dev.2`, …
-- **PR-level** — a prerelease label on an open PR publishes
+- **PR-level** — `release:pre-release` alongside exactly one bump label on an open PR publishes
   `v<base>-<identifier>.<counter>`: `base` is the next version from the PR's bump
-  label, `identifier` is the normalised branch name, and `counter`
+  label, `identifier` is the normalized branch name, and `counter`
   auto-increments per push.
 - Artifact-specific conventions replace the SemVer suffix where they exist
   (`-alpha.N` for npm, `.devN` for Python). Release candidates use `-rc.N`,
@@ -138,10 +145,10 @@ release-paths:
 
 ## Release notes
 
-The GitHub Release **name** is the version; the **body** depends on the trigger:
-`# <PR title>` + description (merged PR), `# <first commit line>` + remainder
-(direct push), or `# <summary>` + collected history (dispatch). The same note is
-handed to [Downstream Release Propagation](../downstream-release-propagation/design.md).
+The GitHub Release **name** is the version. Its **body** is the pull request title
+and description for the standard merge path, or the required release-note summary
+for an optional ad hoc dispatch. The same note is handed to
+[Downstream Release Propagation](../downstream-release-propagation/design.md).
 
 ## Release output
 
@@ -236,7 +243,8 @@ release, and its runs are serialised like any other.
 | Surface | Where |
 | --- | --- |
 | Release branches + type | `.github/release.config.yml` |
-| Bump label / prerelease / RC | PR label, or `workflow_dispatch` input |
+| Release decision / prerelease / RC | `release:` PR label |
+| Optional ad hoc release | `workflow_dispatch` inputs |
 | Path filter | `.github/release.config.yml` |
 | Prerelease cleanup toggle | release config / workflow input |
 | Publishing targets | reusable-workflow input + GitHub environment; see [Publishing Targets](design-publishing-targets.md) |

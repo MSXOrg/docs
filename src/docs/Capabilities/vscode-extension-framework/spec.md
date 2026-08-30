@@ -60,7 +60,7 @@ framework itself.
 - **Tested on a real host.** The extension is tested against a real VS Code host, across the host versions and operating systems the extension declares as supported. Tests exercise the exact bundle that ships — never a separately compiled copy.
 - **A static quality gate.** Every change is linted and type-checked, and the pipeline holds on any error. Quality is validated at pull-request time, not after merge.
 - **Built once, shipped once.** The version is computed once, stamped into the manifest, and the same packaged VSIX is what is tested and what is published. Build, test, and release MUST NOT diverge.
-- **Label-driven, semantic versioning.** Versioning follows [Release Management](../release-management/spec.md): the bump is a pull-request label (`release:major` / `release:minor` / `release:patch` / `release:none`, defaulting to `release:patch`), the version is [SemVer](https://semver.org/), and it is derived automatically — never hand-edited in the manifest.
+- **Label-driven, semantic versioning.** Versioning follows [Release Management](../release-management/spec.md): exactly one of `release:patch`, `release:minor`, `release:major`, or `release:skip` records the release decision with no default; `release:pre-release` MAY accompany one bump label. The version is [SemVer](https://semver.org/) and is derived automatically — never hand-edited in the manifest.
 - **An installable artifact on every release.** Each release produces an installable VSIX attached to its [GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases), together with an immutable reference. A user MUST be able to install a specific released version without a marketplace account.
 - **Optional marketplace publication.** Where configured, the same VSIX is also published to an extension marketplace (the VS Code Marketplace and/or Open VSX). Marketplace publication is opt-in and MUST NOT be a prerequisite for the GitHub-Release install path.
 - **A prerelease from an open pull request.** A prerelease VSIX MUST be obtainable from an open pull request for testing before merge, without being promoted to the latest stable version.
@@ -72,9 +72,9 @@ framework itself.
 ## Success criteria
 
 - Creating a repository from the template and pushing a first change yields a green build, a passing test run, and a packaged VSIX with no configuration written.
-- A labelled pull request merged to a release branch produces a GitHub Release carrying an installable VSIX whose version matches the label's bump — a conflicting or ambiguous label set is rejected, never guessed.
+- A labeled pull request merged to a release branch produces a GitHub Release carrying an installable VSIX whose version matches the label's bump — a conflicting or ambiguous label set is rejected, never guessed.
 - The tests that gate the release exercise the exact VSIX that is released, on every supported host version and operating system.
-- A documentation-only or CI-only change runs its checks but produces no new version.
+- A documentation-only or CI-only change carrying `release:skip` runs its checks but produces no new version.
 - A user installs any released version straight from its GitHub Release with no marketplace account; where marketplace publishing is enabled, that same version also appears in the marketplace.
 - An open pull request can publish a prerelease VSIX for testing that never becomes the latest stable version, and it is cleaned up when the pull request closes.
 - Adopting the framework in a new extension is a short caller plus a settings file — the pipeline itself is never copied into the repository.

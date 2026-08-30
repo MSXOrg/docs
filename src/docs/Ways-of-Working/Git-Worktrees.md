@@ -1,13 +1,13 @@
 ---
 title: Git Worktrees
-description: How agentic development is implemented locally — a bare-clone and worktree layout for working on several things at once.
+description: How repository-delivery work is implemented locally — a bare-clone and worktree layout for working on several things at once.
 ---
 
 # Git Worktrees
 
 Git worktrees are how [agentic development](../Capabilities/agentic-development/index.md) is implemented on a local machine. They are purely a **local development** convenience: a way for one person — or a person and an agent, or several agents — to work on multiple repository-delivery leaves at the same time, without stashing, committing half-finished work, or switching branches. They change nothing about how a repository is built, reviewed, or shipped — that still happens through branches and pull requests, exactly as it would with an ordinary clone.
 
-All repositories are set up as **bare clones with worktrees**. Each repository-delivery Task or Bug gets its own worktree — an independent working directory for one branch — so parallel work never collides. Epic and PBI aggregates, and operational Tasks without repository artifacts, do not get worktrees.
+Repository-delivery workspaces are set up as **bare clones with worktrees**. Each repository-delivery Task or Bug gets its own worktree — an independent working directory for one branch — so parallel work never collides. Epic and PBI aggregates, operational Tasks without repository artifacts, and canonical documentation context clones do not get worktrees.
 
 ## Why this matters: working agentically in parallel
 
@@ -42,7 +42,9 @@ In a single ordinary clone the opposite is forced: one branch checked out at a t
 - **`<repo>/`** — the canonical default-branch worktree. Kept clean and exactly synchronized for reading, diffing, and comparisons. Never directly committed to.
 - **`<N>-<slug>/`** — one worktree folder per repository-delivery Task or Bug in flight, named by issue number and a short slug. The folder is a concise local path; its branch uses the required `<type>/<issue>-<slug>` name, so the two names do not need to match.
 
-For canonical context, the owning organization supplies the local root. MSXOrg uses `~/.msxorg/docs.git`, the readable `~/.msxorg/docs` default-branch worktree, and the simple `~/.msxorg/memory` checkout. PSModule uses `~/.psmodule/process-psmodule.git`, `~/.psmodule/process-psmodule`, and `~/.psmodule/memory`.
+Canonical documentation context is a normal Git clone, such as
+`~/.msxorg/docs` or `~/.psmodule/docs`, and is not part of this worktree
+topology. The bare-clone layout applies to delivery repositories only.
 
 ## Remotes
 

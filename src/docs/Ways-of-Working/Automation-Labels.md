@@ -36,53 +36,34 @@ A label set MUST be namespaced as `namespace:value`, where the namespace names t
 owning function and the value is the instruction to it.
 
 ```text
-update:major          dependencies
-update:minor          github-actions
-update:patch          containers
+release:minor
 ```
 
 Namespacing is not decoration. It is what lets two functions describe the *same kind
 of thing* about one pull request without either one silently reading the other's
-signal. A dependency update carries both an upstream version change and a version
-decision for the repository consuming it; those are two version decisions on one
-pull request, and only a namespace keeps them apart
-([dependency updates](../Capabilities/dependency-updates/design.md#separation-from-release-versioning)).
+signal.
 
 ## Every set is namespaced
 
 There is no reserved unprefixed vocabulary. Every label set an automation reads is
-namespaced, including the release bump set:
+namespaced, including the release set:
 
-```text
-release:major         release:none
-release:minor
-release:patch
-```
+| Label | Instruction |
+| --- | --- |
+| `release:patch` | Publish a patch release. |
+| `release:minor` | Publish a minor release. |
+| `release:major` | Publish a major release. |
+| `release:pre-release` | Publish a prerelease from the open pull request. |
+| `release:skip` | Validate the change without publishing a release. |
 
-`release:major`, `release:minor`, `release:patch`, and `release:none` are read by
+These labels are read by
 [release management](../Capabilities/release-management/spec.md) and by nothing else.
+Exactly one bump label or `release:skip` records the release decision.
+`release:pre-release` is an optional mode used with exactly one bump label, never
+with `release:skip`.
 
-Reserving bare words would be the weaker mechanism, because it depends on a documented
-prohibition rather than on the label's own name — and for the release set specifically,
-the prohibition is not the only thing at stake.
-
-### Why the release set in particular
-
-Hosted Dependabot applies a SemVer label to its own pull requests **when a repository
-has labels named `major`, `minor`, or `patch`**. It matches on those bare words. A
-repository that reserves the bare bump vocabulary for release management therefore hands
-Dependabot the ability to set the repository's next published version as a side effect of
-an upstream patch bump — with no human deciding it.
-
-Namespacing removes the collision at the source. Dependabot finds no bare `major`,
-`minor`, or `patch` label to apply, so its pull requests arrive with no release decision
-attached and a maintainer makes that call at the pull request gate like any other.
-
-There is a documented workaround for suppressing Dependabot's labelling, sometimes
-written as a `skip-release` label or a configuration flag. On **hosted** Dependabot it is
-a no-op: the labelling behavior is not configurable from the repository, so the only
-control a repository actually has is which label names exist. Namespacing is that
-control.
+Reserving bare words would be weaker because it depends on a documented
+prohibition rather than making ownership visible in the label itself.
 
 ## Automation ignores what it does not own
 
@@ -115,6 +96,5 @@ decision applies, and unambiguous about who acts on it.
 ## Where this connects
 
 - [Release Management](../Capabilities/release-management/spec.md) — the namespaced bump vocabulary and why exactly one of its values is required.
-- [Dependency Updates](../Capabilities/dependency-updates/design.md#labels) — the namespaced dependency label sets and their separation from release versioning.
 - [Repository Governance](../Capabilities/repository-governance/design.md) — the controls that read repository state, of which labels are one.
 - [Repository Standard](Repository-Standard.md) — the repository-level requirement that labels be provisioned rather than improvised.

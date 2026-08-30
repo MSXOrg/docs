@@ -98,16 +98,16 @@ pass before the release stage runs, alongside a green test result.
 Versioning is [Release Management](../release-management/design.md) applied to a
 VSIX artifact — this framework does not re-implement it:
 
-- The bump is the PR label (`release:major` / `release:minor` / `release:patch` / `release:none`,
-  defaulting to `release:patch`); multiple SemVer labels, or a SemVer label with
-  `release:none`, are rejected.
+- The release decision is exactly one of `release:patch`, `release:minor`,
+  `release:major`, or `release:skip`, with no default. Multiple bump labels and
+  `release:skip` with another release label are rejected.
 - The version is computed once and stamped into the manifest; it is never
   hand-edited.
-- A prerelease is requested by a `Prerelease` label on an open pull request (or
-  a prerelease branch), producing a prerelease VSIX that is never promoted to
-  latest. When such a build is also published to the VS Code Marketplace, it goes
-  out with `@vscode/vsce publish --pre-release` and an odd minor-version number,
-  the Marketplace's pre-release-channel convention.
+- A prerelease is requested by `release:pre-release` alongside one bump label on
+  an open pull request (or by a prerelease branch), producing a prerelease VSIX
+  that is never promoted to latest. When such a build is also published to the
+  VS Code Marketplace, it goes out with `@vscode/vsce publish --pre-release` and
+  an odd minor-version number, the Marketplace's pre-release-channel convention.
 
 ## Publishing and distribution
 
@@ -141,10 +141,9 @@ request closes; stable releases are never touched.
   documentation ([Documentation Model](../../Ways-of-Working/Documentation-Model.md)) —
   there is no internal-versus-user split. This framework's own documentation is
   this capability.
-- **Dependencies.** The template ships a Dependabot configuration that keeps npm
-  packages and pinned Actions current through
-  [Dependency Updates](../dependency-updates/design.md); those update pull
-  requests are artifact-affecting and release through the same pipeline.
+- **Dependencies.** The template configures automated updates for npm packages and
+  pinned Actions through [Dependency Updates](../dependency-updates/design.md);
+  those pull requests use the normal review and release path.
 
 ## Least privilege and serialisation
 

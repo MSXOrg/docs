@@ -1,11 +1,11 @@
 ---
 title: Design
-description: How the agentic development framework is built — OKF documentation, org memory, thin repo pointers, and deterministic context resolution.
+description: How the agentic development framework is built — OKF documentation, thin repo pointers, and deterministic context resolution.
 ---
 
 # Agentic Development — Design
 
-The behavior in the [spec](spec.md) is delivered by an organization-level documentation and memory source pair, adopted by each product repository through thin pointer files. The design keeps project knowledge in one reviewed place, keeps working memory in one durable place, and lets each agent runtime adapt without copying process knowledge.
+The behavior in the [spec](spec.md) is delivered by an organization-level documentation repository, adopted by each product repository through thin pointer files. The design keeps project knowledge in one reviewed place and lets each agent runtime adapt without copying process knowledge.
 
 ## Organization anatomy
 
@@ -13,27 +13,26 @@ The GitHub organization is the project boundary. The host distinguishes work fro
 
 ```text
 <host>/<org>/
-  <documentation-source>/  # canonical knowledge base; changes through pull requests
-  memory/                   # durable agent and team memory; versioned working knowledge
-  <repo-a>/                 # product or component repository
+  docs/      # canonical knowledge base; changes through pull requests
+  <repo-a>/  # product or component repository
   <repo-b>/
 ```
 
-Current project scopes identify these concrete sources:
+Current project scopes follow the same shape:
 
-| Host | Organization | Documentation source | Preferred clone | Memory source | Preferred clone |
-| --- | --- | --- | --- | --- | --- |
-| `github.com` | `MSXOrg` | `MSXOrg/docs` | `~/.msxorg/docs` | Private `MSXOrg/memory` | `~/.msxorg/memory` |
-| `github.com` | `PSModule` | `PSModule/Process-PSModule` | `~/.psmodule/process-psmodule` | Private `PSModule/memory` | `~/.psmodule/memory` |
-| `<host>` | `<org>` | Designated `<org>/<repository>` | Declared by the router | Private `<org>/memory` | Declared by the router |
+| Host | Organization | Docs |
+| --- | --- | --- |
+| `github.com` | `MSXOrg` | `MSXOrg/docs` |
+| `github.com` | `PSModule` | `PSModule/docs` |
+| `<host>` | `<org>` | `<org>/docs` |
 
-The last row is the general case: any adopting organization on any GitHub host — public or an enterprise instance — plugs into the same shape without changing the framework. Repository identity remains stable whether an agent reads with a CLI, through the web, from published documentation, or from a refreshed local clone.
+The last row is the general case: any adopting organization on any GitHub host — public or an enterprise instance — plugs into the same shape without changing the framework.
 
 ## Repository roles
 
-### Documentation source
+### `docs`
 
-The designated documentation repository is the canonical knowledge base. It owns:
+The `docs` repository is the canonical knowledge base. It owns:
 
 - vision, principles, and ways of working;
 - coding standards and documentation standards;
@@ -41,19 +40,7 @@ The designated documentation repository is the canonical knowledge base. It owns
 - project glossary and onboarding;
 - the canonical Workflow and its linked stage procedures.
 
-Changes happen through pull requests because this repository defines durable project intent. `MSXOrg/docs` fills this role for MSXOrg. `PSModule/Process-PSModule` fills it for PSModule-specific process and standards while PSModule inherits cross-organization standards from `MSXOrg/docs`.
-
-### `memory`
-
-The private `memory` repository is the durable working-memory store. It owns:
-
-- recurring gotchas and lessons learned;
-- active project context that should survive a single chat session;
-- workflow-stage working knowledge;
-- issue, PR, and incident notes worth reusing;
-- project-specific preferences that are factual rather than private user preference.
-
-Memory pages stay short and factual. They are safe to read before work begins and safe to improve when a lesson is learned.
+Changes to `docs` happen through pull requests because this repository defines durable project intent.
 
 ### Product repositories
 
@@ -65,19 +52,19 @@ Product repositories carry local context and thin pointers:
   .claude/
     CLAUDE.md                      # required: routes Claude Code — @../AGENTS.md
   .github/
+    CONTRIBUTING.md                # how a change is made here
     copilot-instructions.md        # required: routes the Copilot surfaces that need it
     instructions/
       <scope>.instructions.md      # exceptional: a path-scoped local caveat
   README.md                        # what it is, how it builds
-  CONTRIBUTING.md                  # how a change is made here
   docs/                            # architecture and domain context
 ```
 
-The repository owns only repository-specific nuance, and each kind has a file that owns it: `README.md` for what the repository is and how it builds, `CONTRIBUTING.md` for contribution mechanics, `docs/` for architecture and domain context, and path-scoped rule files for local caveats. `AGENTS.md` points at them and holds none of it. Cross-cutting standards remain in `docs`; reusable lessons remain in `memory`. Thin means "no duplicated reusable process," not "discard the local operating contract" — the contract lives, it just lives in the file a human would read.
+The repository owns only repository-specific nuance, and each kind has a file that owns it: `README.md` for what the repository is and how it builds, `.github/CONTRIBUTING.md` for contribution mechanics, `docs/` for architecture and domain context, and path-scoped rule files for local caveats. `AGENTS.md` points at them and holds none of it. Cross-cutting standards remain in `docs`. Thin means "no duplicated reusable process," not "discard the local operating contract" — the contract lives, it just lives in the file a human would read.
 
 ## OKF page model
 
-Both `docs` and `memory` use the [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) style: Markdown with YAML frontmatter, one concept per page, paths as stable identity, and indexes as navigation maps.
+The `docs` repository uses the [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) style: Markdown with YAML frontmatter, one concept per page, paths as stable identity, and indexes as navigation maps.
 
 Minimum page frontmatter:
 
@@ -85,20 +72,6 @@ Minimum page frontmatter:
 ---
 title: Agentic Development
 description: One-line description of the page.
----
-```
-
-Memory pages MAY add scope-oriented metadata when it helps agents filter context:
-
-```yaml
----
-title: GitHub Actions cache gotchas
-description: Reusable notes for cache failures and permissions.
-scope: project
-tags:
-  - github-actions
-  - cache
-  - gotcha
 ---
 ```
 
@@ -118,14 +91,9 @@ docs/
   Capabilities/index.md
   Capabilities/agentic-development/index.md
 
-memory/
-  index.md
-  agents/index.md
-  knowledge/index.md
-  gotchas/index.md
 ```
 
-Every index describes what sits below it. Generated indexes are preferred where tooling exists; manually maintained indexes are acceptable when the memory repository is intentionally lightweight.
+Every index describes what sits below it. Generated indexes are preferred where tooling exists.
 
 ## Context resolution flow
 
@@ -134,14 +102,14 @@ flowchart TD
   start["Agent receives task"] --> policy["System and client policy"]
   policy --> user["User-global preferences"]
   user --> pointer["Read AGENTS.md pointer"]
-  pointer --> locate["Resolve host, org, docs, and memory roots"]
+  pointer --> locate["Resolve host, org, and docs root"]
 
   locate --> host{"Which project scope?"}
   host -->|"github.com/MSXOrg"| msx["MSXOrg context"]
   host -->|"github.com/PSModule"| psmodule["PSModule context"]
   host -->|"any adopting org"| other["&lt;host&gt;/&lt;org&gt; context"]
 
-  msx --> refresh["Resolve newest selected sources<br/>refresh local clones before use"]
+  msx --> refresh["Synchronize selected docs with Git<br/>stop unless exactly synchronized"]
   psmodule --> refresh
   other --> refresh
   refresh --> repo["Read README, CONTRIBUTING,<br/>and local docs"]
@@ -151,8 +119,7 @@ flowchart TD
   docs --> workflow["Follow indexes to Workflow"]
 
   workflow --> stage["Infer current stage<br/>read canonical procedure"]
-  stage --> memory["Read memory last"]
-  memory --> task["Read issue, PR, branch, diff, diagnostics, and open files"]
+  stage --> task["Read issue, PR, branch, diff, diagnostics, and open files"]
   task --> act["Act and follow stage handoffs"]
 
   act --> newpath{"New file path touched?"}
@@ -164,60 +131,32 @@ Resolution is deterministic. If the active repository remote is `github.com/PSMo
 
 ## Pointer files
 
-`AGENTS.md` is the cross-runtime router. It leads with the authority and freshness directive, names the repository, and lists where to read in order. Each canonical source identifies its repository, entry file, published documentation when available, private status, and preferred clone. It holds no bootstrap, build commands, contribution mechanics, or standards.
+`AGENTS.md` is the cross-runtime router. It lists where to read, in order, and
+includes one instruction to prepare linked repositories before reading them. It
+holds no detailed synchronization mechanics, build commands, contribution
+mechanics, or standards.
 
 ```markdown
-# Agent Instructions
+# AGENTS
 
-Read nearest first, prefer documentation over memory, and always use the newest version.
-
-This repository is `github.com/MSXOrg/<repo>`. Read these sources in order:
+Read in this order:
 
 1. `README.md` — what this repository is and how it builds.
-2. `CONTRIBUTING.md` — how a change is made and reviewed here.
+2. `.github/CONTRIBUTING.md` — how a change is made and reviewed here.
 3. `docs/index.md` — this repository's own documentation.
-4. [MSXOrg/docs](https://github.com/MSXOrg/docs) — entry file `src/docs/index.md`;
-   published at <https://msxorg.github.io/docs/>; preferred clone `~/.msxorg/docs`.
-5. `MSXOrg/memory` — private; entry file `index.md`; preferred clone
-   `~/.msxorg/memory`; read last.
+4. [MSXOrg/docs](https://github.com/MSXOrg/docs/) — the organization standards.
 
-Use a CLI, the web, published documentation, or a refreshed local clone, whichever
-provides the newest accessible source.
+Clone each linked repository locally, keep its configuration local to that
+clone, and update it before reading it.
+
+Read nearest first. A local file never overrides a standard.
 ```
 
-A PSModule repository adds its organization sources and inherited MSX sources:
-
-```markdown
-# Agent Instructions
-
-Read nearest first, prefer documentation over memory, and always use the newest version.
-
-This repository is `github.com/PSModule/<repo>`. Read these sources in order:
-
-1. `README.md` — what this repository is and how it builds.
-2. `CONTRIBUTING.md` — how a change is made and reviewed here.
-3. `docs/index.md` — this repository's own documentation, when present.
-4. [PSModule/Process-PSModule](https://github.com/PSModule/Process-PSModule) —
-   entry file `docs/index.md`; published at
-   <https://psmodule.io/docs/Modules/Process-PSModule/>; preferred clone
-   `~/.psmodule/process-psmodule`.
-5. [MSXOrg/docs](https://github.com/MSXOrg/docs) — inherited standards; entry file
-   `src/docs/index.md`; published at <https://msxorg.github.io/docs/>; preferred
-   clone `~/.msxorg/docs`.
-6. `PSModule/memory` — private; entry file `index.md`; preferred clone
-   `~/.psmodule/memory`; read last.
-7. `MSXOrg/memory` — private inherited memory; entry file `index.md`; preferred
-   clone `~/.msxorg/memory`; read last.
-
-Use a CLI, the web, published documentation, or a refreshed local clone, whichever
-provides the newest accessible source.
-```
-
-A router lists only destinations that apply to its repository. A repository with no documentation of its own drops that line; one that publishes the organization standards resolves local and organization documentation to the same source and drops the duplicate. The route does not require a particular client or access method. A local clone is usable only after the freshness gate succeeds.
+A router lists the destinations that exist in that repository, written as the paths that repository actually uses — the ones above are an example, not a required layout. A repository with no documentation of its own drops that line; one that publishes the standards resolves steps 3 and 4 to the same tree and drops the duplicate. Writing a real path matters more than matching the example, because the router is read literally.
 
 The index trail is the default. A clear prompt can shortcut stage discovery: `Review this PR <link>` enters Review, `Make this issue <description>` enters Define, and `Implement <issue>` enters Implement. These phrases are routing hints interpreted by [Workflow](../../Ways-of-Working/Workflow.md#find-the-current-stage), not commands with independent procedures.
 
-> **Reading order vs. conflict precedence** — the router reads the repository's own files first and widens outward, because nearest context is cheapest and most specific. Precedence runs the other way: repository files add nuance and narrow exceptions and never silently override an organization standard unless that standard permits a local exception, and memory never overrides documentation.
+> **Reading order vs. conflict precedence** — the router reads the repository's own files first and widens outward, because nearest context is cheapest and most specific. Precedence runs the other way: repository files add nuance and narrow exceptions and never silently override an organization standard unless that standard permits a local exception.
 
 `.claude/CLAUDE.md` is a single import:
 
@@ -235,80 +174,66 @@ Follow the instructions in [AGENTS.md](../AGENTS.md).
 
 That is the entire file. It holds no reading order, no workflow, and no standard, so there is nothing in it that can fall out of step with the router. Any future runtime is handled the same way: give it a route under whatever filename it reads, and leave the content in `AGENTS.md`.
 
-Path-scoped instruction files are reserved for local rules that cannot live centrally because they apply only to a repository path, and only when the rule does not belong in `README.md` or `CONTRIBUTING.md` instead. They never define workflow stages.
+Path-scoped instruction files are reserved for local rules that cannot live centrally because they apply only to a repository path, and only when the rule does not belong in `README.md` or `.github/CONTRIBUTING.md` instead. They never define workflow stages.
 
 ## Local workspace
 
-A local bootstrap makes central context predictable:
+A local Git clone makes central context predictable:
 
 ```text
-~/
-  .msxorg/
-    docs.git/                  # MSXOrg/docs bare backing repository
-    docs/                      # clean MSXOrg/docs default-branch worktree
-    memory/                    # private MSXOrg/memory simple checkout
-  .psmodule/
-    process-psmodule.git/      # PSModule/Process-PSModule bare backing repository
-    process-psmodule/          # clean Process-PSModule default-branch worktree
-    memory/                    # private PSModule/memory simple checkout
+~/.msxorg/
+  docs/                        # clean MSXOrg/docs clone
+~/.psmodule/
+  docs/                        # clean PSModule/docs clone
 ```
 
-The bootstrap takes repository identity, transport URL, kind, and preferred relative path as explicit configuration. It clones missing repositories and fetches every existing local context repository before use. Each clone must be clean, checked out on the remote default branch, and exactly equal to the fetched remote head. A dirty, locally ahead, diverged, wrong-branch, noncanonical, or unreachable clone stops local resolution; the agent does not use a possibly stale local copy. An agent may instead resolve the named source through a current remote CLI, web, or published-documentation route. Bootstrap writes repository-local git configuration only.
+Before context is read, the agent ensures the clone exists, fetches its remote,
+and fast-forwards its default branch. Each clone must be clean, checked out on
+the remote default branch, and exactly equal to the fetched remote head. A
+dirty, locally ahead, diverged, wrong-branch, or unreachable clone stops context
+resolution; the agent does not use a possibly stale local copy.
 
-The former `~/.msx/` tree is not a fallback. Recognized former paths produce explicit diagnostics, remain unchanged for manual verification, and are replaced by fresh canonical clones at the organization-addressable paths. Existing simple documentation clones already at canonical paths are converted only after synchronization and are retained as backups. This separates safe migration from stale-context acceptance.
+Each GitHub organization has its own organization-named workspace root, such as
+`~/.msxorg` for MSXOrg or `~/.psmodule` for PSModule. Repository agent files
+retain public organization documentation destinations; runtime and development
+guidance defines how a context checkout is prepared and verified.
 
-## Refresh hooks
+## Context freshness
 
-The local freshness gate is only worth as much as the last time it ran. A workspace bootstrapped
-once is current at that moment and progressively less so afterwards, and an agent reading a
-week-old clone reads a standard that has since changed while believing it is canonical. A runtime
-that reads through a current remote CLI, web, or published route does not need a local refresh.
+The freshness gate is only worth as much as the last time it ran. A clone
+synchronized once is current at that moment and progressively less so
+afterwards, and an agent reading a week-old clone reads a standard that has
+since changed while believing it is canonical.
 
-When preferred clones are used, refresh runs at the **start of every session**, not once per machine. What differs
-between runtimes is where the trigger hangs, never what it does:
+So Git synchronization runs at the **start of every session**, not once per
+machine. What differs between runtimes is where the trigger hangs, never what
+it does:
 
-| Runtime shape | Lifecycle point | How the refresh attaches |
+| Runtime shape | Lifecycle point | How context freshness is established |
 | --- | --- | --- |
-| Local interactive agent | Session start | A session-start hook in the runtime's own configuration invokes the bootstrap before the first turn. |
-| Hosted or remote agent | Environment setup | The environment's setup steps run the bootstrap while the workspace is being prepared, so the agent starts against fresh context. |
+| Local interactive agent | Session start | The agent fetches and fast-forwards the context clone before the first turn. |
+| Hosted or remote agent | Environment setup | The environment's setup steps clone or synchronize the context repository while the workspace is being prepared. |
 | Review-time agent | Pull request event | Instructions are read from the pull request's head branch, so freshness follows the branch under review rather than a local clone. |
-| Batch or scheduled agent | Job start | The job's first step is the bootstrap; a scheduled run has no earlier lifecycle point to rely on. |
+| Batch or scheduled agent | Job start | The job's first step clones or synchronizes the context repository; a scheduled run has no earlier lifecycle point to rely on. |
 
-Each of these is one **declaration** of the same behaviour. The bootstrap is a single
-idempotent operation — clone what is missing, fetch what exists, verify each clone is clean,
-on the remote default branch, and exactly equal to the fetched head — and a hook does
-nothing but call it at the right moment. That is what makes a new runtime cheap to support:
-the work is finding its lifecycle point, not writing another refresh.
+Each of these is one **declaration** of the same behavior. The runtime ensures
+the clone is clean, on the remote default branch, and exactly equal to the
+fetched head before context is read. A runtime may use its own lifecycle hook,
+or the agent may perform the Git check explicitly.
 
-The refresh MUST be idempotent, because it runs far more often than it changes anything. A
-hook that is expensive or noisy when everything is already current gets disabled, and a
-disabled hook is worse than no hook, because the workspace still looks bootstrapped.
+The synchronization MUST be idempotent, because it runs far more often than it
+changes anything. A process that is expensive or noisy when everything is
+already current gets disabled, and a disabled process is worse than no process,
+because the workspace still appears synchronized.
 
-Where a runtime uses local clones but offers no lifecycle point, the refresh MUST be invoked
-explicitly before context is read. It MUST NOT be skipped on the grounds that the workspace
-was bootstrapped recently; "recently" is not a state the agent can observe, and the gate
-exists precisely to replace that judgment with a check.
+Where a runtime offers no lifecycle point at all, Git synchronization MUST be
+invoked explicitly before context is read. It MUST NOT be skipped on the
+grounds that the workspace was synchronized recently; "recently" is not a state
+the agent can observe, and the gate exists precisely to replace that judgment
+with a check.
 
-Each shape's obligations beyond the refresh — its entry file, tool declaration, and identity —
+Each shape's obligations beyond context freshness — its entry file, tool declaration, and identity —
 are set out in [Runtime Integration](runtime-integration.md).
-
-## Memory writing rules
-
-Agents write memory only when a lesson is likely to matter again. Good memory is:
-
-- short and factual;
-- scoped to the organization;
-- linked to the issue, PR, repository, or document that proves it;
-- free of secrets, credentials, and private personal notes;
-- updated or removed when it becomes wrong.
-
-Memory is written by **horizon**: organization-wide lessons and per-repository facts are
-durable and shared, while notes about the task in hand are session-scoped and never pushed
-([memory repository template](memory-template.md#memory-has-three-horizons)). A session note
-becomes durable only by being deliberately promoted and rewritten as a statement of fact.
-
-Durable memory is committed and pushed as it is written, one commit per discrete lesson, so
-that nothing depends on a session ending cleanly.
 
 ## Client behavior
 
@@ -316,7 +241,7 @@ Different clients load different files, but the framework keeps the same depende
 
 | Client | Reads | Behavior |
 | --- | --- | --- |
-| Cross-client agents | `AGENTS.md` | Read the router, then follow its order outward from the repository to the organization documentation and memory. |
+| Cross-client agents | `AGENTS.md` | Read the router, then follow its order outward from the repository to the organization documentation. |
 | Claude Code | `.claude/CLAUDE.md` | Imports the router with `@../AGENTS.md` and adds nothing else. |
 | Copilot Chat in VS Code, and the Copilot cloud agent | `AGENTS.md` | Read `AGENTS.md` natively and follow its route list. Path-scoped `.github/instructions/*.instructions.md` files still apply when their `applyTo` pattern matches a file being read, generated, reviewed, or edited. |
 | Copilot surfaces without `AGENTS.md` support | `.github/copilot-instructions.md` | Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review outside GitHub.com read this file. It routes them to the router and adds nothing else. |
@@ -329,30 +254,24 @@ Because Copilot code review reads the head branch, a pull request that changes `
 | Failure | Design response |
 | --- | --- |
 | Repository does not identify its organization context | Infer from remote URL; ask when ambiguous. |
-| A documentation or memory clone is missing or cannot synchronize | Use a current remote route, or bootstrap or repair the preferred clone before reading it. Never use the stale clone as fallback. |
-| A former `~/.msx/` path exists | Diagnose it, ignore it as context, and create or refresh the canonical organization-addressable clone. Retain the former path until a human verifies removal. |
+| A docs clone is missing or cannot synchronize | Clone or repair it with Git, then retry. Stop context resolution until the canonical context repository passes the freshness gate. |
 | Pointer file duplicates central standards | Replace duplicated content with a route during review. A client file holds a pointer, not a copy. |
 | A skill, command, named agent, or instruction file defines a workflow stage | Delete the duplicate procedure and link to Workflow or its stage page. |
-| Memory conflicts with docs | Docs win; memory is corrected or removed. |
 | Two organizations are open in one workspace | Select by active repository; ask before cross-project changes. |
 | A client ignores one pointer format | Add a route file under the filename that client reads, containing only a pointer to `AGENTS.md`. |
 | A repository file contradicts an organization standard | The standard governs. Narrow the local file to the exception the standard permits, or change the standard. |
 
 ## Adoption path
 
-1. Create or identify the organization's canonical documentation source repository.
-2. Create or identify the organization `memory` repository, using the [Memory Repository Template](memory-template.md) as the starting scaffold.
-3. Add `docs/index.md` and `memory/index.md` as the two root maps.
-4. Add the canonical Workflow and linked stage procedures to `docs`.
-5. Add starter memory sections to `memory`.
-6. Add the `AGENTS.md` router to each product repository, plus a route for every client that cannot read it.
-7. Add a bootstrap that keeps preferred local documentation and memory clones present and exactly synchronized before use.
-8. Review new work for pointer discipline: facts live once, links point to them.
+1. Create or identify the organization `docs` repository.
+2. Add the canonical Workflow and linked stage procedures to `docs`.
+3. Add the `AGENTS.md` router to each product repository, plus a route for every client that cannot read it.
+4. Document the canonical docs clone and require Git synchronization before use.
+5. Review new work for pointer discipline: facts live once, links point to them.
 
 ## Where this connects
 
 - [Spec](spec.md) — the requirements this design delivers.
-- [Memory Repository Template](memory-template.md) — the concrete scaffold every organization's canonical `memory` repository instantiates.
 - [MCP Servers](mcp-servers.md) — the shared tool layer every runtime declares in its own format.
 - [Plugin Distribution](plugin-distribution.md) — how named intents are packaged and kept pointer-based.
 - [Runtime Integration](runtime-integration.md) — what each runtime shape supplies, and why it never supplies process.
