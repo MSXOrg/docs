@@ -84,7 +84,7 @@ the values that should be covered.
 ```json
 "repository_property": {
   "include": [],
-  "exclude": [{ "name": "Type", "source": "custom", "property_values": ["Memory"] }]
+  "exclude": [{ "name": "Type", "source": "custom", "property_values": ["Unmanaged"] }]
 }
 ```
 
@@ -146,20 +146,14 @@ examples and must not be copied into a new organization without migration:
 
 | Organization | `Type` allowed values | Notes |
 | --- | --- | --- |
-| `MSXOrg` | `Docs`, `Memory`, `VSCodeExtension`, `Other` | Legacy values that predate the canonical taxonomy. |
-| `PSModule` | `Action`, `Archive`, `Docs`, `Framework`, `FunctionApp`, `Memory`, `Module`, `Other`, `Template`, `Workflow` | Legacy values that predate the canonical taxonomy. |
+| `MSXOrg` | `Docs`, `VSCodeExtension`, `Other` | Legacy values that predate the canonical taxonomy. |
+| `PSModule` | `Action`, `Archive`, `Docs`, `Framework`, `FunctionApp`, `Module`, `Other`, `Template`, `Workflow` | Legacy values that predate the canonical taxonomy. |
 
 An organization's canonical list is shaped by what it builds, but it has the
 taxonomy defined by [Repository Types](../Capabilities/repository-governance/design-types.md):
 one branch model (explicit or defaulted), any layering values, and `Unmanaged` as
 the sole exemption. A migration maps historical values into that taxonomy before
 the canonical `Type` property becomes authoritative.
-
-Where a historical value maps to Memory, repositories with `Type: Memory` — the
-[Memory Repository Template](../Capabilities/agentic-development/memory-template.md)'s
-no-PR, direct-commit-to-`main` repositories — are excluded from the org-wide pull-request-
-required ruleset. The exclusion applies only to that requirement; Memory retains
-the rest of the governed baseline.
 
 ## Where this connects
 
@@ -172,6 +166,3 @@ the rest of the governed baseline.
   rules attached to them.
 - [Repository Standard](Repository-Standard.md) — the mandatory/type-specific/
   repository-specific file-set distinction that `Type` also drives over time.
-- [Memory Repository Template](../Capabilities/agentic-development/memory-template.md) — the
-  concrete repository type whose no-PR workflow motivated excluding `Type: Memory` from the
-  pull-request-required ruleset in both current organizations.

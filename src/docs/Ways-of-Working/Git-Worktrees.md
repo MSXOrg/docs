@@ -42,7 +42,7 @@ In a single ordinary clone the opposite is forced: one branch checked out at a t
 - **`<repo>/`** — the canonical default-branch worktree. Kept clean and exactly synchronized for reading, diffing, and comparisons. Never directly committed to.
 - **`<N>-<slug>/`** — one worktree folder per repository-delivery Task or Bug in flight, named by issue number and a short slug. The folder is a concise local path; its branch uses the required `<type>/<issue>-<slug>` name, so the two names do not need to match.
 
-For the central MSXOrg context, this becomes `~/.msxorg/docs.git` plus the readable `~/.msxorg/docs` main worktree. Memory remains a simple checkout at `~/.msxorg/memory`. Each GitHub organization uses its own organization-named root, such as `~/.psmodule` for PSModule.
+For the central MSXOrg context, this becomes `~/.msxorg/docs.git` plus the readable `~/.msxorg/docs` main worktree. Each GitHub organization uses its own organization-named root, such as `~/.psmodule` for PSModule.
 
 ## Remotes
 

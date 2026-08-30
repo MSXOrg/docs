@@ -7,7 +7,7 @@
 
 .DESCRIPTION
     The single starting point for every agent. It ensures the central
-    documentation and memory repositories for each configured project exist
+    documentation repositories for each configured project exist
     locally under one dedicated workspace, so an agent reads current canonical
     context regardless of which repository it is working in.
 
@@ -16,7 +16,6 @@
 
     - Each docs repository uses a bare backing repository plus a canonical clean
       default-branch worktree. Topic branches use separate worktrees.
-    - Each memory repository remains a simple default-branch checkout.
     - Every checkout gets repository-local git config only. Nothing here modifies
       global git config or the working product repository.
     - The script synchronizes context but never writes or pushes repository content.
@@ -40,11 +39,10 @@
             Name = 'PSModule'
             Path = ''
             DocsUrl = 'https://github.com/PSModule/docs.git'
-            MemoryUrl = 'https://github.com/PSModule/memory.git'
         }
     )
     ./Initialize-MsxWorkspace.ps1 -Project $projects
-    Installs a project's docs and memory under a project-specific workspace path.
+    Installs a project's docs under a project-specific workspace path.
 
 .OUTPUTS
     [pscustomobject] with Repository, Path, BackingPath, and Changes for each
@@ -52,7 +50,7 @@
 #>
 [CmdletBinding(SupportsShouldProcess)]
 param(
-    # The organization workspace root under which 'docs' and 'memory' are placed.
+    # The organization workspace root under which documentation is placed.
     [Parameter()]
     [ValidateNotNullOrEmpty()]
     [string] $Root = (Join-Path $HOME '.msxorg'),
@@ -67,7 +65,7 @@ param(
     [ValidateNotNullOrEmpty()]
     [string] $UserEmail = 'MariusStorhaug@users.noreply.github.com',
 
-    # Projects whose canonical docs and memory repositories must be synchronized.
+    # Projects whose canonical documentation repositories must be synchronized.
     [Parameter()]
     [ValidateNotNullOrEmpty()]
     [hashtable[]] $Project = @(
@@ -75,7 +73,6 @@ param(
             Name = 'MSXOrg'
             Path = ''
             DocsUrl = 'https://github.com/MSXOrg/docs.git'
-            MemoryUrl = 'https://github.com/MSXOrg/memory.git'
         }
     )
 )
@@ -280,9 +277,9 @@ function Set-ContextIdentity {
 
 $projectNames = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 $repositories = foreach ($projectDefinition in $Project) {
-    foreach ($key in @('Name', 'Path', 'DocsUrl', 'MemoryUrl')) {
+    foreach ($key in @('Name', 'Path', 'DocsUrl')) {
         if (-not $projectDefinition.ContainsKey($key) -or $null -eq $projectDefinition[$key]) {
-            throw "Project definitions require Name, Path, DocsUrl, and MemoryUrl. Missing '$key'."
+            throw "Project definitions require Name, Path, and DocsUrl. Missing '$key'."
         }
     }
 
@@ -302,7 +299,6 @@ $repositories = foreach ($projectDefinition in $Project) {
     $projectPath = $pathSegments -join [IO.Path]::DirectorySeparatorChar
 
     $docsPath = if ($projectPath) { Join-Path $projectPath 'docs' } else { 'docs' }
-    $memoryPath = if ($projectPath) { Join-Path $projectPath 'memory' } else { 'memory' }
     [pscustomobject]@{
         Name = "$projectName/docs"
         Project = $projectName
@@ -311,15 +307,6 @@ $repositories = foreach ($projectDefinition in $Project) {
         RelativePath = $docsPath
         Url = [string] $projectDefinition.DocsUrl
         Changes = 'pull requests'
-    }
-    [pscustomobject]@{
-        Name = "$projectName/memory"
-        Project = $projectName
-        ProjectPath = $projectPath
-        Kind = 'memory'
-        RelativePath = $memoryPath
-        Url = [string] $projectDefinition.MemoryUrl
-        Changes = 'repository policy'
     }
 }
 
@@ -367,23 +354,10 @@ for ($left = 0; $left -lt $occupiedPaths.Count; $left++) {
     }
 }
 
-foreach ($repository in $repositories | Where-Object Kind -eq 'memory') {
-    $memoryPath = Join-Path $Root $repository.RelativePath
-    $memoryGitEntry = Join-Path $memoryPath '.git'
-    if (Test-Path $memoryGitEntry -PathType Leaf) {
-        throw "Memory context '$memoryPath' is a worktree, but memory requires a simple checkout with a .git directory."
-    }
-    if ((Test-Path $memoryPath) -and -not (Test-Path $memoryGitEntry -PathType Container)) {
-        throw "Memory context '$memoryPath' is not a supported simple git checkout."
-    }
-}
-
 foreach ($repository in $repositories) {
     $contextPath = Join-Path $Root $repository.RelativePath
     $gitEntry = Join-Path $contextPath '.git'
-    if ($repository.Kind -eq 'memory' -and (Test-Path $gitEntry -PathType Container)) {
-        Assert-ContextOrigin -GitPath $contextPath -RepositoryUrl $repository.Url
-    } elseif ($repository.Kind -eq 'docs') {
+    if ($repository.Kind -eq 'docs') {
         if (Test-Path $gitEntry -PathType Container) {
             Assert-ContextOrigin -GitPath $contextPath -RepositoryUrl $repository.Url
         } elseif (Test-Path $gitEntry -PathType Leaf) {
@@ -404,34 +378,6 @@ if ($PSCmdlet.ShouldProcess($Root, 'Create workspace root')) {
 
 $results = foreach ($repo in $repositories) {
     $path = Join-Path $Root $repo.RelativePath
-    if ($repo.Kind -eq 'memory') {
-        $memoryGitEntry = Join-Path $path '.git'
-        if (Test-Path $memoryGitEntry -PathType Leaf) {
-            throw "Memory context '$path' is a worktree, but memory requires a simple checkout with a .git directory."
-        }
-        if (-not (Test-Path $memoryGitEntry -PathType Container)) {
-            if (Test-Path $path) {
-                throw "Cannot clone memory into '$path': it exists but is not a supported simple git checkout."
-            }
-            if ($PSCmdlet.ShouldProcess($repo.Url, "Clone memory into '$path'")) {
-                New-Item -ItemType Directory -Path (Split-Path -Parent $path) -Force | Out-Null
-                git clone --quiet $repo.Url $path
-                if ($LASTEXITCODE -ne 0) {
-                    throw "git clone failed for $($repo.Url) (exit $LASTEXITCODE). Check access and credentials."
-                }
-            }
-        }
-        Sync-ContextCheckout -Path $path -RepositoryUrl $repo.Url -Confirm:$false | Out-Null
-        Set-ContextIdentity -Path $path -Name $UserName -Email $UserEmail -Confirm:$false
-        [pscustomobject]@{
-            Repository = $repo.Name
-            Path = $path
-            BackingPath = $null
-            Changes = $repo.Changes
-        }
-        continue
-    }
-
     $expectedBackingPath = "$path.git"
     $backingPath = $null
     $gitEntry = Join-Path $path '.git'

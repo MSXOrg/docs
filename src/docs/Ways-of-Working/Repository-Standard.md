@@ -26,7 +26,7 @@ discoverability minimum defined below instead.
 | `README.md` | Acts as the repository start page: purpose, value, access, first mental model, and where to go next. |
 | `LICENSE` | States the legal terms for reuse and redistribution. |
 | `.github/CONTRIBUTING.md` | Explains how to contribute, including how the organization defaults and central pull request template apply. |
-| `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation, then to memory. [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior) names the files and the path each one sits at. |
+| `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation. [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior) names the files and the path each one sits at. |
 | `.github/dependabot.yml` | Configures platform-native dependency-update pull requests for supported ecosystems. The `github-actions` ecosystem is expected in virtually every repository; an unsupported ecosystem follows the centrally managed exception path rather than a repository-local updater. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
 | `.gitattributes` | Normalizes line endings and declares text/binary handling so the repository can be developed and built consistently on Linux, macOS, and Windows. |
@@ -53,7 +53,6 @@ stated below, not for the governed baseline.
 | **Artifact** | The artifact's own manifest or metadata file — whatever declares its identity to the ecosystem it publishes into — and a changelog where the ecosystem expects one rather than reading [GitHub Releases](../Capabilities/release-management/design-publishing-targets.md). |
 | **Infrastructure** | Documentation of each environment the repository deploys to and how a change reaches it, plus the promotion automation the [promotion flow](../Capabilities/repository-governance/design-types.md#infrastructure) requires. |
 | **Docs** | The documentation source root and the build configuration the documentation-build check runs. |
-| **Memory** | The structure documented by the [memory repository template](../Capabilities/agentic-development/memory-template.md). |
 | **Unmanaged** | Nothing — but the exemption does not extend to discoverability: `README.md`, `.github/CONTRIBUTING.md`, and the agent router remain required, because a repository nobody governs is still a repository someone will open. |
 
 The set a governed repository is audited against is the mandatory set plus the
