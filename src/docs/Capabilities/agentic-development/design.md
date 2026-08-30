@@ -134,7 +134,7 @@ Resolution is deterministic. If the active repository remote is `github.com/PSMo
 `AGENTS.md` is the cross-runtime router. It names the project and lists where to read, in order. It holds nothing else — no context synchronization mechanics, no build commands, no contribution mechanics, no standards.
 
 ```markdown
-# Agents
+# AGENTS
 
 This repository is `github.com/MSXOrg/<repo>`. Read in this order:
 
