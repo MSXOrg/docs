@@ -1,49 +1,51 @@
-# AGENTS
+# AGENTS.template.md
 
-This file is installed as user-level agent instructions. It is the first
-context route: it identifies the current organization's canonical `docs`
-repository, makes that repository available locally, and directs the agent to
-the repository's own `AGENTS.md`.
+This document explains the user-level `AGENTS.md` template. It is not itself
+the router that agents load. Install the contents of the fenced `markdown`
+block as user-level agent instructions.
+
+The template establishes the canonical MSX documentation context before a
+repository's own instructions are read. It uses Git directly, requires a
+clean and synchronized clone, and keeps Git identity configuration local to
+that clone rather than relying on global configuration.
+
+The repository's `AGENTS.md` then routes from local guidance to organization
+guidance. Client-specific files such as `.claude/CLAUDE.md` and
+`.github/copilot-instructions.md` point to that router. The shared `msxorg`
+Agent Plugin improves discoverability through skills that are shallow pointers
+to canonical documentation pages.
+
+````markdown
+# AGENTS
 
 Ensure `~/.msxorg/docs` is a clean clone of
 [`MSXOrg/docs`](https://github.com/MSXOrg/docs) before reading context:
 
 ```sh
+# Run this only when the clone is absent.
 git clone https://github.com/MSXOrg/docs.git ~/.msxorg/docs
-```
 
-If the clone already exists, use Git to fetch and fast-forward it to its
-default branch. If the path is not a Git clone, or it has local changes or
-local commits, stop and resolve that state rather than reading stale context.
-Configure Git identity locally for each context clone; do not rely on global
-Git configuration:
-
-```sh
+# Run these commands for an existing or newly created clone.
+git -C ~/.msxorg/docs fetch --prune origin
+git -C ~/.msxorg/docs pull --ff-only
+git -C ~/.msxorg/docs status --porcelain
 git -C ~/.msxorg/docs config --local user.name "<your name>"
 git -C ~/.msxorg/docs config --local user.email "<your email>"
 ```
 
-The repository's `AGENTS.md` is the context router. It reads local guidance
-first — `README.md`, `.github/CONTRIBUTING.md`, and repository documentation —
-then routes outward to the current organization guidance in
-`~/.msxorg/docs/src/docs/index.md`. Client-specific files point to that router:
+Use the clone only when it is clean and synchronized with its remote default
+branch. If the path is not a Git clone, or it has local changes, local
+commits, a different branch, or a diverged history, stop and resolve that
+state rather than reading stale context. Do not rely on global Git
+configuration.
 
-```markdown
-# Claude Code
-@../AGENTS.md
-```
-
-```markdown
-Follow the instructions in [AGENTS.md](../AGENTS.md).
-```
-
-The first example is `.claude/CLAUDE.md`; the second is
-`.github/copilot-instructions.md`. Other clients use the equivalent pointer
-file they recognize. These files stay shallow so `AGENTS.md` remains the one
-context route.
+Read the repository's `AGENTS.md` next. It reads local guidance first —
+`README.md`, `.github/CONTRIBUTING.md`, and repository documentation — then
+routes outward to the current organization guidance in
+`~/.msxorg/docs/src/docs/index.md`.
 
 For faster discovery, install the shared `msxorg` Agent Plugin marketplace
-from `~/.msxorg/docs/.github/plugin/marketplace.json`. Its skills are also
-shallow pointers: each skill routes a coding, documentation, or
-ways-of-working intent to one canonical page in `MSXOrg/docs`; skills do not
-copy the guidance.
+from `~/.msxorg/docs/.github/plugin/marketplace.json`. Its skills route
+coding, documentation, and ways-of-working intents to one canonical page in
+`MSXOrg/docs`; skills do not copy the guidance.
+````
