@@ -172,7 +172,7 @@ Every external Action is pinned to a commit SHA; organization- or initiative-own
 | Host + OS matrix, marketplace toggle, extras | `.github/vscode-extension.yml` |
 | Default bump | `DefaultBump` in `.github/release.config.yml` |
 | Bump override / prerelease / skip | pull-request label |
-| Release branches + path filter | `.github/release.config.yml` ([Release Management](../release-management/design.md)) |
+| Release types + branch mapping + path filter | `.github/release.config.yml` ([Release Management](../release-management/design.md)) |
 | Marketplace publish tokens | a GitHub environment's secrets |
 | Extension manifest (`engines.vscode`, `contributes`, activation) | `package.json` |
 
