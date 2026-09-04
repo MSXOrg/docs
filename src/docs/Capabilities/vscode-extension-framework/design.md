@@ -20,14 +20,15 @@ every downstream stage reuses the exact output of the stages before it:
 
 ```mermaid
 flowchart LR
-  find["Find version\ntags + PR label"] --> build["Build\nstamp · bundle · package VSIX"]
+  find["Find version\ntags + release policy"] --> build["Build\nstamp · bundle · package VSIX"]
   build --> test["Test\nreal VS Code host · matrix"]
   lint["Lint & type-check"] --> release
   test --> release["Release\npublish the built VSIX"]
 ```
 
 - **Find version** — compute the version once, from the latest `vX.Y.Z` tag or
-  release plus the pull request's bump label. Independent of the other stages.
+  release plus one explicit owned bump label or the resolved `DefaultBump`.
+  Independent of the other stages.
 - **Lint & type-check** — static analysis and the type checker. Independent, so
   it fails fast in parallel with the build.
 - **Build** — stamp the computed version into the manifest, compile the
@@ -43,7 +44,7 @@ flowchart LR
 The version is computed once and flows through the pipeline as artifacts, so the
 thing that ships is the thing that was tested:
 
-1. **Find version** decides `vX.Y.Z` from tags plus the PR label.
+1. **Find version** decides `vX.Y.Z` from tags plus the resolved bump policy.
 2. **Build** stamps it into `package.json` (and `package-lock.json`), compiles
    the bundle, and runs the packaging CLI to produce a single VSIX. The stamped
    manifest is uploaded alongside the VSIX so the manifest under test — including
@@ -98,16 +99,20 @@ pass before the release stage runs, alongside a green test result.
 Versioning is [Release Management](../release-management/design.md) applied to a
 VSIX artifact — this framework does not re-implement it:
 
-- The release decision is exactly one of `release:patch`, `release:minor`,
-  `release:major`, or `release:skip`, with no default. Multiple bump labels and
-  `release:skip` with another release label are rejected.
+- `DefaultBump` accepts exactly `patch`, `minor`, or `major` and resolves to
+  `patch` when omitted. When present, one of `release:patch`, `release:minor`, or
+  `release:major` overrides it. Multiple owned bump labels and `release:skip`
+  with any other owned release label are rejected; bare and unrelated labels are
+  ignored.
+- `release:skip` prevents publication.
 - The version is computed once and stamped into the manifest; it is never
   hand-edited.
-- A prerelease is requested by `release:pre-release` alongside one bump label on
-  an open pull request (or by a prerelease branch), producing a prerelease VSIX
-  that is never promoted to latest. When such a build is also published to the
-  VS Code Marketplace, it goes out with `@vscode/vsce publish --pre-release` and
-  an odd minor-version number, the Marketplace's pre-release-channel convention.
+- A prerelease is requested by `release:prerelease` on an open pull request (or
+  by a prerelease branch), using one explicit owned bump label when present and
+  the resolved `DefaultBump` otherwise. It produces a prerelease VSIX that is
+  never promoted to latest. When such a build is also published to the VS Code
+  Marketplace, it goes out with `@vscode/vsce publish --pre-release` and an odd
+  minor-version number, the Marketplace's pre-release-channel convention.
 
 ## Publishing and distribution
 
@@ -165,8 +170,9 @@ Every external Action is pinned to a commit SHA; organization- or initiative-own
 | --- | --- |
 | Adoption (opt-in) | a short caller workflow that calls the reusable workflow |
 | Host + OS matrix, marketplace toggle, extras | `.github/vscode-extension.yml` |
-| Version bump / prerelease | pull-request label |
-| Release branches + path filter | `.github/release.config.yml` ([Release Management](../release-management/design.md)) |
+| Default bump | `DefaultBump` in `.github/release.config.yml` |
+| Bump override / prerelease / skip | pull-request label |
+| Release types + branch mapping + path filter | `.github/release.config.yml` ([Release Management](../release-management/design.md)) |
 | Marketplace publish tokens | a GitHub environment's secrets |
 | Extension manifest (`engines.vscode`, `contributes`, activation) | `package.json` |
 

@@ -1,6 +1,6 @@
 ---
 title: Spec
-description: Requirements for release management — automatic, label-driven, versioned releases driven entirely on the GitHub platform.
+description: Requirements for release management — automatic, policy-driven, versioned releases driven entirely on the GitHub platform.
 ---
 
 # Release Management — Spec
@@ -18,7 +18,7 @@ release CLI, a hand-edited version file, or a tagging convention.
 This capability rests on the [Principles](../../Ways-of-Working/Principles/index.md):
 
 - **[Everything as Code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).** The release process and version decision are version-controlled, never a GUI action or manual tag.
-- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** The pull request is the decision point; its review gate approves the code *and* the release, and the bump label records the versioning decision explicitly.
+- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** The pull request is the decision point; its review gate approves the code *and* the release. The version-controlled `DefaultBump` records the repository's normal versioning policy, and an owned bump label records a reviewed override.
 - **[Extensible by default](../../Ways-of-Working/Principles/Software-Design.md#extensible-by-default).** The rules are technology-agnostic at the core, with defined extension points per artifact type. A new artifact type supplies a convention and a publish step, not a new process.
 
 ## Scope
@@ -31,12 +31,12 @@ this capability governs the release. If no, there is nothing to release.
 ## Requirements
 
 - **Semantic versioning.** Versions follow [SemVer 2.0.0](https://semver.org/) (`vMAJOR.MINOR.PATCH`), derived automatically — never written by hand.
-- **Namespaced release decision, stated explicitly.** Release automation reads only the `release:` namespace. Exactly one of `release:patch`, `release:minor`, `release:major`, or `release:skip` MUST be present, and there is **no default**: an unlabeled pull request is not releasable, and the release fails closed rather than assuming the smallest bump. `release:pre-release` MAY accompany exactly one bump label on an open pull request and MUST NOT be combined with `release:skip`. Bare `patch`, `minor`, and `major` labels are not release decisions. Requiring an owned label makes versioning a reviewed decision instead of an omission. Conventional commit messages are **not** required.
-- **A release per merge.** One merged PR carrying `release:patch`, `release:minor`, or `release:major` to a release branch is one release, and the PR review gate is the release gate. `release:skip` validates without publishing. This pull-request path is the required release interface.
+- **Namespaced release decision with a configurable default.** Release automation reads only the `release:` namespace. `DefaultBump` MUST accept exactly `patch`, `minor`, or `major` and MUST resolve to `patch` when omitted. With no owned bump label, automation MUST use the resolved `DefaultBump`; when present, exactly one of `release:patch`, `release:minor`, or `release:major` MUST override it. `release:prerelease` MAY be used alone or with exactly one owned bump label on an open pull request and MUST use that owned bump when present, otherwise the resolved `DefaultBump`. `release:skip` MUST prevent publication and MUST NOT be combined with another owned release label. Multiple owned bump labels MUST fail. Bare `patch`, `minor`, and `major` labels and all unrelated labels MUST be ignored. Conventional commit messages are **not** required.
+- **A release per merge.** One merged PR to a release branch is one release unless it carries `release:skip`, and the PR review gate is the release gate. The bump comes from one explicit owned bump label or the resolved `DefaultBump`. `release:skip` validates without publishing. This pull-request path is the required release interface.
 - **Ad hoc release is optional.** An implementation MAY expose `workflow_dispatch` when its product needs an ad hoc release outside the merge flow; implementations are not required to support it. A dispatch MUST require an explicit release decision and release-note context, and MUST use the same version, build, validation, immutability, and publication controls as a merged pull request. A direct push MUST NOT be an ad hoc release interface, and an empty pull request MUST NOT be created solely to trigger a release.
 - **Version before build.** The version MUST be resolved before the artifact is built, so the version is part of the artifact's identity rather than a label attached afterwards.
 - **Build once.** The artifact MUST be built exactly once and MUST NOT be altered after it is built. The same bytes flow through validation and publishing. Rebuilding to publish means the tested artifact and the published artifact are different artifacts.
-- **Stable and prerelease.** Every release is either **stable** (the latest version to adopt) or a **prerelease** (testable, not promoted to latest). A prerelease MUST be obtainable from an open pull request carrying `release:pre-release` and a bump label and/or from a prerelease branch.
+- **Release types.** Every release branch MUST produce exactly one type: **stable** (the latest version to adopt), **prerelease** (early testable output), or **release candidate** (promotable output that is not latest). A branch MUST NOT produce more than one type. A prerelease MUST also be obtainable from an open pull request carrying `release:prerelease`, using its explicit owned bump label or the resolved `DefaultBump`.
 - **Serialised releases.** Only one release process runs against a given version of the codebase (the same ref) at a time. A release mutates shared, version-anchored state — the tag, the version counter, the published artifact — so overlapping runs on the same ref MUST NOT race, and an in-flight release is never interrupted.
 - **A single production authority.** Exactly one branch is in charge of the production (stable) version, so consumers get one unambiguous latest stable release and two branches can never publish competing production releases.
 - **Notes from the contributor's own words.** The GitHub Release name is the version; its body comes from the pull request title and description, or from the required release-note context of an optional ad hoc dispatch. The PR description is therefore written for consumers.
@@ -63,9 +63,10 @@ Because versions are semantic, immutable, and published once, a consumer can ado
 
 ## Success criteria
 
-- Merging a PR with exactly one namespaced bump label to a release branch produces a GitHub Release, a git tag, and (where one exists) a published artifact, with no manual step.
-- The version bump matches the PR's `release:` label every time; a missing, conflicting, ambiguous, or bare label set is **rejected**, never guessed.
-- An open pull request carrying `release:pre-release` and exactly one bump label publishes a prerelease without promoting it to latest.
+- Merging a PR without `release:skip` to a release branch produces a GitHub Release, a git tag, and (where one exists) a published artifact, using one explicit owned bump label or the resolved `DefaultBump` with no manual step.
+- An explicit namespaced bump label overrides `DefaultBump` every time; without one, the validated `DefaultBump` is used. An invalid default or conflicting owned label set is rejected, while bare and unrelated labels are ignored.
+- An open pull request carrying `release:prerelease` publishes a prerelease without promoting it to latest, using one explicit owned bump label when present and the resolved `DefaultBump` otherwise.
+- A configured prerelease branch publishes prerelease versions, and a configured release-candidate branch publishes `-rc.N` versions; neither promotes an artifact to latest.
 - The artifact that consumers download is byte-identical to the artifact that passed validation.
 - A documentation-only merge carrying `release:skip` produces no new version but still runs its CI checks.
 - Two release runs for the same ref never overlap; the second waits for the first to finish rather than racing it.

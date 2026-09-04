@@ -75,7 +75,7 @@ Prefer specific, observable language over vague intent.
 
 | Prefer | Avoid |
 | --- | --- |
-| The workflow fails when the version label is missing. | There may be some issues with labels. |
+| The workflow fails when `release:patch` and `release:minor` are both present. | There may be some issues with labels. |
 | Add `release:skip` to documentation-only PRs. | Make sure docs PRs are handled correctly. |
 | The agent reads `AGENTS.md` before editing files. | The agent should probably look at the instructions. |
 
@@ -153,9 +153,7 @@ A good error message includes:
 
 Prefer:
 
-```text
-Release label is missing. Add exactly one of release:patch, release:minor, release:major, or release:skip. Add release:pre-release only with a bump label.
-```
+> Release labels conflict: `release:patch` and `release:minor` cannot be combined. Keep one owned bump label, or remove both to use `DefaultBump`.
 
 Avoid:
 

@@ -43,9 +43,10 @@ Pull requests in the MSX ecosystem double as **release notes**. The description 
 | Docs        | 📖   | `release:skip`   | Documentation changes only                            |
 | Maintenance | ⚙️   | `release:skip`   | CI/CD, build configs, AI/agent files, internal upkeep |
 
-`release:pre-release` is a release mode, not a change type. Apply it alongside
-exactly one of `release:patch`, `release:minor`, or `release:major` when an open
-pull request must publish a prerelease. Never combine it with `release:skip`.
+`release:prerelease` is a release mode, not a change type. Apply it alone to use
+the configured `DefaultBump`, or alongside exactly one of `release:patch`,
+`release:minor`, or `release:major` to override that default when an open pull
+request must publish a prerelease. Never combine it with `release:skip`.
 
 ### Detecting the change type
 

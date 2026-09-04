@@ -1,6 +1,6 @@
 ---
 title: Design
-description: How release management is built — a shared reusable workflow that reads pull-request labels, computes the SemVer bump, and cuts the release.
+description: How release management is built — a shared reusable workflow that resolves a configured or label-selected SemVer bump, builds once, and publishes.
 ---
 
 # Release Management — Design
@@ -12,29 +12,41 @@ minimal caller plus a one-line path filter is enough to adopt it.
 
 ## Branching model
 
-A **release branch** is any branch configured as a release target, each with a
-**release type** — `stable` or `prerelease`.
+A **release branch** is a branch assigned to one key in the `ReleaseType`
+configuration object. The fixed keys are `Stable`, `Prerelease`, and
+`ReleaseCandidate`; each key owns the properties for that release type,
+including its `Branch`.
 
-- **Single branch (zero-config).** One release branch (the default branch)
-  produces stable releases. Prereleases are opt-in via a PR label.
-- **Multi-branch.** `dev` (prerelease) collects PRs and publishes a prerelease
-  on every merge; `main` (stable) receives `dev`. Merging `dev → main` computes
-  the stable version from the **latest stable release** plus the merge PR's bump
-  label — the prerelease counter does not carry over.
-- **One production authority.** At most one branch is `release-type: stable`;
-  every other release branch is `prerelease`. The single stable branch
-  (typically `main`) owns the production version — a prerelease branch can never
-  cut a stable release.
+- **Single branch (zero-config).** `ReleaseType.Stable.Branch` always resolves:
+  when `ReleaseType` or its `Stable` key is omitted, it uses the default branch.
+  `Prerelease` and `ReleaseCandidate` are optional. Prereleases remain available
+  from an open pull request through the mode label.
+- **Multi-branch.** A full promotion path uses
+  `ReleaseType.Prerelease.Branch` for early testing,
+  `ReleaseType.ReleaseCandidate.Branch` for the promotable candidate, and
+  `ReleaseType.Stable.Branch` for production. Each configured branch publishes
+  only its keyed release type. Promotion to `ReleaseType.Stable.Branch` computes
+  from the latest stable release plus the merge pull request's resolved bump;
+  prerelease and release-candidate counters do not carry over.
+- **One branch per type.** Each release-type key has at most one `Branch`, and
+  the same branch MUST NOT appear under more than one key. Unknown keys and
+  duplicate branch assignments are rejected.
+- **One production authority.** `Stable.Branch` is the only branch that cuts a
+  stable release. A prerelease or release-candidate branch can never publish the
+  production version.
 - **Bundled releases.** A **staging branch** collects feature PRs; merging it to
   a release branch produces **exactly one** release for all bundled changes.
 
 ```yaml
 # .github/release.config.yml
-release-branches:
-  - branch: main
-    release-type: stable
-  - branch: dev
-    release-type: prerelease
+DefaultBump: patch
+ReleaseType:
+  Stable:
+    Branch: main
+  Prerelease:
+    Branch: dev
+  ReleaseCandidate:
+    Branch: rc
 ```
 
 ## The pipeline
@@ -75,18 +87,20 @@ Release automation reads only labels in its `release:` namespace:
 
 | Label | Meaning | Valid combination |
 | --- | --- | --- |
-| `release:patch` | Resolve the next patch version. | Exactly one bump label. |
-| `release:minor` | Resolve the next minor version. | Exactly one bump label. |
-| `release:major` | Resolve the next major version. | Exactly one bump label. |
-| `release:pre-release` | Publish the open pull request as a prerelease. | With exactly one bump label. |
+| `release:patch` | Override `DefaultBump` and resolve the next patch version. | Alone or with `release:prerelease`. |
+| `release:minor` | Override `DefaultBump` and resolve the next minor version. | Alone or with `release:prerelease`. |
+| `release:major` | Override `DefaultBump` and resolve the next major version. | Alone or with `release:prerelease`. |
+| `release:prerelease` | Publish the open pull request as a prerelease. | Alone or with one owned bump label. |
 | `release:skip` | Run validation without resolving or publishing a version. | Alone. |
 
-Exactly one bump label or `release:skip` is required; **no default** is applied.
-`release:pre-release` is an optional mode label, not a bump. A missing decision,
-multiple bump labels, `release:skip` with another release label, or
-`release:pre-release` without one bump label is **rejected**, so the outcome is
-always a decision someone made. Bare `major`, `minor`, and `patch` labels are
-ignored.
+`DefaultBump` in `.github/release.config.yml` accepts exactly `patch`, `minor`,
+or `major`; omitting it resolves to `patch`. Any other value is rejected before
+Resolve begins. With no owned bump label, Resolve uses `DefaultBump`. Exactly one
+of `release:patch`, `release:minor`, or `release:major` overrides it.
+`release:prerelease` is a mode label, not a bump, and uses that same resolved
+bump. Multiple owned bump labels and `release:skip` with any other owned release
+label are rejected. Bare `major`, `minor`, and `patch` labels and all unrelated
+labels are ignored.
 
 - **First release** starts from a baseline (`v0.1.0` or `v1.0.0`). Pre-`1.0.0`
   breaking changes are `release:minor` per [SemVer §4](https://semver.org/#spec-item-4);
@@ -113,17 +127,20 @@ happen. Retrying failed validation or publication is not an ad hoc release
 either: rerun the existing release with the same artifact and version under the
 [recovery rule](#the-pipeline).
 
-## Prereleases
+## Prereleases and release candidates
 
-- **Branch-level** — a prerelease-type branch publishes on every push, using the
-  branch name as the identifier: `v1.3.0-dev.1`, `v1.3.0-dev.2`, …
-- **PR-level** — `release:pre-release` alongside exactly one bump label on an open PR publishes
-  `v<base>-<identifier>.<counter>`: `base` is the next version from the PR's bump
-  label, `identifier` is the normalized branch name, and `counter`
-  auto-increments per push.
+- **Prerelease branch** — `ReleaseType.Prerelease.Branch` publishes on every
+  push, using the branch name as the identifier: `v1.3.0-dev.1`,
+  `v1.3.0-dev.2`, …
+- **Release-candidate branch** — `ReleaseType.ReleaseCandidate.Branch` publishes
+  `v1.3.0-rc.1`, `v1.3.0-rc.2`, … and never promotes one to latest.
+- **PR-level** — `release:prerelease` on an open PR publishes
+  `v<base>-<identifier>.<counter>`: `base` is the next version from one explicit
+  owned bump label when present, otherwise from the resolved `DefaultBump`;
+  `identifier` is the normalized branch name, and `counter` auto-increments per
+  push.
 - Artifact-specific conventions replace the SemVer suffix where they exist
-  (`-alpha.N` for npm, `.devN` for Python). Release candidates use `-rc.N`,
-  auto-incrementing.
+  (`-alpha.N` for npm, `.devN` for Python).
 - **Cleanup** deletes prerelease tags, releases, and artifacts after the PR
   closes (configurable); stable releases are never touched.
 
@@ -235,15 +252,16 @@ Serialisation is provided once by the reusable workflow so every repository
 inherits it; the mechanism is the
 [GitHub Actions standard](../../Coding-Standards/GitHub-Actions.md#concurrency).
 The single-stable-branch rule above is what keeps the production version under
-one authority — the stable branch is the only ref that ever cuts a production
-release, and its runs are serialised like any other.
+one authority — `ReleaseType.Stable.Branch` is the only ref that ever cuts a
+production release, and its runs are serialised like any other.
 
 ## Configuration surface
 
 | Surface | Where |
 | --- | --- |
-| Release branches + type | `.github/release.config.yml` |
-| Release decision / prerelease / RC | `release:` PR label |
+| Release types + branch mapping | `ReleaseType` in `.github/release.config.yml` |
+| Default bump | `DefaultBump` in `.github/release.config.yml` |
+| Bump override / prerelease / skip | `release:` PR label |
 | Optional ad hoc release | `workflow_dispatch` inputs |
 | Path filter | `.github/release.config.yml` |
 | Prerelease cleanup toggle | release config / workflow input |
