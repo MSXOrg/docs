@@ -107,7 +107,7 @@ VSIX artifact — this framework does not re-implement it:
 - `release:skip` prevents publication.
 - The version is computed once and stamped into the manifest; it is never
   hand-edited.
-- A prerelease is requested by `release:pre-release` on an open pull request (or
+- A prerelease is requested by `release:prerelease` on an open pull request (or
   by a prerelease branch), using one explicit owned bump label when present and
   the resolved `DefaultBump` otherwise. It produces a prerelease VSIX that is
   never promoted to latest. When such a build is also published to the VS Code
