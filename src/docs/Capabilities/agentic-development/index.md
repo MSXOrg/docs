@@ -5,7 +5,7 @@ description: The framework for org-scoped documentation that gives agents projec
 
 # Agentic Development
 
-The Agentic Development framework makes an organization the operating boundary for human and agent work. Each organization owns a `docs` repository for canonical knowledge; every product repository carries a short router that points to that root, and keeps its own nuance in the files a human already reads.
+The Agentic Development framework makes an organization the operating boundary for human and agent work. Each organization identifies a canonical documentation repository; every product repository carries a short router that points to that source and keeps its own nuance in the files a human already reads.
 
 A repository adopts the framework by carrying a short router and the client routes that reach it, and by letting agents read outward — the repository's own files first, then the organization documentation, then the current task. The organization selects *which* context applies; the reading order decides what is read first.
 
