@@ -207,7 +207,7 @@ An initiative should document:
 - How the distributor or equivalent automation discovers repositories.
 - How exceptions are approved.
 
-For example, PSModule can define its module-specific managed files in `PSModule/docs` and implement distribution in `PSModule/Distributor`. MSX only defines that such a standard and distribution path must exist.
+For example, PSModule can define its module-specific managed files in `PSModule/Process-PSModule` and implement distribution in `PSModule/Distributor`. MSX only defines that such a standard and distribution path must exist.
 
 ## Where this connects
 

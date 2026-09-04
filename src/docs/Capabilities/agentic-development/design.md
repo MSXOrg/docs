@@ -5,7 +5,7 @@ description: How the agentic development framework is built — OKF documentatio
 
 # Agentic Development — Design
 
-The behavior in the [spec](spec.md) is delivered by an organization-level documentation repository, adopted by each product repository through thin pointer files. The design keeps project knowledge in one reviewed place and lets each agent runtime adapt without copying process knowledge.
+The behavior in the [spec](spec.md) is delivered by an organization-level documentation repository, adopted by each product repository through thin pointer files. The design keeps project knowledge in one reviewed place and lets each agent runtime adapt without copying process knowledge. The repository name is not fixed; the organization identifies the source that owns its documentation.
 
 ## Organization anatomy
 
@@ -20,11 +20,11 @@ The GitHub organization is the project boundary. The host distinguishes work fro
 
 Current project scopes follow the same shape:
 
-| Host | Organization | Docs |
+| Host | Organization | Canonical documentation repository |
 | --- | --- | --- |
 | `github.com` | `MSXOrg` | `MSXOrg/docs` |
-| `github.com` | `PSModule` | `PSModule/docs` |
-| `<host>` | `<org>` | `<org>/docs` |
+| `github.com` | `PSModule` | `PSModule/Process-PSModule` |
+| `<host>` | `<org>` | Designated `<org>/<documentation-repository>` |
 
 The last row is the general case: any adopting organization on any GitHub host — public or an enterprise instance — plugs into the same shape without changing the framework.
 
@@ -178,14 +178,9 @@ Path-scoped instruction files are reserved for local rules that cannot live cent
 
 ## Local workspace
 
-A local Git clone makes central context predictable:
-
-```text
-~/.msxorg/
-  docs/                        # clean MSXOrg/docs clone
-~/.psmodule/
-  docs/                        # clean PSModule/docs clone
-```
+A runtime or development setup may materialize a documentation repository in
+any context checkout it controls. The framework does not prescribe that
+checkout's filesystem location.
 
 Before context is read, the agent ensures the clone exists, fetches its remote,
 and fast-forwards its default branch. Each clone must be clean, checked out on
@@ -193,10 +188,9 @@ the remote default branch, and exactly equal to the fetched remote head. A
 dirty, locally ahead, diverged, wrong-branch, or unreachable clone stops context
 resolution; the agent does not use a possibly stale local copy.
 
-Each GitHub organization has its own organization-named workspace root, such as
-`~/.msxorg` for MSXOrg or `~/.psmodule` for PSModule. Repository agent files
-retain public organization documentation destinations; runtime and development
-guidance defines how a context checkout is prepared and verified.
+Repository agent files retain public organization documentation destinations;
+runtime and development guidance defines how a context checkout is prepared and
+verified.
 
 ## Context freshness
 
