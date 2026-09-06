@@ -47,7 +47,7 @@ Describe the **incremental change introduced by this release**, not a migration 
 | Patch       | 🩹   | `release:patch`  | Small fixes or improvements                           |
 | Fix         | 🪲   | `release:patch`  | Bugfixes (patch-level release impact)                 |
 | Docs        | 📖   | `release:skip`   | Documentation changes only                            |
-| Maintenance | ⚙️   | `release:skip`   | Internal upkeep without a shipped behavior or integration-contract change |
+| Maintenance | ⚙️   | `release:skip`   | Internal upkeep with no change to shipped behavior or integration contracts |
 
 `release:pre-release` is a release mode, not a change type. Apply it alongside
 exactly one of `release:patch`, `release:minor`, or `release:major` when an open

@@ -174,7 +174,7 @@ Default title pattern:
 <Icon> [<Change type>]: <User-facing outcome>
 ```
 
-Use [PR Format](PR-Format.md) for audience-based change classification and the complete description structure, including its required consumer-evidence and ending blocks. A PR closes one scoped Task or Bug, with any additional closing links limited to issues the session-end convergence sweep shows are fully delivered by the same diff.
+Use [PR Format](PR-Format.md) for audience-based change classification and the complete description structure, including its required consumer evidence and ending blocks. A PR closes one scoped Task or Bug, with any additional closing links limited to issues the session-end convergence sweep shows are fully delivered by the same diff.
 
 The organization-level `.github` repository supplies the default template.
 The repository-local contribution guide directs humans and agents to the

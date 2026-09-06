@@ -138,18 +138,17 @@ changed.
 Derive these paths from the delivered product and its
 [audience-facing contracts](../../Ways-of-Working/PR-Format.md#detecting-the-change-type),
 not directory names alone. Include callable workflows and build configuration
-that changes delivered runtime requirements or behavior. The exclusions below
-are valid only when those directories contain no artifact inputs or supported
-consumer interfaces; a workflow producer includes its published workflow paths
-without an overriding `.github/` exclusion.
+that changes delivered runtime requirements or behavior. Do not retain an
+exclusion that overrides an included consumer interface or artifact input.
+
+This example represents a workflow producer with a public `reusable.yml` entry
+point and its local implementation; each producer lists its own artifact inputs.
 
 ```yaml
 release-paths:
+  - ".github/workflows/reusable.yml" # public caller contract
+  - ".github/actions/**"            # this workflow's local implementation
   - "src/**"
-  - "Dockerfile"
-  - "action.yml"
-  - "!docs/**"       # standalone documentation, not artifact inputs
-  - "!.github/**"    # internal-only workflows, not caller contracts
 ```
 
 ## Release notes
