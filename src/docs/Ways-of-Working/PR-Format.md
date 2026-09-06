@@ -49,9 +49,11 @@ Describe the **incremental change introduced by this release**, not a migration 
 | Docs        | 📖   | `release:skip`   | Documentation changes only                            |
 | Maintenance | ⚙️   | `release:skip`   | Internal upkeep with no change to shipped behavior or integration contracts |
 
-`release:pre-release` is a release mode, not a change type. Apply it alongside
-exactly one of `release:patch`, `release:minor`, or `release:major` when an open
-pull request must publish a prerelease. Never combine it with `release:skip`.
+`release:pre-release` is a release mode, not a change type. It uses one explicit
+bump label or the repository's configured `DefaultBump` when an open pull request
+must publish a prerelease. The mode alone supplies no level. Never combine it
+with `release:skip`; [Release Management](../Capabilities/release-management/design.md#version-computation)
+owns resolution and validation.
 
 ### Detecting the change type
 
@@ -80,6 +82,8 @@ The change type is decided in this order:
     5. **Patch or Fix** — backward-compatible fixes or small improvements.
 
 Use the highest impact across the affected supported contracts, then apply the version policy. A small fix can be breaking; unrelated internal changes or documentation do not lower that impact.
+
+A configured default supplies a release level, not evidence of compatibility. Check it against the audience impact and apply an explicit override when the change requires a different level.
 
 Illustrative cases, not release history:
 
@@ -124,6 +128,8 @@ When updating the reference is sufficient, state: **No configuration, code, or i
 ### 4. Release impact
 
 Every PR includes `## Release impact`. Report the release resolver's decision; do not introduce a second version-selection policy.
+
+When `DefaultBump` supplies an MSX release level, record the setting and value as the source. Unless a valid `release:skip` is selected, missing both an explicit level and a configured default fails the [required decision check](../Capabilities/release-management/design.md#required-pre-merge-decision-check) and blocks merge; never infer a patch release from missing input.
 
 | Field | Required content |
 | --- | --- |
@@ -309,7 +315,7 @@ For a no-action patch, keep both required user-facing blocks. State the no-actio
 
 ## Labels and assignment
 
-- Apply the change-type label.
+- Apply an owned release label for an explicit decision or override. A matching configured `DefaultBump` may supply the bump without a label; record that source. Use `release:skip` for an explicit no-release decision.
 - Apply phase labels if the repo uses them (Planning, Implementation, etc.).
 - Assign the current user.
 - Request reviewers per `CODEOWNERS`; if none, fall back to repo defaults or skip.

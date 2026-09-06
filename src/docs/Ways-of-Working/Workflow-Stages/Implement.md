@@ -83,7 +83,7 @@ Run this once per implementation session, at the same timing as the standards/fr
 
 When the change meets the [Definition of Ready for Review](../Definition-of-Ready-and-Done.md):
 
-1. Finalize the title, release-note description, and label per [PR Format](../PR-Format.md).
+1. Finalize the title, release-note description, and effective release decision and its source per [PR Format](../PR-Format.md).
 2. Mark the pull request ready and enable auto-merge per [Branching and Merging](../Branching-and-Merging.md).
 
 ## Operating rules

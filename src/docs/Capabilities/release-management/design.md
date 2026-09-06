@@ -1,14 +1,14 @@
 ---
 title: Design
-description: How release management is built — a shared reusable workflow that reads pull-request labels, computes the SemVer bump, and cuts the release.
+description: How release management is built — a shared reusable workflow that resolves an explicit or configured SemVer bump, builds once, and publishes.
 ---
 
 # Release Management — Design
 
 The behaviour in the [spec](spec.md) is delivered by a **shared reusable release
 workflow**. A repository opts in with a short caller workflow and a small
-`.github/release.config.yml`; everything else has a sensible default, so a
-minimal caller plus a one-line path filter is enough to adopt it.
+`.github/release.config.yml`. The workflow supplies the shared mechanics; an
+explicit label or an intentionally configured default supplies the release level.
 
 ## Branching model
 
@@ -19,8 +19,8 @@ A **release branch** is any branch configured as a release target, each with a
   produces stable releases. Prereleases are opt-in via a PR label.
 - **Multi-branch.** `dev` (prerelease) collects PRs and publishes a prerelease
   on every merge; `main` (stable) receives `dev`. Merging `dev → main` computes
-  the stable version from the **latest stable release** plus the merge PR's bump
-  label — the prerelease counter does not carry over.
+  the stable version from the **latest stable release** plus the merge PR's
+  resolved bump — the prerelease counter does not carry over.
 - **One production authority.** At most one branch is `release-type: stable`;
   every other release branch is `prerelease`. The single stable branch
   (typically `main`) owns the production version — a prerelease branch can never
@@ -71,22 +71,48 @@ Two consequences follow, and they are the point of the model:
 
 ## Version computation
 
-Release automation reads only labels in its `release:` namespace:
+For PR-driven releases, the shared resolver reads the owned labels and optional
+`DefaultBump` in `.github/release.config.yml`. The setting accepts `patch`,
+`minor`, or `major`; omitting it does not supply a level. For example, this
+configuration explicitly chooses patch releases when no bump label is provided:
+
+```yaml
+# .github/release.config.yml
+DefaultBump: patch
+```
 
 | Label | Meaning | Valid combination |
 | --- | --- | --- |
-| `release:patch` | Resolve the next patch version. | Exactly one bump label. |
-| `release:minor` | Resolve the next minor version. | Exactly one bump label. |
-| `release:major` | Resolve the next major version. | Exactly one bump label. |
-| `release:pre-release` | Publish the open pull request as a prerelease. | With exactly one bump label. |
+| `release:patch` | Resolve the next patch version, overriding the configured default. | Alone or with `release:pre-release`. |
+| `release:minor` | Resolve the next minor version, overriding the configured default. | Alone or with `release:pre-release`. |
+| `release:major` | Resolve the next major version, overriding the configured default. | Alone or with `release:pre-release`. |
+| `release:pre-release` | Publish the open pull request as a prerelease using the resolved bump. | With one explicit bump or a configured default; never with `release:skip`. |
 | `release:skip` | Run validation without resolving or publishing a version. | Alone. |
 
-Exactly one bump label or `release:skip` is required; **no default** is applied.
-`release:pre-release` is an optional mode label, not a bump. A missing decision,
-multiple bump labels, `release:skip` with another release label, or
-`release:pre-release` without one bump label is **rejected**, so the outcome is
-always a decision someone made. Bare `major`, `minor`, and `patch` labels are
-ignored.
+Resolve the decision in this order:
+
+1. Validate `DefaultBump` when present and reject conflicting owned labels.
+   An invalid setting is an error even when an explicit label is supplied.
+   Bare and unrelated labels do not participate.
+2. Honor a valid `release:skip` as the explicit no-release decision and stop bump
+   resolution.
+3. Use the single owned bump label when present; otherwise use the configured
+   `DefaultBump`. Record the chosen level and whether the label or setting
+   supplied it.
+4. If neither supplies a level, fail with a missing-decision error that tells the
+   author to select a bump, configure the default, or choose `release:skip`.
+   There is no built-in patch fallback. Prerelease mode does not supply a bump.
+
+| PR input | `DefaultBump` | Decision-check result |
+| --- | --- | --- |
+| `release:major` | `patch` or absent | Pass: explicit major overrides the default. |
+| No owned release labels | `minor` | Pass: configured minor; record the setting as the source. |
+| No release decision | Absent | Fail: missing decision; merge blocked. |
+| `release:skip` alone | Valid or absent | Pass: no release; no bump is required. |
+| `release:pre-release` alone | `patch` | Pass: configured patch in prerelease mode. |
+| `release:pre-release` alone | Absent | Fail: mode does not supply a bump; merge blocked. |
+| Multiple bump labels, or skip with another owned release label | Any | Fail: conflicting decisions; no fallback. |
+| Any | Invalid value | Fail: invalid configuration; no fallback. |
 
 - **First release** starts from a baseline (`v0.1.0` or `v1.0.0`). Pre-`1.0.0`
   breaking changes are `release:minor` per [SemVer §4](https://semver.org/#spec-item-4);
@@ -94,9 +120,35 @@ ignored.
 - The tag is created on the commit now at the head of the release branch —
   squash, merge-commit, and rebase strategies alike.
 
+### Required pre-merge decision check
+
+PR CI runs the resolver read-only against the candidate release settings and
+current owned labels, without creating tags, releases, or published artifacts.
+An existing version-resolution check may own this validation; do not duplicate
+the resolver. The check reports the effective decision and its source, not a
+promised final stable version.
+
+The validator runs for every PR targeting a release branch, including changes
+that will not publish. It re-runs when source, release labels, or release settings
+change, so a stale result is not evidence for different inputs. Missing,
+invalid, or conflicting decisions produce a failed check with an actionable
+error. A valid skip reports success with a no-release result; path filters do
+not skip the validator.
+
+Configure the check's exact name as required in the protected branch's ruleset
+or branch protection, following [Merge Automation](../merge-automation/spec.md).
+Manual merge and auto-merge both wait for it: failure, pending execution, and
+absence block merge. A warning or an advisory, unrequired check is insufficient.
+Human review still assesses whether the resolved level matches the audience
+impact; CI validates the deterministic decision contract.
+
+The release run validates its actual inputs again before Resolve and Build.
+Pre-merge validation does not replace release-time validation, but a known
+missing decision is never deferred until after merge.
+
 ### Optional ad hoc releases
 
-The standard release path is a labeled pull request merged into a release
+The standard release path is a pull request with a validated decision merged into a release
 branch. `workflow_dispatch` is an optional extension, not part of the minimum
 implementation. An implementation SHOULD omit it unless its product has a real
 need to release already-reviewed content outside the merge flow.
@@ -118,9 +170,9 @@ either: rerun the existing release with the same artifact and version under the
 
 - **Branch-level** — a prerelease-type branch publishes on every push, using the
   branch name as the identifier: `v1.3.0-dev.1`, `v1.3.0-dev.2`, …
-- **PR-level** — `release:pre-release` alongside exactly one bump label on an open PR publishes
-  `v<base>-<identifier>.<counter>`: `base` is the next version from the PR's bump
-  label, `identifier` is the normalized branch name, and `counter`
+- **PR-level** — `release:pre-release` with a resolved explicit or configured bump publishes
+  `v<base>-<identifier>.<counter>`: `base` is the next version from that bump,
+  `identifier` is the normalized branch name, and `counter`
   auto-increments per push.
 - Artifact-specific conventions replace the SemVer suffix where they exist
   (`-alpha.N` for npm, `.devN` for Python). Release candidates use `-rc.N`,
@@ -328,7 +380,9 @@ release, and its runs are serialised like any other.
 | Surface | Where |
 | --- | --- |
 | Release branches + type | `.github/release.config.yml` |
-| Release decision / prerelease / RC | `release:` PR label |
+| Optional default bump | `DefaultBump` in `.github/release.config.yml` |
+| Explicit bump / prerelease / skip | `release:` PR label |
+| Pre-merge decision validation | named PR check required by the branch ruleset or protection |
 | Optional ad hoc release | `workflow_dispatch` inputs |
 | Path filter | `.github/release.config.yml` |
 | Prerelease cleanup toggle | release config / workflow input |

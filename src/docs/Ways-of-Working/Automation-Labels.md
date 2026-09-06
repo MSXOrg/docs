@@ -58,9 +58,13 @@ namespaced, including the release set:
 
 These labels are read by
 [release management](../Capabilities/release-management/spec.md) and by nothing else.
-Exactly one bump label or `release:skip` records the release decision.
-`release:pre-release` is an optional mode used with exactly one bump label, never
-with `release:skip`.
+One owned bump label records an explicit level and overrides the optional
+repository `DefaultBump`; for publishing decisions without a bump label, a valid
+configured default supplies it. `release:skip` records a no-release decision.
+`release:pre-release` is a mode used with a resolved explicit or configured bump,
+never with `release:skip`. Release Management owns the
+[resolver and required pre-merge validation](../Capabilities/release-management/design.md#version-computation);
+an absent label and absent default are not an implicit patch decision.
 
 Reserving bare words would be weaker because it depends on a documented
 prohibition rather than making ownership visible in the label itself.
@@ -81,7 +85,9 @@ label, because it teaches a contributor a rule that does not hold.
 
 ## Why not paths, states, or free text
 
-Labels are chosen over the alternatives because of what each one costs:
+For per-change overrides, labels are chosen over the alternatives because of what
+each one costs. Repository defaults remain version-controlled settings, not
+another label vocabulary:
 
 | Alternative | Cost |
 | --- | --- |
@@ -95,6 +101,6 @@ decision applies, and unambiguous about who acts on it.
 
 ## Where this connects
 
-- [Release Management](../Capabilities/release-management/spec.md) — the namespaced bump vocabulary and why exactly one of its values is required.
+- [Release Management](../Capabilities/release-management/spec.md) — the namespaced bump vocabulary, optional repository default, and required decision validation.
 - [Repository Governance](../Capabilities/repository-governance/design.md) — the controls that read repository state, of which labels are one.
 - [Repository Standard](Repository-Standard.md) — the repository-level requirement that labels be provisioned rather than improvised.
