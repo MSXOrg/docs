@@ -47,9 +47,16 @@ releases), and a **`workflow_dispatch`** taking the release tag, for backfill.
 
 | Coordinate | Meaning |
 | --- | --- |
-| `version` | Human-readable version — travels only as a tag / trailing comment |
+| `version` | The fixed propagated upstream target, distinct from the dependent's own package version |
 | immutable ref | The commit SHA (pinned-reference) or image digest (published-artifact) that dependents pin to |
-| `release_notes` | The producer's release body, embedded verbatim in the prompt |
+| `release_notes` | The complete source-bound release body and publication envelope, embedded verbatim in the prompt |
+| Evidence sources | Authoritative producer sources for version/source mapping, fully paginated release history, target-era documentation, and the recorded immutable compatible template where applicable |
+
+The stable event or explicit backfill fixes the target once. A later release
+does not change it. The dependent still establishes whether that target is an
+upgrade from its actual baseline; an old notification never authorizes a
+downgrade. Automatic propagation remains stable-only even though the common
+consumer procedure also supports explicitly requested prerelease upgrades.
 
 ## Agent prompt context
 
@@ -59,8 +66,15 @@ the **exact target reference** the PR must produce
 **release notes** verbatim; and
 **related-change context** — new or renamed config keys, new environment
 variables or secrets, required infrastructure changes, migrations, changed
-defaults, or breaking changes. It is assembled in code and is the single source
-of truth for the change.
+defaults, or breaking changes. It also links the producer-owned evidence sources
+and [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md).
+
+The prompt transports context; it does not replace the authoritative release
+records or the dependent's baseline investigation. Its summary cannot truncate
+the complete received note, and receiving that note does not prove that the
+dependent inspected its full crossed range. Historical and prerelease evidence
+stays bound to the corresponding immutable source, not today's final PR body,
+docs, or template.
 
 ## Delegation
 
@@ -102,13 +116,23 @@ one dependent's failure does not stop the rest.
 
 The agent is given the same instructions under either delegation model:
 
-- **Apply the bump.** Every matching reference, bringing any mutable-tag pins into SHA-pinned compliance.
-- **Read the release notes for related work.** The notes are the producer's own account of what changed; the agent treats new or renamed configuration keys, new environment variables or secrets, changed defaults, and migrations as part of the update, not as someone else's problem.
-- **Apply the related changes it can make safely.** A change that is mechanical and verifiable belongs in this pull request.
-- **Call out** larger or riskier work under a follow-up section rather than forcing it into the bump. Scope that needs a decision is surfaced, not guessed at.
-- **Summarise impact** in the PR body: what moved, what it requires of the dependent, and what was deliberately left out.
+- **Follow [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md).**
+  Establish each actual consumed baseline, inspect the complete applicable
+  range to the provided target, and reconcile the action ledger and immutable
+  target-template comparison. The received newest note is not the range.
+- **Apply the verified adoption.** Update matching in-scope references under the
+  applicable pinning policy, preserve consumer-owned content and configuration
+  intent, and run existing relevant validation against the exact target source.
+- **Block required gaps.** Register missing evidence or larger required work
+  with its owner and keep affected adoption blocked. Only genuinely independent
+  work can move to a follow-up without blocking this upgrade.
+- **Retain the procedure's evidence** in the PR body: exact range and refs,
+  release records, reconciled completed/not-applicable actions, template
+  differences, outcomes, and blockers, including explicit no-action results.
 - **Open the pull request** — closing exactly the Task or Bug delivery leaf
-  created or reused for this producer version.
+  created or reused for this producer version, and staying draft until the
+  [review-readiness gate](../../Ways-of-Working/Definition-of-Ready-and-Done.md#definition-of-ready-for-review)
+  holds.
 
 ## Permissions and credentials
 
@@ -134,10 +158,18 @@ and a release it publishes cannot trigger a `release:` workflow. So the job:
 | Task lands in a failed / timed-out / cancelled state | Step **fails** with the reported state. |
 | One dependent's leg fails | Fails independently (`fail-fast: false`); others proceed. |
 | Prerelease published | Propagation is skipped. |
+| Required consumer provenance, release/action evidence, or applicable template compatibility is missing | Affected consumer work is blocked with a linked owning gap; other dependents can proceed. |
+| Target is already selected or is below the actual consumer baseline | Record why no upgrade is applied; do not manufacture a bump or downgrade. |
+
+Notification success and consumer completion are separate outcomes. Reusing an
+issue or successfully delegating work does not mean the consumer has passed
+review, merged, or met its applicable
+[publication and template completion obligations](../../Ways-of-Working/Definition-of-Ready-and-Done.md#repository-delivery-leaf).
 
 ## Where this connects
 
 - [Spec](spec.md) — the requirements this design delivers.
+- [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) — the complete-range adoption procedure used by each dependent.
 - [Release Management](../release-management/design.md) — produces the release and note this consumes.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md) — SHA pinning, least-privilege permissions, explicit secret passing.
 - [Security](../../Coding-Standards/Security.md#supply-chain) — the supply-chain rationale for immutable references.

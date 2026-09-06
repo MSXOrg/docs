@@ -37,6 +37,12 @@ Two shapes occur; both are the same mechanism with a different artifact:
 
 - **Automatic on stable release.** A stable producer release MUST trigger propagation to every declared dependent. Prereleases MUST NOT propagate.
 - **Full context, not just a number.** Each dependent receives the new version, the immutable reference (commit SHA or image digest), the release notes, and any related-change context the update implies.
+- **Complete consumer-range adoption.** Each dependent MUST follow
+  [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) from its actual
+  consumed upstream baseline to the propagated target. The received note MUST
+  retain the complete source-bound release record, but it is only one input:
+  it MUST NOT replace inspection of every applicable release the consumer
+  crosses, its composed actions, or its target-template comparison.
 - **A pull request per dependent, opened by an agent.** The mechanical work — the bump plus the fixes that make it work — is delegated to a cloud agent *in the dependent*, which opens the pull request. **How** the agent is engaged is a design choice, not a requirement: the spec requires the delegation and the pull request, not a particular delegation mechanism.
 - **A delivery leaf before the pull request.** The dependent MUST create or reuse
   a Task or Bug for the producer version before the agent opens its pull request.
@@ -46,8 +52,16 @@ Two shapes occur; both are the same mechanism with a different artifact:
 - **Idempotent by identity.** Propagation MUST be safe to run more than once for
   the same producer version. A repeated run reuses the existing delivery Task or
   Bug and MUST NOT open a second pull request for it.
-- **Humans decide.** A human reviews and merges each PR; the agent applies what it can safely do now and calls out larger or riskier work as follow-up.
+- **Humans decide.** A human reviews and merges each PR. Missing provenance,
+  release/action evidence, applicable template compatibility, or required
+  validation MUST leave affected work blocked with an owning issue. Larger
+  or riskier required work MUST NOT be treated as an optional follow-up to an
+  otherwise ready reference bump.
 - **Backfill on demand.** Propagation MUST be re-runnable for a specific release — for a missed event, or a dependent added after the release. Backfill uses the same idempotency, so re-running for an already-propagated dependent is a no-op rather than a duplicate.
+- **A fixed target, not an implicit downgrade.** A delayed notification or
+  backfill MUST retain its selected target rather than substitute the newest
+  release. If it is no longer an upgrade from the consumer's actual baseline,
+  record that outcome; propagation MUST NOT downgrade the consumer.
 
 ## Success criteria
 
@@ -55,10 +69,17 @@ Two shapes occur; both are the same mechanism with a different artifact:
 - A prerelease yields none.
 - Running propagation twice for the same version yields the same one pull request per dependent, not two.
 - A dependent added after a release can be back-filled without cutting a new release.
+- A dependent that skipped releases carries complete applicable range evidence,
+  reconciled actions, and immutable target-template evidence or a justified
+  no-template result; a missing required fact blocks readiness.
+- Successful notification or reuse of an issue does not claim consumer
+  completion; review, merge, and applicable publication/template obligations
+  remain distinct.
 
 ## Where this connects
 
 - [Design](design.md) — how these requirements are delivered.
+- [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) — the per-dependent adoption procedure, including historical targets and stop conditions.
 - [Release Management](../release-management/spec.md) — the release this propagates.
 - [Dependency Updates](../dependency-updates/spec.md) — the inbound counterpart, for external dependencies.
 - [Issue Hierarchy](../../Ways-of-Working/Issues/Types/Hierarchy.md) and [PR Format](../../Ways-of-Working/PR-Format.md) — the delivery leaf and closure rules this automation follows.
