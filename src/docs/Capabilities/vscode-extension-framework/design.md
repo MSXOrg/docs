@@ -9,8 +9,10 @@ The behaviour in the [spec](spec.md) is delivered by a **shared reusable
 workflow** and a **template repository**, following the org's `Process-*` /
 `Template-*` convention (as [Process-PSModule](https://github.com/PSModule/Process-PSModule)
 does for PowerShell modules). A repository opts in with a short caller workflow
-and a single `.github/vscode-extension.yml` settings file; everything else has a
-secure, working default, so a minimal caller is enough to adopt it. Step logic
+and a single `.github/vscode-extension.yml` extension settings file. Build and
+test settings have secure, working defaults; release decisions follow
+[Release Management](../release-management/design.md#version-computation).
+Step logic
 lives in versioned scripts the workflow calls, never inline shell.
 
 ## The pipeline
@@ -20,14 +22,16 @@ every downstream stage reuses the exact output of the stages before it:
 
 ```mermaid
 flowchart LR
-  find["Find version\ntags + PR label"] --> build["Build\nstamp · bundle · package VSIX"]
+  find["Find version\ntags + resolved decision"] --> build["Build\nstamp · bundle · package VSIX"]
   build --> test["Test\nreal VS Code host · matrix"]
   lint["Lint & type-check"] --> release
   test --> release["Release\npublish the built VSIX"]
 ```
 
-- **Find version** — compute the version once, from the latest `vX.Y.Z` tag or
-  release plus the pull request's bump label. Independent of the other stages.
+- **Find version** — validate the release decision and compute the version once,
+  from the latest `vX.Y.Z` tag or release plus the explicit or configured bump.
+  Independent of the other stages and required by the merge ruleset; a missing
+  decision is a failed check, not a post-merge surprise.
 - **Lint & type-check** — static analysis and the type checker. Independent, so
   it fails fast in parallel with the build.
 - **Build** — stamp the computed version into the manifest, compile the
@@ -43,7 +47,7 @@ flowchart LR
 The version is computed once and flows through the pipeline as artifacts, so the
 thing that ships is the thing that was tested:
 
-1. **Find version** decides `vX.Y.Z` from tags plus the PR label.
+1. **Find version** decides `vX.Y.Z` from tags plus the resolved explicit or configured bump.
 2. **Build** stamps it into `package.json` (and `package-lock.json`), compiles
    the bundle, and runs the packaging CLI to produce a single VSIX. The stamped
    manifest is uploaded alongside the VSIX so the manifest under test — including
@@ -98,12 +102,17 @@ pass before the release stage runs, alongside a green test result.
 Versioning is [Release Management](../release-management/design.md) applied to a
 VSIX artifact — this framework does not re-implement it:
 
-- The release decision is exactly one of `release:patch`, `release:minor`,
-  `release:major`, or `release:skip`, with no default. Multiple bump labels and
-  `release:skip` with another release label are rejected.
+- The shared resolver uses one explicit owned bump label or, without one, the
+  optional `DefaultBump` in `.github/release.config.yml`. A valid `release:skip`
+  reports a no-release decision without skipping validation; otherwise a missing
+  level fails the required PR decision check. Invalid defaults and conflicting
+  owned labels also fail. No implicit patch is selected.
+- The version check re-evaluates source, release-label, and release-settings
+  changes and follows the shared
+  [pre-merge gate](../release-management/design.md#required-pre-merge-decision-check).
 - The version is computed once and stamped into the manifest; it is never
   hand-edited.
-- A prerelease is requested by `release:pre-release` alongside one bump label on
+- A prerelease is requested by `release:pre-release` with a resolved bump on
   an open pull request (or by a prerelease branch), producing a prerelease VSIX
   that is never promoted to latest. When such a build is also published to the
   VS Code Marketplace, it goes out with `@vscode/vsce publish --pre-release` and
@@ -165,7 +174,9 @@ Every external Action is pinned to a commit SHA; organization- or initiative-own
 | --- | --- |
 | Adoption (opt-in) | a short caller workflow that calls the reusable workflow |
 | Host + OS matrix, marketplace toggle, extras | `.github/vscode-extension.yml` |
-| Version bump / prerelease | pull-request label |
+| Explicit bump / prerelease / skip | owned pull-request label |
+| Optional default bump | `DefaultBump` in `.github/release.config.yml` |
+| Pre-merge decision validation | version check required by the branch ruleset or protection |
 | Release branches + path filter | `.github/release.config.yml` ([Release Management](../release-management/design.md)) |
 | Marketplace publish tokens | a GitHub environment's secrets |
 | Extension manifest (`engines.vscode`, `contributes`, activation) | `package.json` |

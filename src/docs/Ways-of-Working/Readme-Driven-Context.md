@@ -32,6 +32,14 @@ Include what is relevant. Not every repository needs every section.
 
 For simple repositories (e.g., a single GitHub Action), a subset is fine — at minimum the title, description, and usage sections.
 
+## Target audience
+
+Every repository README MUST identify its target audience, the jobs the product helps them do, and the supported interfaces they use. A short statement in the description is enough; a separate persona document is not required. A repository MAY explicitly adopt and link its initiative's audience definition instead of repeating it, and MUST state any repository-specific specialization.
+
+**User and integrator are roles, not necessarily different people.** An integration interface is user-facing when the audience depends on it; it does not become internal because its users write scripts, compose APIs, or maintain another product. The audience is not inferred from who authors or reviews a pull request.
+
+Detailed users and jobs belong in the [capability specification](Spec-Driven-Development.md#what-a-specification-is), linked from the README rather than copied. This declared audience anchors [change classification](PR-Format.md#detecting-the-change-type) and the consumer evidence in release notes.
+
 ## When to update the README
 
 The README is updated **in the same pull request** that introduces the change. Documentation is part of the work — not a separate follow-up.
@@ -43,7 +51,7 @@ The README is updated **in the same pull request** that introduces the change. D
 - A feature, command, or option is removed or deprecated.
 - Installation or setup steps change.
 - Configuration options change.
-- The project scope or purpose evolves.
+- The project scope, purpose, target audience, or supported uses evolve.
 - Architecture or folder structure changes significantly.
 
 ### Do not update for

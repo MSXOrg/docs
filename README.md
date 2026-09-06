@@ -2,6 +2,8 @@
 
 The top-of-tree documentation for everything **MSX** builds on GitHub — the vision, principles, ways of working, and coding standards that every organization, repository, and agent in the ecosystem inherits.
 
+Contributors, maintainers, integrators, and their agents use the published docs and plugin entry points to build and adopt MSX projects.
+
 Published with [Zensical](https://zensical.org) to GitHub Pages: **[msxorg.github.io/docs](https://msxorg.github.io/docs/)**.
 
 ## What's inside

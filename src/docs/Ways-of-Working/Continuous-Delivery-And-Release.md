@@ -84,24 +84,25 @@ the thing that ships. A rebuilt artifact behaves like continuous deployment — 
 pipeline reproduces it from a verified source, and reproducibility is what carries the
 guarantee instead.
 
-### D2 — Version signals feed in, the label decides, at the PR gate
+### D2 — Version signals feed in, the decision is reviewed at the PR gate {#d2-version-signals-feed-in-the-label-decides-at-the-pr-gate}
 
 Several signals suggest what kind of change a pull request contains: the shape of the
 diff, whether tests were added or changed, the commit messages, and an AI-assisted
 reading of the change. Those signals MUST be treated as input. The
-[release label](Automation-Labels.md) on the pull request is authoritative, and the
-decision is taken at the pull-request gate.
+[resolved release decision](../Capabilities/release-management/design.md#version-computation)
+comes from an explicit owned label or the repository's configured default, and
+its suitability for the audience is reviewed at the pull-request gate.
 
-This deliberately moves the version decision **right** — off the contributing agent or
-author, onto the gate where a reviewer is already looking. An author guessing at a
-version level is guessing about consumers they cannot see; a reviewer at the gate has
-the whole change in front of them. It also means the decision is recorded on the
-artifact everyone can see, rather than inferred later from history.
+A configured default is a prior policy decision, not an omission to interpret
+later. The pull request records the effective level and its source, and review
+confirms that the level fits the declared user/integrator impact. A missing
+decision fails a required CI check and blocks merge; publication
+does not discover the missing decision only after integration.
 
 ### D3 — Prerelease by default, stabilized on merge
 
-Every build from a topic branch MUST be published as a prerelease. The stable version
-is cut on merge, from the label.
+A topic-branch build authorized for release MUST be published as a prerelease.
+The stable version is cut on merge, from the resolved release decision.
 
 A prerelease version (`1.3.0-add-widgets.1`) sorts below every stable version, which
 is the entire mechanism: a consumer who has not opted in cannot resolve it, so
@@ -141,6 +142,6 @@ recorded as bad in its release notes rather than erased.
 
 - [Continuous Practices](Continuous-Practices.md) — the wider Continuous X family and where each term comes from.
 - [Release Management](../Capabilities/release-management/spec.md) — how the version decision and the prerelease flow are implemented.
-- [Automation Labels](Automation-Labels.md) — why the release label is the authoritative signal and why it is namespaced.
+- [Automation Labels](Automation-Labels.md) — why explicit release overrides use owned, namespaced labels.
 - [Pre-Commit](../Coding-Standards/Pre-Commit.md) — the local half of the integration gate.
 - [Branching and Merging](Branching-and-Merging.md) — the PR → main boundary the build-once decision is taken across.
