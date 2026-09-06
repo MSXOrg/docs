@@ -101,8 +101,9 @@ branch. `workflow_dispatch` is an optional extension, not part of the minimum
 implementation. An implementation SHOULD omit it unless its product has a real
 need to release already-reviewed content outside the merge flow.
 
-Where an ad hoc path exists, it requires an explicit bump, source ref, release-note
-summary, and reason. It resolves the source ref to an immutable commit and enters
+Where an ad hoc path exists, it requires an explicit bump, source ref, complete
+release-note context meeting the [release evidence contract](#release-notes), and
+reason. It resolves the source ref to an immutable commit and enters
 the same Resolve → Build → Test → Publish pipeline as a merged pull request. It
 does not infer a bump, bypass validation, rebuild an existing version, or make a
 direct push into a release interface.
@@ -145,10 +146,86 @@ release-paths:
 
 ## Release notes
 
-The GitHub Release **name** is the version. Its **body** is the pull request title
-and description for the standard merge path, or the required release-note summary
-for an optional ad hoc dispatch. The same note is handed to
-[Downstream Release Propagation](../downstream-release-propagation/design.md).
+The GitHub Release **name** is the resolved version. Its **body** preserves the
+release-bound PR title and complete description, using
+[PR Format](../../Ways-of-Working/PR-Format.md#description-structure) as the
+authoring contract. Summary, user-facing changes, adoption, release impact,
+consumer change records, template evidence, and both ending details blocks stay
+intact. There is no parallel JSON/YAML contract and no extraction of only the
+user-facing headings.
+
+### Bind the note to the released source
+
+1. **Resolve the evidence with the version.** Identify the release-bound PR or
+   ad hoc context and the immutable source to build. Resolve the version base
+   and the source comparison baseline; confirm that the consumer record
+   describes that delta. Capture the applicable title and complete body together
+   with the PR URL or context reference, source identity, and snapshot time.
+   Retain that snapshot as release evidence.
+2. **Keep identity separate from authored prose.** Resolve the actual publication
+   coordinates through the existing version pipeline, not a number assigned by
+   the PR author. Carry them and the snapshot through Build and Test with the
+   same artifact. An authored statement that coordinates resolve at publication
+   is not replaced with a manual prediction.
+3. **Publish the complete record.** Preserve the captured title and body
+   unchanged, with a clearly separated publication envelope. Compare the
+   published authored portion with the snapshot; truncation, summarization,
+   missing evidence, or a source mismatch is a publication failure, not success.
+   Hand the same complete record to every note-bearing publishing target and
+   [Downstream Release Propagation](../downstream-release-propagation/design.md).
+
+The envelope records these resolved facts without becoming a second authored
+release note:
+
+| Field | Value |
+| --- | --- |
+| Release identity | Actual version, stable/prerelease mode, tag, immutable source commit, and artifact identity or digest where applicable. |
+| Effective decision | The resolved semantic effect and its owned-label or configured-policy source; [version computation](#version-computation) remains authoritative. |
+| Version base | The actual version/source used to compute the version, or the explicit initial versioning baseline. |
+| Change baseline | The release and immutable source against which the consumer delta is described, plus a source comparison link; explicitly no predecessor for an initial release. |
+| Note provenance | Release-bound PR URL or ad hoc context, its associated source identity, and snapshot time. The retained authored snapshot is the content reference, not the PR's later mutable body. |
+
+Version base and change baseline can differ, particularly for prereleases and
+bundled promotion. Recording both avoids presenting a versioning calculation as
+proof of the code a consumer crosses. The target template identity and
+compatibility evidence come from the authored record; a publisher does not
+substitute the latest template or infer historical compatibility from current
+documentation.
+
+### Release-bound records
+
+| Publication path | Authored record |
+| --- | --- |
+| Single merged PR | That PR's complete title and description, reconciled with the resolved source comparison. |
+| Bundled release | The release-bound integration PR covers every bundled delta from the declared change baseline, not just the most recent feature PR. It links the contributing work as supporting evidence. |
+| Optional ad hoc dispatch | Complete reviewed release-note context with the same adoption, consumer-change, template, and release-impact evidence. Record the dispatch source and reason; do not create or imply an empty PR. |
+| Prerelease | The PR or integration record appropriate to that published source, captured for that release. Later edits to the final PR do not overwrite the prerelease snapshot or attribute unreleased behavior to it. |
+
+If the relationship between a record and its source cannot be established,
+stop the affected publication and register the evidence gap. The process does
+not substitute the newest note, guess a baseline, or treat an empty adoption
+section as a no-action result.
+
+### Correct published metadata without changing history
+
+A note correction is an audited metadata operation, not another release run:
+
+1. Establish the release-to-source and PR relationship from immutable source
+   comparisons and contemporary evidence. Preserve source-specific prerelease
+   records rather than copying a later final-PR body over them.
+2. Capture original and proposed content, reason, evidence links, actor, and
+   time in a linked audit issue or durable attached artifact. Coordinate active
+   PR ownership; do not add closing keywords to audit prose.
+3. Re-read each target before writing. If another edit changed it, reconcile the
+   correction rather than overwriting that edit. Apply only the established
+   PR/release metadata changes and retain their correspondence.
+4. Re-read the result and confirm that the correction changes no artifact,
+   asset, tag, SHA, release decision, or behavior attributed to an old version.
+   Record unverifiable facts as unresolved gaps instead of inventing actions.
+
+The audit belongs in GitHub issues and release/PR metadata, not a product
+documentation changelog. A correction to bytes still follows the
+[new-artifact recovery rule](#the-pipeline); editing notes never bypasses it.
 
 ## Release output
 
@@ -157,7 +234,8 @@ for an optional ad hoc dispatch. The same note is handed to
    (`<image>:<version>` and `@<digest>`), a package in its registry. For Action,
    workflow, and module artifacts the tag itself **is** the artifact.
 3. A GitHub Release whose name is the version, carrying the note and the
-   immutable reference (digest, package version, or the tag).
+   publication envelope, including the tag's resolved source commit and the
+   immutable artifact identity.
 
 ## Publishing targets
 

@@ -39,13 +39,21 @@ this capability governs the release. If no, there is nothing to release.
 - **Stable and prerelease.** Every release is either **stable** (the latest version to adopt) or a **prerelease** (testable, not promoted to latest). A prerelease MUST be obtainable from an open pull request carrying `release:pre-release` and a bump label and/or from a prerelease branch.
 - **Serialised releases.** Only one release process runs against a given version of the codebase (the same ref) at a time. A release mutates shared, version-anchored state — the tag, the version counter, the published artifact — so overlapping runs on the same ref MUST NOT race, and an in-flight release is never interrupted.
 - **A single production authority.** Exactly one branch is in charge of the production (stable) version, so consumers get one unambiguous latest stable release and two branches can never publish competing production releases.
-- **Notes from the contributor's own words.** The GitHub Release name is the version; its body comes from the pull request title and description, or from the required release-note context of an optional ad hoc dispatch. The PR description is therefore written for consumers.
+- **Notes from the contributor's own words.** The GitHub Release name is the version; its body MUST preserve the release-bound pull request title and complete description, or equivalent complete release-note context for an optional ad hoc dispatch. The authored record follows [PR Format](../../Ways-of-Working/PR-Format.md#description-structure); adoption and technical details MUST NOT be omitted or summarized away.
 - **Only artifact-affecting changes release.** A change that does not flow into the artifact (documentation, CI config) MUST carry `release:skip` and MUST NOT produce a release — though validation still runs on every merge.
 - **Immutable references.** Consumers pin to the most immutable reference available — a container digest or a commit SHA — never a mutable tag.
 - **Publish through a target contract.** Every publishing destination is reached through the same [publishing-target contract](design-publishing-targets.md), so the release process stays one process regardless of how many destinations a repository has. Adding a destination supplies a contract and a publish step; it MUST NOT change the release process.
 - **All-or-nothing across targets.** Where a repository publishes one artifact to more than one destination, a version MUST NOT end up present on some destinations and absent from others. Partial publication is a failure, reported as one, and resumed by completing the remaining destinations with the same immutable artifact and version.
 - **Recovery distinguishes retries from changed output.** Retrying validation or publication of unchanged bytes MUST reuse their artifact and version. A correction that changes the bytes MUST create a new versioned artifact; an existing version is never overwritten or reused.
 - **Standard GitHub primitives only.** Pull requests, labels, comments, and, where implemented, workflow dispatch — no external tooling beyond `gh` and GitHub Actions.
+
+### Release evidence
+
+- **Incremental consumer contract.** Every release MUST describe its consumer-facing delta against an identified release/source baseline, including applicability, exact actions, and verification, or explicit no-action evidence. Breaking behavior MUST be documented independently of its semantic-version classification. An applicable integration template MUST be identified by repository and verified compatible immutable commit, with producer-source compatibility evidence and linked template work or a justified no-change result.
+- **Resolved coordinates.** The release process MUST record the actual target version, tag, immutable source and artifact identity, effective release decision and its source, version-computation base, and consumer-change baseline. The version base and change baseline MUST be distinguished when they differ. A first release MUST identify its initial versioning baseline and lack of a prior release. Authors MUST NOT assign a final version before resolution.
+- **Traceable publication.** Generated identity and provenance MAY surround the authored note as a distinct envelope; they MUST NOT replace or rewrite it. The release MUST retain the note's source identity and snapshot provenance so its relationship to the published code is inspectable. Every destination carrying release notes, including downstream propagation, MUST receive the complete record.
+- **Correct release scope.** A bundled release's integration PR MUST cover every bundled consumer delta. An optional ad hoc release MUST provide equivalent evidence without implying a nonexistent PR. A prerelease MUST preserve the note appropriate to its immutable published source, not a later final-PR description that describes different code.
+- **Metadata-only correction.** A correction to published notes MUST retain an audit of the original and corrected content, reason, supporting source evidence, actor, and time. It MUST NOT alter release artifacts, tags, source identities, or the behavior attributed to a version. Unverifiable historical facts MUST be registered as gaps, not guessed.
 
 ### Consumer update policies
 
@@ -72,6 +80,10 @@ Because versions are semantic, immutable, and published once, a consumer can ado
 - Only the single production branch ever publishes a stable release.
 - A version that reaches one publishing target reaches all of them, or the release is reported as failed.
 - Every release is linkable and records its immutable artifact reference.
+- The published authored title and body match the release-bound snapshot in full, including adoption, consumer/template evidence, and maintainer details.
+- A consumer can identify the actual target, version base, change baseline, and any applicable compatible template without relying on a moving branch, alias, or today's documentation.
+- A bundled or ad hoc note covers its complete change range, and a prerelease note never gains instructions for code absent from that prerelease.
+- A published-note correction is traceable to released-source evidence while all artifact and source identities remain unchanged.
 
 ## Where this connects
 

@@ -117,7 +117,7 @@ Every PR includes `## Release impact`. Report the release resolver's decision; d
 | --- | --- |
 | Effective decision | The selected owned label and its semantic effect, or the configured policy that supplies the decision where supported. Identify the decision's source; do not assume a label name across producers. |
 | Semantic effect | Major, minor, patch, or no release, plus stable/prerelease mode where applicable. Describe breaking behavior separately from its version classification. |
-| Release/base coordinates | The published target version, tag, and immutable source; the base used for version computation; and the release/source baseline used to describe the consumer delta. Distinguish the version base from the change baseline when they differ. |
+| Release/base coordinates | Before publication, state that final coordinates are resolved by the release process. The published record supplies the actual target version, tag, immutable source, version-computation base, and release/source baseline for the consumer delta, distinguishing the two bases when they differ. |
 
 Before publication, name the intended semantic effect and state that final coordinates are **resolved by the release process**. Do not assign a final version in advance or retain a numeric prediction after the base changes. The publisher records the actual coordinates in a distinct publication envelope without rewriting the authored body. For a first release, identify the initial versioning baseline and state that there is no prior release; for `release:skip`, state that no version is produced.
 
@@ -130,7 +130,17 @@ At the very end of every PR description, use this exact structure:
 <details>
 <summary>Technical details</summary>
 
-...
+### Consumer change record
+
+<Incremental consumer evidence or an explicit no-action result.>
+
+### Template baseline
+
+<Verified compatible immutable template evidence, or why no template applies.>
+
+### Maintainer evidence
+
+<Implementation notes, plan progress, alignment, and issue-convergence evidence.>
 
 </details>
 
@@ -149,7 +159,7 @@ At the very end of every PR description, use this exact structure:
 </details>
 ```
 
-The **Technical details** block separates consumer evidence from maintainer evidence under the following headings.
+The **Technical details** block uses the three `###` headings shown above to separate consumer evidence from maintainer evidence. The deeper headings below organize this standard, not the PR body.
 
 #### Consumer change record
 
