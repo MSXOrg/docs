@@ -16,6 +16,11 @@ Copilot review loop, then people — on a branch created per
 [Git Worktrees](Git-Worktrees.md). Fleet orchestration adds nothing to that loop;
 it repeats it across a fleet and tracks the whole set.
 
+For an upstream upgrade, each delivery follows
+[Consumer Upgrades](Consumer-Upgrades.md). A campaign can share a fixed target;
+it cannot assume that consumers share the same actual baseline, release range,
+template differences, or required actions.
+
 The defining rule: **the state of a campaign lives on GitHub**, on the issues and
 pull requests themselves — never in a local file or database. Anyone, or any
 tool, can read and drive a campaign with the GitHub CLI alone.
@@ -27,7 +32,9 @@ tool, can read and drive a campaign with the GitHub CLI alone.
   fleet-wide, or a mechanical migration.
 - Use it when consumers of an organization- or initiative-owned Action or
   reusable workflow must move to a new breaking major. Compatible releases stay
-  on the existing controlled major tag and do not need a consumer campaign.
+  on the existing controlled major tag; advancing that alias alone needs no
+  reference-change campaign. Explicit pinned upgrades still follow the common
+  consumer procedure.
 - For a change in a single repository, there is no campaign — just follow the
   [Contribution Workflow](Contribution-Workflow.md).
 
@@ -64,12 +71,14 @@ copied into another state-bearing field, because duplicated state drifts.
 | CI health | the status-check rollup |
 | Review outcome | `reviewDecision` and unresolved review threads |
 | Mergeability | `mergeable` / merge-state status |
-| Done | pull request **merged**; Task or Bug **closed** |
+| Integration complete | pull request **merged** |
+| Delivery complete | Task or Bug **closed** with the [completion gate](Definition-of-Ready-and-Done.md#definition-of-done) evidenced |
 | Issue ↔ PR link | the pull request's one closing reference |
 
-"Ready for review" is the draft flag flipping off; "done" is the merge. The two
-signals people care about most are native, and are set by the same act that does
-the work — [marking ready](Contribution-Workflow.md) and merging.
+"Ready for review" is the draft flag flipping off; "merged" records integration.
+Both are native signals. Merge or automatic issue closure alone does not prove
+required publication, deployment, or producer/template completion; linked
+delivery evidence records those obligations separately.
 
 ### Campaign identity lives in the title
 
@@ -154,7 +163,9 @@ flowchart TD
    request through the [Contribution Workflow](Contribution-Workflow.md) —
    the Copilot review loop — exactly as any single-repository change. The
    [Implement](Workflow-Stages/Implement.md) and [Review](Workflow-Stages/Review.md)
-   workflow stages apply unchanged.
+   workflow stages apply unchanged. For an upgrade, reconcile the per-consumer
+   release-range ledger and immutable template comparison through
+   [Consumer Upgrades](Consumer-Upgrades.md), including no-action ranges.
 4. **Flag blockers, don't stall the fleet.** If a delivery leaf needs a human decision or
    an off-platform action, set `stage:blocked` with a note and move on to the next
    repository.
@@ -176,10 +187,12 @@ new major tag and leaves the previous major line in place; consumers do not move
 until a deliberate campaign changes each `uses:` reference.
 
 The campaign records the compatibility decision rather than hiding it in release
-automation. Its delivery leaves update the major reference, apply any required
-input, output, permission, or behavior migration, and verify the consumer before
-merge. The producer's controlled release automation MUST NOT repoint an existing
-major tag to perform this migration.
+automation. Its delivery leaves use [Consumer Upgrades](Consumer-Upgrades.md)
+to establish the source that actually ran, compose every applicable crossed
+release, and verify required integration changes before merge. The current
+destination of a floating major tag is not evidence of a consumer's prior
+baseline. The producer's controlled release automation MUST NOT repoint an
+existing major tag to perform this migration.
 
 ## What a rollout surfaces
 
@@ -278,21 +291,23 @@ gh api -X POST   repos/<owner>/<repo>/issues/<n>/comments -f body="<note>"
 gh pr ready <n> --repo <owner>/<repo>
 ```
 
-## Worked example: Process-PSModule and Pester 6
+## Worked example: A shared workflow upgrade
 
-A concrete campaign from the [PSModule](../Initiatives/PSModule.md) initiative:
-adopt the latest Process-PSModule reusable workflow across every consumer, add
-the Pester version requirement to the test files, and migrate the tests.
+A shared workflow campaign resolves one producer target and discovers the
+repositories that consume it. Producer-owned guidance identifies its release
+and template sources; [Consumer Upgrades](Consumer-Upgrades.md) supplies the
+per-repository procedure.
 
-- **Slug:** `process-psmodule-v6`.
+- **Slug:** a stable name identifying the resolved producer target.
 - **Discover the fleet:** find consumers of the reusable workflow with a code
   search for its `uses:` reference, then queue a Task delivery issue in each.
-- **Per repository:** bump the workflow pin, add the
-  `#Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '6.0.0'; MaximumVersion = '6.*' }`
-  requirement to each `*.Tests.ps1`, migrate the tests, and take the pull request
-  through the [Contribution Workflow](Contribution-Workflow.md).
-- **Track it:** every issue and pull request starts with `[process-psmodule-v6]`;
-  the dashboard shows the fleet advancing from *Queued* to *Merged*.
+- **Per repository:** establish the actual immutable baseline, inspect its
+  complete applicable release range, compose the required actions, preserve
+  intentional template differences, and validate the consumer. Do not copy
+  another repository's edits or assume every consumer needs a test migration.
+- **Track it:** every issue and pull request starts with the campaign's
+  `[<slug>]`. The dashboard shows *Queued* through
+  *Merged*, while the linked evidence distinguishes integration from completion.
 
 ## What this is not
 

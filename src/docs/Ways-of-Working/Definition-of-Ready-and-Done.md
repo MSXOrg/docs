@@ -34,8 +34,18 @@ A pull request is ready for review when:
 - The [standards and framework alignment pass](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass) has run against the finished change, its result covers every changed surface in the pull request, and every exception links a follow-up issue.
 - The [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) has run against scoped open issues, and every fully convergent issue is linked in the pull request with a closing keyword.
 - The title, release-note description, and effective release decision and its source are finalized per [PR Format](PR-Format.md). Where Release Management applies, its [required decision check](../Capabilities/release-management/design.md#required-pre-merge-decision-check) passes; an explicit label is not mandatory when a valid configured default supplies the level.
+- Consumer release evidence is complete for the reviewed source under [PR Format](PR-Format.md#description-structure), including explicit no-action outcomes and applicable immutable template compatibility. An upgrade PR also reconciles its complete baseline-to-target range through [Consumer Upgrades](Consumer-Upgrades.md); the newest release note alone is insufficient.
 
 Absent checks are not a pass. When a pull request reports no checks at all, the usual cause is that the workflow's triggers do not cover it — a base branch outside the `pull_request` trigger's `branches` filter is the common one — and that is a gap to fix or file, not a gate to wave through. Manually dispatching the workflow against the branch does not substitute for it either: jobs gated on the event type are skipped silently, so a green `workflow_dispatch` run can hide verification that never ran. If the checks genuinely cannot be made to run before merge, say so in the pull request and link the issue tracking it, so the reviewer knows the gate was not met instead of assuming it was.
+
+Producer review before publication MAY use a verified immutable candidate or
+prerelease source and an immutable template commit, as
+[PR Format](PR-Format.md#template-baseline) permits. If final template wiring
+requires the released producer version, identify that work in a linked delivery
+Task with its owner, sequencing, and completion evidence. Do not create a
+circular pre-merge prerequisite, invent final release coordinates, or describe
+pending template work as delivered. Candidate compatibility must be demonstrated,
+not promised; this does not waive an existing native blocker.
 
 If any item is open, the pull request stays a draft. Marking it ready with known-open work shifts the author's unfinished job onto reviewers — the opposite of what the signal means.
 
@@ -50,6 +60,27 @@ Completion follows the issue's delivery or aggregate path. Across all paths, the
 ### Repository delivery leaf
 
 A repository-delivery Task or Bug is done when its reviewed pull request is merged and closes that one leaf, required checks and tests pass, applicable coding standards hold, and the affected evergreen specification and documentation describe the delivered behavior. Release or deploy it where that applies.
+
+For producer work with an applicable integration template, completion also
+requires compatible **immutable template evidence for the actual published
+producer source**, and delivery of every necessary linked template change.
+Reconcile candidate evidence with the published source and rerun affected
+validation when it differs. A verified existing template commit with a justified
+no-change result satisfies the obligation; a promise to synchronize later does
+not. Where no template applies, record why.
+
+Keep the milestones distinct:
+
+| Milestone | What its evidence establishes |
+| --- | --- |
+| Review readiness | The reviewed candidate has complete consumer evidence and verified applicable template compatibility. |
+| Merge | The reviewed source change is integrated, not necessarily published. |
+| Publication | The actual release/source identities and complete source-bound notes are available through the release process. |
+| Template completion | Necessary linked template changes are delivered and immutable compatibility with the published producer source is evidenced. |
+
+A merged PR or automatically closed delivery leaf alone does not prove producer
+completion. Keep required post-publication template work visible in its linked
+delivery issues until those obligations are satisfied.
 
 ### Operational Task
 

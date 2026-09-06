@@ -105,6 +105,7 @@ with no reader, so a folder appears the first time it has something to hold
 | **How the work is done** — process, principles, conventions | [Ways of Working](index.md) |
 | **How code looks** — style applied to code | [Coding Standards](../Coding-Standards/index.md) |
 | **How this one change is implemented** — paths, trade-offs | the Task or Bug delivery leaf and its PR; see [Issue Planning](Issues/Process/Planning.md) |
+| **What one release changes and how to adopt it** | its source-bound PR and published release record; see [PR Format](PR-Format.md) |
 
 Keeping implementation out of the spec is what makes the spec durable:
 implementation detail rots fastest, so the spec leaves it to the design, the
@@ -159,6 +160,25 @@ Before a spec or design change is accepted it passes a quick rubric — is every
 requirement testable, are criteria measurable and implementation-free, is it
 present-tense and free of status? — applied in the reviewer's head and the PR
 ([4-eyes](Principles/AI-First-Development.md#4-eyes-or-n-eyes-principle)), leaving no artifact behind.
+
+### Current product guidance and release history
+
+Product specs, designs, implementation docs, guides, and references describe
+the current contract and supported behavior. Per-release changes, historical
+migration instructions, and delivery plans belong in issues, PRs, and
+[source-bound release records](../Capabilities/release-management/design.md#release-notes),
+not a parallel changelog or version-by-version migration cookbook in product
+docs. A normative contract is not proof that its implementation or CI
+enforcement exists; delivery records carry that evidence and any remaining gap.
+
+A consumer adopting an older target reads its immutable source/documentation
+snapshot and release records through [Consumer Upgrades](Consumer-Upgrades.md),
+not today's product guidance as a claim about an older version.
+
+Decision records and research remain deliberate exceptions: decisions retain
+one-way-door choices and their supersession links, while research retains
+point-in-time findings. Keeping product guidance evergreen does not erase
+those artifact tiers or turn them into delivery plans.
 
 ## Concise by default
 

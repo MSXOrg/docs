@@ -57,6 +57,13 @@ Run this once per implementation session, when the change is otherwise complete 
 
 Process defines the method; standards and framework documentation define correctness details. Where the layers overlap, the narrower layer supplies the detail and the broader layer supplies the method — a framework page never overrides a process rule it does not own. Read the canonical pages instead of recalling them; that is what keeps guidance written once and referenced everywhere.
 
+Reconcile the [consumer-evidence readiness gate](../Definition-of-Ready-and-Done.md#definition-of-ready-for-review)
+in this same pass. Consumer upgrades use [Consumer Upgrades](../Consumer-Upgrades.md);
+applicable producer changes demonstrate immutable template compatibility and
+track the [producer/template completion obligations](../Definition-of-Ready-and-Done.md#repository-delivery-leaf).
+Record the evidence in the existing PR sections and alignment rows, not a
+second checklist.
+
 Record the outcome as one row per changed surface:
 
 | Changed surface | Standards checked | Framework docs checked | Result |
