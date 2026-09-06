@@ -5,7 +5,13 @@ description: Pull request title, description, change types, and labels.
 
 # PR Format
 
-Pull requests in the MSX ecosystem double as **release notes**. The description is written for end users of the solution, not for reviewers or developers. Implementation details go in a clearly separated technical section at the bottom.
+Pull requests in the MSX ecosystem double as **release notes**. Write for end users, including downstream integrators: what changes, who is affected, and how to adopt it. Keep consumer instructions distinct from reviewer and maintainer evidence.
+
+## The source of truth
+
+The release-bound PR title and complete description are the authored release note. The contract lives in structured Markdown in that body, not a parallel JSON/YAML file or a version-specific migration guide. [Release Management](../Capabilities/release-management/design.md#release-notes) owns publication, resolved release coordinates, provenance, and traceable corrections.
+
+Describe the **incremental change introduced by this release**, not a migration manual from every previous version. Consumers compose the applicable records across their upgrade range; a note for the newest release does not replace the intervening evidence.
 
 ## Title
 
@@ -15,7 +21,7 @@ Pull requests in the MSX ecosystem double as **release notes**. The description 
 
 - The **Icon** matches the change type.
 - The **Type** in brackets is one of: `Major`, `Feature` (Minor), `Patch`, `Fix`, `Docs`, `Maintenance`.
-- The **outcome** describes what changed from the end user's perspective. Never internal function names, class names, refactoring verbs.
+- The **outcome** describes what changed from the end user's perspective. Do not lead with private function or class names or refactoring verbs; public commands, inputs, APIs, paths, and settings are consumer-facing concepts.
 
 ### Good titles
 
@@ -83,7 +89,7 @@ A concise paragraph describing **what changes for the user**. Present tense, act
 
 Organize by **what the user experiences**, not by what was changed internally.
 
-- `## Breaking Changes` — what stopped working or changed incompatibly (Major only).
+- `## Breaking Changes` — what stopped working or changed incompatibly, regardless of the selected change type. Include pre-1.0 breaking behavior even when the version policy classifies it as Minor.
 - `## New: <capability>` — new things the user can do.
 - `## Changed: <behavior>` — existing behavior that now works differently.
 - `## Fixed: <problem>` — problems now resolved.
@@ -91,12 +97,31 @@ Organize by **what the user experiences**, not by what was changed internally.
 Under each header:
 
 - What the user can now do, or what changed for them.
-- What they need to do differently — migration steps, new parameters, changed defaults.
+- Who is affected, including changed public parameters and defaults.
+- A link to the release-wide adoption path rather than a second sequence of instructions.
 - Examples or code snippets showing new usage.
 
-Do **not** mention internal function names, class names, private APIs, or refactoring decisions here.
+Do **not** include private implementation details or refactoring decisions here. Exact public interface names belong here when users need them to understand or adopt the change.
 
-### 3. Required ending blocks
+### 3. Adopting this release
+
+Every PR includes `## Adopting this release` before the technical details. Give one ordered, release-wide path for the affected consumers, with applicability, prerequisites, and any required intermediate steps. Adapt the actions to the artifact: a library call, workflow input, service setting, or infrastructure module may need different consumer changes.
+
+When updating the reference is sufficient, state: **No configuration, code, or invocation changes are required beyond selecting this release.** For a non-releasing change, state its adoption outcome explicitly too. An empty section or an absent migration paragraph is not evidence that no action is needed.
+
+### 4. Release impact
+
+Every PR includes `## Release impact`. Report the release resolver's decision; do not introduce a second version-selection policy.
+
+| Field | Required content |
+| --- | --- |
+| Effective decision | The selected owned label and its semantic effect, or the configured policy that supplies the decision where supported. Identify the decision's source; do not assume a label name across producers. |
+| Semantic effect | Major, minor, patch, or no release, plus stable/prerelease mode where applicable. Describe breaking behavior separately from its version classification. |
+| Release/base coordinates | The published target version, tag, and immutable source; the base used for version computation; and the release/source baseline used to describe the consumer delta. Distinguish the version base from the change baseline when they differ. |
+
+Before publication, name the intended semantic effect and state that final coordinates are **resolved by the release process**. Do not assign a final version in advance or retain a numeric prediction after the base changes. The publisher records the actual coordinates in a distinct publication envelope without rewriting the authored body. For a first release, identify the initial versioning baseline and state that there is no prior release; for `release:skip`, state that no version is produced.
+
+### 5. Required ending blocks
 
 At the very end of every PR description, use this exact structure:
 
@@ -124,11 +149,40 @@ At the very end of every PR description, use this exact structure:
 </details>
 ```
 
-The **Technical details** block is for reviewers and maintainers. Include internal implementation notes such as:
+The **Technical details** block separates consumer evidence from maintainer evidence under the following headings.
+
+#### Consumer change record
+
+Use one row per affected surface. A stable identifier within the record lets the adoption steps and later release records refer to the same change.
+
+| Identifier / surface | Before | After | Applicability / prerequisites | Consumer action | Verification |
+| --- | --- | --- | --- | --- | --- |
+| `<change ID and public surface>` | `<previous behavior>` | `<released behavior>` | `<affected consumers and required starting state>` | `<exact edit or linked numbered detail>` | `<observable result or existing check>` |
+
+Record exact changed configuration keys, workflow contracts, permissions, secret **names, never values**, public APIs, runtime/tool requirements, defaults, removals, and behavior. A list of changed filenames alone is insufficient. Link to numbered detail in the adoption path when commands or coordinated edits need more room; do not maintain competing instructions.
+
+Record no-action outcomes explicitly, including changes that affect behavior but require no consumer edit. If no consumer-facing surface changes, say so instead of leaving an empty table. Applicability distinguishes consumers that need an action from those already using the released contract.
+
+#### Template baseline
+
+Where a framework or product has an applicable integration template, record:
+
+| Field | Required content |
+| --- | --- |
+| Producer identity | Producer version and immutable source, or the immutable candidate source before publication. |
+| Template identity | Template repository and full immutable commit SHA, not a branch, floating tag, or today's latest template. |
+| Compatibility evidence | Evidence that this template commit works with the identified producer source, including required integration surfaces and the relevant validation result. |
+| Template work | Linked template PRs and their delivery state, or a justified no-change result. An earlier compatible commit may be reused when the evidence supports it. |
+
+Every applicable release identifies its verified compatible baseline; a claim of compatibility without evidence is insufficient. If no template applies, state that fact and why. Do not invent a template or describe pending template work as delivered.
+
+#### Maintainer evidence
+
+Keep internal implementation notes separate from the consumer record:
 
 - Which internal functions, classes, or files were changed.
 - Implementation approach and design decisions.
-- Backward compatibility notes for developers.
+- Internal compatibility considerations not already owned by the consumer record.
 - **Implementation plan progress** — cross-reference the closing Task or Bug's plan. Which plan steps does this PR complete? Which were moved to follow-up delivery issues?
 - **Standards and framework alignment** — the result of the [alignment pass](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass), as one row per changed surface. The stage procedure owns when and how the pass is run; this block only carries its evidence.
 - **Issue convergence sweep** — the scope used for the [session-end sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) and which additional open issues (if any) the finished diff fully satisfied.
@@ -155,31 +209,52 @@ A PR that delivers a scoped Task or Bug must include at least one `Resolves` lin
 
 ## Example
 
+This illustrative configuration change uses the same record shape for any artifact type; it does not depend on a particular package manager, language, or deployment mechanism.
+
 ````markdown
-Repository objects now include custom properties directly — no separate API call needed. Queries that encounter missing or inaccessible resources now return partial results with warnings instead of failing entirely.
+Job timeouts use the explicit `timeoutSeconds` setting. Existing timeout values and the 30-second default are unchanged.
 
-## New: Custom properties on repository objects
+## Breaking Changes
 
-The `repo get` command now returns custom properties inline on the repository object. Previously, retrieving custom properties required a separate `repo properties` call.
+The `timeout` configuration key is removed. Configurations that still supply it are rejected. Rename it using the [adoption path](#adopting-this-release); configurations that omit the key need no configuration edit.
 
-```text
-repo get --owner MyOrg --name MyRepo --format table
-```
+## Adopting this release
 
-The `repo properties` command remains available if only the properties are needed.
+1. If the job configuration sets `timeout`, rename that key to `timeoutSeconds`, preserving its positive integer value in seconds. For example, `timeout: 20` becomes `timeoutSeconds: 20`. Do not supply both keys. If the key is absent, retain the 30-second default without adding a setting.
+2. Select the published release through the integration's version reference or deployment mechanism. Apply the configuration edit with that version change, not to the previous version.
+3. Run the existing configuration validation against the selected version: `timeoutSeconds: 20` is accepted and the removed `timeout: 20` is rejected. Run the existing timeout check to confirm cancellation at the configured limit, or 30 seconds when omitted.
 
-## Fixed: Queries no longer fail when a resource doesn't exist
+## Release impact
 
-Commands that query a specific repository, enterprise, or release by name now return nothing instead of throwing when the resource doesn't exist. This makes them safe to use in conditional logic without error handling.
+| Field | Value |
+| --- | --- |
+| Effective decision | `release:major`, selected for removal of a supported configuration key. |
+| Semantic effect | Major, stable; existing explicit configurations require the edit above. |
+| Release/base coordinates | The release process resolves the actual version base, change baseline, target version, tag, and immutable source at publication. No final numeric version is assigned in this PR. |
 
 ---
 <details>
 <summary>Technical details</summary>
 
-- The repository model's custom-properties field is now a typed collection rather than an untyped object.
-- The GraphQL query layer splits error handling into partial-success (data + errors → warnings) and full-failure (errors only → terminating error) branches.
-- Null guards added to the repository lookup helpers.
-- Implementation plan progress: tasks 1–3 in Org/Repo#218 completed; task 4 (integration tests) remains.
+### Consumer change record
+
+| Identifier / surface | Before | After | Applicability / prerequisites | Consumer action | Verification |
+| --- | --- | --- | --- | --- | --- |
+| TIMEOUT-KEY / job configuration | Optional `timeout`, a positive integer in seconds; default 30. | Optional `timeoutSeconds`, with the same units and default; `timeout` is rejected. | Every integration; only configurations using the removed key need an edit. | Rename the key without changing its value; see adoption steps 1-2. No configuration change when omitted. | Adoption step 3 accepts the new key, rejects the old key, and confirms the timeout behavior. |
+
+### Template baseline
+
+Not applicable: this product does not distribute an integration template.
+
+### Maintainer evidence
+
+- The configuration parser accepts `timeoutSeconds` and reports the removed key as invalid.
+- Implementation plan progress: all steps in Org/Repo#218 are complete, including explicit-value and default-value coverage.
+- Issue convergence sweep: configuration and timeout issues were inspected; no additional issue is fully satisfied.
+
+| Changed surface | Standards checked | Framework docs checked | Result |
+| --- | --- | --- | --- |
+| Configuration parsing and timeout behavior | Naming, Error Handling, Testing | Product configuration contract | Aligned |
 
 </details>
 
@@ -187,7 +262,6 @@ Commands that query a specific repository, enterprise, or release by name now re
 <summary>Relevant issues (or links)</summary>
 
 - Resolves Org/Repo#218
-- Resolves Org/Repo#219
 
 ### Related work
 
@@ -195,6 +269,8 @@ Commands that query a specific repository, enterprise, or release by name now re
 
 </details>
 ````
+
+For a no-action patch, keep both required user-facing blocks. State the no-action adoption outcome and record either the affected behavior with `No consumer edit required` or `No consumer-facing surface changes` under Consumer change record. Do not copy the breaking example's configuration actions into an unaffected release.
 
 ## Drafts and readiness
 
