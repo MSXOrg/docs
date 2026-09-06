@@ -79,7 +79,10 @@ Management](../release-management/spec.md).
   Required integration actions, applicable template differences, and relevant
   consumer validation MUST be reconciled before review readiness. Missing
   evidence or a required action MUST block affected work, not become an
-  optional follow-up.
+  optional follow-up. Before an update is eligible for automatic readiness,
+  approval, or merge, verification of that evidence MUST be represented by a
+  required PR check. A missing, stale, pending, or failed result MUST hold the
+  update even when its other checks pass.
 
 ### Non-functional
 
@@ -103,6 +106,8 @@ Management](../release-management/spec.md).
   and a no-action patch retains explicit evidence and relevant validation.
 - Missing baseline, action, or applicable template evidence leaves the affected
   update blocked with a linked owning issue.
+- An updater-created PR with green build checks but incomplete adoption
+  evidence cannot be automatically marked ready, approved, or merged.
 
 ## Where this connects
 

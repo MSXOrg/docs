@@ -78,7 +78,7 @@ implicit.
 flowchart TD
   check["Scheduled check / advisory"] --> pr["Open dependency update PR"]
   pr --> adoption["Consumer Upgrades<br/>(full range + actions + template)"]
-  adoption --> ci["Required checks run<br/>(same gate as any PR)"]
+  adoption --> ci["Required checks run<br/>(including adoption evidence)"]
   ci --> review["Review and merge"]
   review --> merged["Merged"]
   merged --> release["Separate release decision<br/>see Release Management"]
@@ -112,6 +112,21 @@ Every automated update passes the repository's normal review and required-check
 gates, including [complete consumer evidence](../../Ways-of-Working/Definition-of-Ready-and-Done.md#definition-of-ready-for-review).
 Required migration work cannot be deferred while merging an incompatible
 reference bump. Automatic merge, where configured, never bypasses those gates.
+
+Bind adoption verification to the
+[required-check signal](../merge-automation/design.md#the-gate-a-ruleset-requires-the-checks)
+before enabling automatic readiness, approval, or merge for update PRs.
+An existing required PR validation check can carry this condition; a separate
+check is needed only when no existing check owns it. Missing or stale
+range/ledger/template evidence keeps the result pending or failed, even when
+build and test checks are green. Re-evaluate the result when the candidate or
+its required evidence changes.
+
+The updater may open a non-draft PR, so setting it to draft later is not the
+binding control. Until evidence verification is enforced through the required
+check, update PRs remain outside automated readiness, approval, and merge.
+The platform updater supplies a proposal; it does not assert that this gate
+has passed.
 
 ## Security updates
 
