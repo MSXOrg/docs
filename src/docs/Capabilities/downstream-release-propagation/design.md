@@ -48,6 +48,10 @@ keeps the release and its propagation in one observable run. Verify the identity
 by which token the release step passes; if it is `GITHUB_TOKEN`, inline is
 mandatory. Provide two entry points: the **release** stage (gated to stable
 releases), and a **`workflow_dispatch`** taking the release tag, for backfill.
+Both resolve the published release record and validate its stable kind before
+fan-out or delivery-issue creation. A prerelease event is skipped; a backfill
+request naming a prerelease fails with an error directing the caller to a stable
+release. Neither entry point propagates a prerelease.
 
 ## Release coordinate resolution
 
@@ -61,8 +65,9 @@ releases), and a **`workflow_dispatch`** taking the release tag, for backfill.
 The stable event or explicit backfill fixes the target once. A later release
 does not change it. The dependent still establishes whether that target is an
 upgrade from its actual baseline; an old notification never authorizes a
-downgrade. Automatic propagation remains stable-only even though the common
-consumer procedure also supports explicitly requested prerelease upgrades.
+downgrade. Both release-triggered propagation and explicit backfill are
+stable-only. The common procedure's standalone prerelease upgrades do not widen
+this capability.
 
 ## Agent prompt context
 
@@ -198,7 +203,7 @@ user-to-server credential accepted by the Agent Tasks API. So the job:
 - Uses `PROPAGATION_TOKEN`, scoped only to the dependents that need it, with
   **Issues: write** for creating and maintaining delivery issues and the
   permissions required by the configured delegation mode. Task-first uses a
-  user PAT with the **Agent tasks** permission; Issue-first uses the issue
+  user PAT with **Agent tasks: write** permission; Issue-first uses the issue
   pickup mechanism rather than unconditionally creating an Agent Task. The
   agent commits and opens the PR in its own session, so the notification
   credential does not itself push or open PRs.
@@ -214,7 +219,8 @@ user-to-server credential accepted by the Agent Tasks API. So the job:
 | This version already propagated to this dependent | Step **succeeds**, reporting the existing delivery issue and pull request if one exists; no duplicate is created. |
 | Task lands in a failed / timed-out / cancelled state | Step **fails** with the reported state. |
 | One dependent's leg fails | Fails independently (`fail-fast: false`); others proceed. |
-| Prerelease published | Propagation is skipped. |
+| Prerelease release event | Propagation is skipped before fan-out. |
+| Prerelease tag requested through backfill | Dispatch fails before fan-out or issue creation; select a stable release instead. |
 | Complete release evidence cannot be isolated from task instructions safely | Affected delegation fails with a linked evidence-boundary gap; the payload is not silently truncated or trusted as instructions. |
 | Required consumer provenance, release/action evidence, or applicable template compatibility is missing | Affected consumer work is blocked with a linked owning gap; other dependents can proceed. |
 | Target matches the proven baseline or is below it | Record the no-upgrade outcome and apply the [delivery-issue disposition](#adoption-qualification); no empty PR or downgrade. |

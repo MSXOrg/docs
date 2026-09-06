@@ -69,7 +69,7 @@ Management](../release-management/spec.md).
 
 ### Review and release
 
-- **FR10 — One reviewed pull request per update.** Each dependency update is a pull request that passes the full check suite before merge. Nothing is applied unreviewed, and no update takes a side channel around the gate.
+- **FR10 — One reviewed pull request per update.** Each dependency update is a pull request that stays draft until the normal review-readiness gate holds and passes the full check suite before merge. Nothing is applied unreviewed, and no update takes a side channel around the gate.
 - **FR11 — Release impact is decided separately.** The dependency updater MUST NOT choose the repository's release bump. After dependency changes are collected, the repository-wide effect is decided according to [Release Management](../release-management/spec.md).
 - **FR12 — Review and merge follow the repository gate.** An update MUST pass the repository's normal review and required-check policy before merge.
 - **FR13 — Automatic merge is never a bypass.** Where automatic merge is configured, it MUST preserve review requirements and required checks.

@@ -76,7 +76,7 @@ implicit.
 
 ```mermaid
 flowchart TD
-  check["Scheduled check / advisory"] --> pr["Open dependency update PR"]
+  check["Scheduled check / advisory"] --> pr["Open dependency update PR<br/>ensure draft state"]
   pr --> adoption["Consumer Upgrades<br/>(full range + actions + template)"]
   adoption --> ci["Required checks run<br/>(including adoption evidence)"]
   ci --> review["Review and merge"]
@@ -122,11 +122,16 @@ range/ledger/template evidence keeps the result pending or failed, even when
 build and test checks are green. Re-evaluate the result when the candidate or
 its required evidence changes.
 
-The updater may open a non-draft PR, so setting it to draft later is not the
-binding control. Until evidence verification is enforced through the required
-check, update PRs remain outside automated readiness, approval, and merge.
-The platform updater supplies a proposal; it does not assert that this gate
-has passed.
+Create update PRs as drafts. If the native updater cannot do that, the receiving
+workflow immediately converts each opened proposal to draft, before requesting
+human review. Keep it draft until the normal review-readiness gate, including
+adoption verification, holds. The draft flag is the review-handoff signal; it
+does not replace the binding required check or protect the creation-to-conversion
+window by itself.
+
+Until evidence verification is enforced through the required check, update PRs
+remain outside automated readiness, approval, and merge. The platform updater
+supplies a proposal; it does not assert that the gate has passed.
 
 ## Security updates
 
