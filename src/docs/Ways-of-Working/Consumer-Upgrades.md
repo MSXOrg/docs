@@ -52,16 +52,20 @@ version-specific migration instructions.
 2. Distinguish the **consumed upstream version** from the consumer's own package
    or release version. A consumer publishing its next version does not identify
    the framework, tool, or dependency that built it.
-3. Resolve each baseline to the exact upstream version and immutable source
-   identity: a full commit SHA, plus the artifact digest where applicable.
-   Correlate source-bound release metadata with lockfiles, retained run
-   provenance, or deployment records. Reconcile differences between declared,
-   resolved, and deployed state; record which state is being upgraded.
+3. Resolve each baseline to the exact upstream version and the ecosystem's
+   authoritative immutable identity: a full commit SHA for Git-distributed
+   source, or an artifact digest or equally immutable producer-defined identity
+   for an image or package. Retain available source/artifact mappings; do not
+   invent a Git SHA for a producer that distributes only artifacts. Correlate
+   identity-bound release metadata with lockfiles, retained run provenance, or
+   deployment records. Reconcile differences between declared, resolved, and
+   deployed state; record which state is being upgraded.
 4. For a floating alias or version range, recover the source that actually ran
    or was resolved in that baseline. **The alias's present destination does not
    prove its past destination.** Do not infer an old baseline from today's tag,
    the consumer's version, a timestamp, or the nearest release number. If the
-   source cannot be mapped authoritatively to a release baseline, stop.
+   consumed identity cannot be mapped authoritatively to a release baseline,
+   stop.
 
 **Exit criteria.** Every in-scope reference has a recorded consumer location,
 exact upstream baseline, immutable identity, and supporting provenance.
@@ -71,10 +75,10 @@ exact upstream baseline, immutable identity, and supporting provenance.
 1. Resolve the requested target once through the producer's authoritative
    release source: latest stable by default, or the explicit stable/prerelease
    selection. The default uses the producer's version ordering and designated
-   stable lineage, not the
-   API's first result or the most recently published timestamp. Record its
-   version, release link, full source SHA, and artifact identity where
-   applicable. Do not silently retarget when a newer release appears.
+   stable lineage, not the API's first result or the most recently published
+   timestamp. Record its version, release link, and immutable identity using
+   the same ecosystem rule as the baseline. Do not silently retarget when a
+   newer release appears.
 2. Confirm the target is above the baseline under the producer's semantic
    version and lineage rules. A non-latest target is valid only when it is still
    an upgrade. An identical version/source is already current, not a fabricated
@@ -101,8 +105,8 @@ with its source-bound release records. Today's documentation, template, or
 `latest` alias cannot establish what that target supports.
 
 **Exit criteria.** The target is fixed, and the complete ordered release set and
-its lineage are evidenced. An unexplained gap, missing page, unavailable source,
-or ambiguous release relationship blocks traversal.
+its lineage are evidenced. An unexplained gap, missing page, unavailable required
+source or artifact evidence, or ambiguous release relationship blocks traversal.
 
 ### Stage 3 - Compose the action ledger
 
@@ -144,7 +148,7 @@ the target contract, and no required action or prerequisite remains ambiguous.
 
 1. Resolve the template from the **target's recorded compatible baseline**, not
    the template's default branch or latest commit. Read that immutable commit
-   and its evidence against the selected producer source. A reused earlier
+   and its evidence against the selected producer identity. A reused earlier
    template commit is valid when that compatibility is evidenced.
 2. Compare the consumer with that template, separating **required integration
    surfaces**, **optional scaffolding**, and **intentional local differences**.
@@ -170,7 +174,7 @@ what changed, what stayed local, and what does not apply.
 1. Run the consumer's existing relevant tests, builds, linting, and integration
    checks for the affected surfaces. Verify the upstream immutable identity
    those runs actually used; a floating reference must not validate a different
-   source from the recorded target.
+   source or artifact from the recorded target.
 2. Reconcile every ledger entry with the final consumer diff and observable
    results. Confirm rename endpoints, required intermediate operations, and
    preserved local behavior, not just the dependency version.
@@ -216,8 +220,9 @@ Before then, the issue and PR report the actual milestone and any blocker.
 Keep progress and decisions in the delivery issue and upgrade PR, not a migration
 history file in product documentation. The PR retains:
 
-- Exact baseline-to-target ranges for all in-scope references, immutable source
-  and artifact identities, baseline provenance, and the fixed target selection.
+- Exact baseline-to-target ranges for all in-scope references, authoritative
+  immutable identities and available source/artifact mappings, baseline
+  provenance, and the fixed target selection.
 - The complete ordered release links and source-bound records inspected,
   including no-action releases and evidence for lineage exclusions or roll-ups.
 - The reconciled ledger: completed and not-applicable actions with reasons,
