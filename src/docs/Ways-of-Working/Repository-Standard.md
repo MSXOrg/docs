@@ -23,7 +23,7 @@ discoverability minimum defined below instead.
 
 | File | Requirement |
 | --- | --- |
-| `README.md` | Acts as the repository start page: purpose, value, access, first mental model, and where to go next. |
+| `README.md` | Acts as the repository start page: purpose, target audience, value, access, first mental model, and where to go next. |
 | `LICENSE` | States the legal terms for reuse and redistribution. |
 | `.github/CONTRIBUTING.md` | Explains how to contribute, including how the organization defaults and central pull request template apply. |
 | `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation. [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior) names the files and the path each one sits at. |
@@ -81,6 +81,7 @@ A README answers these questions, in this order:
 | Question | README responsibility |
 | --- | --- |
 | What is it? | Name the product or artifact and its scope. |
+| Who is it for? | State the [target audience and supported uses](Readme-Driven-Context.md#target-audience), or explicitly adopt the initiative's definition and state any specialization. |
 | Why should I care? | State the value or problem it solves. |
 | How do I get it? | Show the shortest install, download, import, or usage entry point. |
 | How does it work? | Give a concise introduction to the main capability or operating model. |
@@ -173,7 +174,7 @@ Default title pattern:
 <Icon> [<Change type>]: <User-facing outcome>
 ```
 
-The description should lead with user-facing impact, continue with user-facing change sections, include optional technical details after those sections, and end with the related-issues block. It closes one scoped Task or Bug as required by [PR Format](PR-Format.md), with any additional closing links limited to issues the session-end convergence sweep shows are fully delivered by the same diff.
+Use [PR Format](PR-Format.md) for audience-based change classification and the complete description structure, including its required consumer-evidence and ending blocks. A PR closes one scoped Task or Bug, with any additional closing links limited to issues the session-end convergence sweep shows are fully delivered by the same diff.
 
 The organization-level `.github` repository supplies the default template.
 The repository-local contribution guide directs humans and agents to the

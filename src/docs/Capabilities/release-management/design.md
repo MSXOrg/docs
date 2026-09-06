@@ -135,13 +135,21 @@ globs (excludes win). The workflow **always runs** so validation executes on
 every merge; only the release step is skipped when no artifact-affecting path
 changed.
 
+Derive these paths from the delivered product and its
+[audience-facing contracts](../../Ways-of-Working/PR-Format.md#detecting-the-change-type),
+not directory names alone. Include callable workflows and build configuration
+that changes delivered runtime requirements or behavior. The exclusions below
+are valid only when those directories contain no artifact inputs or supported
+consumer interfaces; a workflow producer includes its published workflow paths
+without an overriding `.github/` exclusion.
+
 ```yaml
 release-paths:
   - "src/**"
   - "Dockerfile"
   - "action.yml"
-  - "!docs/**"       # documentation-only changes never release
-  - "!.github/**"    # CI/CD changes never release
+  - "!docs/**"       # standalone documentation, not artifact inputs
+  - "!.github/**"    # internal-only workflows, not caller contracts
 ```
 
 ## Release notes

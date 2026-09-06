@@ -30,7 +30,7 @@ Describe the **incremental change introduced by this release**, not a migration 
 - `🩹 [Patch]: Default timeout value corrected`
 - `🪲 [Fix]: Parameter validation no longer fails on null input`
 - `📖 [Docs]: Installation guide updated with prerequisites`
-- `⚙️ [Maintenance]: Release workflow and dependencies updated`
+- `⚙️ [Maintenance]: Internal build tooling stays current`
 
 ### Bad titles
 
@@ -47,7 +47,7 @@ Describe the **incremental change introduced by this release**, not a migration 
 | Patch       | 🩹   | `release:patch`  | Small fixes or improvements                           |
 | Fix         | 🪲   | `release:patch`  | Bugfixes (patch-level release impact)                 |
 | Docs        | 📖   | `release:skip`   | Documentation changes only                            |
-| Maintenance | ⚙️   | `release:skip`   | CI/CD, build configs, AI/agent files, internal upkeep |
+| Maintenance | ⚙️   | `release:skip`   | Internal upkeep without a shipped behavior or integration-contract change |
 
 `release:pre-release` is a release mode, not a change type. Apply it alongside
 exactly one of `release:patch`, `release:minor`, or `release:major` when an open
@@ -55,27 +55,39 @@ pull request must publish a prerelease. Never combine it with `release:skip`.
 
 ### Detecting the change type
 
+Decide the type from the change **for the declared target audience**, including its integrators, not from the maintainer's implementation effort or the names of changed files. Read the [audience declaration in the README](Readme-Driven-Context.md#target-audience) and any explicitly adopted initiative definition first. Resolve and record missing or ambiguous audience context before finalizing the type; do not guess it from repository ownership.
+
+Assess every affected supported use: commands, parameters, APIs, output shapes, configuration, permissions, installation, and runtime/tool requirements. User and integrator may be the same person, as the [PSModule audience](../Initiatives/PSModule.md#target-audience) illustrates. An interactive command still working does not make a change compatible if the same user's supported script integration breaks.
+
 The change type is decided in this order:
 
-1. **Explicit user input** — if the contributor / Shipper specified a type, use it.
+1. **Explicit user input** — if the contributor / Shipper specified a type, verify it against the audience impact and applicable version policy. Resolve a conflict before finalizing the release decision; a label does not make a breaking change compatible.
 2. **Pre-1.0.0 rule** — projects with no version tags or latest tag below `v1.0.0` follow [SemVer §4](https://semver.org/#spec-item-4). Major is **never** auto-detected for pre-1.0.0 projects. Breaking changes there are classified as Minor (`0.x.0`).
-3. **Artifact-based inference** from the branch diff:
+3. **Find the affected consumer contracts** in the branch diff. Paths help locate evidence; they do not determine impact:
 
-    | Artifact type          | How to recognize                                              | Important files (affect artifact)                              | Non-important (framework / tooling)                              |
-    | ---------------------- | ------------------------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------- |
-    | Library / Module       | `src/` with the library's source and a package manifest       | `src/**`, package manifest                                     | `.github/**`, `*.md`, `tests/**`, `scripts/**`, `agents/**`      |
-    | GitHub Action          | `action.yml` at repo root                                     | `action.yml`, `src/**`                                         | `.github/**`, `*.md`, `tests/**`, `agents/**`                    |
-    | Reusable Workflow      | `.github/workflows/` with callable workflows                  | `.github/workflows/**`                                         | `*.md`, `tests/**`, `agents/**`                                  |
-    | Infrastructure module  | `*.tf` with input variables and outputs                       | `*.tf`, `*.tf.json`                                            | `.github/**`, `*.md`, `tests/**`, `examples/**`                  |
+    | Artifact type | Recognition hints | Consumer contract to inspect |
+    | --- | --- | --- |
+    | Library / Module | Source and package manifest | Public commands/APIs, parameters, output shapes, defaults, installation, and supported runtimes. |
+    | GitHub Action | `action.yml` and its implementation | Inputs, outputs, permissions, execution environment, and behavior. |
+    | Reusable Workflow | Callable workflows under `.github/workflows/` | Caller inputs, secrets, permissions, configuration, tool requirements, and behavior. |
+    | Infrastructure module | Module source, variables, and outputs | Variable/output contracts, defaults, provider requirements, and managed-resource behavior. |
 
-4. **Classification rules** (apply in order):
-    1. **Docs** — all changes are documentation only.
-    2. **Maintenance** — all changes are non-important for the artifact (no shipped change).
-    3. **Patch** — important-file changes are small fixes or minor improvements.
-    4. **Minor** — important-file changes add features without breaking.
-    5. **Major** — important-file changes break backward compatibility (pre-1.0.0 → downgrade to Minor).
+4. **Classification rules** (apply in order, against those contracts):
+    1. **Docs** — documentation-only changes, not a functional change merely stored in a documentation file.
+    2. **Maintenance** — internal-only changes with no effect on shipped behavior or supported integration contracts.
+    3. **Major** — a supported user or integration contract breaks (pre-1.0.0 auto-detection maps this to Minor).
+    4. **Feature (Minor)** — backward-compatible capabilities are added.
+    5. **Patch or Fix** — backward-compatible fixes or small improvements.
 
-If the branch contains both important and non-important changes, classify based on the important changes only.
+Use the highest impact across the affected supported contracts, then apply the version policy. A small fix can be breaking; unrelated internal changes or documentation do not lower that impact.
+
+Illustrative cases, not release history:
+
+| Change | Audience-based classification |
+| --- | --- |
+| Remove a supported `Process-PSModule` caller input | Breaking for module maintainers integrating the workflow, not Maintenance because the edit is under `.github/`. |
+| Change a module's supported output shape or raise its minimum PowerShell version | Breaking for PowerShell users and their integrations, even if only a manifest or one line changes. |
+| Add an optional module parameter without changing existing calls | Feature (Minor): a compatible capability for the same PowerShell audience. |
 
 ## Description structure
 

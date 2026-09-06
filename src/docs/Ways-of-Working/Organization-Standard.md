@@ -15,6 +15,7 @@ Each initiative must have a central documentation repository that defines its im
 
 The initiative docs must describe:
 
+- The target audiences and jobs the initiative serves, including how repositories [declare or specialize that audience](Readme-Driven-Context.md#target-audience).
 - Repository types used by the initiative.
 - Required files for each repository type.
 - Managed-file source locations and update workflow.
