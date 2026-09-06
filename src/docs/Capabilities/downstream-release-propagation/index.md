@@ -16,6 +16,6 @@ instead. No dependent has to notice the release or track the bump by hand.
 | Page | Description |
 | --- | --- |
 | [Spec](spec.md) | Requirements for downstream release propagation — each dependent receives an upgrade pull request or an evidenced no-upgrade outcome. |
-| [Design](design.md) | How downstream release propagation is built — an inline notification delegates source-bound qualification and any needed upgrade to each dependent. |
+| [Design](design.md) | How downstream release propagation is built — an inline notification coordinates qualification, conditional delegation, and upgrade pull requests. |
 
 <!-- INDEX:END -->

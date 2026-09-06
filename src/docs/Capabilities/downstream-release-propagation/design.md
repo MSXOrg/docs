@@ -1,18 +1,18 @@
 ---
 title: Design
-description: How downstream release propagation is built — an inline notification delegates source-bound qualification and any needed upgrade to each dependent.
+description: How downstream release propagation is built — an inline notification coordinates qualification, conditional delegation, and upgrade pull requests.
 ---
 
 # Downstream Release Propagation — Design
 
-The notification runs in the **producer** when a release is cut. It resolves the
-release coordinates, builds a self-contained prompt per dependent, and delegates
-the change to a cloud agent **in the dependent** via the
-[Agent Tasks API](https://docs.github.com/rest/agent-tasks/agent-tasks). The
-brief travels entirely in the prompt. The agent first creates or reuses the
-dependent's Task or Bug delivery issue and qualifies the target against its
-actual baseline. A needed upgrade produces a pull request with that delivery
-leaf as its one closing reference; no-upgrade outcomes create no PR.
+The notification runs in the **producer** when a release is cut. The notifier
+resolves the release coordinates, creates or reuses the dependent's Task or Bug,
+and builds its self-contained brief. If authoritative consumer evidence already
+establishes a no-upgrade outcome, it records that outcome without engaging an
+agent. Otherwise, the configured [delegation mode](#delegation) engages a cloud
+agent **in the dependent**, where qualification precedes Build. A needed
+upgrade produces a PR closing that one delivery leaf; no-upgrade outcomes
+create no PR.
 
 ```mermaid
 flowchart TD
@@ -20,10 +20,12 @@ flowchart TD
   notify --> resolve["Resolve version + immutable ref (SHA / digest) + notes"]
   resolve --> fan{"For each dependent"}
   fan --> issue["Create or reuse Task / Bug delivery issue"]
-  issue --> delegate["Create agent task in dependent<br/>self-contained prompt with full context"]
+  issue --> known{"Notifier has verified<br/>no-upgrade evidence?"}
+  known -->|"yes"| nochange["Record no-upgrade disposition<br/>no PR"]
+  known -->|"no: upgrade or agent qualification needed"| delegate["Engage agent through configured mode<br/>Issue-first or Task-first"]
   delegate --> qualify{"Target upgrades actual baseline?"}
   qualify -->|"yes"| pr["Agent opens closing PR: bump + related fixes + impact"]
-  qualify -->|"no"| nochange["Record no-upgrade outcome<br/>no PR"]
+  qualify -->|"no"| nochange
   qualify -->|"unknown"| blocked["Record provenance blocker"]
   pr --> review["Human review + merge"]
 ```
@@ -100,9 +102,9 @@ with the owner, not silently canceled.
 
 ## Delegation
 
-Two delegation modes can carry the request into the dependent. Both create or
-reuse a real Task or Bug before qualification, and a needed repository change
-enters Build only after that leaf satisfies the
+Two delegation modes can carry the request into the dependent. Both consume
+the Task or Bug created or reused by the notifier before qualification. A
+needed repository change enters Build only after that leaf satisfies the
 [Definition of Ready](../../Ways-of-Working/Definition-of-Ready-and-Done.md#delivery-leaf-readiness).
 
 | | **Task-first** | **Issue-first** |
@@ -113,17 +115,20 @@ enters Build only after that leaf satisfies the
 | Visible before the agent starts | the delivery issue and task state | the issue |
 | Suits | immediate execution after the delivery leaf is ready | propagation that needs triage, discussion, or scheduling before work starts |
 
-**Issue-first is the default:** it creates or reuses one Task or Bug in the
-dependent per producer version, recording the target and required evidence.
-Qualification establishes whether delivery is needed and refines independently
+**Issue-first is the default:** the delivery issue itself is the request, with
+the target and required evidence recorded by the notifier. The configured
+issue pickup mechanism engages the agent; no direct Agent Task creation is
+required. Qualification establishes whether delivery is needed and refines independently
 verifiable acceptance criteria and an executable local plan before Build.
 For a needed upgrade, the agent opens a pull request closing exactly that issue.
 Idempotency is by **existence**: the issue is the durable record that this version
 was propagated, so a repeat run finds and reuses it.
 
-**Task-first** is available only when the agent task is created after the same
-Task or Bug is created or reused. The task carries the issue number and instruction
-to qualify the upgrade before creating a closing PR, then is polled until it reaches `queued`, `in_progress`, or
+**Task-first** creates a task through the
+[Agent Tasks API](https://docs.github.com/rest/agent-tasks/agent-tasks), only after
+the same Task or Bug delivery issue exists. The task carries the issue number
+and instruction to qualify the upgrade before creating a closing PR, then is
+polled until it reaches `queued`, `in_progress`, or
 `completed` (a fast task may go straight to `completed`). It fails only if the
 task cannot be created or lands in `failed`, `timed_out`, or `cancelled`. An agent
 task is execution state, not a delivery record; it never authorizes a standalone
@@ -162,15 +167,18 @@ The agent is given the same instructions under either delegation model:
 
 ## Permissions and credentials
 
-`GITHUB_TOKEN` is unsuitable for three independent reasons: it cannot act across
-repositories, it is not the user-to-server token the Agent Tasks API requires,
-and a release it publishes cannot trigger a `release:` workflow. So the job:
+`GITHUB_TOKEN` cannot act across repositories, and a release it publishes cannot
+trigger a separate `release:` workflow. Task-first additionally needs the
+user-to-server credential accepted by the Agent Tasks API. So the job:
 
 - Declares **least-privilege** `permissions:` (`contents: read` suffices).
-- Uses `PROPAGATION_TOKEN` — a user PAT carrying the **Agent tasks** permission,
-  an org secret scoped to only the dependents that need it. Because the agent
-  commits and opens the PR within its task session, the token does not itself
-  push or open PRs.
+- Uses `PROPAGATION_TOKEN`, scoped only to the dependents that need it, with
+  **Issues: write** for creating and maintaining delivery issues and the
+  permissions required by the configured delegation mode. Task-first uses a
+  user PAT with the **Agent tasks** permission; Issue-first uses the issue
+  pickup mechanism rather than unconditionally creating an Agent Task. The
+  agent commits and opens the PR in its own session, so the notification
+  credential does not itself push or open PRs.
 - Passes the secret **explicitly by name** when the notification is a reusable
   workflow — never `secrets: inherit`, per the
   [GitHub Actions coding standard](../../Coding-Standards/GitHub-Actions.md).

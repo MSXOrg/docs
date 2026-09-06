@@ -41,9 +41,10 @@ tool, can read and drive a campaign with the GitHub CLI alone.
 ## The campaign
 
 A campaign is one change rolled out across a set of repositories. Each
-repository's slice is one Task or Bug delivery leaf and its pull request. A
+repository's slice starts with one Task or Bug delivery leaf; it gets a branch
+and PR only when qualification establishes a needed repository change. A
 campaign has a short, stable **slug** (for example `process-psmodule-v6`) that
-names both artifacts everywhere.
+names the issue and any PR everywhere.
 
 An **existing open pull request can be adopted** when its scope matches the
 campaign slice. Ensure it closes exactly one correctly typed Task or Bug,
@@ -135,21 +136,33 @@ GitHub action, so the resulting state is always re-derivable.
 
 ```mermaid
 flowchart TD
-    Q[Queued: Task or Bug] --> P[Open PR as draft]
-    A[Adopt existing PR: return to draft] --> R
+    Q[Queued: Task or Bug] --> S[Confirm scope and qualify upgrades]
+    S --> N{Repository change needed?}
+    N -->|no upgrade and no other work| X[Record Not needed: no PR]
+    N -->|unknown| B[Blocked]
+    N -->|yes| E{Matching PR exists?}
+    E -->|no| P[Create branch and draft PR]
+    E -->|yes| A[Adopt existing PR: return to draft]
+    A --> R
     P --> R[Contribution Workflow: Copilot review loop]
-    R -->|needs a human decision| B[Blocked]
-    B -->|unblocked| R
+    R -->|needs a human decision| B
+    B -->|unblocked| S
     R -->|loop clean| Y[Mark ready for review]
     Y --> M[Human review and merge]
     M --> D[Close Task or Bug]
 ```
 
-1. **Queue the work.** Create one Task or Bug delivery issue per repository, with
+1. **Queue and qualify the work.** Create one Task or Bug delivery issue per repository, with
   the campaign prefix in the title and `stage:queued`. Route it through the
   [Issue Hierarchy](Issues/Types/Hierarchy.md) and follow its canonical type
-  page. The whole fleet starts as *Queued*.
-2. **Branch and open a draft.** Create a worktree and branch
+  page. For an upgrade, establish the actual baseline and fixed target through
+  [Consumer Upgrades](Consumer-Upgrades.md#stage-1-establish-the-actual-baseline)
+  before creating or adopting a branch/PR. A proven no-upgrade outcome with no
+  other local work becomes *Not needed*; unknown provenance becomes *Blocked*.
+  When considering an existing PR, qualify against the actual pre-upgrade
+  consumer state, not its proposed new references, and preserve any remaining
+  local acceptance work.
+2. **For a needed change, branch and open a draft.** Create a worktree and branch
    ([Git Worktrees](Git-Worktrees.md)), then open a **draft** pull request that
   closes exactly that delivery issue, per [PR Format](PR-Format.md). Use the same
   campaign prefix in the pull request title and move the stage to
@@ -165,8 +178,8 @@ flowchart TD
    request through the [Contribution Workflow](Contribution-Workflow.md) —
    the Copilot review loop — exactly as any single-repository change. The
    [Implement](Workflow-Stages/Implement.md) and [Review](Workflow-Stages/Review.md)
-   workflow stages apply unchanged. For an upgrade, reconcile the per-consumer
-   release-range ledger and immutable template comparison through
+   workflow stages apply unchanged. For an upgrade, continue with the per-consumer
+   release-range ledger and immutable template comparison in
    [Consumer Upgrades](Consumer-Upgrades.md), including no-action ranges.
 4. **Flag blockers, don't stall the fleet.** If a delivery leaf needs a human decision or
    an off-platform action, set `stage:blocked` with a note and move on to the next
