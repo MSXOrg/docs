@@ -70,13 +70,17 @@ exact upstream baseline, immutable identity, and supporting provenance.
 
 1. Resolve the requested target once through the producer's authoritative
    release source: latest stable by default, or the explicit stable/prerelease
-   selection. Record its version, release link, full source SHA, and artifact
-   identity where applicable. Do not silently retarget when a newer release
-   appears.
+   selection. The default uses the producer's version ordering and designated
+   stable lineage, not the
+   API's first result or the most recently published timestamp. Record its
+   version, release link, full source SHA, and artifact identity where
+   applicable. Do not silently retarget when a newer release appears.
 2. Confirm the target is above the baseline under the producer's semantic
    version and lineage rules. A non-latest target is valid only when it is still
    an upgrade. An identical version/source is already current, not a fabricated
-   upgrade; a lower target belongs to a separate downgrade task.
+   upgrade; a lower target belongs to a separate downgrade task. Record either
+   outcome and stop that upgrade path rather than continuing with an invalid
+   range.
 3. Enumerate the release history with **full pagination**, following every page
    to exhaustion. Establish the applicable path from each baseline to the fixed
    target using the records' consumer-change/source baselines. The
