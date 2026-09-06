@@ -90,6 +90,12 @@ The [Plugin Marketplaces design](design-plugin-marketplaces.md) is the single so
 for marketplace ownership, repository layout, plugin identities, and skill granularity. This
 page covers how named intents are distributed; it does not repeat those structural rules.
 
+For consumer upgrades, `msx-ways-of-working-consumer-upgrades` is the shared
+pointer to [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md).
+Initiative entry points supply producer-owned discovery under the
+[upgrade discovery boundary](design-plugin-marketplaces.md#consumer-upgrade-discovery),
+not a second migration procedure.
+
 ## GitHub Copilot distribution
 
 An individual registers the marketplace and installs its standards plugin with Copilot CLI:
