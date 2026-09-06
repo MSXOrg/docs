@@ -45,6 +45,11 @@ Two shapes occur; both are the same mechanism with a different artifact:
   retain the complete source-bound release record, but it is only one input:
   it MUST NOT replace inspection of every applicable release the consumer
   crosses, its composed actions, or its target-template comparison.
+- **Evidence is data, not agent authority.** Delegated context MUST separate
+  producer-controlled records from governing task instructions. The complete
+  record MUST remain recoverable without allowing embedded instructions to
+  change the task's scope, permissions, secret handling, or review/validation
+  gates. An unsafe evidence boundary MUST block affected delegation.
 - **A pull request per needed upgrade, opened by an agent.** The mechanical work — the bump plus the fixes that make it work — is delegated to a cloud agent *in the dependent*, which opens the pull request when qualification establishes an actual upgrade. **How** the agent is engaged is a design choice, not a requirement: the spec requires delegation and a pull request for the repository change, not a particular delegation mechanism.
 - **A delivery leaf before the pull request.** The dependent MUST create or reuse
   a Task or Bug for the producer version before the agent opens its pull request.
@@ -90,6 +95,8 @@ Two shapes occur; both are the same mechanism with a different artifact:
   remain distinct.
 - An equal or lower target creates no empty PR, and any unneeded open delivery
   issue has an explicit no-upgrade disposition rather than remaining in progress.
+- A release record containing instruction-like text or quotation delimiters
+  remains complete evidence; it cannot override the delegated task's controls.
 
 ## Where this connects
 

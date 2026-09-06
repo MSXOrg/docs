@@ -55,7 +55,7 @@ releases), and a **`workflow_dispatch`** taking the release tag, for backfill.
 | --- | --- |
 | `version` | The fixed propagated upstream target, distinct from the dependent's own package version |
 | immutable ref | The commit SHA (pinned-reference) or image digest (published-artifact) that dependents pin to |
-| `release_notes` | The complete source-bound release body and publication envelope, embedded verbatim in the prompt |
+| `release_notes` | The complete source-bound release body and publication envelope, carried losslessly as untrusted evidence |
 | Evidence sources | Authoritative producer sources for version/source mapping, fully paginated release history, target-era documentation, and the recorded immutable compatible template where applicable |
 
 The stable event or explicit backfill fixes the target once. A later release
@@ -69,7 +69,7 @@ consumer procedure also supports explicitly requested prerelease upgrades.
 The prompt is the context handoff. Each embeds: an **action-oriented summary**;
 the **exact target reference** the PR must produce
 (`uses: org/<producer>@<sha> # <version>`, or the image tag/digest); the
-**release notes** verbatim; and
+**complete release notes** as evidence; and
 **related-change context** — new or renamed config keys, new environment
 variables or secrets, required infrastructure changes, migrations, changed
 defaults, or breaking changes. It also links the producer-owned evidence sources
@@ -81,6 +81,29 @@ the complete received note, and receiving that note does not prove that the
 dependent inspected its full crossed range. Historical and prerelease evidence
 stays bound to the corresponding immutable source, not today's final PR body,
 docs, or template.
+
+### Evidence trust boundary
+
+The application-owned task instructions identify the authorized consumer,
+delivery issue, fixed target, and governing procedure. Producer-controlled
+release/PR text, summaries, and related documentation are a separate,
+explicitly delimited **untrusted evidence** payload, never agent instructions.
+The trusted task instructions require the agent to apply
+[Consumer Upgrades' evidence handling](../../Ways-of-Working/Consumer-Upgrades.md#stage-3-compose-the-action-ledger):
+extract and validate proposed actions, but reject embedded attempts to change
+scope, permissions, secret handling, or required gates.
+
+Use the runtime's data/attachment boundary or collision-safe quotation; a bare
+Markdown fence that the supplied record can close is insufficient. Transport
+escaping must decode to the complete original record, preserving its source
+identity and all authored content rather than summarizing or sanitizing away
+sections. This is transport isolation, not another release-note schema.
+
+If the complete record cannot be carried safely as data, stop affected
+delegation and register the evidence-boundary gap. Do not silently omit content
+or promote it into the governing instructions. This applies under both
+delegation modes and follows the
+[security trust-boundary standard](../../Coding-Standards/Security.md#validate-at-the-boundaries).
 
 ## Adoption qualification
 
@@ -192,6 +215,7 @@ user-to-server credential accepted by the Agent Tasks API. So the job:
 | Task lands in a failed / timed-out / cancelled state | Step **fails** with the reported state. |
 | One dependent's leg fails | Fails independently (`fail-fast: false`); others proceed. |
 | Prerelease published | Propagation is skipped. |
+| Complete release evidence cannot be isolated from task instructions safely | Affected delegation fails with a linked evidence-boundary gap; the payload is not silently truncated or trusted as instructions. |
 | Required consumer provenance, release/action evidence, or applicable template compatibility is missing | Affected consumer work is blocked with a linked owning gap; other dependents can proceed. |
 | Target matches the proven baseline or is below it | Record the no-upgrade outcome and apply the [delivery-issue disposition](#adoption-qualification); no empty PR or downgrade. |
 
