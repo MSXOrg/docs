@@ -7,9 +7,11 @@ description: How downstream release propagation is built — an inline notificat
 
 The notification runs in the **producer** when a release is cut. The notifier
 resolves the release coordinates, creates or reuses the dependent's Task or Bug,
-and builds its self-contained brief. If authoritative consumer evidence already
-establishes a no-upgrade outcome, it records that outcome without engaging an
-agent. Otherwise, the configured [delegation mode](#delegation) engages a cloud
+and builds its self-contained brief. It first
+[reconciles existing handoff state](#retry-and-handoff-recovery) rather than
+delegating again. For work still needing qualification, authoritative no-upgrade
+evidence terminates without engaging an agent. Otherwise, the configured
+[delegation mode](#delegation) engages a cloud
 agent **in the dependent**, where qualification precedes Build. A needed
 upgrade produces a PR closing that one delivery leaf; no-upgrade outcomes
 create no PR.
@@ -20,13 +22,17 @@ flowchart TD
   notify --> resolve["Resolve version + immutable ref (SHA / digest) + notes"]
   resolve --> fan{"For each dependent"}
   fan --> issue["Create or reuse Task / Bug delivery issue"]
-  issue --> known{"Notifier has verified<br/>no-upgrade evidence?"}
+  issue --> resume{"Reconcile existing handoff"}
+  resume -->|"matching PR or verified outcome"| reuse["Report existing handoff and actual state"]
+  resume -->|"active execution"| active["Report existing execution in progress"]
+  resume -->|"blocked or uncertain"| blocked["Record blocker"]
+  resume -->|"missing or safe retry"| known{"Notifier has verified<br/>no-upgrade evidence?"}
   known -->|"yes"| nochange["Record no-upgrade disposition<br/>no PR"]
   known -->|"no: upgrade or agent qualification needed"| delegate["Engage agent through configured mode<br/>Issue-first or Task-first"]
   delegate --> qualify{"Target upgrades actual baseline?"}
   qualify -->|"yes"| pr["Agent opens closing PR: bump + related fixes + impact"]
   qualify -->|"no"| nochange
-  qualify -->|"unknown"| blocked["Record provenance blocker"]
+  qualify -->|"unknown"| blocked
   pr --> review["Human review + merge"]
 ```
 
@@ -146,21 +152,25 @@ needed repository change enters Build only after that leaf satisfies the
 **Issue-first is the default:** the delivery issue itself is the request, with
 the target and required evidence recorded by the notifier. The configured
 issue pickup mechanism engages the agent; no direct Agent Task creation is
-required. Qualification establishes whether delivery is needed and refines independently
+required. Creation alone does not authorize pickup: keep the issue outside
+agent-triggering assignment or dispatch until the notifier selects delegation.
+Qualification establishes whether delivery is needed and refines independently
 verifiable acceptance criteria and an executable local plan before Build.
 For a needed upgrade, the agent opens a pull request closing exactly that issue.
-Idempotency is by **existence**: the issue is the durable record that this version
-was propagated, so a repeat run finds and reuses it.
+The issue is the durable **identity**, not proof that qualification, pickup,
+or delivery finished. Repeated notifications follow
+[Retry and handoff recovery](#retry-and-handoff-recovery).
 
 **Task-first** creates a task through the
 [Agent Tasks API](https://docs.github.com/rest/agent-tasks/agent-tasks), only after
 the same Task or Bug delivery issue exists. The task carries the issue number
 and instruction to qualify the upgrade before creating a closing PR, then is
 polled until it reaches `queued`, `in_progress`, or
-`completed` (a fast task may go straight to `completed`). It fails only if the
-task cannot be created or lands in `failed`, `timed_out`, or `cancelled`. An agent
-task is execution state, not a delivery record; it never authorizes a standalone
-delivery pull request.
+`completed` (a fast task may go straight to `completed`). Acceptance reports
+started or in-progress work, not a terminal handoff. Creation failure and
+`failed`, `timed_out`, or `cancelled` execution report failure; a completed task
+still needs its actual PR or verified no-upgrade result. An agent task is
+execution state, not a delivery record; it never authorizes a standalone PR.
 
 Either way the model is chosen per producer, not per release, so a dependent
 receives propagation in one consistent shape.
@@ -168,6 +178,33 @@ receives propagation in one consistent shape.
 Fan-out is a **matrix** of dependents (pinned-reference shape) or a single
 configured `notify_repo` (published-artifact shape), with `fail-fast: false` so
 one dependent's failure does not stop the rest.
+
+### Retry and handoff recovery
+
+Serialize issue discovery/creation and handoff attempts for the same producer
+version and dependent using the platform's concurrency control. Reuse the
+delivery issue and verify that
+its recorded immutable target matches the request; a conflicting target is an
+evidence gap, not permission to create a duplicate delivery.
+
+Retain correlation to the delegation attempt/execution in that issue, such as
+the task ID or configured pickup request reference. Read its actual platform
+state and associated PR on retry rather than copying status into another store.
+
+| Observed state | Retry behavior |
+| --- | --- |
+| Issue exists, but no handoff or active execution exists | Resume qualification and the missing delegation/pickup step under the same issue. |
+| An associated task or pickup execution is active | Reuse it and report in-progress work; do not create another execution. |
+| Execution failed, timed out, or was canceled without a PR/no-upgrade result | Report the failure; resume missing work only after its blockers are resolved and active execution is ruled out. Preserve partial consumer work. |
+| Execution says completed but supplies no PR or verified no-upgrade result | Report incomplete handoff, not success, and reconcile the missing outcome. |
+| A matching PR handoff or verified no-upgrade outcome exists | Return that existing outcome and its actual state; do not create a duplicate PR or replay completed work. |
+| Prior engagement may have succeeded but its result cannot be established | Block and reconcile the attempt; uncertainty is not permission to launch another agent. |
+
+Only the matching outcome makes a retry a no-op. Issue creation, request
+acceptance, and an in-flight agent are not terminal outcomes. Reuse evidence only
+for matching inputs; changed inputs follow the common procedure's invalidation
+gate. A PR handoff records propagation, not successful consumer adoption or
+publication, which remain subject to the ordinary completion gate.
 
 ## Agent instructions
 
@@ -216,7 +253,8 @@ user-to-server credential accepted by the Agent Tasks API. So the job:
 | Condition | Behaviour |
 | --- | --- |
 | Delegation not created (missing permission / capability off) | Step **fails** with the error; re-run via `workflow_dispatch`. |
-| This version already propagated to this dependent | Step **succeeds**, reporting the existing delivery issue and pull request if one exists; no duplicate is created. |
+| Matching PR handoff or verified no-upgrade outcome exists | Report the existing outcome and its actual state; no duplicate is created and consumer completion is not inferred. |
+| Delivery issue exists without a terminal handoff | Resume missing work or report active/blocked execution through [Retry and handoff recovery](#retry-and-handoff-recovery); issue existence is not success. |
 | Task lands in a failed / timed-out / cancelled state | Step **fails** with the reported state. |
 | One dependent's leg fails | Fails independently (`fail-fast: false`); others proceed. |
 | Prerelease release event | Propagation is skipped before fan-out. |

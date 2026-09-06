@@ -58,7 +58,10 @@ Two shapes occur; both are the same mechanism with a different artifact:
   and the pull request closes exactly that leaf.
 - **Idempotent by identity.** Propagation MUST be safe to run more than once for
   the same producer version. A repeated run reuses the existing delivery Task or
-  Bug and MUST NOT open a second pull request for it.
+  Bug and MUST NOT open a second pull request for it. Issue existence alone MUST
+  NOT count as completed propagation: retries resume missing qualification or
+  delegation, reuse active execution, and report a no-op only when a matching
+  PR handoff or verified no-upgrade outcome exists. Required blockers still hold.
 - **Humans decide.** A human reviews and merges each PR. Missing provenance,
   release/action evidence, applicable template compatibility, or required
   validation MUST leave affected work blocked with an owning issue. Larger
@@ -86,6 +89,8 @@ Two shapes occur; both are the same mechanism with a different artifact:
 - A prerelease yields none.
 - Running propagation twice for the same version reuses the same delivery
   record and, when an upgrade is needed, the same pull request rather than a duplicate.
+- A retry after issue creation but before successful delegation resumes the
+  missing handoff under that issue instead of reporting false completion.
 - A dependent added after a release can be back-filled without cutting a new release.
 - A dependent that skipped releases carries complete applicable range evidence,
   reconciled actions, and immutable target-template evidence or a justified
