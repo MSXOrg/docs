@@ -76,9 +76,9 @@ exact upstream baseline, immutable identity, and supporting provenance.
    release source: latest stable by default, or the explicit stable/prerelease
    selection. The default uses the producer's version ordering and designated
    stable lineage, not the API's first result or the most recently published
-   timestamp. Record its version, release link, and immutable identity using
-   the same ecosystem rule as the baseline. Do not silently retarget when a
-   newer release appears.
+   timestamp; exhaust paginated discovery before selecting it. Record its
+   version, release link, and immutable identity using the same ecosystem rule
+   as the baseline. Do not silently retarget when a newer release appears.
 2. Confirm the target is above the baseline under the producer's semantic
    version and lineage rules. A non-latest target is valid only when it is still
    an upgrade. An identical version/source is already current, not a fabricated
@@ -100,13 +100,22 @@ exact upstream baseline, immutable identity, and supporting provenance.
    apply a delta twice or substitute the later final PR body for a prerelease
    snapshot.
 
+**No-upgrade outcome.** Retain the proven baseline, target, comparison evidence,
+and reason in the delivery issue. If no upgrade or other local acceptance work
+remains, close an unneeded open leaf as **not planned**, not as a shipped
+implementation; create no empty PR. Leave existing closed records unchanged.
+An existing PR or unmet local criterion requires reconciliation with its owner,
+not automatic cancellation from a version comparison alone.
+
 For an older target, read immutable target-era source and documentation together
 with its source-bound release records. Today's documentation, template, or
 `latest` alias cannot establish what that target supports.
 
-**Exit criteria.** The target is fixed, and the complete ordered release set and
-its lineage are evidenced. An unexplained gap, missing page, unavailable required
-source or artifact evidence, or ambiguous release relationship blocks traversal.
+**Exit criteria.** A proven no-upgrade outcome terminates with its issue
+disposition. Otherwise, the target is fixed and the complete ordered release
+set and lineage are evidenced. An unexplained gap, missing page, unavailable
+required source or artifact evidence, or ambiguous release relationship blocks
+traversal.
 
 ### Stage 3 - Compose the action ledger
 
@@ -201,9 +210,17 @@ Follow the ordinary review loop and
 readiness, merge, publication, and applicable template delivery are separate
 milestones. A merged reference bump is not proof of the other milestones.
 
+Before handoff, name the
+[completion-owning issue](Definition-of-Ready-and-Done.md#post-merge-completion-ownership)
+and its owner for any required post-merge milestone. Follow that gate's
+aggregate or reopen path so automatic closure of an integration leaf does not
+hide pending publication, deployment, or template work.
+
 **Exit criteria.** The reviewed consumer change is merged, required publication
 or deployment is evidenced where applicable, and the completion gate holds.
-Before then, the issue and PR report the actual milestone and any blocker.
+Before then, the completion-owning issue remains open and, with the PR, reports
+the actual milestone and any blocker. An evidenced no-upgrade outcome terminates
+at Stage 2 instead; it does not claim a delivered upgrade.
 
 ## Quality gates
 

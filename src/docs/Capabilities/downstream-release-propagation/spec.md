@@ -1,6 +1,6 @@
 ---
 title: Spec
-description: Requirements for downstream release propagation — dependents automatically receive a reviewed pull request that applies each producer release.
+description: Requirements for downstream release propagation — each dependent receives an upgrade pull request or an evidenced no-upgrade outcome.
 ---
 
 # Downstream Release Propagation — Spec
@@ -12,8 +12,10 @@ reference** — a pinned `uses:` SHA, an image digest, a deployed tag. A referen
 drifts the moment the producer cuts a release. Maintaining them by hand does not
 scale: missed bumps keep security fixes out of the workflows that run them, and
 missed *related* changes merge a bump that then breaks at runtime. When a
-producer releases, every dependent MUST automatically receive a pull request
-that applies the update — and the changes it implies — for a human to review.
+producer releases, every dependent MUST be assessed for an upgrade. A needed
+upgrade produces a pull request applying the update and its related changes
+for human review; an already-current or superseded target produces an evidenced
+no-upgrade outcome instead.
 
 ### Principles
 
@@ -43,7 +45,7 @@ Two shapes occur; both are the same mechanism with a different artifact:
   retain the complete source-bound release record, but it is only one input:
   it MUST NOT replace inspection of every applicable release the consumer
   crosses, its composed actions, or its target-template comparison.
-- **A pull request per dependent, opened by an agent.** The mechanical work — the bump plus the fixes that make it work — is delegated to a cloud agent *in the dependent*, which opens the pull request. **How** the agent is engaged is a design choice, not a requirement: the spec requires the delegation and the pull request, not a particular delegation mechanism.
+- **A pull request per needed upgrade, opened by an agent.** The mechanical work — the bump plus the fixes that make it work — is delegated to a cloud agent *in the dependent*, which opens the pull request when qualification establishes an actual upgrade. **How** the agent is engaged is a design choice, not a requirement: the spec requires delegation and a pull request for the repository change, not a particular delegation mechanism.
 - **A delivery leaf before the pull request.** The dependent MUST create or reuse
   a Task or Bug for the producer version before the agent opens its pull request.
   The leaf carries the executable local plan and acceptance criteria required by
@@ -62,12 +64,23 @@ Two shapes occur; both are the same mechanism with a different artifact:
   backfill MUST retain its selected target rather than substitute the newest
   release. If it is no longer an upgrade from the consumer's actual baseline,
   record that outcome; propagation MUST NOT downgrade the consumer.
+- **No-upgrade is a terminal outcome, not an empty PR.** Qualification MUST
+  record the proven baseline, target, and comparison evidence in the delivery
+  issue before repository changes begin. When no upgrade or other local
+  acceptance work remains, close an unneeded open leaf as **not planned** with
+  that reason; do not claim a shipped implementation or create an empty PR.
+  Preserve existing closed records on repeat notifications. An existing PR or
+  unmet local criterion requires scope reconciliation, not automatic
+  cancellation from a version comparison alone.
 
 ## Success criteria
 
-- A stable release yields one pull request in each declared dependent, carrying the immutable reference and an impact summary without manual coordination.
+- A stable release yields one pull request in each dependent needing an upgrade,
+  carrying the immutable reference and an impact summary without manual
+  coordination; other dependents retain an evidenced no-upgrade outcome.
 - A prerelease yields none.
-- Running propagation twice for the same version yields the same one pull request per dependent, not two.
+- Running propagation twice for the same version reuses the same delivery
+  record and, when an upgrade is needed, the same pull request rather than a duplicate.
 - A dependent added after a release can be back-filled without cutting a new release.
 - A dependent that skipped releases carries complete applicable range evidence,
   reconciled actions, and immutable target-template evidence or a justified
@@ -75,6 +88,8 @@ Two shapes occur; both are the same mechanism with a different artifact:
 - Successful notification or reuse of an issue does not claim consumer
   completion; review, merge, and applicable publication/template obligations
   remain distinct.
+- An equal or lower target creates no empty PR, and any unneeded open delivery
+  issue has an explicit no-upgrade disposition rather than remaining in progress.
 
 ## Where this connects
 

@@ -1,6 +1,6 @@
 ---
 title: Design
-description: How downstream release propagation is built — an inline notification job that resolves the release and delegates a self-contained prompt to a cloud agent in each dependent.
+description: How downstream release propagation is built — an inline notification delegates source-bound qualification and any needed upgrade to each dependent.
 ---
 
 # Downstream Release Propagation — Design
@@ -10,17 +10,21 @@ release coordinates, builds a self-contained prompt per dependent, and delegates
 the change to a cloud agent **in the dependent** via the
 [Agent Tasks API](https://docs.github.com/rest/agent-tasks/agent-tasks). The
 brief travels entirely in the prompt. The agent first creates or reuses the
-dependent's Task or Bug delivery issue, then opens the pull request with that
-delivery leaf as its one closing reference.
+dependent's Task or Bug delivery issue and qualifies the target against its
+actual baseline. A needed upgrade produces a pull request with that delivery
+leaf as its one closing reference; no-upgrade outcomes create no PR.
 
 ```mermaid
 flowchart TD
   rel["Producer release published"] --> notify["Notify job (in producer)"]
   notify --> resolve["Resolve version + immutable ref (SHA / digest) + notes"]
   resolve --> fan{"For each dependent"}
-  fan --> delegate["Create agent task in dependent<br/>self-contained prompt with full context"]
-  delegate --> issue["Create or reuse Task / Bug delivery issue"]
-  issue --> pr["Agent opens closing PR: bump + related fixes + impact"]
+  fan --> issue["Create or reuse Task / Bug delivery issue"]
+  issue --> delegate["Create agent task in dependent<br/>self-contained prompt with full context"]
+  delegate --> qualify{"Target upgrades actual baseline?"}
+  qualify -->|"yes"| pr["Agent opens closing PR: bump + related fixes + impact"]
+  qualify -->|"no"| nochange["Record no-upgrade outcome<br/>no PR"]
+  qualify -->|"unknown"| blocked["Record provenance blocker"]
   pr --> review["Human review + merge"]
 ```
 
@@ -76,30 +80,50 @@ dependent inspected its full crossed range. Historical and prerelease evidence
 stays bound to the corresponding immutable source, not today's final PR body,
 docs, or template.
 
+## Adoption qualification
+
+Qualify the target through [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md)
+before entering Build or opening a PR. When the notifier already has
+authoritative consumer provenance, it can qualify before delegation. Otherwise
+the delegated agent begins with read-only qualification in the delivery issue;
+it does not infer the baseline from a floating alias's current destination.
+Unknown provenance blocks qualification rather than producing a no-upgrade
+result.
+
+An identical baseline/target version and immutable identity records
+**already current**; a lower target records **superseded, no downgrade**.
+Apply the common procedure's
+[no-upgrade issue disposition](../../Ways-of-Working/Consumer-Upgrades.md#stage-2-fix-the-target-and-release-path):
+retain comparison evidence, create no empty PR, and close only an unneeded open
+leaf as not planned. Existing PR work or unmet local criteria are reconciled
+with the owner, not silently canceled.
+
 ## Delegation
 
 Two delegation modes can carry the request into the dependent. Both create or
-reuse a real Task or Bug delivery leaf before a pull request exists, so the
-delivery path satisfies the [Definition of Ready](../../Ways-of-Working/Definition-of-Ready-and-Done.md#delivery-leaf-readiness).
+reuse a real Task or Bug before qualification, and a needed repository change
+enters Build only after that leaf satisfies the
+[Definition of Ready](../../Ways-of-Working/Definition-of-Ready-and-Done.md#delivery-leaf-readiness).
 
 | | **Task-first** | **Issue-first** |
 | --- | --- | --- |
 | The request is | an agent task created after its delivery leaf exists | an issue in the dependent, which the agent picks up |
-| The agent produces | a pull request closing the delivery leaf | a pull request closing that issue |
+| The agent produces | an upgrade PR closing the leaf, or the qualified no-upgrade outcome | an upgrade PR closing the issue, or the qualified no-upgrade outcome |
 | Idempotency key | the delivery issue — one per producer version per dependent | the issue itself — one issue per producer version per dependent |
 | Visible before the agent starts | the delivery issue and task state | the issue |
 | Suits | immediate execution after the delivery leaf is ready | propagation that needs triage, discussion, or scheduling before work starts |
 
 **Issue-first is the default:** it creates or reuses one Task or Bug in the
-dependent per producer version, with independently verifiable acceptance criteria
-and an executable local plan. The issue is the delivery leaf before the agent
-starts, then the agent opens the pull request that closes exactly that issue.
+dependent per producer version, recording the target and required evidence.
+Qualification establishes whether delivery is needed and refines independently
+verifiable acceptance criteria and an executable local plan before Build.
+For a needed upgrade, the agent opens a pull request closing exactly that issue.
 Idempotency is by **existence**: the issue is the durable record that this version
 was propagated, so a repeat run finds and reuses it.
 
 **Task-first** is available only when the agent task is created after the same
 Task or Bug is created or reused. The task carries the issue number and instruction
-to close it, then is polled until it reaches `queued`, `in_progress`, or
+to qualify the upgrade before creating a closing PR, then is polled until it reaches `queued`, `in_progress`, or
 `completed` (a fast task may go straight to `completed`). It fails only if the
 task cannot be created or lands in `failed`, `timed_out`, or `cancelled`. An agent
 task is execution state, not a delivery record; it never authorizes a standalone
@@ -116,6 +140,8 @@ one dependent's failure does not stop the rest.
 
 The agent is given the same instructions under either delegation model:
 
+- **Qualify first.** Follow [Adoption qualification](#adoption-qualification);
+  a proven no-upgrade outcome ends without a PR, and an unknown baseline blocks.
 - **Follow [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md).**
   Establish each actual consumed baseline, inspect the complete applicable
   range to the provided target, and reconcile the action ledger and immutable
@@ -129,7 +155,7 @@ The agent is given the same instructions under either delegation model:
 - **Retain the procedure's evidence** in the PR body: exact range and refs,
   release records, reconciled completed/not-applicable actions, template
   differences, outcomes, and blockers, including explicit no-action results.
-- **Open the pull request** — closing exactly the Task or Bug delivery leaf
+- **For a needed upgrade, open the pull request** — closing exactly the Task or Bug delivery leaf
   created or reused for this producer version, and staying draft until the
   [review-readiness gate](../../Ways-of-Working/Definition-of-Ready-and-Done.md#definition-of-ready-for-review)
   holds.
@@ -159,7 +185,7 @@ and a release it publishes cannot trigger a `release:` workflow. So the job:
 | One dependent's leg fails | Fails independently (`fail-fast: false`); others proceed. |
 | Prerelease published | Propagation is skipped. |
 | Required consumer provenance, release/action evidence, or applicable template compatibility is missing | Affected consumer work is blocked with a linked owning gap; other dependents can proceed. |
-| Target is already selected or is below the actual consumer baseline | Record why no upgrade is applied; do not manufacture a bump or downgrade. |
+| Target matches the proven baseline or is below it | Record the no-upgrade outcome and apply the [delivery-issue disposition](#adoption-qualification); no empty PR or downgrade. |
 
 Notification success and consumer completion are separate outcomes. Reusing an
 issue or successfully delegating work does not mean the consumer has passed

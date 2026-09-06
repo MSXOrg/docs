@@ -6,7 +6,7 @@ description: How one change is rolled out across many repositories through Task 
 # Fleet Orchestration
 
 How a single change is applied across many repositories at once — a *campaign*.
-Each repository gets its own Task or Bug delivery leaf, branch, pull request,
+Each repository needing a change gets its own Task or Bug delivery leaf, branch, pull request,
 and review loop; the campaign is the coordination layer that keeps them moving
 and visible.
 
@@ -72,7 +72,8 @@ copied into another state-bearing field, because duplicated state drifts.
 | Review outcome | `reviewDecision` and unresolved review threads |
 | Mergeability | `mergeable` / merge-state status |
 | Integration complete | pull request **merged** |
-| Delivery complete | Task or Bug **closed** with the [completion gate](Definition-of-Ready-and-Done.md#definition-of-done) evidenced |
+| No upgrade needed | Unneeded leaf **closed as not planned**, with the [no-upgrade outcome](Consumer-Upgrades.md#stage-2-fix-the-target-and-release-path) evidenced |
+| Delivery complete | The [completion-owning issue](Definition-of-Ready-and-Done.md#post-merge-completion-ownership) **closed as completed** with its gate evidenced |
 | Issue ↔ PR link | the pull request's one closing reference |
 
 "Ready for review" is the draft flag flipping off; "merged" records integration.
@@ -114,15 +115,16 @@ the two layers above — no guessing. The first matching rule wins.
 | # | Effective status | Condition |
 | --- | --- | --- |
 | 1 | Merged | pull request is merged |
-| 2 | Blocked | `stage:blocked`, or the merge state is dirty/conflicting |
-| 3 | Changes requested | review decision is changes-requested, or unresolved review threads remain |
-| 4 | Ready for review | pull request is not a draft and not merged |
-| 5 | CI failing | checks are failing on a draft |
-| 6 | In review | draft with at least one review and CI not failing |
-| 7 | In progress | draft with no review yet, or `stage:in-progress` |
-| 8 | Queued | Task or Bug open, no pull request yet |
+| 2 | Not needed | unneeded delivery leaf is closed as not planned with an evidenced no-upgrade outcome and no remaining PR work |
+| 3 | Blocked | `stage:blocked`, or the merge state is dirty/conflicting |
+| 4 | Changes requested | review decision is changes-requested, or unresolved review threads remain |
+| 5 | Ready for review | pull request is not a draft and not merged |
+| 6 | CI failing | checks are failing on a draft |
+| 7 | In review | draft with at least one review and CI not failing |
+| 8 | In progress | draft with no review yet, or `stage:in-progress` |
+| 9 | Queued | Task or Bug open, no pull request yet |
 
-Terminal and attention states (merged, blocked, changes requested, ready) rank
+Terminal and attention states (merged, not needed, blocked, changes requested, ready) rank
 above transient progress states, because an explicit act — marking ready, or
 flagging blocked — is a stronger signal than in-flight checks.
 
@@ -177,6 +179,10 @@ flowchart TD
    Task or Bug through the pull request's one closing reference.
    The campaign's job is to get every pull request to *Ready*;
    [Branching and Merging](Branching-and-Merging.md) governs how it merges.
+
+An evidenced [no-upgrade outcome](Consumer-Upgrades.md#stage-2-fix-the-target-and-release-path)
+ends without manufacturing a branch or PR. Apply the common procedure's issue
+disposition; the fleet reports *Not needed*, not a delivered upgrade.
 
 ## Breaking-major migrations
 

@@ -35,6 +35,7 @@ A pull request is ready for review when:
 - The [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) has run against scoped open issues, and every fully convergent issue is linked in the pull request with a closing keyword.
 - The title, release-note description, and effective release decision and its source are finalized per [PR Format](PR-Format.md). Where Release Management applies, its [required decision check](../Capabilities/release-management/design.md#required-pre-merge-decision-check) passes; an explicit label is not mandatory when a valid configured default supplies the level.
 - Consumer release evidence is complete for the reviewed source under [PR Format](PR-Format.md#description-structure), including explicit no-action outcomes and applicable immutable template compatibility. An upgrade PR also reconciles its complete baseline-to-target range through [Consumer Upgrades](Consumer-Upgrades.md); the newest release note alone is insufficient.
+- Required post-merge publication, deployment, or template milestones name a [completion-owning issue](#post-merge-completion-ownership) and responsible owner before review; automatic PR closure cannot be their only completion signal.
 
 Absent checks are not a pass. When a pull request reports no checks at all, the usual cause is that the workflow's triggers do not cover it — a base branch outside the `pull_request` trigger's `branches` filter is the common one — and that is a gap to fix or file, not a gate to wave through. Manually dispatching the workflow against the branch does not substitute for it either: jobs gated on the event type are skipped silently, so a green `workflow_dispatch` run can hide verification that never ran. If the checks genuinely cannot be made to run before merge, say so in the pull request and link the issue tracking it, so the reviewer knows the gate was not met instead of assuming it was.
 
@@ -61,10 +62,10 @@ Completion follows the issue's delivery or aggregate path. Across all paths, the
 
 A repository-delivery Task or Bug is done when its reviewed pull request is merged and closes that one leaf, required checks and tests pass, applicable coding standards hold, and the affected evergreen specification and documentation describe the delivered behavior. Release or deploy it where that applies.
 
-For producer work with an applicable integration template, completion also
-requires compatible **immutable template evidence for the actual published
-producer source**, and delivery of every necessary linked template change.
-Reconcile candidate evidence with the published source and rerun affected
+The overall producer outcome, where an integration template applies, requires
+compatible **immutable template evidence for the actual published producer
+identity**, and delivery of every necessary linked template change.
+Reconcile candidate evidence with the published identity and rerun affected
 validation when it differs. A verified existing template commit with a justified
 no-change result satisfies the obligation; a promise to synchronize later does
 not. Where no template applies, record why.
@@ -76,11 +77,29 @@ Keep the milestones distinct:
 | Review readiness | The reviewed candidate has complete consumer evidence and verified applicable template compatibility. |
 | Merge | The reviewed source change is integrated, not necessarily published. |
 | Publication | The actual release/source identities and complete source-bound notes are available through the release process. |
-| Template completion | Necessary linked template changes are delivered and immutable compatibility with the published producer source is evidenced. |
+| Template completion | Necessary linked template changes are delivered and immutable compatibility with the published producer identity is evidenced. |
 
-A merged PR or automatically closed delivery leaf alone does not prove producer
-completion. Keep required post-publication template work visible in its linked
-delivery issues until those obligations are satisfied.
+#### Post-merge completion ownership
+
+Name the issue that owns the **whole required outcome** before review, and keep
+it open until that outcome is verified. Every repository PR still closes exactly
+its one scoped Task or Bug; it must not close an aggregate.
+
+When source integration and necessary template or other delivery work need
+separate leaves, use a [PBI](Issues/Types/PBI.md) with those required native
+children. The source leaf owns the independently verifiable integration
+deliverable; the PBI owns the combined producer outcome, including publication
+and template compatibility. The source PR references the PBI without a closing
+keyword. The PBI remains open after the integration leaf closes, until its
+required children and aggregate criteria are complete. A cross-link alone,
+without an open completion owner, is insufficient.
+
+For a single-leaf delivery whose own required publication or deployment follows
+merge, with no aggregate owning that milestone, the named owner **reopens the
+leaf immediately if the PR closes it before the required evidence exists**.
+Keep it open while the milestone is pending or failed, and close it only after
+recording the verified outcome. This preserves the ordinary PR closing link
+without treating integration as proof of the later milestone.
 
 ### Operational Task
 
