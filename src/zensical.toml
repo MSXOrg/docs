@@ -35,6 +35,7 @@ nav = [
       {"Maintain Workflow Guidance" = "Ways-of-Working/Workflow-Stages/Maintain-Guidance.md"},
     ]},
     {"Contribution Workflow" = "Ways-of-Working/Contribution-Workflow.md"},
+    {"Consumer Upgrades" = "Ways-of-Working/Consumer-Upgrades.md"},
     {"Fleet Orchestration" = "Ways-of-Working/Fleet-Orchestration.md"},
     {"Comparative Review Orchestration" = "Ways-of-Working/Comparative-Review-Orchestration.md"},
     {"Documentation Model" = "Ways-of-Working/Documentation-Model.md"},
