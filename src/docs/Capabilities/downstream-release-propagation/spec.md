@@ -91,6 +91,9 @@ Two shapes occur; both are the same mechanism with a different artifact:
   record and, when an upgrade is needed, the same pull request rather than a duplicate.
 - A retry after issue creation but before successful delegation resumes the
   missing handoff under that issue instead of reporting false completion.
+- An `idle` task retains its execution identity, and a `waiting_for_user` task
+  remains blocked until an authorized response reaches that same task; neither
+  state creates a replacement task.
 - A dependent added after a release can be back-filled without cutting a new release.
 - A dependent that skipped releases carries complete applicable range evidence,
   reconciled actions, and immutable target-template evidence or a justified
