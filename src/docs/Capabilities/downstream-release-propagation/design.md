@@ -29,9 +29,11 @@ flowchart TD
   resume -->|"failed, blocked, or uncertain"| blocked["Record blocker"]
   resume -->|"missing or safe retry"| known{"Notifier has verified<br/>no-upgrade evidence?"}
   known -->|"yes"| nochange["Record no-upgrade disposition<br/>no PR"]
-  known -->|"no: upgrade or agent qualification needed"| delegate["Engage agent through configured mode<br/>Issue-first or Task-first"]
+  known -->|"no: upgrade or agent qualification needed"| delegate["Engage agent: Issue-first pickup or<br/>Task-first qualification task"]
   delegate --> qualify{"Target upgrades actual baseline?"}
-  qualify -->|"yes"| pr["Agent opens closing PR: bump + related fixes + impact"]
+  qualify -->|"yes: Issue-first"| pr["Agent opens closing PR: bump + related fixes + impact"]
+  qualify -->|"yes: Task-first"| delivery["Create or reuse PR-delivery task<br/>create_pull_request: true"]
+  delivery --> pr
   qualify -->|"no"| nochange
   qualify -->|"unknown"| blocked
   pr --> review["Human review + merge"]
@@ -144,10 +146,10 @@ needed repository change enters Build only after that leaf satisfies the
 
 | | **Task-first** | **Issue-first** |
 | --- | --- | --- |
-| The request is | an agent task created after its delivery leaf exists | an issue in the dependent, which the agent picks up |
-| The agent produces | an upgrade PR closing the leaf, or the qualified no-upgrade outcome | an upgrade PR closing the issue, or the qualified no-upgrade outcome |
-| Idempotency key | the delivery issue — one per producer version per dependent | the issue itself — one issue per producer version per dependent |
-| Visible before the agent starts | the delivery issue and task state | the issue |
+| The request is | a read-only qualification task, followed only for a needed upgrade by one PR-delivery task | an issue in the dependent, which the agent picks up |
+| The agent produces | a qualified no-upgrade outcome, or an upgrade PR from the PR-delivery task | an upgrade PR closing the issue, or the qualified no-upgrade outcome |
+| Idempotency key | the delivery issue and its phase-specific correlated task | the issue itself — one issue per producer version per dependent |
+| Visible before the agent starts | the delivery issue and qualification task; the PR-delivery task only after a needed qualification | the issue |
 | Suits | immediate execution after the delivery leaf is ready | propagation that needs triage, discussion, or scheduling before work starts |
 
 **Issue-first is the default:** the delivery issue itself is the request, with
@@ -164,19 +166,30 @@ or delivery finished. Repeated notifications follow
 
 **Task-first** creates a task through the
 [Agent Tasks API](https://docs.github.com/rest/agent-tasks/agent-tasks), only after
-the same Task or Bug delivery issue exists. The task carries the issue number
-and instruction to qualify the upgrade before creating a closing PR, then is
-polled. `queued` and `in_progress` mean active execution. `idle` retains the
-same task but pauses handoff: report it and request the designated owner to
-re-engage that task through the configured mechanism. `waiting_for_user` blocks
-on an authorized answer in the same task; record the requested decision and its
-owner, but do not synthesize an answer from release evidence. Neither state
-authorizes a replacement task. A fast task may go straight to `completed`.
-Acceptance reports started or in-progress work, not a terminal handoff.
-Creation failure and `failed`, `timed_out`, or `cancelled` execution report
-failure; a completed task still needs its actual PR or verified no-upgrade
-result. An agent task is execution state, not a delivery record; it never
-authorizes a standalone PR.
+the same Task or Bug delivery issue exists. It first creates a read-only
+**qualification task** with `create_pull_request: false`. That task carries the
+issue number and establishes the actual baseline, target, no-upgrade result, or
+needed local plan without creating a branch or PR.
+
+When verified qualification establishes a needed upgrade, the notifier records
+that plan on the same delivery issue and creates or reuses one correlated
+**PR-delivery task** with `create_pull_request: true`. Its prompt carries the
+qualified plan, fixed target, and issue number; it applies the adoption and
+creates the closing PR, which remains draft until the review-readiness gate
+holds. A verified no-upgrade result creates no PR-delivery task or PR.
+
+Poll the currently correlated task. `queued` and `in_progress` mean active
+execution. `idle` retains the same task but pauses handoff: report it and
+request the designated owner to re-engage that task through the configured
+mechanism. `waiting_for_user` blocks on an authorized answer in the same task;
+record the requested decision and its owner, but do not synthesize an answer
+from release evidence. Neither state authorizes a replacement task. A fast task
+may go straight to `completed`. Completion alone is not a delivery handoff: a
+completed qualification task needs a recorded verified no-upgrade result or the
+correlated PR-delivery task, and a completed PR-delivery task still needs its
+actual PR. Creation failure and `failed`, `timed_out`, or `cancelled` execution
+report failure. An agent task is execution state, not a delivery record; it
+never authorizes a standalone PR.
 
 Either way the model is chosen per producer, not per release, so a dependent
 receives propagation in one consistent shape.
@@ -199,12 +212,13 @@ state and associated PR on retry rather than copying status into another store.
 
 | Observed state | Retry behavior |
 | --- | --- |
-| Issue exists, but no handoff or active execution exists | Resume qualification and the missing delegation/pickup step under the same issue. |
-| Task state `queued` or `in_progress`, or active Issue-first pickup execution | Reuse it and report in-progress work; do not create another execution. |
+| Issue exists, but no qualification result or correlated execution exists | Resume qualification and the missing delegation/pickup step under the same issue. |
+| A correlated task is `queued` or `in_progress`, or Issue-first pickup execution is active | Reuse it and report in-progress work; do not create another execution. |
 | Task state `idle` | Retain it as the only execution, report a paused handoff, and request designated-owner re-engagement through the configured task mechanism. Do not start a replacement while it is idle; if resumption cannot be established, block and reconcile. |
 | Task state `waiting_for_user` | Block the delivery issue, record the requested decision and designated authorized responder, and wait for that responder to continue the same task. Never synthesize a response from release evidence or start a replacement task. |
+| Completed qualification establishes a needed upgrade, but no PR-delivery task or matching PR exists | Verify that qualification still matches the fixed inputs, then create or reuse one correlated PR-delivery task with `create_pull_request: true`; do not replay qualification or create another delivery issue. |
 | Execution failed, timed out, or was canceled without a PR/no-upgrade result | Report the failure; resume missing work only after its blockers are resolved and active execution is ruled out. Preserve partial consumer work. |
-| Execution says completed but supplies no PR or verified no-upgrade result | Report incomplete handoff, not success, and reconcile the missing outcome. |
+| PR-delivery task says completed but supplies no PR or verified no-upgrade result | Report incomplete handoff, not success, and reconcile the missing outcome. |
 | A matching PR handoff or verified no-upgrade outcome exists | Return that existing outcome and its actual state; do not create a duplicate PR or replay completed work. |
 | Prior engagement may have succeeded but its result cannot be established | Block and reconcile the attempt; uncertainty is not permission to launch another agent. |
 
@@ -246,7 +260,8 @@ user-to-server credential accepted by the Agent Tasks API. So the job:
 
 - Declares **least-privilege** `permissions:` (`contents: read` suffices).
 - Uses `PROPAGATION_TOKEN`, scoped only to the dependents that need it, with
-  **Issues: write** for creating and maintaining delivery issues and the
+  **Issues: write** for creating and maintaining delivery issues and **Pull
+  requests: read** for reconciling matching handoffs. It also has the
   permissions required by the configured delegation mode. Task-first uses a
   user PAT with **Agent tasks: write** permission; Issue-first uses the issue
   pickup mechanism rather than unconditionally creating an Agent Task. The
@@ -263,6 +278,8 @@ user-to-server credential accepted by the Agent Tasks API. So the job:
 | Delegation not created (missing permission / capability off) | Step **fails** with the error; re-run via `workflow_dispatch`. |
 | Matching PR handoff or verified no-upgrade outcome exists | Report the existing outcome and its actual state; no duplicate is created and consumer completion is not inferred. |
 | Delivery issue exists without a terminal handoff | Resume missing work or report active/blocked execution through [Retry and handoff recovery](#retry-and-handoff-recovery); issue existence is not success. |
+| Qualification establishes a needed upgrade | Create or reuse its one correlated PR-delivery task with `create_pull_request: true`; it creates the draft closing PR. |
+| Qualification proves no upgrade | Record the no-upgrade disposition; do not create a PR-delivery task or PR. |
 | Task is `idle` | Retain the paused task and request designated-owner re-engagement through the configured task mechanism; do not create a replacement. |
 | Task is `waiting_for_user` | Block pending an authorized response in the same task; record the decision owner and never answer from producer evidence. |
 | Task lands in a failed / timed-out / cancelled state | Step **fails** with the reported state. |
