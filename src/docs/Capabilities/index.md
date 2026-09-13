@@ -20,7 +20,7 @@ the same spec-and-design shape as any other capability.
 
 | Section | Description |
 | --- | --- |
-| [Release Management](release-management/index.md) | How a source change becomes a versioned, immutable artifact, driven entirely on the GitHub platform. |
+| [Release Management](release-management/index.md) | A generic framework for producing verified, immutable versioned release artifacts. |
 | [Repository Governance](repository-governance/index.md) | How every repository in an organization is classified, protected, and continuously reconciled against the controls its classification declares. |
 | [Dependency Updates](dependency-updates/index.md) | How a repository's pinned dependencies are kept current and secure through automated update pull requests. |
 | [Merge Automation](merge-automation/index.md) | How a pull request's required status checks become the machine-readable signal that drives automated approval and merge — green merges, red holds, nothing bypasses the gate. |

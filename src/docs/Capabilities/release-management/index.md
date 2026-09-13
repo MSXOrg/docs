@@ -1,23 +1,20 @@
 ---
 title: Release Management
-description: How a source change becomes a versioned, immutable artifact, driven entirely on the GitHub platform.
+description: A generic framework for producing verified, immutable versioned release artifacts.
 ---
 
 # Release Management
 
-Turning a merged change into a versioned, immutable artifact — a container
-image, a GitHub Action or reusable workflow, a language package, a Terraform
-module — paired with a GitHub Release and a git tag, normally driven by
-pull-request labels. An implementation may add a GitHub-native ad hoc release
-path when its product needs one. No release CLI, no hand-edited version file,
-no tagging ritual.
+Turning an approved artifact-affecting change into a versioned, immutable,
+verified artifact and durable release record. The framework resolves an explicit
+release decision, builds once, and publishes safely to one or more targets.
 
 <!-- INDEX:START -->
 
 | Page | Description |
 | --- | --- |
-| [Spec](spec.md) | Requirements for release management — automatic, policy-driven, versioned releases driven entirely on the GitHub platform. |
-| [Design](design.md) | How release management is built — a shared reusable workflow that resolves an explicit or configured SemVer bump, builds once, and publishes. |
-| [Publishing Targets](design-publishing-targets.md) | The contract every publishing destination documents, with GitHub Releases as the reference target. |
+| [Spec](spec.md) | Testable requirements for a generic, policy-driven release-management framework. |
+| [Logical Core Design](design.md) | The generic resolution, build, verification, and publication model for release management. |
+| [Publishing Target Design](design-publishing-targets.md) | The generic adapter contract for publishing versioned release artifacts and records. |
 
 <!-- INDEX:END -->

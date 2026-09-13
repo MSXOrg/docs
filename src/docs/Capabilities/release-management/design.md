@@ -1,397 +1,151 @@
 ---
-title: Design
-description: How release management is built — a shared reusable workflow that resolves an explicit or configured SemVer bump, builds once, and publishes.
+title: Logical Core Design
+description: The generic resolution, build, verification, and publication model for release management.
 ---
 
-# Release Management — Design
+# Release Management — Logical Core Design
 
-The behaviour in the [spec](spec.md) is delivered by a **shared reusable release
-workflow**. A repository opts in with a short caller workflow and a small
-`.github/release.config.yml`. The workflow supplies the shared mechanics; an
-explicit label or an intentionally configured default supplies the release level.
+This design realizes the specification through one reusable pipeline and a
+target adapter boundary. It defines logical responsibilities, not a specific
+automation product or hosting service.
 
-## Branching model
-
-A **release branch** is any branch configured as a release target, each with a
-**release type** — `stable` or `prerelease`.
-
-- **Single branch (zero-config).** One release branch (the default branch)
-  produces stable releases. Prereleases are opt-in via a PR label.
-- **Multi-branch.** `dev` (prerelease) collects PRs and publishes a prerelease
-  on every merge; `main` (stable) receives `dev`. Merging `dev → main` computes
-  the stable version from the **latest stable release** plus the merge PR's
-  resolved bump — the prerelease counter does not carry over.
-- **One production authority.** At most one branch is `release-type: stable`;
-  every other release branch is `prerelease`. The single stable branch
-  (typically `main`) owns the production version — a prerelease branch can never
-  cut a stable release.
-- **Bundled releases.** A **staging branch** collects feature PRs; merging it to
-  a release branch produces **exactly one** release for all bundled changes.
-
-```yaml
-# .github/release.config.yml
-release-branches:
-  - branch: main
-    release-type: stable
-  - branch: dev
-    release-type: prerelease
-```
-
-## The pipeline
-
-Every release runs the same four stages in order. The stage boundaries exist to
-make **build-once** enforceable — each stage may only consume what the previous
-stage produced.
+## Release pipeline
 
 ```mermaid
 flowchart LR
-    resolve["Resolve<br/>version decided"] --> build["Build<br/>artifact created once"]
-    build --> test["Test<br/>same artifact validated"]
-    test --> publish["Publish<br/>same artifact released"]
+    trigger[Trigger] --> resolve[Resolve]
+    resolve --> intent[Frozen release intent]
+    intent --> build[Build]
+    build --> test[Test]
+    test --> publish[Publish]
+    publish --> record[Release output]
 ```
 
-| Stage | Produces | Invariant |
+| Stage | Responsibility | Output |
 | --- | --- | --- |
-| **Resolve** | the version | the version is known before anything is built, so it can be baked in |
-| **Build** | the artifact | the artifact is created exactly **once**, carrying its version |
-| **Test** | a verdict | validation runs against the built artifact, not a rebuild of its source |
-| **Publish** | released versions | the artifact is transferred unchanged to every target |
+| Trigger | Admit an approved change, direct source update, or authorized manual request. | Candidate source and context |
+| Resolve | Determine eligibility, decision, version line, version, notes, and targets. | Frozen release intent |
+| Build | Produce the version-marked artifact once. | Immutable artifact identity |
+| Test | Verify the built artifact and its version marker. | Verification evidence |
+| Publish | Transfer the verified artifact and record to every required target. | Target confirmations |
+| Record | Assemble durable release evidence and eligible aliases. | Completed release output |
 
-Two consequences follow, and they are the point of the model:
+## Trigger and branch mapping
 
-- **The version is identity, not metadata.** Because Resolve precedes Build, the
-  version is embedded in the artifact rather than attached to it. A manifest
-  version, an image label, and the tag agree because they came from one decision.
-- **Recovery preserves artifact identity.** Retrying validation or publication of
-  an unchanged, already-built artifact reuses that artifact and its resolved
-  version. A correction that changes the output is a new release: it resolves a
-  new version and builds new bytes. An artifact is never patched, re-tagged, or
-  rebuilt under an existing version — that would publish something other than what
-  was tested.
+The framework accepts three trigger classes:
+
+- **Reviewed change:** an approved change on a release line creates the normal
+  release candidate.
+- **Direct source update:** an approved direct update is resolved with the same
+  policy and evidence requirements as a reviewed change.
+- **Manual request:** an authorized request supplies an explicit source identity,
+  decision, and reviewed note context; it never bypasses resolution or testing.
+
+Release-line mapping declares one stable line and zero or more prerelease lines.
+The stable line is the sole authority for stable versions. A prerelease line
+maps to a stable version base plus a unique prerelease identifier and counter.
+Promotion from an integration line to the stable line is a new stable intent:
+it resolves from the latest stable version, carries the approved aggregate
+change scope, and never promotes a prerelease identity in place.
+
+## Resolution and release intent
+
+Resolve evaluates artifact-affecting paths, approved metadata, and configured
+policy. It rejects multiple version decisions, a `skip` decision combined with a
+version decision, and an invalid default. Its strict order is:
+
+1. Validate the configured default, if present.
+2. Reject conflicting decisions.
+3. Honor an explicit `skip`.
+4. Prefer one explicit `major`, `minor`, or `patch` decision.
+5. Use the valid configured default.
+6. Fail with a missing-decision error.
+
+The result is written as an immutable, durable release intent before Build. It
+contains source identity; resolved decision and its source; stable or
+prerelease mode; calculated version and authoritative version base; declared
+artifact scope; reviewed note snapshot; required targets; and a unique release
+key. The release key makes retries idempotent.
 
 ## Version computation
 
-For PR-driven releases, the shared resolver reads the owned labels and optional
-`DefaultBump` in `.github/release.config.yml`. The setting accepts `patch`,
-`minor`, or `major`; omitting it does not supply a level. For example, this
-configuration explicitly chooses patch releases when no bump label is provided:
+Version computation reads only the frozen decision and the latest stable version
+from the configured authority. It increments the major, minor, or patch
+component according to the resolved decision. A prerelease derives its base from
+that computed version and adds its configured identifier and monotonically
+increasing counter. Prerelease versions never become the base for a stable
+version calculation.
 
-```yaml
-# .github/release.config.yml
-DefaultBump: patch
-```
+For the first stable release, the version authority declares an initial stable
+baseline. The framework records that baseline in the release intent so the
+calculation remains explainable and retry-safe.
 
-| Label | Meaning | Valid combination |
-| --- | --- | --- |
-| `release:patch` | Resolve the next patch version, overriding the configured default. | Alone or with `release:pre-release`. |
-| `release:minor` | Resolve the next minor version, overriding the configured default. | Alone or with `release:pre-release`. |
-| `release:major` | Resolve the next major version, overriding the configured default. | Alone or with `release:pre-release`. |
-| `release:pre-release` | Publish the open pull request as a prerelease using the resolved bump. | With one explicit bump or a configured default; never with `release:skip`. |
-| `release:skip` | Run validation without resolving or publishing a version. | Alone. |
+## Required pre-merge decision check
 
-Resolve the decision in this order:
+Before an approved change enters a release line, a read-only decision check
+evaluates the same eligibility and decision rules as Resolve. The check reports
+the effective decision or an actionable error for missing, invalid, or
+conflicting inputs. It runs again when the source, decision metadata, policy, or
+artifact scope changes. A valid `skip` is a successful no-release result.
 
-1. Validate `DefaultBump` when present and reject conflicting owned labels.
-   An invalid setting is an error even when an explicit label is supplied.
-   Bare and unrelated labels do not participate.
-2. Honor a valid `release:skip` as the explicit no-release decision and stop bump
-   resolution.
-3. Use the single owned bump label when present; otherwise use the configured
-   `DefaultBump`. Record the chosen level and whether the label or setting
-   supplied it.
-4. If neither supplies a level, fail with a missing-decision error that tells the
-   author to select a bump, configure the default, or choose `release:skip`.
-   There is no built-in patch fallback. Prerelease mode does not supply a bump.
+The branch's required-check policy makes this result a release gate. Release
+execution repeats resolution against the actual source; the pre-merge check is
+evidence, not a substitute for release-time validation.
 
-| PR input | `DefaultBump` | Decision-check result |
-| --- | --- | --- |
-| `release:major` | `patch` or absent | Pass: explicit major overrides the default. |
-| No owned release labels | `minor` | Pass: configured minor; record the setting as the source. |
-| No release decision | Absent | Fail: missing decision; merge blocked. |
-| `release:skip` alone | Valid or absent | Pass: no release; no bump is required. |
-| `release:pre-release` alone | `patch` | Pass: configured patch in prerelease mode. |
-| `release:pre-release` alone | Absent | Fail: mode does not supply a bump; merge blocked. |
-| Multiple bump labels, or skip with another owned release label | Any | Fail: conflicting decisions; no fallback. |
-| Any | Invalid value | Fail: invalid configuration; no fallback. |
+## Build, test, and publish
 
-- **First release** starts from a baseline (`v0.1.0` or `v1.0.0`). Pre-`1.0.0`
-  breaking changes are `release:minor` per [SemVer §4](https://semver.org/#spec-item-4);
-  `release:major` is never auto-detected pre-`1.0.0`.
-- The tag is created on the commit now at the head of the release branch —
-  squash, merge-commit, and rebase strategies alike.
+Build receives only the frozen intent and emits one version-marked artifact plus
+an immutable artifact identity. Test verifies that artifact without rebuilding
+it. Publish accepts only a verified artifact identity and checks each target for
+an existing matching version before writing.
 
-### Required pre-merge decision check
+Required targets are bundled as one logical release. The framework stages
+target confirmations and marks the release complete only after all required
+targets succeed. A failed target leaves the intent recoverable. Recovery
+replays only incomplete operations using the same version and artifact. If
+source or artifact inputs changed, Resolve creates a new intent and version.
 
-PR CI runs the resolver read-only against the candidate release settings and
-current owned labels, without creating tags, releases, or published artifacts.
-An existing version-resolution check may own this validation; do not duplicate
-the resolver. The check reports the effective decision and its source, not a
-promised final stable version.
+## Scope, serialization, and aggregation
 
-The validator runs for every PR targeting a release branch, including changes
-that will not publish. It re-runs when source, release labels, or release settings
-change, so a stale result is not evidence for different inputs. Missing,
-invalid, or conflicting decisions produce a failed check with an actionable
-error. A valid skip reports success with a no-release result; path filters do
-not skip the validator.
+Path filtering is a declared mapping from delivered artifact inputs and
+consumer-facing contracts to release eligibility. Exclusions cannot override a
+declared artifact input. Resolution still runs for every candidate so that
+`skip`, missing decisions, and conflicts are visible.
 
-Configure the check's exact name as required in the protected branch's ruleset
-or branch protection, following [Merge Automation](../merge-automation/spec.md).
-Manual merge and auto-merge both wait for it: failure, pending execution, and
-absence block merge. A warning or an advisory, unrequired check is insufficient.
-Human review still assesses whether the resolved level matches the audience
-impact; CI validates the deterministic decision contract.
-
-The release run validates its actual inputs again before Resolve and Build.
-Pre-merge validation does not replace release-time validation, but a known
-missing decision is never deferred until after merge.
-
-### Optional ad hoc releases
-
-The standard release path is a pull request with a validated decision merged into a release
-branch. `workflow_dispatch` is an optional extension, not part of the minimum
-implementation. An implementation SHOULD omit it unless its product has a real
-need to release already-reviewed content outside the merge flow.
-
-Where an ad hoc path exists, it requires an explicit bump, source ref, complete
-release-note context meeting the [release evidence contract](#release-notes), and
-reason. It resolves the source ref to an immutable commit and enters
-the same Resolve → Build → Test → Publish pipeline as a merged pull request. It
-does not infer a bump, bypass validation, rebuild an existing version, or make a
-direct push into a release interface.
-
-Do not create an empty pull request to manufacture a release. It contains no
-artifact-affecting change and makes the review trail imply a change that did not
-happen. Retrying failed validation or publication is not an ad hoc release
-either: rerun the existing release with the same artifact and version under the
-[recovery rule](#the-pipeline).
-
-## Prereleases
-
-- **Branch-level** — a prerelease-type branch publishes on every push, using the
-  branch name as the identifier: `v1.3.0-dev.1`, `v1.3.0-dev.2`, …
-- **PR-level** — `release:pre-release` with a resolved explicit or configured bump publishes
-  `v<base>-<identifier>.<counter>`: `base` is the next version from that bump,
-  `identifier` is the normalized branch name, and `counter`
-  auto-increments per push.
-- Artifact-specific conventions replace the SemVer suffix where they exist
-  (`-alpha.N` for npm, `.devN` for Python). Release candidates use `-rc.N`,
-  auto-incrementing.
-- **Cleanup** deletes prerelease tags, releases, and artifacts after the PR
-  closes (configurable); stable releases are never touched.
-
-## Path filtering
-
-`.github/release.config.yml` declares `release-paths` as ordered include/exclude
-globs (excludes win). The workflow **always runs** so validation executes on
-every merge; only the release step is skipped when no artifact-affecting path
-changed.
-
-Derive these paths from the delivered product and its
-[audience-facing contracts](../../Ways-of-Working/PR-Format.md#detecting-the-change-type),
-not directory names alone. Include callable workflows and build configuration
-that changes delivered runtime requirements or behavior. Do not retain an
-exclusion that overrides an included consumer interface or artifact input.
-
-This example represents a workflow producer with a public `reusable.yml` entry
-point and its local implementation; each producer lists its own artifact inputs.
-
-```yaml
-release-paths:
-  - ".github/workflows/reusable.yml" # public caller contract
-  - ".github/actions/**"            # this workflow's local implementation
-  - "src/**"
-```
+A serialization key combines the release line and artifact identity scope.
+Later candidates queue behind an active release on that key. When intervening
+changes arrive after a failure, an operator either resumes the original intent
+or approves an aggregate intent that records every included change; the system
+does not infer aggregation.
 
 ## Release notes
 
-The GitHub Release **name** is the resolved version. Its **body** preserves the
-release-bound PR title and complete description, using
-[PR Format](../../Ways-of-Working/PR-Format.md#description-structure) as the
-authoring contract. Summary, user-facing changes, adoption, release impact,
-consumer change records, template evidence, and both ending details blocks stay
-intact. There is no parallel JSON/YAML contract and no extraction of only the
-user-facing headings.
-
-### Bind the note to the released source
-
-1. **Resolve the evidence with the version.** Identify the release-bound PR or
-   ad hoc context and the immutable source to build. Resolve the version base
-   and the source comparison baseline; confirm that the consumer record
-   describes that delta. Capture the applicable title and complete body together
-   with the PR URL or context reference, source identity, and snapshot time.
-   Retain that snapshot as release evidence.
-2. **Keep identity separate from authored prose.** Resolve the actual publication
-   coordinates through the existing version pipeline, not a number assigned by
-   the PR author. Carry them and the snapshot through Build and Test with the
-   same artifact. An authored statement that coordinates resolve at publication
-   is not replaced with a manual prediction.
-3. **Publish the complete record.** Preserve the captured title and body
-   unchanged, with a clearly separated publication envelope. Compare the
-   published authored portion with the snapshot; truncation, summarization,
-   missing evidence, or a source mismatch is a publication failure, not success.
-   Hand the same complete record to every note-bearing publishing target and
-   [Downstream Release Propagation](../downstream-release-propagation/design.md).
-
-The envelope records these resolved facts without becoming a second authored
-release note:
-
-| Field | Value |
-| --- | --- |
-| Release identity | Actual version, stable/prerelease mode, tag, immutable source commit, and artifact identity or digest where applicable. |
-| Effective decision | The resolved semantic effect and its owned-label or configured-policy source; [version computation](#version-computation) remains authoritative. |
-| Version base | The actual version/source used to compute the version, or the explicit initial versioning baseline. |
-| Change baseline | The release and immutable source against which the consumer delta is described, plus a source comparison link; explicitly no predecessor for an initial release. |
-| Note provenance | Release-bound PR URL or ad hoc context, its associated source identity, and snapshot time. The retained authored snapshot is the content reference, not the PR's later mutable body. |
-
-Version base and change baseline can differ, particularly for prereleases and
-bundled promotion. Recording both avoids presenting a versioning calculation as
-proof of the code a consumer crosses. The target template identity and
-compatibility evidence come from the authored record; a publisher does not
-substitute the latest template or infer historical compatibility from current
-documentation.
-
-### Release-bound records
-
-| Publication path | Authored record |
-| --- | --- |
-| Single merged PR | That PR's complete title and description, reconciled with the resolved source comparison. |
-| Bundled release | The release-bound integration PR covers every bundled delta from the declared change baseline, not just the most recent feature PR. It links the contributing work as supporting evidence. |
-| Optional ad hoc dispatch | Complete reviewed release-note context with the same adoption, consumer-change, template, and release-impact evidence. Record the dispatch source and reason; do not create or imply an empty PR. |
-| Prerelease | The PR or integration record appropriate to that published source, captured for that release. Later edits to the final PR do not overwrite the prerelease snapshot or attribute unreleased behavior to it. |
-
-If the relationship between a record and its source cannot be established,
-stop the affected publication and register the evidence gap. The process does
-not substitute the newest note, guess a baseline, or treat an empty adoption
-section as a no-action result.
-
-### Correct published metadata without changing history
-
-A note correction is an audited metadata operation, not another release run:
-
-1. Establish the release-to-source and PR relationship from immutable source
-   comparisons and contemporary evidence. Preserve source-specific prerelease
-   records rather than copying a later final-PR body over them.
-2. Capture original and proposed content, reason, evidence links, actor, and
-   time in a linked audit issue or durable attached artifact. Coordinate active
-   PR ownership; do not add closing keywords to audit prose.
-3. Re-read each target before writing. If another edit changed it, reconcile the
-   correction rather than overwriting that edit. Apply only the established
-   PR/release metadata changes and retain their correspondence.
-4. Re-read the result and confirm that the correction changes no artifact,
-   asset, tag, SHA, release decision, or behavior attributed to an old version.
-   Record unverifiable facts as unresolved gaps instead of inventing actions.
-
-The audit belongs in GitHub issues and release/PR metadata, not a product
-documentation changelog. A correction to bytes still follows the
-[new-artifact recovery rule](#the-pipeline); editing notes never bypasses it.
+Resolve snapshots the title and complete reviewed change description with the
+immutable source identity. Publication adds provenance separately: version,
+decision source, version base, artifact identity, target outcomes, and time.
+The complete output consists of the stable or prerelease version marker, the
+verified artifact, and a durable release record.
 
 ## Release output
 
-1. A git tag `vX.Y.Z` on the release-branch commit — always.
-2. The published artifact where one lives outside git — a container image
-   (`<image>:<version>` and `@<digest>`), a package in its registry. For Action,
-   workflow, and module artifacts the tag itself **is** the artifact.
-3. A GitHub Release whose name is the version, carrying the note and the
-   publication envelope, including the tag's resolved source commit and the
-   immutable artifact identity.
+The completed record includes the version marker, immutable source and artifact
+identities, verification evidence, complete reviewed note snapshot, decision
+and version base, and confirmation from every required target. Alias updates
+appear only after this record is complete.
 
-## Publishing targets
+## Logical configuration interface
 
-Publish is the only stage that knows where an artifact goes, and it reaches every
-destination through one abstraction: a **publishing target**. A target is any
-destination that accepts a versioned artifact and serves it to consumers — the
-GitHub Release itself, a package registry, an extension marketplace, a container
-registry.
-
-The release process is written against the target *contract*, never against a
-specific target. Each target documents how it answers six questions — version
-scheme, prerelease representation and sort order, immutability, unpublish
-behaviour, floating-tag support, and where its release record lives — in
-[Publishing Targets](design-publishing-targets.md). Adding a destination means
-writing that contract and a publish step; it does not change Resolve, Build,
-Test, or the spec.
-
-Where a repository has more than one target, publishing is **all-or-nothing** for
-a version:
-
-- Targets are attempted in a defined order, and each is idempotent — publishing
-  an already-published version is a success only when it identifies the same
-  immutable artifact. A version collision with different bytes is an error, so a
-  re-run completes the set rather than accepting changed output.
-- A target that rejects the version fails the release. The version is not
-  advertised as available until every target holds it.
-- A partial publication resumes Publish for the **same** artifact and the same
-  version. It never resolves a new version to work around a single failed target,
-  because the targets that already succeeded hold that immutable version.
-
-## Floating tags
-
-Floating tags are optional, mutable pointers published alongside the immutable
-version tag, for consumers that want to track a line rather than a point:
-
-| Tag | Points at | Moves when |
-| --- | --- | --- |
-| `latest` | the newest stable version | any stable release |
-| `vMAJOR` | the newest stable version in that major | a stable release within that major |
-| `vMAJOR.MINOR` | the newest stable patch in that minor | a stable patch within that minor |
-
-Three rules keep them safe:
-
-- **Prereleases never move a floating tag.** Only a stable release advances one,
-  so a floating tag never points at something not promoted for adoption.
-- **A floating tag never moves backwards.** It only advances, so a consumer
-  following it never silently downgrades.
-- **Only controlled release automation moves a floating tag.** Humans and ad hoc
-  workflows do not create or repoint one. The automation publishes the immutable
-  version first, then moves only the aliases that release is eligible to advance.
-- **A major tag stays inside its compatibility line.** `vMAJOR` advances only
-  for compatible stable patch and minor releases in that major. A breaking
-  release creates the next major tag and leaves the previous one in place.
-- **Floating tags are controlled references only for owned automation.** An
-  organization- or initiative-owned Action or reusable workflow may be consumed
-  through its controlled `vMAJOR` tag. External automation and anything requiring
-  byte-for-byte reproducibility pins to the immutable version, digest, or SHA
-  ([supply chain](../../Coding-Standards/Security.md#supply-chain)).
-
-## Serialised releases
-
-Release runs for the same ref are **serialised** and **queue rather than
-cancel** — an in-flight release is never aborted mid-write, since it may be
-part-way through creating a tag or pushing an artifact. The shared workflow
-declares a concurrency group keyed by workflow and ref, with
-`cancel-in-progress` disabled:
-
-```yaml
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
-```
-
-Serialisation is provided once by the reusable workflow so every repository
-inherits it; the mechanism is the
-[GitHub Actions standard](../../Coding-Standards/GitHub-Actions.md#concurrency).
-The single-stable-branch rule above is what keeps the production version under
-one authority — the stable branch is the only ref that ever cuts a production
-release, and its runs are serialised like any other.
-
-## Configuration surface
-
-| Surface | Where |
+| Concept | Required behavior |
 | --- | --- |
-| Release branches + type | `.github/release.config.yml` |
-| Optional default bump | `DefaultBump` in `.github/release.config.yml` |
-| Explicit bump / prerelease / skip | `release:` PR label |
-| Pre-merge decision validation | named PR check required by the branch ruleset or protection |
-| Optional ad hoc release | `workflow_dispatch` inputs |
-| Path filter | `.github/release.config.yml` |
-| Prerelease cleanup toggle | release config / workflow input |
-| Publishing targets | reusable-workflow input + GitHub environment; see [Publishing Targets](design-publishing-targets.md) |
+| Release-line map | Defines one stable authority and optional prerelease lines. |
+| Decision policy | Declares valid explicit decisions and an optional strict default. |
+| Artifact scope | Lists artifact-affecting inputs and consumer contracts. |
+| Version authority | Names the one stable-version source. |
+| Target set | Lists required target adapters and their conventions. |
+| Alias policy | Enables only the closed stable alias set and its eligibility rules. |
+| Recovery policy | Defines retention and approval for retry or aggregation. |
 
-## Where this connects
+## Related records
 
-- [Spec](spec.md) — the requirements this design delivers.
-- [Publishing Targets](design-publishing-targets.md) — the contract each destination documents.
-- [Downstream Release Propagation](../downstream-release-propagation/design.md) — consumes the release note and immutable reference.
-- [GitHub Actions](../../Coding-Standards/GitHub-Actions.md) — how the workflow itself is authored (SHA pins, least privilege, concurrency).
-- [Security](../../Coding-Standards/Security.md#supply-chain) — why consumers pin to immutable references.
+- [Specification](spec.md)
+- [Publishing Target Design](design-publishing-targets.md)
