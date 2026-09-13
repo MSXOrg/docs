@@ -166,20 +166,23 @@ When a tool only discovers config at the repository root, keep it there and docu
 
 ## Pull request defaults
 
-Repository pull requests must use the PR Manager style for title and description when a release note may be generated from the PR.
+Repository pull requests follow [PR Format](PR-Format.md): one short
+reader-facing result in the title, an audience-first description of the complete
+change, and supporting evidence scoped to the result it supports. Repository or
+initiative guidance MUST NOT add an icon, type prefix, issue reference, or
+internal campaign identifier to the title.
 
-Default title pattern:
-
-```text
-<Icon> [<Change type>]: <User-facing outcome>
-```
-
-Use [PR Format](PR-Format.md) for audience-based change classification and the complete description structure, including its required consumer evidence and ending blocks. A PR closes one scoped Task or Bug, with any additional closing links limited to issues the session-end convergence sweep shows are fully delivered by the same diff.
+A pull request closes one scoped Task or Bug, with any additional closing links
+limited to issues the session-end convergence sweep shows are fully delivered by
+the same diff. When the target route invokes Release Management, the description
+and labels carry its evidence-based release decision. A route without that
+invocation carries neither the `Release decisions` block nor `release:*` labels.
 
 The organization-level `.github` repository supplies the default template.
 The repository-local contribution guide directs humans and agents to the
-organization template and its required format. A repository carries a local
-template only for a documented exception.
+organization template and the canonical format. The inherited template is a
+scaffold; PR Format remains authoritative. A repository carries a local template
+only for a documented exception.
 
 ## Managed files
 
@@ -218,7 +221,7 @@ For example, PSModule can define its module-specific managed files in `PSModule/
 - [Agentic Development](../Capabilities/agentic-development/index.md) — which agent files a repository carries and why the entry point is a pointer.
 - [Repository Type Property](Repository-Type-Property.md) — the `Type` custom property that classifies a repository and drives which type-specific files and controls apply.
 - [README-Driven Context](Readme-Driven-Context.md) — why the README is the front door.
-- [PR Format](PR-Format.md) — the PR Manager-style title and description format.
+- [PR Format](PR-Format.md) — the audience-first title and description format.
 - [Natural Language](../Coding-Standards/Natural-Language.md) — which language each artifact is written in, and how English prose is written.
 - [GitHub Actions](../Coding-Standards/GitHub-Actions.md) — workflow and automation standards.
 - [Dependency Updates](../Capabilities/dependency-updates/spec.md) — supply-chain update requirements.

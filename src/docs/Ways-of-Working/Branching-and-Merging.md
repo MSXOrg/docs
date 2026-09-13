@@ -35,7 +35,7 @@ Every layer follows the ordinary [Contribution Workflow](Contribution-Workflow.m
 
 1. **Plan the dependency.** Give each layer its own Task or Bug issue. Add a native blocked-by edge from every dependent leaf to its prerequisite as described in [Issue Relationships](Issues/Process/Relationships.md#execution-order); prose, sub-issue order, and stack position do not create the gate.
 2. **Open every layer as a draft.** After the initial commit, push the branch and open its pull request immediately. Use the standard user-facing title and description from [PR Format](PR-Format.md); do not add stack position or an internal branch name to the title.
-3. **Link the stack in Technical Details.** Add fully qualified pull request links for the immediate dependency and dependent, using `Depends on Owner/Repo#N` and `Followed by Owner/Repo#N`. Each pull request closes only its own Task or Bug.
+3. **Link the stack in Related references.** Add fully qualified pull request links for the immediate dependency and dependent to the applicable section's `Related references` block, using `Depends on Owner/Repo#N` and `Followed by Owner/Repo#N`. Each pull request closes only its own Task or Bug.
 4. **Keep each delta isolated.** The pull request diff against its current base contains only that layer's change. Run its tests, checks, and automated review even when an earlier layer already exercised the combined code.
 5. **Make one layer ready at a time.** Only the lowest unmerged layer is marked ready and given auto-merge. Every later layer stays draft, even when its current checks are green.
 6. **Advance after merge.** When the lowest layer lands, refresh the next branch against the landed target, retarget its pull request to that target, and verify that the diff still contains only its intended change. Run CI and the automated review loop again before marking it ready.
@@ -59,7 +59,7 @@ A repository on the promotion model MAY keep a **standing draft pull request** f
 - **One long-lived pull request, not one per promotion.** Merging it promotes; a new draft opens immediately, so the candidate view is never absent.
 - **Draft is the resting state.** It is marked ready when the integrated state is deemed promotable, which is what turns review and any promotion gate on.
 - **Its description is the promotion note.** Assembled from the changes it carries, it is the record of what a promotion contained, written for whoever operates the destination.
-- **Its resolved release decision determines the production version.** Promotion is a release like any other, so the level comes from this pull request's explicit bump label or the configured repository default, not from the versions of the changes it bundles ([release management](../Capabilities/release-management/spec.md)).
+- **Its release metadata follows the target route.** When the route invokes [Release Management](../Capabilities/release-management/spec.md), the pull request's `Release decisions` block records the production decision and the level comes from its explicit bump label or the configured repository default, not from the versions of the changes it bundles. A route without that invocation omits the block and all `release:*` labels.
 
 The value is continuous visibility: at any moment, the difference between what is integrated and what is live is one link. It suits repositories where promotion is a deliberate, gated event and costs more than it returns where every merge already ships.
 

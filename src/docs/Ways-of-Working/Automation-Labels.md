@@ -56,6 +56,12 @@ namespaced, including the release set:
 | `release:pre-release` | Publish a prerelease from the open pull request. |
 | `release:skip` | Validate the change without publishing a release. |
 
+This set applies only when the pull request's target route invokes Release
+Management. A route without that invocation does not apply or report any
+`release:*` label, including `release:skip`. The optional
+`.github/release.config.yml` file refines an invocation; its absence alone does
+not determine whether the route invokes the capability.
+
 These labels are read by
 [release management](../Capabilities/release-management/spec.md) and by nothing else.
 One owned bump label records an explicit level and overrides the optional
