@@ -152,7 +152,7 @@ summary.
 End the summary with this exact marker:
 
 ```markdown
-<!-- SLACK MESSAGE STOP -->
+<!-- ANNOUNCEMENT STOP -->
 ```
 
 The marker appears exactly once, on its own line, outside a code fence, and
