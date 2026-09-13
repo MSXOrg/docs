@@ -60,7 +60,8 @@ template](https://github.com/MSXOrg/.github/blob/main/.github/pull_request_templ
 from the special `MSXOrg/.github` repository. Treat that template as a starting
 scaffold; the canonical [PR
 Format](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/) controls the
-final title and description.
+final title and description. Start from its
+[complete description template](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/#copy-the-complete-template).
 
 ## Authoring conventions
 
