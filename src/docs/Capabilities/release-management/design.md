@@ -188,7 +188,7 @@ every merge; only the release step is skipped when no artifact-affecting path
 changed.
 
 Derive these paths from the delivered product and its
-[audience-facing contracts](../../Ways-of-Working/PR-Format.md#detecting-the-change-type),
+[audience-facing contracts](../../Ways-of-Working/PR-Format.md#identify-the-readers),
 not directory names alone. Include callable workflows and build configuration
 that changes delivered runtime requirements or behavior. Do not retain an
 exclusion that overrides an included consumer interface or artifact input.
@@ -207,7 +207,7 @@ release-paths:
 
 The GitHub Release **name** is the resolved version. Its **body** preserves the
 release-bound PR title and complete description, using
-[PR Format](../../Ways-of-Working/PR-Format.md#description-structure) as the
+[PR Format](../../Ways-of-Working/PR-Format.md#write-the-description) as the
 authoring contract. Summary, user-facing changes, adoption, release impact,
 consumer change records, template evidence, and both ending details blocks stay
 intact. There is no parallel JSON/YAML contract and no extraction of only the
