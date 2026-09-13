@@ -1,98 +1,627 @@
 ---
 title: Spec
-description: Requirements for release management — automatic, policy-driven, versioned releases driven entirely on the GitHub platform.
+description: Requirements for durable, recoverable, policy-driven releases and trustworthy consumer updates.
 ---
 
 # Release Management — Spec
 
 ## Premise
 
-A release turns a source change on a release branch into a **versioned,
-immutable artifact** that other systems depend on. Merging a pull request *is*
-releasing. Releasing MUST be automatic, predictable, and driven entirely on the
-GitHub platform — a contributor focuses on the code they contribute, not a
-release CLI, a hand-edited version file, or a tagging convention.
+Release management turns approved source into a **versioned, immutable release**
+that consumers can trust. A release is normally the result of merging reviewed
+change, while a controlled manual request can release already-reviewed
+accumulated change. Both paths use the same decision, build, verification,
+publication, and evidence controls.
 
-### Principles
+The capability preserves enough durable state to finish an interrupted release
+without rebuilding or assigning its version to different content. Consumers can
+discover only completed, eligible stable releases and can select an explicit
+update policy that matches their trust boundary.
 
-This capability rests on the [Principles](../../Ways-of-Working/Principles/index.md):
+## Problem and importance
 
-- **[Everything as Code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).** The release process and version decision are version-controlled, never a GUI action or manual tag.
-- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** The pull request is the decision point; its review gate approves the code *and* the release. An owned bump label records a per-change decision; a version-controlled repository default records the policy used when no level is supplied.
-- **[Extensible by default](../../Ways-of-Working/Principles/Software-Design.md#extensible-by-default).** The rules are technology-agnostic at the core, with defined extension points per artifact type. A new artifact type supplies a convention and a publish step, not a new process.
+A tag or successful workflow run is not enough to prove that a release completed.
+Publication can expose one destination before another fails, mutable pull-request
+metadata can change before a retry, and a later commit can reach the stable branch
+while an earlier artifact is still incomplete. Recomputing from current state can
+then publish different bytes under a reserved version, omit accumulated changes
+from the notes, or advertise an incomplete release as current.
+
+Release management makes the release intent durable. It fixes the approved source,
+decision, version, notes, artifact identity, required destinations, and stage
+progress, then advances that intent safely through publication. This gives
+contributors a predictable release path, operators a recoverable process, and
+consumers an accurate version and update contract.
+
+## Users and jobs
+
+- **A contributor** records the compatibility impact and consumer evidence while
+  proposing a change, without operating separate release tooling.
+- **A reviewer** approves the source, release decision, and complete consumer
+  effect together.
+- **A maintainer** can release approved accumulated change, resume an interrupted
+  attempt, retire an unrecoverable attempt, or withdraw a completed release
+  without rewriting history.
+- **A consumer** can discover the current completed stable release and choose how
+  far a dependency may move within the applicable trust boundary.
 
 ## Scope
 
-Applies to any repository that produces a versioned artifact on merge to a
-release branch. One test decides applicability: **does merging produce a
-versioned, immutable output that something else consumes by version?** If yes,
-this capability governs the release. If no, there is nothing to release.
+In scope:
+
+- Version resolution, release approval, and publication for repositories that
+  produce a versioned artifact.
+- Stable releases, prereleases, release candidates, manual release requests,
+  retries, retirement, and withdrawal.
+- Release notes, immutable release evidence, announcements, current-version
+  discovery, and optional moving aliases.
+- Consumer update policies and the producer references needed to express them.
+
+Out of scope:
+
+- Deploying a released artifact into a runtime environment.
+- Processing a release in dependent repositories.
+- Repository rulesets and branch protections, except for the release checks they
+  must require.
 
 ## Requirements
 
-- **Semantic versioning.** Versions follow [SemVer 2.0.0](https://semver.org/) (`vMAJOR.MINOR.PATCH`), derived automatically — never written by hand.
-- **A resolved PR release decision.** The repository MAY configure `DefaultBump` as `patch`, `minor`, or `major`; invalid values MUST fail. Multiple owned bump labels, or `release:skip` combined with another owned release label, MUST fail. A valid `release:skip` MUST select no release without resolving a bump. For publishing decisions, one owned `release:patch`, `release:minor`, or `release:major` label MUST take precedence over the configured default; without a bump label, a valid `DefaultBump` MUST supply the level; without either source, automation MUST fail with a missing-decision error, never assume `patch`. `release:pre-release` MAY use either the explicit or configured bump; the mode alone does not supply a level. Bare or unrelated labels MUST be ignored. Conventional commit messages are **not** required.
-- **A release per merge.** One eligible merged PR with a resolved bump to a release branch is one release, and the PR review gate is the release gate. `release:skip` validates without publishing. This pull-request path is the required release interface.
-- **Decision validation blocks merge.** Every PR targeting a release branch MUST receive a named release-decision CI check required by the branch ruleset or protection. Missing decisions, invalid defaults, and conflicting owned labels MUST fail that check before merge, not only during publication. Source, release-label, and release-settings changes MUST re-evaluate the decision. A failing, pending, or absent required result MUST block both manual and automated merge; a log message, warning, or skipped validator is not enforcement. A valid `release:skip` MUST report a successful no-release decision, not skip the check.
-- **Ad hoc release is optional.** An implementation MAY expose `workflow_dispatch` when its product needs an ad hoc release outside the merge flow; implementations are not required to support it. A dispatch MUST require an explicit release decision and release-note context, and MUST use the same version, build, validation, immutability, and publication controls as a merged pull request. A direct push MUST NOT be an ad hoc release interface, and an empty pull request MUST NOT be created solely to trigger a release.
-- **Version before build.** The version MUST be resolved before the artifact is built, so the version is part of the artifact's identity rather than a label attached afterwards.
-- **Build once.** The artifact MUST be built exactly once and MUST NOT be altered after it is built. The same bytes flow through validation and publishing. Rebuilding to publish means the tested artifact and the published artifact are different artifacts.
-- **Stable and prerelease.** Every release is either **stable** (the latest version to adopt) or a **prerelease** (testable, not promoted to latest). A prerelease MUST be obtainable from an open pull request carrying `release:pre-release`, using its explicit or configured bump, and/or from a prerelease branch.
-- **Serialised releases.** Only one release process runs against a given version of the codebase (the same ref) at a time. A release mutates shared, version-anchored state — the tag, the version counter, the published artifact — so overlapping runs on the same ref MUST NOT race, and an in-flight release is never interrupted.
-- **A single production authority.** Exactly one branch is in charge of the production (stable) version, so consumers get one unambiguous latest stable release and two branches can never publish competing production releases.
-- **Notes from the contributor's own words.** The GitHub Release name is the version; its body MUST preserve the release-bound pull request title and complete description, or equivalent complete release-note context for an optional ad hoc dispatch. The authored record follows [PR Format](../../Ways-of-Working/PR-Format.md#description-structure); adoption and technical details MUST NOT be omitted or summarized away.
-- **Only artifact-affecting changes release.** A change that does not affect the delivered artifact or its supported consumer contracts MUST carry `release:skip` and MUST NOT produce a release — though validation still runs on every merge. Documentation and internal CI configuration qualify only when they meet that condition. An Action or reusable workflow is itself a product for its callers; its interface and behavior MUST NOT be dismissed as internal tooling because of the file path.
-- **Immutable references.** Consumers pin to the most immutable reference available — a container digest or a commit SHA — never a mutable tag.
-- **Publish through a target contract.** Every publishing destination is reached through the same [publishing-target contract](design-publishing-targets.md), so the release process stays one process regardless of how many destinations a repository has. Adding a destination supplies a contract and a publish step; it MUST NOT change the release process.
-- **All-or-nothing across targets.** Where a repository publishes one artifact to more than one destination, a version MUST NOT end up present on some destinations and absent from others. Partial publication is a failure, reported as one, and resumed by completing the remaining destinations with the same immutable artifact and version.
-- **Recovery distinguishes retries from changed output.** Retrying validation or publication of unchanged bytes MUST reuse their artifact and version. A correction that changes the bytes MUST create a new versioned artifact; an existing version is never overwritten or reused.
-- **Standard GitHub primitives only.** Pull requests, labels, comments, and, where implemented, workflow dispatch — no external tooling beyond `gh` and GitHub Actions.
+Requirements use [BCP 14](https://www.rfc-editor.org/info/bcp14) keywords.
+Identifiers are append-only and MUST NOT be renumbered or reused.
 
-### Release evidence
+### FR1 — Every release has an approved decision and fixed source {#fr1}
 
-- **Incremental consumer contract.** Every release MUST describe its consumer-facing delta against an identified release/source baseline, including applicability, exact actions, and verification, or explicit no-action evidence. Breaking behavior MUST be documented independently of its semantic-version classification. An applicable integration template MUST be identified by repository and verified compatible immutable commit, with producer-source compatibility evidence and linked template work or a justified no-change result.
-- **Resolved coordinates.** The release process MUST record the actual target version, tag, immutable source and artifact identity, effective release decision and its source, version-computation base, and consumer-change baseline. The version base and change baseline MUST be distinguished when they differ. A first release MUST identify its initial versioning baseline and lack of a prior release. Authors MUST NOT assign a final version before resolution.
-- **Traceable publication.** Generated identity and provenance MAY surround the authored note as a distinct envelope; they MUST NOT replace or rewrite it. The release MUST retain the note's source identity and snapshot provenance so its relationship to the published code is inspectable. Every destination carrying release notes, including downstream propagation, MUST receive the complete record.
-- **Correct release scope.** A bundled release's integration PR MUST cover every bundled consumer delta. An optional ad hoc release MUST provide equivalent evidence without implying a nonexistent PR. A prerelease MUST preserve the note appropriate to its immutable published source, not a later final-PR description that describes different code.
-- **Metadata-only correction.** A correction to published notes MUST retain an audit of the original and corrected content, reason, supporting source evidence, actor, and time. It MUST NOT alter release artifacts, tags, source identities, or the behavior attributed to a version. Unverifiable historical facts MUST be registered as gaps, not guessed.
+The release decision MUST be major, minor, patch, or skip. For a change with an
+associated pull request, one explicit owned decision MUST override the
+repository's configured fallback. Missing, invalid, or conflicting decisions
+MUST fail closed. A skip decision MUST suppress immediate publication without
+removing the change from a later release range. Commit-message syntax MUST NOT
+select the decision.
 
-### Consumer update policies
+The ordinary stable release path MUST be an approved pull request merged to the
+stable line. A direct push with no associated review MUST validate but MUST NOT
+inherit the repository fallback or publish a stable release.
 
-A consumer chooses how much version movement it accepts. Selecting a policy is a **consumer-side** concern — the release capability's obligation is to publish versions that make every policy expressible:
+A manual stable release MUST name a fixed source revision on the stable line, an
+explicit aggregate increment, complete release-note context, and approval that
+covers the entire included change range. Invoking the release mechanism is not
+approval. A retry MUST identify an existing release intent and reuse its frozen
+decision.
 
-| Policy | Accepts | Suits |
-| --- | --- | --- |
-| **Latest** | any newer version, including major | consumers that track the current release and have tests to catch breakage |
-| **Lock major boundary** | newer minor and patch within one major | the default for a library dependency under SemVer |
-| **Lock minor boundary** | newer patch only | consumers that accept fixes but no new surface |
-| **Lock specific version** | nothing; movement is an explicit change | consumers under change control |
-| **Lock immutable fingerprint** | nothing; the reference is a digest or SHA | consumers that require the exact bytes to be provable |
+#### FR1 scenarios
 
-Because versions are semantic, immutable, and published once, a consumer can adopt any of these without the producer knowing which one it chose.
+```gherkin
+Scenario: An explicit decision overrides the fallback
+  Given the repository fallback is patch
+  And an approved pull request carries the owned minor decision
+  When release resolution runs
+  Then the resolved decision is minor
+  And the fallback is recorded as not used
 
-## Success criteria
+Scenario: A direct push does not inherit the fallback
+  Given the repository fallback is patch
+  And a direct push has no associated pull request
+  When release resolution runs
+  Then validation runs
+  And no release is published
+```
 
-- Merging an eligible PR with an explicit or configured bump produces a GitHub Release, a git tag, and (where one exists) a published artifact, with no manual step.
-- For a publishing PR, an explicit owned bump label overrides the configured default; without that label, a valid `DefaultBump` supplies the level and is recorded as its source.
-- A PR with no explicit level, configured default, or valid no-release decision fails the required decision check and cannot merge. Invalid defaults and conflicting owned labels also block merge rather than selecting a fallback.
-- Removing the only decision source or changing its inputs re-evaluates the PR check; a prior result does not validate different inputs.
-- An open pull request carrying `release:pre-release` and an explicit or configured bump publishes a prerelease without promoting it to latest.
-- The artifact that consumers download is byte-identical to the artifact that passed validation.
-- A documentation-only merge carrying `release:skip` produces no new version but still runs its CI checks.
-- Two release runs for the same ref never overlap; the second waits for the first to finish rather than racing it.
-- Only the single production branch ever publishes a stable release.
-- A version that reaches one publishing target reaches all of them, or the release is reported as failed.
-- Every release is linkable and records its immutable artifact reference.
-- The published authored title and body match the release-bound snapshot in full, including adoption, consumer/template evidence, and maintainer details.
-- A consumer can identify the actual target, version base, change baseline, and any applicable compatible template without relying on a moving branch, alias, or today's documentation.
-- A bundled or ad hoc note covers its complete change range, and a prerelease note never gains instructions for code absent from that prerelease.
-- A published-note correction is traceable to released-source evidence while all artifact and source identities remain unchanged.
+### FR2 — The increment states the complete compatibility impact {#fr2}
+
+Versions MUST follow [Semantic Versioning 2.0.0](https://semver.org/). For a
+stable public contract at `1.0.0` or later, breaking change requires major,
+backward-compatible capability requires minor, and backward-compatible repair
+requires patch. Before `1.0.0`, breaking or additive change requires minor and a
+compatible repair requires patch; reaching `1.0.0` remains a deliberate major
+decision.
+
+The effective increment MUST cover every unreleased change included from the
+previous completed stable source through the fixed release source. Known pending
+increments establish a minimum aggregate increment: major takes precedence over
+minor, which takes precedence over patch. Skipped and direct changes remain in
+the range and require an explicit reviewed aggregate decision when their
+compatibility impact is not already approved.
+
+#### FR2 scenarios
+
+```gherkin
+Scenario: Accumulated decisions establish a minimum increment
+  Given the unreleased range contains approved patch and major changes
+  When an aggregate release decision is resolved
+  Then the effective increment is at least major
+  And a patch decision is rejected
+```
+
+### FR3 — One stable authority produces one discoverable current version {#fr3}
+
+Exactly one source line MUST be authorized to produce stable releases.
+Current-version discovery MUST select the greatest eligible completed stable
+version by SemVer precedence, independently of tag listing order or optional
+aliases.
+
+Incomplete, failed, retired, and explicitly withdrawn releases MUST NOT be
+current. If no eligible completed stable release remains, discovery MUST report
+that no current stable version exists. A lookup error MUST be surfaced and MUST
+NOT be interpreted as withdrawal or absence.
+
+#### FR3 scenarios
+
+```gherkin
+Scenario: Partial publication is not current
+  Given version 2.4.0 has reached only one of two required destinations
+  And version 2.3.2 is the greatest eligible completed stable release
+  When current-version discovery runs
+  Then it returns version 2.3.2
+  And version 2.4.0 remains incomplete
+```
+
+### FR4 — Prereleases and release candidates identify the next stable candidate {#fr4}
+
+A published prerelease MUST use the core version produced by applying its
+resolved aggregate increment to the stable baseline and permanent reservations.
+It MUST sort before the normal version with the same core and MUST NOT consume
+that stable version. Successive versions in one prerelease series MUST increase
+by SemVer precedence.
+
+An ordinary prerelease MUST identify its source series. A dedicated release
+candidate MUST use the constant `rc` identifier and an unpadded increasing
+counter, such as `2.5.0-rc.1`. A single request MUST NOT select both ordinary
+prerelease and release-candidate modes.
+
+A prerelease MUST be testable but MUST NOT become the current stable release or
+advance stable aliases. Cleanup MAY remove an exact prerelease and its record,
+but MUST NOT reuse its identifier for different content.
+
+#### FR4 scenarios
+
+```gherkin
+Scenario: A release candidate leaves its stable version available
+  Given the stable baseline is 2.4.1
+  And the approved aggregate decision is minor
+  When release candidates are published
+  Then they use 2.5.0-rc.1, 2.5.0-rc.2, and later counters
+  And the stable version 2.5.0 remains available
+```
+
+### FR5 — A durable record is authoritative for release lifecycle state {#fr5}
+
+Before build, the capability MUST persist a release intent containing its
+identity, fixed source and included range, approval evidence, aggregate decision,
+resolved version, notes, required destinations, and current stage. After build it
+MUST also retain the artifact fingerprint and verification and publication
+progress.
+
+The lifecycle MUST distinguish pending or resolved work, successful build,
+successful verification, partial publication, completion, failure, explicit
+retirement, and withdrawal of a completed release. Workflow runs, tags, and
+destination listings are observations of that lifecycle; none alone is the
+authoritative state.
+
+Resolve MAY allocate a version before build. The reservation becomes permanent
+when a build succeeds or any release coordinate becomes externally visible. A
+permanent reservation survives failure, retirement, withdrawal, and deletion at
+a destination. A resolved request with no successful build and no external
+visibility MAY be explicitly superseded while coalescing pending work.
+
+#### FR5 scenarios
+
+```gherkin
+Scenario: External visibility permanently reserves a version
+  Given a release exposes version 3.1.0 at one destination
+  And publication then fails elsewhere
+  When a later release is resolved
+  Then version 3.1.0 remains reserved for the original source and artifact
+  And the later release cannot reuse it
+```
+
+### FR6 — The verified artifact is the artifact that is published {#fr6}
+
+The version MUST be fixed before the artifact is built. Build MUST create the
+artifact once, after which the artifact MUST remain unchanged. Verification and
+every publishing destination MUST consume those same bytes.
+
+The successful artifact, its fingerprint, and verification evidence MUST remain
+available for the entire unresolved lifetime of its release intent. A failed
+build that produced no complete artifact MAY run again. A correction that changes
+bytes MUST resolve a new version and produce a new artifact.
+
+#### FR6 scenarios
+
+```gherkin
+Scenario: Build, verification, and publication share one artifact
+  Given a release is resolved to version 1.8.0
+  When build, verification, and publication succeed
+  Then the published fingerprint equals the verified build fingerprint
+  And no later stage rebuilt or modified the artifact
+```
+
+### FR7 — Recovery resumes the recorded phase without changing identity {#fr7}
+
+A retry MUST load the original release intent and resume only unfinished or
+failed work. It MUST reuse the frozen source, decision, version, notes,
+destinations, successful artifact fingerprint, verification evidence, and
+completed publications. It MUST NOT re-resolve from edited labels, changed
+configuration, a later branch tip, or a later pull-request description.
+
+If the retained artifact is missing, recovery MUST stop with an explicit error.
+Restoring bytes that match the recorded fingerprint MAY permit resumption;
+rebuilding under the same permanently reserved version MUST NOT.
+
+An unrecoverable built or externally visible intent MAY be explicitly retired.
+Retirement MUST preserve its failure record and permanent reservation and MUST
+NOT mark it complete. A corrective release requires separate approval and a new
+version.
+
+#### FR7 scenarios
+
+```gherkin
+Scenario: A partial publication resumes at the missing destination
+  Given a verified artifact reached one of two required destinations
+  When the release is retried
+  Then the completed publication is verified and reused
+  And the same artifact is published only to the unfinished destination
+
+Scenario: Missing retained bytes stop recovery
+  Given a release has a successful recorded build
+  And no retained or published copy matches its fingerprint
+  When recovery runs
+  Then recovery fails with a missing-artifact error
+  And no rebuild occurs under the reserved version
+```
+
+### FR8 — Every required destination completes before the release completes {#fr8}
+
+One release MAY publish to multiple destinations, but MUST use the same canonical
+identity and notes at each. The release MUST remain incomplete until every
+required artifact and release record is published successfully. Completed
+destination work MUST be recorded and reused idempotently.
+
+Completion announcements MUST be separate from artifact publication. Delivery
+progress MUST be retained per release and destination, and an unacknowledged
+delivery MAY be retried with at-least-once semantics. Announcement failure MUST
+NOT create another version, rebuild, republish the artifact, or revoke an
+otherwise complete release.
+
+#### FR8 scenarios
+
+```gherkin
+Scenario: Announcement retry does not create another release
+  Given version 4.2.0 is complete
+  And one announcement destination did not acknowledge delivery
+  When announcement delivery is retried
+  Then the same release identity and message context are reused
+  And no new version, build, or artifact publication occurs
+```
+
+### FR9 — Every destination satisfies the publishing-target contract {#fr9}
+
+Every publishing destination MUST document:
+
+- its native version syntax and canonical SemVer mapping;
+- prerelease representation, validation, and ordering;
+- immutability and the strongest consumer reference;
+- withdrawal, unpublish, or yank behavior;
+- supported moving-alias families;
+- native version-constraint support; and
+- the location of its durable release record.
+
+Distinct canonical releases MUST NOT map to one native coordinate. A mapping
+collision or disagreement between the canonical prerelease status and a native
+prerelease flag MUST fail rather than overwrite or misrepresent a release.
+
+#### FR9 scenarios
+
+```gherkin
+Scenario: A native coordinate collision blocks publication
+  Given two canonical releases map to one destination version
+  When the second mapping is validated
+  Then publication fails before content is overwritten
+  And the original coordinate remains unchanged
+```
+
+### FR10 — The release record covers the complete included change {#fr10}
+
+Release notes MUST account for every change from the previous completed stable
+source through the fixed release source, including skipped and direct changes.
+They MUST preserve contributor-authored title, description, adoption guidance,
+consumer-change evidence, and maintainer evidence under
+[PR Format](../../Ways-of-Working/PR-Format.md), or equivalent reviewed aggregate
+context for a manual release.
+
+The resolved version, version baseline, change baseline, fixed source, artifact
+fingerprint, effective decision and source, destination coordinates, and note
+snapshot provenance MUST be retained as a publication envelope without replacing
+or rewriting the authored note.
+
+#### FR10 scenarios
+
+```gherkin
+Scenario: A later release includes a skipped change
+  Given change A was merged with a skip decision
+  And approved change B triggers the next release
+  When release notes are frozen
+  Then the notes and aggregate decision cover A and B exactly once
+```
+
+### FR11 — Eligibility evaluates the complete unreleased artifact scope {#fr11}
+
+Only changes that affect the delivered artifact or a supported consumer contract
+MUST produce a release. Eligibility MUST evaluate the complete unreleased range,
+including direct and transitive build inputs, rather than only the latest change.
+Validation MUST still run when publication is skipped.
+
+Without configured scope, every changed path MUST be treated conservatively as
+release-affecting. A repository MAY narrow the scope explicitly. File categories
+such as documentation or workflow definitions MUST NOT be universally excluded,
+because they can be the product or an artifact input.
+
+#### FR11 scenarios
+
+```gherkin
+Scenario: An out-of-scope change validates without publishing
+  Given the repository declares its artifact-affecting scope
+  And the full unreleased range contains no matching change
+  When release processing runs
+  Then validation runs
+  And no version or release is published
+```
+
+### FR12 — Release requests are serialized and accounted for in source order {#fr12}
+
+Release work on the same release line MUST NOT run concurrently and MUST queue
+rather than cancel in-flight publication. Requests MUST be reconciled in source
+history order, independently of worker start order. Duplicate event delivery
+MUST return the same intent or outcome.
+
+A missed event, replaced worker, or bounded execution queue MUST NOT silently
+discard a release request. Pending work MUST remain recoverable from durable
+state or source history before later source revisions advance the line.
+
+After intervening changes, a built or externally visible intent MUST first be
+resumed or explicitly retired. Remaining unbuilt and unexposed requests MAY be
+backfilled individually or coalesced under a reviewed aggregate decision. Every
+original request MUST record the release that accounts for it.
+
+#### FR12 scenarios
+
+```gherkin
+Scenario: Later work cannot overtake an unresolved intent
+  Given changes A and B reached the stable line in that order
+  And A has a built incomplete release
+  When B is processed
+  Then A is resumed or explicitly retired first
+  And B cannot replace A's reserved version or artifact
+```
+
+### FR13 — Moving aliases are closed, optional, and withdrawal-aware {#fr13}
+
+The available moving-alias families MUST be exactly `latest`, major, and minor.
+Each family MUST be enabled independently and MUST default to disabled. Unknown
+families or unsupported target combinations MUST fail configuration validation.
+
+An enabled alias MUST resolve to the greatest eligible completed stable version
+matching its family. A new older release MUST NOT move an alias backward.
+Withdrawal MUST reselect the greatest remaining eligible match, which may be an
+older version. If no eligible match remains, the alias MUST be removed or
+disabled rather than left on an ineligible release. Prereleases MUST NOT move a
+stable alias.
+
+#### FR13 scenarios
+
+```gherkin
+Scenario: Withdrawal reselects an alias
+  Given the major alias points to completed stable version 3.4.0
+  And completed stable version 3.3.2 remains eligible
+  When version 3.4.0 is explicitly withdrawn
+  Then the major alias is reconciled to 3.3.2
+  And the withdrawn version remains reserved
+```
+
+### FR14 — Consumer update policy is explicit and trust-aware {#fr14}
+
+A consumer MAY select exactly one of these policies:
+
+| Policy | Accepted movement |
+| --- | --- |
+| `latest` | The newest eligible stable release, including a new major. |
+| `lock-major-boundary` | Minor and patch releases within one selected major. |
+| `lock-minor-boundary` | Patch releases within one selected major and minor. |
+| `lock-specific-version` | No automatic movement from one exact version. |
+| `lock-immutable-fingerprint` | No automatic movement from one exact content identity. |
+
+When no policy is selected, the consumer MUST use the most immutable reference
+available. A boundary policy MUST be available only when the producer and target
+publish the corresponding major or minor alias. Where the consumer syntax
+accepts no version range, the producer alias carries that bound; a range-like
+string MUST NOT be treated as a resolver expression.
+
+Mutable aliases MAY be used only within the consumer's permitted trust boundary.
+An external producer, including one owned by another team in the same company,
+MUST be pinned to an immutable fingerprint or exact immutable version. `latest`
+MAY discover a release without an alias, then resolve it to the reference allowed
+by the trust boundary.
+
+#### FR14 scenarios
+
+```gherkin
+Scenario: An unsupported boundary policy fails explicitly
+  Given a consumer requests lock-minor-boundary
+  And the producer does not publish the minor alias family
+  When the policy is resolved
+  Then the request fails as unsupported
+  And it is not widened to latest or a major boundary
+
+Scenario: An external producer remains immutable
+  Given a consumer selects latest for a producer outside its trust boundary
+  When the current release is discovered
+  Then the durable consumer reference is its immutable fingerprint
+  And no moving producer alias is retained
+```
+
+### FR15 — Release-decision validation blocks an invalid merge {#fr15}
+
+Every pull request targeting a release line MUST receive a named release-decision
+check required by branch policy. The check MUST re-evaluate when source, owned
+release markers, or release settings change. A missing, conflicting, or invalid
+decision MUST fail; a valid skip MUST pass with an explicit no-release result.
+A failed, pending, absent, or stale required result MUST block manual and
+automated merge.
+
+#### FR15 scenarios
+
+```gherkin
+Scenario: Decision input changes invalidate the prior result
+  Given a pull request has a successful release-decision check
+  When its only owned decision is removed
+  Then the check is rerun
+  And merge remains blocked until the new inputs resolve validly
+```
+
+### FR16 — Withdrawal preserves history and requires explicit authorization {#fr16}
+
+A completed release MAY be withdrawn only through an explicit
+maintainer-authorized operation. Withdrawal MUST be recorded separately from the
+original completion and MUST preserve source history, approval evidence,
+artifact identity, destination outcomes, announcements, and version reservation.
+Ordinary deprecation or a temporary lookup failure MUST NOT imply withdrawal.
+
+Replaying a withdrawn release MUST report its withdrawn outcome. It MUST NOT
+recreate removed records, resend the completion announcement, or make the
+release current again. Correcting a bad release MUST roll forward with a newly
+approved version.
+
+#### FR16 scenarios
+
+```gherkin
+Scenario: Withdrawal does not erase completion
+  Given version 5.1.0 completed and was announced
+  When an authorized maintainer withdraws it
+  Then its completion and announcement history remain recorded
+  And replay reports the withdrawal without recreating or re-announcing it
+```
+
+### FR17 — Published-note corrections are auditable metadata changes {#fr17}
+
+A correction to published explanatory metadata MUST retain the original and
+corrected content, reason, source evidence, actor, and time. It MUST NOT change
+the artifact, exact version reference, fixed source, release decision, or
+behavior attributed to that version. Unverifiable historical facts MUST be
+recorded as evidence gaps rather than guessed.
+
+#### FR17 scenarios
+
+```gherkin
+Scenario: A note correction cannot change release identity
+  Given a completed release has incorrect explanatory text
+  When an authorized correction is applied
+  Then the original and corrected text and evidence are retained
+  And the version, source, and artifact fingerprint remain unchanged
+```
+
+## Non-functional requirements
+
+### NFR1 — Published versions are immutable {#nfr1}
+
+One hundred percent of published stable versions MUST remain bound permanently
+to their original source and artifact. A version identifier MUST NOT be reused
+after failure, retirement, withdrawal, unpublish, or repository recreation.
+Destination-native immutability controls MUST be enabled where available.
+
+#### NFR1 scenarios
+
+```gherkin
+Scenario: A withdrawn version cannot be reused
+  Given stable version 2.0.0 was published and later withdrawn
+  When different content requests version 2.0.0
+  Then publication is rejected
+  And the original reservation remains authoritative
+```
+
+### NFR2 — Recovery retains all unresolved release evidence {#nfr2}
+
+One hundred percent of unresolved built release intents MUST retain the artifact
+fingerprint, frozen inputs, and phase progress required for safe resumption until
+they complete or are explicitly retired.
+
+#### NFR2 scenarios
+
+```gherkin
+Scenario: An unresolved release remains recoverable
+  Given a verified release is incomplete
+  When its worker and workflow run no longer exist
+  Then its durable record still identifies the artifact and remaining work
+```
+
+### NFR3 — Release behavior is shared and GitHub-native {#nfr3}
+
+One hundred percent of governed repositories MUST inherit one shared release
+behavior, with zero repository-local copies of the resolution or lifecycle
+algorithm. Contributors and maintainers MUST be able to drive decisions, manual
+requests, retries, retirement, withdrawal, and evidence through GitHub pull
+requests, owned labels, comments, checks, and workflow dispatch without a
+separate local release tool.
+
+#### NFR3 scenarios
+
+```gherkin
+Scenario: Equivalent repositories resolve equivalent requests consistently
+  Given two repositories inherit the same release capability and policy
+  When equivalent approved release requests are processed
+  Then they apply the same lifecycle, version, and recovery rules
+```
+
+### NFR4 — New destinations do not change the lifecycle contract {#nfr4}
+
+One hundred percent of new artifact types and destinations MUST be added through
+the publishing-target contract without changing the requirements or release
+lifecycle.
+
+#### NFR4 scenarios
+
+```gherkin
+Scenario: A new destination uses the existing lifecycle
+  Given a destination satisfies the publishing-target contract
+  When it is added to a release
+  Then Resolve, Build, Verify, Publish, completion, and recovery retain their existing meaning
+```
+
+## Acceptance criteria
+
+```gherkin
+Scenario: AC1 A reviewed merge completes one durable stable release
+  # Verifies: FR1, FR2, FR3, FR5, FR6, FR8, FR10
+  Given the current stable release is 1.4.2
+  And an approved in-scope pull request resolves to minor
+  When every required destination succeeds
+  Then exactly one completed release 1.5.0 is recorded
+  And its notes, fixed source, artifact fingerprint, and destination coordinates are durable
+  And current-version discovery returns 1.5.0
+
+Scenario: AC2 An interrupted release resumes without identity drift
+  # Verifies: FR5, FR6, FR7, FR8, FR12
+  Given a verified artifact is published to only one required destination
+  And later commits reach the stable line
+  When the original release is retried
+  Then it completes the missing destination with the recorded artifact
+  And its source, version, notes, and completed publication remain unchanged
+
+Scenario: AC3 Withdrawal changes eligibility without changing history
+  # Verifies: FR3, FR5, FR13, FR16, NFR1
+  Given two completed stable releases and aliases pointing to the newer one
+  When the newer release is explicitly withdrawn
+  Then discovery and aliases select the older eligible release
+  And the withdrawn release's completion history and version reservation remain
+```
 
 ## Where this connects
 
-- [Design](design.md) — how these requirements are delivered.
-- [Publishing Targets](design-publishing-targets.md) — the contract each destination documents.
-- [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — why this spec holds only the why and the what.
-- [Automation Labels](../../Ways-of-Working/Automation-Labels.md) — why release labels are owned by the `release:` namespace.
-- [PR Format](../../Ways-of-Working/PR-Format.md) — the change-type labels that drive the bump.
-- [Dependency Updates](../dependency-updates/spec.md) — update PRs are artifact-affecting and release through this capability.
+- [Design](design.md) — how the intended lifecycle and current implementation
+  coverage realize these requirements.
+- [Publishing Targets](design-publishing-targets.md) — the destination contract
+  and native behavior.
+- [Automation Labels](../../Ways-of-Working/Automation-Labels.md) — the owned
+  release instruction vocabulary.
+- [PR Format](../../Ways-of-Working/PR-Format.md) — the authored release note and
+  consumer evidence.
+- [Dependencies](../../Coding-Standards/Dependencies.md) — dependency pinning and
+  update trade-offs.

@@ -38,6 +38,12 @@ exception is a floating major tag on automation whose release path MSX controls:
   release creates the next major tag; it never repoints the existing major tag
   across the compatibility boundary.
 
+A local clone that consumes an allowed owned major tag must explicitly accept
+producer-controlled tag movement. Follow
+[Accept moved release tags](../Capabilities/release-management/accept-moved-release-tags.md)
+to repair a stale tag and configure trusted fetches. This does not relax the
+immutable-SHA requirement for external actions.
+
 ```yaml
 # External — immutable SHA; comment carries the readable version
 - name: Check out the repository
