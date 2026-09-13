@@ -1,26 +1,41 @@
 ---
 title: Design
-description: How downstream release propagation is built — an inline notification job that resolves the release and delegates a self-contained prompt to a cloud agent in each dependent.
+description: How downstream release propagation is built — an inline notification coordinates qualification, conditional delegation, and upgrade pull requests.
 ---
 
 # Downstream Release Propagation — Design
 
-The notification runs in the **producer** when a release is cut. It resolves the
-release coordinates, builds a self-contained prompt per dependent, and delegates
-the change to a cloud agent **in the dependent** via the
-[Agent Tasks API](https://docs.github.com/rest/agent-tasks/agent-tasks). The
-brief travels entirely in the prompt. The agent first creates or reuses the
-dependent's Task or Bug delivery issue, then opens the pull request with that
-delivery leaf as its one closing reference.
+The notification runs in the **producer** when a release is cut. The notifier
+resolves the release coordinates, creates or reuses the dependent's Task or Bug,
+and builds its self-contained brief. It first
+[reconciles existing handoff state](#retry-and-handoff-recovery) rather than
+delegating again. For work still needing qualification, authoritative no-upgrade
+evidence terminates without engaging an agent. Otherwise, the configured
+[delegation mode](#delegation) engages a cloud
+agent **in the dependent**, where qualification precedes Build. A needed
+upgrade produces a PR closing that one delivery leaf; no-upgrade outcomes
+create no PR.
 
 ```mermaid
 flowchart TD
   rel["Producer release published"] --> notify["Notify job (in producer)"]
   notify --> resolve["Resolve version + immutable ref (SHA / digest) + notes"]
   resolve --> fan{"For each dependent"}
-  fan --> delegate["Create agent task in dependent<br/>self-contained prompt with full context"]
-  delegate --> issue["Create or reuse Task / Bug delivery issue"]
-  issue --> pr["Agent opens closing PR: bump + related fixes + impact"]
+  fan --> issue["Create or reuse Task / Bug delivery issue"]
+  issue --> resume{"Reconcile existing handoff"}
+  resume -->|"matching PR or verified outcome"| reuse["Report existing handoff and actual state"]
+  resume -->|"queued or in-progress execution"| active["Report existing execution in progress"]
+  resume -->|"idle or waiting for user"| attention["Retain task and request owner action"]
+  resume -->|"failed, blocked, or uncertain"| blocked["Record blocker"]
+  resume -->|"missing or safe retry"| known{"Notifier has verified<br/>no-upgrade evidence?"}
+  known -->|"yes"| nochange["Record no-upgrade disposition<br/>no PR"]
+  known -->|"no: upgrade or agent qualification needed"| delegate["Engage agent: Issue-first pickup or<br/>Task-first qualification task"]
+  delegate --> qualify{"Target upgrades actual baseline?"}
+  qualify -->|"yes: Issue-first"| pr["Agent opens closing PR: bump + related fixes + impact"]
+  qualify -->|"yes: Task-first"| delivery["Create or reuse PR-delivery task<br/>create_pull_request: true"]
+  delivery --> pr
+  qualify -->|"no"| nochange
+  qualify -->|"unknown"| blocked
   pr --> review["Human review + merge"]
 ```
 
@@ -42,54 +57,139 @@ keeps the release and its propagation in one observable run. Verify the identity
 by which token the release step passes; if it is `GITHUB_TOKEN`, inline is
 mandatory. Provide two entry points: the **release** stage (gated to stable
 releases), and a **`workflow_dispatch`** taking the release tag, for backfill.
+Both resolve the published release record and validate its stable kind before
+fan-out or delivery-issue creation. A prerelease event is skipped; a backfill
+request naming a prerelease fails with an error directing the caller to a stable
+release. Neither entry point propagates a prerelease.
 
 ## Release coordinate resolution
 
 | Coordinate | Meaning |
 | --- | --- |
-| `version` | Human-readable version — travels only as a tag / trailing comment |
+| `version` | The fixed propagated upstream target, distinct from the dependent's own package version |
 | immutable ref | The commit SHA (pinned-reference) or image digest (published-artifact) that dependents pin to |
-| `release_notes` | The producer's release body, embedded verbatim in the prompt |
+| `release_notes` | The complete source-bound release body and publication envelope, carried losslessly as untrusted evidence |
+| Evidence sources | Authoritative producer sources for version/source mapping, fully paginated release history, target-era documentation, and the recorded immutable compatible template where applicable |
+
+The stable event or explicit backfill fixes the target once. A later release
+does not change it. The dependent still establishes whether that target is an
+upgrade from its actual baseline; an old notification never authorizes a
+downgrade. Both release-triggered propagation and explicit backfill are
+stable-only. The common procedure's standalone prerelease upgrades do not widen
+this capability.
 
 ## Agent prompt context
 
 The prompt is the context handoff. Each embeds: an **action-oriented summary**;
 the **exact target reference** the PR must produce
 (`uses: org/<producer>@<sha> # <version>`, or the image tag/digest); the
-**release notes** verbatim; and
+**complete release notes** as evidence; and
 **related-change context** — new or renamed config keys, new environment
 variables or secrets, required infrastructure changes, migrations, changed
-defaults, or breaking changes. It is assembled in code and is the single source
-of truth for the change.
+defaults, or breaking changes. It also links the producer-owned evidence sources
+and [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md).
+
+The prompt transports context; it does not replace the authoritative release
+records or the dependent's baseline investigation. Its summary cannot truncate
+the complete received note, and receiving that note does not prove that the
+dependent inspected its full crossed range. Historical and prerelease evidence
+stays bound to the corresponding immutable source, not today's final PR body,
+docs, or template.
+
+### Evidence trust boundary
+
+The application-owned task instructions identify the authorized consumer,
+delivery issue, fixed target, and governing procedure. Producer-controlled
+release/PR text, summaries, and related documentation are a separate,
+explicitly delimited **untrusted evidence** payload, never agent instructions.
+The trusted task instructions require the agent to apply
+[Consumer Upgrades' evidence handling](../../Ways-of-Working/Consumer-Upgrades.md#stage-3-compose-the-action-ledger):
+extract and validate proposed actions, but reject embedded attempts to change
+scope, permissions, secret handling, or required gates.
+
+Use the runtime's data/attachment boundary or collision-safe quotation; a bare
+Markdown fence that the supplied record can close is insufficient. Transport
+escaping must decode to the complete original record, preserving its source
+identity and all authored content rather than summarizing or sanitizing away
+sections. This is transport isolation, not another release-note schema.
+
+If the complete record cannot be carried safely as data, stop affected
+delegation and register the evidence-boundary gap. Do not silently omit content
+or promote it into the governing instructions. This applies under both
+delegation modes and follows the
+[security trust-boundary standard](../../Coding-Standards/Security.md#validate-at-the-boundaries).
+
+## Adoption qualification
+
+Qualify the target through [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md)
+before entering Build or opening a PR. When the notifier already has
+authoritative consumer provenance, it can qualify before delegation. Otherwise
+the delegated agent begins with read-only qualification in the delivery issue;
+it does not infer the baseline from a floating alias's current destination.
+Unknown provenance blocks qualification rather than producing a no-upgrade
+result.
+
+An identical baseline/target version and immutable identity records
+**already current**; a lower target records **superseded, no downgrade**.
+Apply the common procedure's
+[no-upgrade issue disposition](../../Ways-of-Working/Consumer-Upgrades.md#stage-2-fix-the-target-and-release-path):
+retain comparison evidence, create no empty PR, and close only an unneeded open
+leaf as not planned. Existing PR work or unmet local criteria are reconciled
+with the owner, not silently canceled.
 
 ## Delegation
 
-Two delegation modes can carry the request into the dependent. Both create or
-reuse a real Task or Bug delivery leaf before a pull request exists, so the
-delivery path satisfies the [Definition of Ready](../../Ways-of-Working/Definition-of-Ready-and-Done.md#delivery-leaf-readiness).
+Two delegation modes can carry the request into the dependent. Both consume
+the Task or Bug created or reused by the notifier before qualification. A
+needed repository change enters Build only after that leaf satisfies the
+[Definition of Ready](../../Ways-of-Working/Definition-of-Ready-and-Done.md#delivery-leaf-readiness).
 
 | | **Task-first** | **Issue-first** |
 | --- | --- | --- |
-| The request is | an agent task created after its delivery leaf exists | an issue in the dependent, which the agent picks up |
-| The agent produces | a pull request closing the delivery leaf | a pull request closing that issue |
-| Idempotency key | the delivery issue — one per producer version per dependent | the issue itself — one issue per producer version per dependent |
-| Visible before the agent starts | the delivery issue and task state | the issue |
+| The request is | a read-only qualification task, followed only for a needed upgrade by one PR-delivery task | an issue in the dependent, which the agent picks up |
+| The agent produces | a qualified no-upgrade outcome, or an upgrade PR from the PR-delivery task | an upgrade PR closing the issue, or the qualified no-upgrade outcome |
+| Idempotency key | the delivery issue and its phase-specific correlated task | the issue itself — one issue per producer version per dependent |
+| Visible before the agent starts | the delivery issue and qualification task; the PR-delivery task only after a needed qualification | the issue |
 | Suits | immediate execution after the delivery leaf is ready | propagation that needs triage, discussion, or scheduling before work starts |
 
-**Issue-first is the default:** it creates or reuses one Task or Bug in the
-dependent per producer version, with independently verifiable acceptance criteria
-and an executable local plan. The issue is the delivery leaf before the agent
-starts, then the agent opens the pull request that closes exactly that issue.
-Idempotency is by **existence**: the issue is the durable record that this version
-was propagated, so a repeat run finds and reuses it.
+**Issue-first is the default:** the delivery issue itself is the request, with
+the target and required evidence recorded by the notifier. The configured
+issue pickup mechanism engages the agent; no direct Agent Task creation is
+required. Creation alone does not authorize pickup: keep the issue outside
+agent-triggering assignment or dispatch until the notifier selects delegation.
+Qualification establishes whether delivery is needed and refines independently
+verifiable acceptance criteria and an executable local plan before Build.
+For a needed upgrade, the agent opens a pull request closing exactly that issue.
+The issue is the durable **identity**, not proof that qualification, pickup,
+or delivery finished. Repeated notifications follow
+[Retry and handoff recovery](#retry-and-handoff-recovery).
 
-**Task-first** is available only when the agent task is created after the same
-Task or Bug is created or reused. The task carries the issue number and instruction
-to close it, then is polled until it reaches `queued`, `in_progress`, or
-`completed` (a fast task may go straight to `completed`). It fails only if the
-task cannot be created or lands in `failed`, `timed_out`, or `cancelled`. An agent
-task is execution state, not a delivery record; it never authorizes a standalone
-delivery pull request.
+**Task-first** creates a task through the
+[Agent Tasks API](https://docs.github.com/rest/agent-tasks/agent-tasks), only after
+the same Task or Bug delivery issue exists. It first creates a read-only
+**qualification task** with `create_pull_request: false`. That task carries the
+issue number and establishes the actual baseline, target, no-upgrade result, or
+needed local plan without creating a branch or PR.
+
+When verified qualification establishes a needed upgrade, the notifier records
+that plan on the same delivery issue and creates or reuses one correlated
+**PR-delivery task** with `create_pull_request: true`. Its prompt carries the
+qualified plan, fixed target, and issue number; it applies the adoption and
+creates the closing PR, which remains draft until the review-readiness gate
+holds. A verified no-upgrade result creates no PR-delivery task or PR.
+
+Poll the currently correlated task. `queued` and `in_progress` mean active
+execution. `idle` retains the same task but pauses handoff: report it and
+request the designated owner to re-engage that task through the configured
+mechanism. `waiting_for_user` blocks on an authorized answer in the same task;
+record the requested decision and its owner, but do not synthesize an answer
+from release evidence. Neither state authorizes a replacement task. A fast task
+may go straight to `completed`. Completion alone is not a delivery handoff: a
+completed qualification task needs a recorded verified no-upgrade result or the
+correlated PR-delivery task, and a completed PR-delivery task still needs its
+actual PR. Creation failure and `failed`, `timed_out`, or `cancelled` execution
+report failure. An agent task is execution state, not a delivery record; it
+never authorizes a standalone PR.
 
 Either way the model is chosen per producer, not per release, so a dependent
 receives propagation in one consistent shape.
@@ -98,29 +198,75 @@ Fan-out is a **matrix** of dependents (pinned-reference shape) or a single
 configured `notify_repo` (published-artifact shape), with `fail-fast: false` so
 one dependent's failure does not stop the rest.
 
+### Retry and handoff recovery
+
+Serialize issue discovery/creation and handoff attempts for the same producer
+version and dependent using the platform's concurrency control. Reuse the
+delivery issue and verify that
+its recorded immutable target matches the request; a conflicting target is an
+evidence gap, not permission to create a duplicate delivery.
+
+Retain correlation to the delegation attempt/execution in that issue, such as
+the task ID or configured pickup request reference. Read its actual platform
+state and associated PR on retry rather than copying status into another store.
+
+| Observed state | Retry behavior |
+| --- | --- |
+| Issue exists, but no qualification result or correlated execution exists | Resume qualification and the missing delegation/pickup step under the same issue. |
+| A correlated task is `queued` or `in_progress`, or Issue-first pickup execution is active | Reuse it and report in-progress work; do not create another execution. |
+| Task state `idle` | Retain it as the only execution, report a paused handoff, and request designated-owner re-engagement through the configured task mechanism. Do not start a replacement while it is idle; if resumption cannot be established, block and reconcile. |
+| Task state `waiting_for_user` | Block the delivery issue, record the requested decision and designated authorized responder, and wait for that responder to continue the same task. Never synthesize a response from release evidence or start a replacement task. |
+| Completed qualification establishes a needed upgrade, but no PR-delivery task or matching PR exists | Verify that qualification still matches the fixed inputs, then create or reuse one correlated PR-delivery task with `create_pull_request: true`; do not replay qualification or create another delivery issue. |
+| Execution failed, timed out, or was canceled without a PR/no-upgrade result | Report the failure; resume missing work only after its blockers are resolved and active execution is ruled out. Preserve partial consumer work. |
+| PR-delivery task says completed but supplies no PR or verified no-upgrade result | Report incomplete handoff, not success, and reconcile the missing outcome. |
+| A matching PR handoff or verified no-upgrade outcome exists | Return that existing outcome and its actual state; do not create a duplicate PR or replay completed work. |
+| Prior engagement may have succeeded but its result cannot be established | Block and reconcile the attempt; uncertainty is not permission to launch another agent. |
+
+Only the matching outcome makes a retry a no-op. Issue creation, request
+acceptance, and an in-flight agent are not terminal outcomes. Reuse evidence only
+for matching inputs; changed inputs follow the common procedure's invalidation
+gate. A PR handoff records propagation, not successful consumer adoption or
+publication, which remain subject to the ordinary completion gate.
+
 ## Agent instructions
 
 The agent is given the same instructions under either delegation model:
 
-- **Apply the bump.** Every matching reference, bringing any mutable-tag pins into SHA-pinned compliance.
-- **Read the release notes for related work.** The notes are the producer's own account of what changed; the agent treats new or renamed configuration keys, new environment variables or secrets, changed defaults, and migrations as part of the update, not as someone else's problem.
-- **Apply the related changes it can make safely.** A change that is mechanical and verifiable belongs in this pull request.
-- **Call out** larger or riskier work under a follow-up section rather than forcing it into the bump. Scope that needs a decision is surfaced, not guessed at.
-- **Summarise impact** in the PR body: what moved, what it requires of the dependent, and what was deliberately left out.
-- **Open the pull request** — closing exactly the Task or Bug delivery leaf
-  created or reused for this producer version.
+- **Qualify first.** Follow [Adoption qualification](#adoption-qualification);
+  a proven no-upgrade outcome ends without a PR, and an unknown baseline blocks.
+- **Follow [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md).**
+  Establish each actual consumed baseline, inspect the complete applicable
+  range to the provided target, and reconcile the action ledger and immutable
+  target-template comparison. The received newest note is not the range.
+- **Apply the verified adoption.** Update matching in-scope references under the
+  applicable pinning policy, preserve consumer-owned content and configuration
+  intent, and run existing relevant validation against the exact target source.
+- **Block required gaps.** Register missing evidence or larger required work
+  with its owner and keep affected adoption blocked. Only genuinely independent
+  work can move to a follow-up without blocking this upgrade.
+- **Retain the procedure's evidence** in the PR body: exact range and refs,
+  release records, reconciled completed/not-applicable actions, template
+  differences, outcomes, and blockers, including explicit no-action results.
+- **For a needed upgrade, open the pull request** — closing exactly the Task or Bug delivery leaf
+  created or reused for this producer version, and staying draft until the
+  [review-readiness gate](../../Ways-of-Working/Definition-of-Ready-and-Done.md#definition-of-ready-for-review)
+  holds.
 
 ## Permissions and credentials
 
-`GITHUB_TOKEN` is unsuitable for three independent reasons: it cannot act across
-repositories, it is not the user-to-server token the Agent Tasks API requires,
-and a release it publishes cannot trigger a `release:` workflow. So the job:
+`GITHUB_TOKEN` cannot act across repositories, and a release it publishes cannot
+trigger a separate `release:` workflow. Task-first additionally needs the
+user-to-server credential accepted by the Agent Tasks API. So the job:
 
 - Declares **least-privilege** `permissions:` (`contents: read` suffices).
-- Uses `PROPAGATION_TOKEN` — a user PAT carrying the **Agent tasks** permission,
-  an org secret scoped to only the dependents that need it. Because the agent
-  commits and opens the PR within its task session, the token does not itself
-  push or open PRs.
+- Uses `PROPAGATION_TOKEN`, scoped only to the dependents that need it, with
+  **Issues: write** for creating and maintaining delivery issues and **Pull
+  requests: read** for reconciling matching handoffs. It also has the
+  permissions required by the configured delegation mode. Task-first uses a
+  user PAT with **Agent tasks: write** permission; Issue-first uses the issue
+  pickup mechanism rather than unconditionally creating an Agent Task. The
+  agent commits and opens the PR in its own session, so the notification
+  credential does not itself push or open PRs.
 - Passes the secret **explicitly by name** when the notification is a reusable
   workflow — never `secrets: inherit`, per the
   [GitHub Actions coding standard](../../Coding-Standards/GitHub-Actions.md).
@@ -130,14 +276,29 @@ and a release it publishes cannot trigger a `release:` workflow. So the job:
 | Condition | Behaviour |
 | --- | --- |
 | Delegation not created (missing permission / capability off) | Step **fails** with the error; re-run via `workflow_dispatch`. |
-| This version already propagated to this dependent | Step **succeeds**, reporting the existing delivery issue and pull request if one exists; no duplicate is created. |
+| Matching PR handoff or verified no-upgrade outcome exists | Report the existing outcome and its actual state; no duplicate is created and consumer completion is not inferred. |
+| Delivery issue exists without a terminal handoff | Resume missing work or report active/blocked execution through [Retry and handoff recovery](#retry-and-handoff-recovery); issue existence is not success. |
+| Qualification establishes a needed upgrade | Create or reuse its one correlated PR-delivery task with `create_pull_request: true`; it creates the draft closing PR. |
+| Qualification proves no upgrade | Record the no-upgrade disposition; do not create a PR-delivery task or PR. |
+| Task is `idle` | Retain the paused task and request designated-owner re-engagement through the configured task mechanism; do not create a replacement. |
+| Task is `waiting_for_user` | Block pending an authorized response in the same task; record the decision owner and never answer from producer evidence. |
 | Task lands in a failed / timed-out / cancelled state | Step **fails** with the reported state. |
 | One dependent's leg fails | Fails independently (`fail-fast: false`); others proceed. |
-| Prerelease published | Propagation is skipped. |
+| Prerelease release event | Propagation is skipped before fan-out. |
+| Prerelease tag requested through backfill | Dispatch fails before fan-out or issue creation; select a stable release instead. |
+| Complete release evidence cannot be isolated from task instructions safely | Affected delegation fails with a linked evidence-boundary gap; the payload is not silently truncated or trusted as instructions. |
+| Required consumer provenance, release/action evidence, or applicable template compatibility is missing | Affected consumer work is blocked with a linked owning gap; other dependents can proceed. |
+| Target matches the proven baseline or is below it | Record the no-upgrade outcome and apply the [delivery-issue disposition](#adoption-qualification); no empty PR or downgrade. |
+
+Notification success and consumer completion are separate outcomes. Reusing an
+issue or successfully delegating work does not mean the consumer has passed
+review, merged, or met its applicable
+[publication and template completion obligations](../../Ways-of-Working/Definition-of-Ready-and-Done.md#repository-delivery-leaf).
 
 ## Where this connects
 
 - [Spec](spec.md) — the requirements this design delivers.
+- [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) — the complete-range adoption procedure used by each dependent.
 - [Release Management](../release-management/design.md) — produces the release and note this consumes.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md) — SHA pinning, least-privilege permissions, explicit secret passing.
 - [Security](../../Coding-Standards/Security.md#supply-chain) — the supply-chain rationale for immutable references.

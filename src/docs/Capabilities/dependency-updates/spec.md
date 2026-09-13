@@ -31,8 +31,9 @@ other ecosystem the repository actually uses. Two questions are asked of every p
 **currency** (is a newer version available?) and **security** (does the pinned
 version carry a known advisory?).
 
-Out of scope: what an update *does* to the artifact. That is the release the update
-produces, and it is governed by [Release
+Adopting the dependency includes the integration changes it requires, not just
+changing its reference. Selecting and publishing the consumer repository's own
+release remains out of scope and is governed by [Release
 Management](../release-management/spec.md).
 
 ## Requirements
@@ -68,15 +69,31 @@ Management](../release-management/spec.md).
 
 ### Review and release
 
-- **FR10 — One reviewed pull request per update.** Each dependency update is a pull request that passes the full check suite before merge. Nothing is applied unreviewed, and no update takes a side channel around the gate.
+- **FR10 — One reviewed pull request per update.** Each dependency update is a pull request that stays draft until the normal review-readiness gate holds and passes the full check suite before merge. Nothing is applied unreviewed, and no update takes a side channel around the gate.
 - **FR11 — Release impact is decided separately.** The dependency updater MUST NOT choose the repository's release bump. After dependency changes are collected, the repository-wide effect is decided according to [Release Management](../release-management/spec.md).
 - **FR12 — Review and merge follow the repository gate.** An update MUST pass the repository's normal review and required-check policy before merge.
 - **FR13 — Automatic merge is never a bypass.** Where automatic merge is configured, it MUST preserve review requirements and required checks.
+- **FR14 — Adoption covers the complete upgrade.** Each proposed upgrade MUST
+  satisfy [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) from
+  the consumer's actual immutable upstream baseline through its fixed target.
+  Required integration actions, applicable template differences, and relevant
+  consumer validation MUST be reconciled before review readiness. Missing
+  evidence or a required action MUST block affected work, not become an
+  optional follow-up. Before an update is eligible for automatic readiness,
+  approval, or merge, verification of that evidence MUST be represented by a
+  required PR check. A missing, stale, pending, or failed result MUST hold the
+  update even when its other checks pass.
 
 ### Non-functional
 
 - **NFR1 — SHA pins stay immutable.** An update to a SHA-pinned dependency rewrites the pin to the new commit SHA and records the human-readable version alongside it, so the pin stays exact and stays legible.
-- **NFR2 — Update pull requests carry their evidence.** Each one includes the upstream release notes or changelog for the range it crosses. A reviewer deciding on a bump should not have to leave the pull request to find out what changed.
+- **NFR2 — Update pull requests carry their evidence.** Each one includes the
+  complete applicable upstream release evidence for the range it crosses,
+  exact source identities, and the reconciled action/template and validation
+  results required by [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md#outputs-and-evidence).
+  The newest note or an updater's summary alone is insufficient; no-action
+  releases remain accounted for. Equivalent authoritative external evidence
+  does not need MSX formatting.
 - **NFR3 — The mechanism is platform-native.** Checking, advisory correlation, and pull request creation are platform functions, not bespoke automation, so no repository maintains an updater of its own.
 
 ## Success criteria
@@ -85,10 +102,17 @@ Management](../release-management/spec.md).
 - An ecosystem added to a repository without a corresponding updater entry is a detectable finding, not a silent gap.
 - The repository-wide release impact of dependency changes is decided separately under Release Management.
 - No dependency pull request merges without passing the same checks as any other pull request.
+- An update that skips releases still accounts for every applicable increment,
+  and a no-action patch retains explicit evidence and relevant validation.
+- Missing baseline, action, or applicable template evidence leaves the affected
+  update blocked with a linked owning issue.
+- An updater-created PR with green build checks but incomplete adoption
+  evidence cannot be automatically marked ready, approved, or merged.
 
 ## Where this connects
 
 - [Design](design.md) — the updater, review, and automatic-merge policy.
+- [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) — the shared adoption procedure and complete-range evidence.
 - [Release Management](../release-management/spec.md) — the separate repository-wide release decision for merged dependency changes.
 - [Repository Governance](../repository-governance/spec.md) — the reconciliation that detects an uncovered ecosystem.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md#keep-pinned-actions-current) — keeping pinned Actions current.

@@ -32,6 +32,18 @@ plugin uses `msx-coding-*` skills for each coding language or tool,
 index. Skill bodies do not copy the documentation; they identify the one page
 to read.
 
+## Consumer upgrades
+
+`msx-ways-of-working-consumer-upgrades` points to the shared
+[Consumer Upgrades](../../src/docs/Ways-of-Working/Consumer-Upgrades.md)
+procedure. It is a discovery shortcut, not a prerequisite for following the
+procedure or a bundle of migration instructions.
+
+Source/version discovery and compatible immutable template identity remain
+producer-owned. Initiative documentation and plugins supply those entry points
+under the [marketplace ownership boundary](../../src/docs/Capabilities/agentic-development/design-plugin-marketplaces.md#consumer-upgrade-discovery);
+the shared skill supplies only the common method.
+
 ## Versions
 
 Keep the plugin version in `plugin.json` synchronized with the version of its

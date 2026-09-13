@@ -68,7 +68,7 @@ bad now, and waiting for a schedule window or a cooldown would be waiting on pur
 ## The updater
 
 The updater opens **one PR per outdated or vulnerable dependency**, carrying the
-change and the upstream release notes. SHA-pinned dependencies get the new
+proposed reference change and upstream release context. SHA-pinned dependencies get the new
 commit SHA with the version as a trailing comment. Ecosystems, directories, and
 schedule live in `.github/dependabot.yml`; a non-default
 cooldown belongs there too, while the standard three-day cooldown remains
@@ -76,12 +76,29 @@ implicit.
 
 ```mermaid
 flowchart TD
-  check["Scheduled check / advisory"] --> pr["Open dependency update PR"]
-  pr --> ci["Required checks run<br/>(same gate as any PR)"]
+  check["Scheduled check / advisory"] --> pr["Open dependency update PR<br/>ensure draft state"]
+  pr --> adoption["Consumer Upgrades<br/>(full range + actions + template)"]
+  adoption --> ci["Required checks run<br/>(including adoption evidence)"]
   ci --> review["Review and merge"]
   review --> merged["Merged"]
   merged --> release["Separate release decision<br/>see Release Management"]
 ```
+
+### Complete the adoption
+
+The updater's proposal is an input, not proof that the consumer is upgraded.
+The author or delegated agent completes
+[Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) in that same
+delivery: establish the actual consumed source, fix the proposed target, and
+inspect the entire applicable range with full pagination and semantic/lineage
+ordering. An embedded newest note does not replace earlier crossed releases.
+
+The procedure owns action composition, target-era template comparison,
+preservation of consumer intent, and existing validation, including no-action
+ranges. Its reconciled evidence belongs in the update PR. If the updater
+omits required context, retrieve equivalent authoritative producer evidence;
+otherwise register the gap and keep affected work blocked. This adds an
+adoption obligation to the existing review path, not another updater.
 
 ### Release decision
 
@@ -92,7 +109,29 @@ Management](../release-management/design.md).
 ## Review and merge
 
 Every automated update passes the repository's normal review and required-check
-gates. Automatic merge, where configured, never bypasses those gates.
+gates, including [complete consumer evidence](../../Ways-of-Working/Definition-of-Ready-and-Done.md#definition-of-ready-for-review).
+Required migration work cannot be deferred while merging an incompatible
+reference bump. Automatic merge, where configured, never bypasses those gates.
+
+Bind adoption verification to the
+[required-check signal](../merge-automation/design.md#the-gate-a-ruleset-requires-the-checks)
+before enabling automatic readiness, approval, or merge for update PRs.
+An existing required PR validation check can carry this condition; a separate
+check is needed only when no existing check owns it. Missing or stale
+range/ledger/template evidence keeps the result pending or failed, even when
+build and test checks are green. Re-evaluate the result when the candidate or
+its required evidence changes.
+
+Create update PRs as drafts. If the native updater cannot do that, the receiving
+workflow immediately converts each opened proposal to draft, before requesting
+human review. Keep it draft until the normal review-readiness gate, including
+adoption verification, holds. The draft flag is the review-handoff signal; it
+does not replace the binding required check or protect the creation-to-conversion
+window by itself.
+
+Until evidence verification is enforced through the required check, update PRs
+remain outside automated readiness, approval, and merge. The platform updater
+supplies a proposal; it does not assert that the gate has passed.
 
 ## Security updates
 
@@ -120,6 +159,7 @@ rather than overwrite.
 ## Where this connects
 
 - [Spec](spec.md) — the requirements this design delivers.
+- [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) — the procedure that turns an update proposal into verified adoption.
 - [Repository Governance](../repository-governance/design.md#drift-detection-and-reconciliation) — the reconciliation that compares generated configuration against what is committed.
 - [Release Management](../release-management/design.md) — the release an update PR cuts.
 - [Downstream Release Propagation](../downstream-release-propagation/design.md) — the internal counterpart; propagation PRs are dependency updates too.
