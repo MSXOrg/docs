@@ -1,23 +1,28 @@
 ---
 title: Release Management
-description: How a source change becomes a versioned, immutable artifact, driven entirely on the GitHub platform.
+description: Durable version resolution, publication, recovery, withdrawal, and consumer update policy for immutable releases.
 ---
 
 # Release Management
 
-Turning a merged change into a versioned, immutable artifact — a container
-image, a GitHub Action or reusable workflow, a language package, a Terraform
-module — paired with a GitHub Release and a git tag, normally driven by
-pull-request labels. An implementation may add a GitHub-native ad hoc release
-path when its product needs one. No release CLI, no hand-edited version file,
-no tagging ritual.
+Turning approved source into a versioned, immutable artifact — a container
+image, GitHub Action or reusable workflow, language package, Terraform module,
+or documentation site — with durable release state and evidence. The ordinary
+path starts from a reviewed merge; an approved manual request can release an
+accumulated range. Both paths resolve once, build once, resume by recorded
+phase, and advertise only completed eligible releases.
+
+Contributors express release intent through GitHub. Maintainers can recover,
+retire, or withdraw releases without reusing versions or rewriting history, and
+consumers select an update policy that matches their trust boundary.
 
 <!-- INDEX:START -->
 
 | Page | Description |
 | --- | --- |
-| [Spec](spec.md) | Requirements for release management — automatic, policy-driven, versioned releases driven entirely on the GitHub platform. |
-| [Design](design.md) | How release management is built — a shared reusable workflow that resolves an explicit or configured SemVer bump, builds once, and publishes. |
-| [Publishing Targets](design-publishing-targets.md) | The contract every publishing destination documents, with GitHub Releases as the reference target. |
+| [Spec](spec.md) | Requirements for durable, recoverable, policy-driven releases and trustworthy consumer updates. |
+| [Design](design.md) | Durable release intents, lifecycle transitions, recovery, withdrawal, aliases, announcements, and implementation coverage. |
+| [Publishing Targets](design-publishing-targets.md) | Destination contracts for version mapping, prereleases, immutability, withdrawal, aliases, constraints, and release records. |
+| [Accept Moved Release Tags](accept-moved-release-tags.md) | Refresh an owned moving release alias locally and configure Git to keep it current. |
 
 <!-- INDEX:END -->

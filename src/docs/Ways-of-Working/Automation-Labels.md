@@ -54,6 +54,8 @@ namespaced, including the release set:
 | `release:minor` | Publish a minor release. |
 | `release:major` | Publish a major release. |
 | `release:pre-release` | Publish a prerelease from the open pull request. |
+| `release:rc` | Publish the next release candidate for the resolved stable version. |
+| `release:announce` | Deliver configured announcements after the release completes. |
 | `release:skip` | Validate the change without publishing a release. |
 
 These labels are read by
@@ -62,9 +64,20 @@ One owned bump label records an explicit level and overrides the optional
 repository `DefaultBump`; for publishing decisions without a bump label, a valid
 configured default supplies it. `release:skip` records a no-release decision.
 `release:pre-release` is a mode used with a resolved explicit or configured bump,
-never with `release:skip`. Release Management owns the
+never with `release:skip`. `release:rc` is the dedicated release-candidate mode:
+it uses the constant `rc` identifier with an increasing numeric counter and
+conflicts with both `release:pre-release` and `release:skip`.
+`release:announce` can accompany a stable or prerelease publication; it selects
+configured post-completion delivery and does not authorize a version, build, or
+publication by itself.
+
+Release Management owns the
 [resolver and required pre-merge validation](../Capabilities/release-management/design.md#version-computation);
-an absent label and absent default are not an implicit patch decision.
+an absent label and absent default are not an implicit patch decision. The
+[implementation crosswalk](../Capabilities/release-management/design.md#intended-and-implemented-behavior)
+identifies which labels the current shared baseline executes. An owned label
+reserved by this contract but unsupported by the invoked workflow MUST fail
+validation rather than be ignored or approximated.
 
 Reserving bare words would be weaker because it depends on a documented
 prohibition rather than making ownership visible in the label itself.

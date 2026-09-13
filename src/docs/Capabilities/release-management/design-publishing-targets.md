@@ -1,71 +1,278 @@
 ---
 title: Publishing Targets
-description: The contract every publishing destination documents, with GitHub Releases as the reference target.
+description: Destination contracts for version mapping, prereleases, immutability, withdrawal, aliases, constraints, and release records.
 ---
 
 # Release Management — Publishing Targets
 
-A **publishing target** is any destination that accepts a versioned artifact and serves it to consumers. The [release pipeline](design.md#the-pipeline) publishes to targets through one contract, so the process is the same whether a repository has one destination or five.
+A **publishing target** accepts a versioned artifact or release record and makes
+it available to consumers. The [release lifecycle](design.md#build-verify-and-publish)
+passes every target the same frozen version, retained artifact, note envelope,
+and release-intent identity.
 
-This page holds the contract and the targets that satisfy it. It is the boundary that lets a new destination be added without touching the [spec](spec.md).
+Targets differ in native version syntax, prerelease channels, deletion, and
+consumer resolution. This page makes those differences explicit so adding a
+destination does not change the [release-management specification](spec.md).
 
-## The contract
+## Publishing-target contract
 
-A target is described by six answers. They are the questions the release process needs answered in order to publish safely, and they are the questions that differ between destinations:
+Every target documents seven dimensions:
 
 | Dimension | What it settles |
 | --- | --- |
-| **Version scheme** | the exact string form a version takes, and what the target accepts as valid |
-| **Prerelease representation** | how a prerelease is expressed, and how the target sorts it relative to stable versions |
-| **Immutability** | whether a published version can be replaced, and what happens on a repeated publish of the same version |
-| **Unpublish** | whether a version can be withdrawn, what withdrawal does to existing consumers, and whether the version number becomes reusable |
-| **Floating tags** | whether the target supports mutable pointers such as `latest`, and how they are moved |
-| **Release record** | where the durable, linkable evidence of the release lives |
+| **Version scheme** | The native coordinate and its one-to-one mapping from canonical SemVer. |
+| **Prerelease representation** | How prerelease identity and ordering map to the target's syntax or channel. |
+| **Immutability** | Which reference cannot change and what a repeated publication does. |
+| **Withdrawal** | The strongest supported hide, unlist, yank, or delete operation and whether existing consumers retain access. |
+| **Alias families** | Whether `latest`, major, or minor moving references can be represented and reconciled. |
+| **Version constraints** | Whether consumers can express native ranges or need a producer-controlled alias. |
+| **Release record** | Where the durable, linkable destination evidence is stored. |
 
-A target MUST document all six before it is used. An undocumented dimension is a surprise waiting for the first failed release — most often around immutability, where publishing the same version twice is a success on one target and a hard error on another.
+A target MUST answer all seven before it is enabled. It MUST also define:
+
+- how an idempotent retry verifies that an existing coordinate identifies the
+  recorded artifact;
+- whether target-native state can be read back after publication;
+- how canonical stable or prerelease state maps to target-native state; and
+- which evidence proves publication or withdrawal.
+
+Distinct canonical releases MUST NOT map to one native coordinate. A collision
+or stable/prerelease mismatch fails before publication. Target deletion never
+frees a canonical version or prerelease identifier for reuse.
 
 ## Target summary
 
-| Target | Version scheme | Prerelease | Immutable | Unpublish | Floating tags | Release record |
-| --- | --- | --- | --- | --- | --- | --- |
-| **GitHub Releases** | `vMAJOR.MINOR.PATCH` git tag | SemVer suffix, flagged as prerelease | tag and assets are treated as immutable | delete is possible; treated as exceptional | yes — git tags | the Release itself |
-| **PowerShell Gallery** | `MAJOR.MINOR.PATCH` module version | SemVer suffix on the module version | yes — a version is published once | unlist only; the version is never reusable | no | the gallery listing |
-| **VS Code Marketplace** | `MAJOR.MINOR.PATCH` extension version | separate prerelease channel on the same version line | yes | unpublish removes the extension version | channel acts as the pointer | the marketplace listing |
-| **NuGet** | `MAJOR.MINOR.PATCH` package version | SemVer suffix on the package version | yes | unlist only; the version is never reusable | no | the package listing |
-| **Container registry** | `<image>:<version>` plus a content digest | SemVer suffix in the tag | the **digest** is immutable; the tag is not | tag or manifest deletion | yes — mutable tags | the digest |
+| Target | Version scheme | Prerelease | Immutable reference | Withdrawal | Alias families | Native constraints | Release record |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| **GitHub Releases** | Exact `vMAJOR.MINOR.PATCH` or prerelease tag | SemVer suffix and native prerelease flag | Protected exact tag, source commit, and asset digest | Delete or mark unavailable; coordinate remains reserved | `latest`, major, minor as optional Git tags; native Latest separately | No range resolver | GitHub Release and durable release intent |
+| **PowerShell Gallery** | `MAJOR.MINOR.PATCH` module version | SemVer suffix | Published module version | Unlist; downloads already held remain; version is not reusable | None | NuGet ranges through PSResourceGet; mapped manifest constraints | Gallery listing joined from GitHub Release |
+| **NuGet** | `MAJOR.MINOR.PATCH` package version | SemVer suffix | Published package version and package hash | Unlist or deprecate; version is not reusable | None | NuGet version ranges | Package listing joined from GitHub Release |
+| **VS Code Marketplace** | Marketplace-compatible extension version mapped from canonical SemVer | Separate prerelease channel and flag | Published extension version | Unpublish where permitted; version is not reusable | Native stable/prerelease channel selection, not release aliases | No consumer-selected SemVer range | Marketplace listing joined from GitHub Release |
+| **Container registry** | Version tag plus content digest | SemVer suffix in exact tag | Manifest or image digest | Delete tag or manifest where permitted; reservation remains | `latest`, major, minor as optional tags | No range resolver | Registry digest joined from GitHub Release |
 
-Two patterns run through the table and shape how consumers are told to pin:
+Two rules apply to every row:
 
-- **Version numbers are single-use.** On every target above, a published version number is spent. Withdrawal removes availability, not the reservation. A fix is therefore always a new version — never a re-publish of the old one, which is the same conclusion the pipeline reaches from [build-once](design.md#the-pipeline).
-- **Only content addresses are truly immutable.** Where a target offers both a name and a digest, the digest is the reference and the name is the convenience.
+- **Coordinates are single-use.** Withdrawal changes availability or
+  recommendation, not ownership. A corrected artifact always receives a new
+  version.
+- **Completion is an outcome, not a claim of transactional publication.** One
+  target may expose content before another fails. Durable per-target progress
+  keeps the release incomplete until all required targets succeed, then lets a
+  retry resume safely.
 
-## GitHub Releases — the reference target
+## GitHub Releases
 
-GitHub Releases is the reference implementation: every repository governed by this capability publishes there, and a repository with no external artifact publishes there *only*. A target-specific concern is described relative to this one.
+GitHub Releases is the reference target and the cross-target join point. Every
+repository governed by this capability creates a GitHub Release; a repository
+with no external artifact publishes there only. External target coordinates and
+evidence are linked from the same release record.
 
-- **Version scheme.** A git tag `vMAJOR.MINOR.PATCH` on the release-branch commit. The tag is the artifact for Action, workflow, and source-distributed module repositories.
-- **Prerelease.** The SemVer prerelease suffix, with the Release marked as a prerelease so it is excluded from *latest*.
-- **Immutability.** The tag points at one commit and is not moved. Assets are uploaded once. A published version is never rewritten in place.
-- **Unpublish.** A Release and its tag can be deleted, but doing so breaks consumers that resolved it, so it is reserved for a release that must not exist — a leaked secret, a legal removal — and the version number is not reused.
-- **Floating tags.** Supported as additional git tags, subject to the [floating-tag rules](design.md#floating-tags).
-- **Release record.** The Release itself: the version as its name, the release note as its body, and the immutable reference to whatever was published elsewhere.
+### GitHub version and prerelease mapping
 
-Because every release produces a GitHub Release, it is also the **join point** across targets: a release published to a registry or marketplace records its reference there, so one link answers *what shipped, in what version, and where it went*.
+Stable versions use an exact tag:
+
+```text
+vMAJOR.MINOR.PATCH
+```
+
+Prereleases preserve the canonical suffix:
+
+```text
+vMAJOR.MINOR.PATCH-series.N
+```
+
+The Release's native prerelease flag MUST agree with the canonical version.
+GitHub's native **Latest** selection is advertising state, not release authority.
+It is updated only after durable completion and MUST NOT include prereleases or
+withdrawn releases.
+
+### GitHub immutability
+
+An exact version tag identifies the fixed source revision. Assets are uploaded
+from the retained artifact and verified by fingerprint. A repeated publish is
+successful only when the existing tag, assets, and release record match the
+frozen release intent.
+
+Repositories enable GitHub's immutable-release protection where the platform
+supports it. Shared automation reconciles and verifies that setting rather than
+assuming repository policy remained unchanged. Until setting reconciliation is
+implemented, exact tags and assets remain immutable by MSX policy but lack the
+full intended platform enforcement.
+
+### GitHub withdrawal
+
+GitHub permits a Release and tag to be deleted, but deletion does not erase
+clones, caches, downloads, or durable lifecycle history. The withdrawal record
+therefore remains authoritative and the version remains permanently reserved.
+Deletion is used only where the approved withdrawal operation and repository
+policy require it.
+
+Replaying a withdrawn intent does not recreate the Release or tag. Current
+discovery and native Latest are reconciled to the greatest remaining eligible
+completed stable release.
+
+### GitHub aliases and constraints
+
+Optional Git tags represent the closed `latest`, major, and minor alias families.
+They are separate from exact version tags and can move only through
+[alias reconciliation](design.md#current-version-discovery-and-aliases).
+Consumers must explicitly accept moved owned tags; see
+[Accept moved release tags](accept-moved-release-tags.md).
+
+Git references do not resolve SemVer range expressions. A major or minor
+boundary therefore requires the corresponding producer alias. External
+consumers use an exact commit SHA or another immutable fingerprint rather than a
+moving tag.
+
+### GitHub release record
+
+The GitHub Release contains the contributor-authored note, publication envelope,
+fixed source, and links to every destination coordinate. The durable release
+intent remains the authority for lifecycle state, including partial publication,
+retirement, withdrawal, alias reconciliation, and announcements.
+
+## PowerShell Gallery
+
+### PowerShell Gallery version and prerelease mapping
+
+The module manifest and gallery coordinate use canonical SemVer without the
+leading `v`. A prerelease suffix is retained where the gallery and module
+manifest permit it. Mapping validation runs before publication so a native
+version cannot collide with another canonical release.
+
+### PowerShell Gallery immutability and withdrawal
+
+A published module version is immutable. Retrying succeeds only when the
+existing listing and package hash identify the recorded artifact. The gallery
+supports unlisting rather than reclaiming a version; existing consumers and
+caches can still hold it, and the coordinate remains permanently reserved.
+
+### PowerShell Gallery aliases and constraints
+
+The gallery does not offer producer-controlled moving release aliases.
+PSResourceGet accepts NuGet version ranges, and module manifests map supported
+bounds into their native fields. Consumers follow
+[PowerShell Version Constraints](../../Coding-Standards/PowerShell/Version-Constraints.md)
+rather than placing a range-like string in a field that accepts only one
+version.
+
+### PowerShell Gallery release record
+
+The gallery listing and package hash are recorded as destination evidence. The
+GitHub Release links the gallery coordinate to the canonical source, notes, and
+cross-target release intent.
+
+## NuGet
+
+### NuGet version and prerelease mapping
+
+The package version uses canonical SemVer without a leading `v`, including its
+prerelease suffix. The adapter rejects any normalization or server behavior that
+would make two canonical identifiers address one native package version.
+
+### NuGet immutability and withdrawal
+
+A published package version is immutable and single-use. An idempotent retry
+checks the existing package hash. NuGet unlisting or deprecation changes
+discovery and guidance but does not remove packages already restored, and the
+version remains reserved.
+
+### NuGet aliases and constraints
+
+NuGet has no producer-controlled moving alias for package versions. Consumers
+express supported movement with native
+[NuGet version ranges](../../Coding-Standards/PowerShell/Version-Constraints.md).
+An exact package version remains the immutable release coordinate.
+
+### NuGet release record
+
+The package listing, content hash, and withdrawal or deprecation state are
+destination evidence. The GitHub Release is the human-readable join point.
+
+## VS Code Marketplace
+
+The [VS Code Extension Framework design](../vscode-extension-framework/design.md)
+owns the detailed VSIX and marketplace behavior.
+
+### VS Code Marketplace version and prerelease mapping
+
+Stable extension versions map directly to the marketplace-compatible version in
+the VSIX manifest. The marketplace represents prereleases through its separate
+prerelease channel and `--pre-release` publication flag, including the
+framework's odd-minor convention. The adapter records the canonical prerelease
+and native extension version together and MUST guarantee a one-to-one mapping.
+
+### VS Code Marketplace immutability and withdrawal
+
+A published extension version is immutable and single-use. Marketplace
+unpublication is applied where permitted, but cannot recall installed VSIX
+files or make the canonical version reusable.
+
+### VS Code Marketplace aliases and constraints
+
+Stable and prerelease marketplace channels influence update discovery but are
+not the release-management `latest`, major, or minor alias families. The
+marketplace does not expose consumer-selected SemVer ranges for extension
+updates. Consumers that need an exact immutable artifact use the VSIX attached
+to the GitHub Release.
+
+### VS Code Marketplace release record
+
+The marketplace listing and native channel state are destination evidence. The
+GitHub Release always contains the same VSIX and joins the canonical release to
+optional Marketplace or Open VSX publication.
+
+## Container registries
+
+### Container registry version and prerelease mapping
+
+An exact canonical version maps to an image tag, while the published manifest or
+image digest identifies immutable content. Prerelease suffixes remain part of
+the exact version tag.
+
+### Container registry immutability and withdrawal
+
+Registry tags are mutable; digests are not. Publication records both and treats
+the digest as artifact identity. An idempotent retry succeeds only when the
+exact version tag resolves to the recorded digest. Deleting a tag or manifest
+does not free the canonical release version or prove that cached content
+disappeared.
+
+### Container registry aliases and constraints
+
+Optional tags can implement the `latest`, major, and minor alias families.
+Reconciliation updates each enabled tag to the digest of the greatest eligible
+matching release. Container references do not evaluate SemVer ranges, so
+consumers use a controlled producer alias inside the allowed trust boundary or
+pin a digest.
+
+### Container registry release record
+
+The registry digest and exact tag are destination evidence. The GitHub Release
+links that digest to source, notes, verification, and lifecycle state.
 
 ## Adding a target
 
-1. Document the six contract dimensions above, in the summary table.
-2. Confirm the target's immutability and prerelease behaviour are compatible with [SemVer](https://semver.org/) ordering. Where the target's native convention differs, the mapping is stated rather than assumed.
-3. Add the publish step. It receives the already-built artifact and the
-   already-resolved version, and it MUST be idempotent: publishing a version the
-   target already holds is a success only when its immutable identity matches the
-   artifact being retried. A different artifact at the same version is an error.
-4. Include the target in the [all-or-nothing](design.md#publishing-targets) set, so a version cannot be present on some destinations and absent from others.
+1. Document all seven contract dimensions and add the target to the summary.
+2. Define a total, collision-free mapping from canonical stable and prerelease
+   versions to native coordinates and flags.
+3. Define the immutable identity and read-back check used by idempotent retry.
+4. Define the strongest supported withdrawal behavior and its limitations.
+5. State which, if any, alias families and native constraints consumers can use.
+6. Define publication, withdrawal, and reconciliation evidence.
+7. Add the adapter to the required destination set so durable completion and
+   phase-aware recovery include it.
 
-The spec does not change. That is the purpose of the contract.
+The target receives an already built and verified artifact. It does not choose a
+version, rebuild content, rewrite the note snapshot, or mark the overall release
+complete by itself.
 
 ## Where this connects
 
-- [Spec](spec.md) — the requirements this design serves.
-- [Design](design.md) — the pipeline that publishes to these targets.
-- [Security](../../Coding-Standards/Security.md#supply-chain) — why consumers pin to immutable references.
+- [Spec](spec.md) — the normative release and target requirements.
+- [Design](design.md) — durable state, publication, recovery, discovery, and
+  consumer policy.
+- [Accept moved release tags](accept-moved-release-tags.md) — local Git
+  configuration for consumers of owned aliases.
+- [Security](../../Coding-Standards/Security.md#supply-chain) — immutable
+  references and supply-chain controls.
