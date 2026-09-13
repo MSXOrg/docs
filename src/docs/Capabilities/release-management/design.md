@@ -6,9 +6,26 @@ description: How release management is built — a shared reusable workflow that
 # Release Management — Design
 
 The behaviour in the [spec](spec.md) is delivered by a **shared reusable release
-workflow**. A repository opts in with a short caller workflow and a small
-`.github/release.config.yml`. The workflow supplies the shared mechanics; an
-explicit label or an intentionally configured default supplies the release level.
+workflow**. A repository opts a target route in with a short caller workflow.
+The optional `.github/release.config.yml` file refines that invocation; it does
+not opt a route in, and its absence does not opt an invoked route out. The
+workflow supplies the shared mechanics; an explicit label or an intentionally
+configured default supplies the release level.
+
+## Applicability
+
+Inspect the effective workflow configuration for the pull request's target
+route before reading release settings or labels.
+
+- When the route invokes the shared Release Management workflow, evaluate its
+  release decision and require the configured pre-merge check. This remains true
+  when `.github/release.config.yml` is absent.
+- When the route does not invoke the workflow, Release Management does not
+  apply. Omit the `Release decisions` block and every `release:*` label,
+  including `release:skip`.
+
+Configuration can change branch types, paths, a default bump, and other release
+behavior only after the invocation establishes that the route is managed.
 
 ## Branching model
 
@@ -71,10 +88,11 @@ Two consequences follow, and they are the point of the model:
 
 ## Version computation
 
-For PR-driven releases, the shared resolver reads the owned labels and optional
-`DefaultBump` in `.github/release.config.yml`. The setting accepts `patch`,
-`minor`, or `major`; omitting it does not supply a level. For example, this
-configuration explicitly chooses patch releases when no bump label is provided:
+For PR-driven releases on an invoked route, the shared resolver reads the owned
+labels and optional `DefaultBump` in `.github/release.config.yml`. The setting
+accepts `patch`, `minor`, or `major`; omitting the file or field does not supply a
+level and does not skip evaluation. For example, this configuration explicitly
+chooses patch releases when no bump label is provided:
 
 ```yaml
 # .github/release.config.yml
@@ -120,6 +138,24 @@ Resolve the decision in this order:
 - The tag is created on the commit now at the head of the release branch —
   squash, merge-commit, and rebase strategies alike.
 
+### Pull request decision record
+
+After inspecting the complete change, an author on an invoked route records the
+human-readable decision in the conditional `Release decisions` block from [PR
+Format](../../Ways-of-Working/PR-Format.md#record-release-decisions-only-when-invoked).
+The block and the effective resolver inputs must agree:
+
+- `Release: Yes` states why the change affects the artifact or a supported
+  consumer contract, then records `Version bump`, `Mode`, and `Labels`.
+- `Release: No` states the no-release evidence and reports only
+  `release:skip`.
+- `Labels` names the exact applied `release:*` labels. Use `None` when a valid
+  configured default supplies a release level without an override label.
+
+The resolver still reads labels and configuration as its machine inputs; the
+block makes the reviewed decision and its evidence visible. A route without an
+invocation has neither the block nor any `release:*` labels.
+
 ### Required pre-merge decision check
 
 PR CI runs the resolver read-only against the candidate release settings and
@@ -128,12 +164,13 @@ An existing version-resolution check may own this validation; do not duplicate
 the resolver. The check reports the effective decision and its source, not a
 promised final stable version.
 
-The validator runs for every PR targeting a release branch, including changes
-that will not publish. It re-runs when source, release labels, or release settings
-change, so a stale result is not evidence for different inputs. Missing,
-invalid, or conflicting decisions produce a failed check with an actionable
-error. A valid skip reports success with a no-release result; path filters do
-not skip the validator.
+The validator runs for every PR targeting an invoked release route, including
+changes that will not publish and invoked repositories without a release
+configuration file. It re-runs when source, release labels, release settings, or
+the effective workflow invocation changes, so a stale result is not evidence for
+different inputs. Missing, invalid, or conflicting decisions produce a failed
+check with an actionable error. A valid skip reports success with a no-release
+result; path filters do not skip the validator.
 
 Configure the check's exact name as required in the protected branch's ruleset
 or branch protection, following [Merge Automation](../merge-automation/spec.md).
@@ -182,13 +219,13 @@ either: rerun the existing release with the same artifact and version under the
 
 ## Path filtering
 
-`.github/release.config.yml` declares `release-paths` as ordered include/exclude
-globs (excludes win). The workflow **always runs** so validation executes on
-every merge; only the release step is skipped when no artifact-affecting path
-changed.
+When present, `.github/release.config.yml` declares `release-paths` as ordered
+include/exclude globs (excludes win). On an invoked route, the workflow
+**always runs** so validation executes on every merge; only the release step is
+skipped when no artifact-affecting path changed.
 
 Derive these paths from the delivered product and its
-[audience-facing contracts](../../Ways-of-Working/PR-Format.md#detecting-the-change-type),
+[audience-facing contracts](../../Ways-of-Working/PR-Format.md#identify-the-readers),
 not directory names alone. Include callable workflows and build configuration
 that changes delivered runtime requirements or behavior. Do not retain an
 exclusion that overrides an included consumer interface or artifact input.
@@ -207,20 +244,22 @@ release-paths:
 
 The GitHub Release **name** is the resolved version. Its **body** preserves the
 release-bound PR title and complete description, using
-[PR Format](../../Ways-of-Working/PR-Format.md#description-structure) as the
-authoring contract. Summary, user-facing changes, adoption, release impact,
-consumer change records, template evidence, and both ending details blocks stay
-intact. There is no parallel JSON/YAML contract and no extraction of only the
-user-facing headings.
+[PR Format](../../Ways-of-Working/PR-Format.md#write-the-description) as the
+authoring contract. The concise summary, shareable-summary marker, non-empty
+classified change sections, reader-facing prose, section-scoped `Technical
+details` and `Related references`, and conditional `Release decisions` block
+stay intact. There is no parallel JSON/YAML contract and no extraction of only
+selected headings or evidence blocks.
 
 ### Bind the note to the released source
 
 1. **Resolve the evidence with the version.** Identify the release-bound PR or
    ad hoc context and the immutable source to build. Resolve the version base
-   and the source comparison baseline; confirm that the consumer record
-   describes that delta. Capture the applicable title and complete body together
-   with the PR URL or context reference, source identity, and snapshot time.
-   Retain that snapshot as release evidence.
+   and the source comparison baseline; confirm that each applicable change
+   section's technical details describe and support that delta. Capture the
+   applicable title and complete body together with the PR URL or context
+   reference, source identity, and snapshot time. Retain that snapshot as
+   release evidence.
 2. **Keep identity separate from authored prose.** Resolve the actual publication
    coordinates through the existing version pipeline, not a number assigned by
    the PR author. Carry them and the snapshot through Build and Test with the
@@ -246,10 +285,10 @@ release note:
 
 Version base and change baseline can differ, particularly for prereleases and
 bundled promotion. Recording both avoids presenting a versioning calculation as
-proof of the code a consumer crosses. The target template identity and
-compatibility evidence come from the authored record; a publisher does not
-substitute the latest template or infer historical compatibility from current
-documentation.
+proof of the code a consumer crosses. When a result affects an integration
+template, its identity and compatibility evidence come from that result's
+technical details; a publisher does not substitute the latest template or infer
+historical compatibility from current documentation.
 
 ### Release-bound records
 
@@ -257,13 +296,13 @@ documentation.
 | --- | --- |
 | Single merged PR | That PR's complete title and description, reconciled with the resolved source comparison. |
 | Bundled release | The release-bound integration PR covers every bundled delta from the declared change baseline, not just the most recent feature PR. It links the contributing work as supporting evidence. |
-| Optional ad hoc dispatch | Complete reviewed release-note context with the same adoption, consumer-change, template, and release-impact evidence. Record the dispatch source and reason; do not create or imply an empty PR. |
+| Optional ad hoc dispatch | Complete reviewed release-note context with the same classified structure and applicable result-specific evidence. Record the dispatch source and reason; do not create or imply an empty PR. |
 | Prerelease | The PR or integration record appropriate to that published source, captured for that release. Later edits to the final PR do not overwrite the prerelease snapshot or attribute unreleased behavior to it. |
 
 If the relationship between a record and its source cannot be established,
 stop the affected publication and register the evidence gap. The process does
-not substitute the newest note, guess a baseline, or treat an empty adoption
-section as a no-action result.
+not substitute the newest note, guess a baseline, or treat a missing applicable
+technical-details block as a no-action result.
 
 ### Correct published metadata without changing history
 
@@ -379,9 +418,10 @@ release, and its runs are serialised like any other.
 
 | Surface | Where |
 | --- | --- |
-| Release branches + type | `.github/release.config.yml` |
+| Release Management applicability | target-route caller workflow invoking the shared Release Management workflow |
+| Release branches + type | optional `.github/release.config.yml`; the default branch is stable when omitted |
 | Optional default bump | `DefaultBump` in `.github/release.config.yml` |
-| Explicit bump / prerelease / skip | `release:` PR label |
+| Explicit bump / prerelease / skip | `release:` PR label on an invoked route |
 | Pre-merge decision validation | named PR check required by the branch ruleset or protection |
 | Optional ad hoc release | `workflow_dispatch` inputs |
 | Path filter | `.github/release.config.yml` |
