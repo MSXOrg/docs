@@ -9,6 +9,20 @@ A pull request title and description are release-note-ready artifacts. They
 explain one complete change to the people who use what the repository delivers,
 while carrying the evidence reviewers and maintainers need.
 
+The release-bound title and complete description author the eventual release
+note. Published release records are the consumer's sufficient upgrade history:
+what changed, why, who is affected, compatibility, and exactly how to adopt each
+release, including an explicit no-action result when applicable. PRs and diffs
+provide optional depth, not required instructions missing from the notes.
+
+Consumers read every applicable release after their actual consumed baseline
+through the chosen target in release order and compose the necessary actions.
+Reading those records does not require installing every intermediate version;
+an intermediate installation or run is required only when a note explicitly
+requires it. [Resource documentation](Documentation-Model.md#current-product-guidance-and-release-history)
+describes supported target-state behavior and usage, not release-specific
+transitions or history.
+
 This page owns the title and description format. The
 [Contribution Workflow](Contribution-Workflow.md) owns draft, assignment,
 review, and handoff mechanics; [Branching and Merging](Branching-and-Merging.md)
@@ -37,9 +51,11 @@ behavior that the change did not implement.
 
 ### Read the whole change
 
-Inspect the complete base-to-head diff before writing. For a promotion or
-bundled release, inspect the complete promoted range rather than only the latest
-commit or pull request.
+Inspect the complete base-to-head diff before writing. For a release-bound
+record, reconcile the complete delivered change since its identified
+release/source baseline, including earlier merged or skipped changes in that
+range. A promotion or bundled release must retain every applicable consumer
+delta, not just the latest commit or pull request.
 
 Check claims against the changed public interfaces, documentation,
 configuration, tests, and generated output. Commit messages and an earlier pull
@@ -55,8 +71,13 @@ State only outcomes the evidence supports:
   changes the documented product.
 - Distinguish a public contract change from the internal implementation that
   delivers it.
-- Name required user action precisely. Do not imply that no action is needed
-  without checking the supported interfaces.
+- Check affected supported uses for compatibility, prerequisites, and exact
+  adoption actions, including required ordering or intermediate operations.
+- State an explicit no-action result and its compatibility basis when adoption
+  needs no consumer change beyond selecting the release reference.
+- Treat missing applicability or migration instructions as an evidence gap to
+  resolve in the note, not a reason to send consumers to PRs, diffs, or
+  historical product docs.
 
 ### Resolve release decisions
 
@@ -93,9 +114,10 @@ reasons to assume a patch release.
 ### Select the news
 
 Keep the summary and named sections focused on results that matter to the
-identified readers. Put implementation facts, validation, and process evidence
-in supporting details. Omit internal facts that neither explain a reader-facing
-result nor help review it.
+identified readers without omitting a consumer delta or required action. Put
+implementation facts, validation, and process evidence in supporting details.
+Omit internal facts that neither explain a reader-facing result nor help review
+it.
 
 Internal-only work can still have a clear result, such as a shared automation
 configuration. When it has no reader-facing classified section, summarize the
@@ -175,20 +197,27 @@ Use these classifiers in this order and omit empty groups:
 | `Fixed` | An incorrect behavior or guidance now works as intended. |
 
 Each section heading states one result, not a component name. Open the section
-with one or two prose paragraphs that explain the outcome, affected readers,
-and required action. A documentation change uses the classifier that describes
-what its guidance now provides.
+with one or two prose paragraphs that explain what changes, why, affected
+supported uses, compatibility, and exact adoption actions or an explicit
+no-action result. Include applicable prerequisites, verification, and ordering
+constraints. A later release that supersedes an earlier action explains how
+consumers compose the remaining actions through its target; preserve any
+required intermediate installation or run. A documentation change uses the
+classifier that describes what its guidance now provides.
 
 ### Show interfaces after the prose
 
 After the opening prose, add an interface example or compact table only when it
 makes the reader's action clearer. Do not lead a section with a code block or
-table. Do not use before-and-after examples or diagrams in a pull request
-description; keep those in durable documentation and link to them.
+table. Include necessary old-to-new examples, before-and-after comparisons, or
+diagrams in the note itself when they explain an applicable transition. Keep
+release-specific migration details here; evergreen resource docs show supported
+usage without accumulating those transitions.
 
-Link visible documentation using an absolute default-branch URL or the canonical
-published URL so the link survives when the pull request becomes a release
-record. Never include secret values.
+Link optional usage documentation using an absolute default-branch URL or the
+canonical published URL so the link survives when the pull request becomes a
+release record. Such links supplement the note; consumers must not need them to
+discover required upgrade actions. Never include secret values.
 
 ### Close each section with supporting details
 
@@ -223,7 +252,9 @@ in the `Technical details` block for the result it supports. For a
 release-managed result, include the applicable consumer, template, and baseline
 evidence required by [Release
 Management](../Capabilities/release-management/spec.md#release-evidence) in that
-same scoped block.
+same scoped block. Keep the consumer's instructions in the result's prose and
+examples; the supporting evidence verifies those instructions rather than
+replacing them.
 
 Use fully qualified `owner/repository#number` references for every same-instance
 GitHub issue or pull request, including references to the current repository.
@@ -307,18 +338,22 @@ shorter no-release form shown in
 [Record release decisions only when invoked](#record-release-decisions-only-when-invoked).
 
 ````markdown
-{{ One or two short summary paragraphs that state what changes, who is affected,
-and any required action. }}
+{{ One or two short summary paragraphs that state what changes, why, who is
+affected, and required adoption actions or an explicit no-action result. }}
 
 <!-- ANNOUNCEMENT STOP -->
 
 ## Breaking: {{ Reader-facing result }}
 
-{{ One or two prose paragraphs that explain the outcome, affected readers, and
-required action. }}
+{{ Explain what changes, why, affected supported uses, compatibility, and exact
+adoption actions or an explicit no-action result. Include applicable
+prerequisites, verification, ordering, and any required intermediate installation
+or run. }}
 
-{{ Optional interface example or compact table after the prose. Delete when it
-does not help the reader act. }}
+{{ Interface or old-to-new example, comparison, or diagram after the prose when
+needed to make adoption unambiguous. Keep required transition details in this
+note; link to evergreen usage docs only for optional depth. Delete when prose
+is sufficient. }}
 
 <details>
 <summary>Technical details</summary>
@@ -329,10 +364,12 @@ does not help the reader act. }}
 | --- | --- | --- | --- |
 | `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
 
-{{ For an applicable release-managed consumer or template change, record the
-release and source baseline, exact consumer action and verification, and the
-compatible template repository and immutable commit. Delete when it does not
-apply. }}
+{{ For an applicable release-managed result, identify the consumer-change release
+and source baseline and evidence supporting the actions or no-action result
+above. For an affected integration template, identify its repository, verified
+compatible immutable commit, and compatibility evidence. Publication resolves
+actual release coordinates; do not predict a final version. Delete inapplicable
+evidence. }}
 
 </details>
 
@@ -347,11 +384,15 @@ apply. }}
 
 ## Removed: {{ Reader-facing result }}
 
-{{ One or two prose paragraphs that explain the outcome, affected readers, and
-required action. }}
+{{ Explain what changes, why, affected supported uses, compatibility, and exact
+adoption actions or an explicit no-action result. Include applicable
+prerequisites, verification, ordering, and any required intermediate installation
+or run. }}
 
-{{ Optional interface example or compact table after the prose. Delete when it
-does not help the reader act. }}
+{{ Interface or old-to-new example, comparison, or diagram after the prose when
+needed to make adoption unambiguous. Keep required transition details in this
+note; link to evergreen usage docs only for optional depth. Delete when prose
+is sufficient. }}
 
 <details>
 <summary>Technical details</summary>
@@ -362,10 +403,12 @@ does not help the reader act. }}
 | --- | --- | --- | --- |
 | `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
 
-{{ For an applicable release-managed consumer or template change, record the
-release and source baseline, exact consumer action and verification, and the
-compatible template repository and immutable commit. Delete when it does not
-apply. }}
+{{ For an applicable release-managed result, identify the consumer-change release
+and source baseline and evidence supporting the actions or no-action result
+above. For an affected integration template, identify its repository, verified
+compatible immutable commit, and compatibility evidence. Publication resolves
+actual release coordinates; do not predict a final version. Delete inapplicable
+evidence. }}
 
 </details>
 
@@ -380,11 +423,15 @@ apply. }}
 
 ## New: {{ Reader-facing result }}
 
-{{ One or two prose paragraphs that explain the outcome, affected readers, and
-required action. }}
+{{ Explain what changes, why, affected supported uses, compatibility, and exact
+adoption actions or an explicit no-action result. Include applicable
+prerequisites, verification, ordering, and any required intermediate installation
+or run. }}
 
-{{ Optional interface example or compact table after the prose. Delete when it
-does not help the reader act. }}
+{{ Interface or old-to-new example, comparison, or diagram after the prose when
+needed to make adoption unambiguous. Keep required transition details in this
+note; link to evergreen usage docs only for optional depth. Delete when prose
+is sufficient. }}
 
 <details>
 <summary>Technical details</summary>
@@ -395,10 +442,12 @@ does not help the reader act. }}
 | --- | --- | --- | --- |
 | `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
 
-{{ For an applicable release-managed consumer or template change, record the
-release and source baseline, exact consumer action and verification, and the
-compatible template repository and immutable commit. Delete when it does not
-apply. }}
+{{ For an applicable release-managed result, identify the consumer-change release
+and source baseline and evidence supporting the actions or no-action result
+above. For an affected integration template, identify its repository, verified
+compatible immutable commit, and compatibility evidence. Publication resolves
+actual release coordinates; do not predict a final version. Delete inapplicable
+evidence. }}
 
 </details>
 
@@ -413,11 +462,15 @@ apply. }}
 
 ## Changed: {{ Reader-facing result }}
 
-{{ One or two prose paragraphs that explain the outcome, affected readers, and
-required action. }}
+{{ Explain what changes, why, affected supported uses, compatibility, and exact
+adoption actions or an explicit no-action result. Include applicable
+prerequisites, verification, ordering, and any required intermediate installation
+or run. }}
 
-{{ Optional interface example or compact table after the prose. Delete when it
-does not help the reader act. }}
+{{ Interface or old-to-new example, comparison, or diagram after the prose when
+needed to make adoption unambiguous. Keep required transition details in this
+note; link to evergreen usage docs only for optional depth. Delete when prose
+is sufficient. }}
 
 <details>
 <summary>Technical details</summary>
@@ -428,10 +481,12 @@ does not help the reader act. }}
 | --- | --- | --- | --- |
 | `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
 
-{{ For an applicable release-managed consumer or template change, record the
-release and source baseline, exact consumer action and verification, and the
-compatible template repository and immutable commit. Delete when it does not
-apply. }}
+{{ For an applicable release-managed result, identify the consumer-change release
+and source baseline and evidence supporting the actions or no-action result
+above. For an affected integration template, identify its repository, verified
+compatible immutable commit, and compatibility evidence. Publication resolves
+actual release coordinates; do not predict a final version. Delete inapplicable
+evidence. }}
 
 </details>
 
@@ -446,11 +501,15 @@ apply. }}
 
 ## Fixed: {{ Reader-facing result }}
 
-{{ One or two prose paragraphs that explain the outcome, affected readers, and
-required action. }}
+{{ Explain what changes, why, affected supported uses, compatibility, and exact
+adoption actions or an explicit no-action result. Include applicable
+prerequisites, verification, ordering, and any required intermediate installation
+or run. }}
 
-{{ Optional interface example or compact table after the prose. Delete when it
-does not help the reader act. }}
+{{ Interface or old-to-new example, comparison, or diagram after the prose when
+needed to make adoption unambiguous. Keep required transition details in this
+note; link to evergreen usage docs only for optional depth. Delete when prose
+is sufficient. }}
 
 <details>
 <summary>Technical details</summary>
@@ -461,10 +520,12 @@ does not help the reader act. }}
 | --- | --- | --- | --- |
 | `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
 
-{{ For an applicable release-managed consumer or template change, record the
-release and source baseline, exact consumer action and verification, and the
-compatible template repository and immutable commit. Delete when it does not
-apply. }}
+{{ For an applicable release-managed result, identify the consumer-change release
+and source baseline and evidence supporting the actions or no-action result
+above. For an affected integration template, identify its repository, verified
+compatible immutable commit, and compatibility evidence. Publication resolves
+actual release coordinates; do not predict a final version. Delete inapplicable
+evidence. }}
 
 </details>
 
@@ -501,8 +562,15 @@ Before marking the pull request ready, verify:
 - the summary is accurate on its own and the marker appears exactly once in the
   required position;
 - every claim matches the complete diff or promotion range;
+- the complete delivered range since the identified consumer-change baseline is
+  covered, including every bundled consumer delta;
 - classified sections are non-empty, ordered, and grouped by reader-facing
   result;
+- the notes explain what changed, why, affected supported uses, compatibility,
+  and exact applicable actions or an explicit no-action result, without
+  requiring PRs, diffs, or historical product docs to discover instructions;
+- release-order composition preserves required intermediate operations without
+  assuming every intermediate version must be installed;
 - prose precedes optional examples and tables;
 - supporting blocks are scoped to their section and ordered correctly;
 - same-instance references are fully qualified and closing keywords are

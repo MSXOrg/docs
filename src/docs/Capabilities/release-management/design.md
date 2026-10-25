@@ -251,15 +251,38 @@ details` and `Related references`, and conditional `Release decisions` block
 stay intact. There is no parallel JSON/YAML contract and no extraction of only
 selected headings or evidence blocks.
 
+The notes are the sufficient consumer upgrade record. Each release explains its
+complete delta from the identified consumer-change baseline: what changed, why,
+affected supported uses, compatibility, and exact actions with applicable
+prerequisites, ordering, and verification, or an explicit no-action result and
+its compatibility basis. Necessary old-to-new examples stay in the note.
+Consumer instructions appear in each result's prose and examples; scoped
+technical details retain their supporting evidence.
+
+Consumers read every applicable record after their actual consumed baseline
+through their chosen target in release order, then compose the necessary
+actions. Later notes explain superseded actions while preserving required
+intermediate operations. Reading the records does not require installing every
+intermediate version; an intermediate installation or run is required only when
+explicitly stated. PR and diff links provide optional depth. Missing required
+instructions are an evidence gap to resolve in the notes, not a routine source
+investigation for consumers.
+
+[Resource docs](../../Ways-of-Working/Documentation-Model.md#current-product-guidance-and-release-history)
+show supported target-state behavior and usage. They do not hold release-specific
+migration history or replace the instructions in the release record.
+
 ### Bind the note to the released source
 
 1. **Resolve the evidence with the version.** Identify the release-bound PR or
    ad hoc context and the immutable source to build. Resolve the version base
-   and the source comparison baseline; confirm that each applicable change
-   section's technical details describe and support that delta. Capture the
-   applicable title and complete body together with the PR URL or context
-   reference, source identity, and snapshot time. Retain that snapshot as
-   release evidence.
+   and the source comparison baseline; reconcile every delivered consumer delta
+   in that range, including earlier merged or skipped changes. Confirm that each
+   applicable section contains sufficient adoption instructions or a supported
+   no-action result and that its technical details support the claim. Capture
+   the applicable title and complete body together with the PR URL or context
+   reference, source identity, and snapshot time. Retain that snapshot as release
+   evidence.
 2. **Keep identity separate from authored prose.** Resolve the actual publication
    coordinates through the existing version pipeline, not a number assigned by
    the PR author. Carry them and the snapshot through Build and Test with the
@@ -295,14 +318,15 @@ historical compatibility from current documentation.
 | Publication path | Authored record |
 | --- | --- |
 | Single merged PR | That PR's complete title and description, reconciled with the resolved source comparison. |
-| Bundled release | The release-bound integration PR covers every bundled delta from the declared change baseline, not just the most recent feature PR. It links the contributing work as supporting evidence. |
+| Bundled release | The release-bound integration PR covers every bundled consumer delta and required action from the declared change baseline, including earlier merged or skipped changes, not just the most recent feature PR. Grouping results retains those instructions; contributing PRs are optional supporting depth. |
 | Optional ad hoc dispatch | Complete reviewed release-note context with the same classified structure and applicable result-specific evidence. Record the dispatch source and reason; do not create or imply an empty PR. |
 | Prerelease | The PR or integration record appropriate to that published source, captured for that release. Later edits to the final PR do not overwrite the prerelease snapshot or attribute unreleased behavior to it. |
 
-If the relationship between a record and its source cannot be established,
-stop the affected publication and register the evidence gap. The process does
-not substitute the newest note, guess a baseline, or treat a missing applicable
-technical-details block as a no-action result.
+If the relationship between a record and its source cannot be established, or
+required consumer instructions are missing, stop the affected publication and
+register the evidence gap. The process does not substitute the newest note,
+guess a baseline, or treat missing instructions or applicable supporting
+evidence as a no-action result.
 
 ### Correct published metadata without changing history
 
