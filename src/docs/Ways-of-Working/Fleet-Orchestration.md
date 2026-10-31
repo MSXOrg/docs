@@ -245,8 +245,20 @@ interval so the view refreshes as GitHub changes; deleting it loses nothing,
 because GitHub is the source of truth.
 
 Read linked pull requests with full pagination and include closed or merged
-ones. Verify explicit links for non-default targets rather than reconstructing
-them from ignored keywords. A missing or unreadable link on an in-progress
+ones. `closedByPullRequestsReferences` retrieves closing associations, not every
+manual Development link. Also read the issue's native `ConnectedEvent` and
+`DisconnectedEvent` timeline entries, including both source and subject.
+Fold those entries in returned timeline order for each issue–PR pair: a
+connection adds the manual association and a disconnection removes it. Keep only
+pairs with the queried issue's node ID at one endpoint and a PR at the other;
+use PR node IDs, not display numbers, as the identity. Combine
+the current manual associations with closing references, deduplicate by PR
+identity, then read each PR's live state. Ordinary prose cross-references do not
+replace a verified Development association.
+
+Verify explicit links for non-default targets rather than reconstructing
+them from ignored keywords or assuming the closing-reference query is complete.
+A missing or unreadable link on an in-progress
 delivery is a discovery gap to report, not an empty or completed delivery.
 
 Typical columns: effective status, repository, delivery issue and pull request, draft/ready,
@@ -295,7 +307,7 @@ requests alike.
 gh search issues 'in:title "[<slug>]"' --owner <owner> `
   --json number,repository,title,url,state
 
-# follow native issue links, including closed/merged PRs, with full pagination
+# read closing associations, including closed/merged PRs, with full pagination
 $query = @'
 query($owner: String!, $repo: String!, $number: Int!, $endCursor: String) {
   repository(owner: $owner, name: $repo) {
@@ -309,6 +321,43 @@ query($owner: String!, $repo: String!, $number: Int!, $endCursor: String) {
 }
 '@
 gh api graphql --paginate -f query="$query" -f owner='<owner>' -f repo='<repo>' -F number='<n>'
+
+# read manual Development associations separately; fold connect/disconnect pairs
+$developmentQuery = @'
+fragment DevelopmentSubject on ReferencedSubject {
+  __typename
+  ... on Issue { id url }
+  ... on PullRequest { id number url }
+}
+query($owner: String!, $repo: String!, $number: Int!, $endCursor: String) {
+  repository(owner: $owner, name: $repo) {
+    issue(number: $number) {
+      id
+      timelineItems(
+        first: 100
+        after: $endCursor
+        itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT]
+      ) {
+        nodes {
+          __typename
+          ... on ConnectedEvent {
+            createdAt
+            source { ...DevelopmentSubject }
+            subject { ...DevelopmentSubject }
+          }
+          ... on DisconnectedEvent {
+            createdAt
+            source { ...DevelopmentSubject }
+            subject { ...DevelopmentSubject }
+          }
+        }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}
+'@
+gh api graphql --paginate -f query="$developmentQuery" -f owner='<owner>' -f repo='<repo>' -F number='<n>'
 
 # read one pull request's authoritative state
 gh pr view <n> --repo <owner>/<repo> --json `

@@ -29,13 +29,14 @@ flowchart LR
 ```
 
 - **Find version** — validate the release decision and compute the version once,
-  from the latest `vX.Y.Z` tag or release plus an explicit owned bump label or
-  the valid effective `DefaultBump`.
+  from the latest `vX.Y.Z` tag or release plus the valid effective bump. Resolve
+  the canonical release identity and any declared native numeric mapping before
+  Build; retain both with their source evidence.
   Independent of the other stages and required by the merge ruleset; a missing
   decision is a failed check, not a post-merge surprise.
 - **Lint & type-check** — static analysis and the type checker. Independent, so
   it fails fast in parallel with the build.
-- **Build** — stamp the computed version into the manifest, compile the
+- **Build** — stamp the resolved native extension version into the manifest, compile the
   production bundle, and package **one** VSIX. Uploads the bundle, the VSIX, and
   the stamped manifest as artifacts.
 - **Test** — download a real editor host and run the extension test suite
@@ -48,13 +49,17 @@ flowchart LR
 The version is computed once and flows through the pipeline as artifacts, so the
 thing that ships is the thing that was tested:
 
-1. **Find version** decides `vX.Y.Z` from tags plus the resolved explicit or default bump.
-2. **Build** stamps it into `package.json` (and `package-lock.json`), compiles
+1. **Find version** decides the canonical release version and validated native
+   extension version together, before Build.
+2. **Build** stamps the resolved native version into `package.json` (and
+   `package-lock.json`), compiles
    the bundle, and runs the packaging CLI to produce a single VSIX. The stamped
    manifest is uploaded alongside the VSIX so the manifest under test — including
    the version the running extension reports — matches the packaged artifact.
 3. **Test** restores that bundle and manifest and tests them.
-4. **Release** restores and publishes that same VSIX.
+4. **Release** restores and publishes that same VSIX. Its GitHub Release uses
+   the canonical identity and records the native mapping; enabled marketplaces
+   receive the unchanged VSIX and the corresponding native version/channel.
 
 Build, test, and release never re-compile or re-package; they pass the built
 artifact forward.
@@ -113,8 +118,8 @@ VSIX artifact — this framework does not re-implement it:
 - The version check re-evaluates source, release labels, release settings,
   supported caller inputs, and the effective pipeline, following the shared
   [pre-merge gate](../release-management/design.md#required-pre-merge-decision-check).
-- The version is computed once and stamped into the manifest; it is never
-  hand-edited.
+- Canonical and native versions are resolved once before Build; the native
+  extension version is stamped into the manifest, never hand-edited.
 - A prerelease is requested by `release:prerelease` with a resolved bump on
   an open pull request (or by a prerelease branch), producing a prerelease VSIX
   that is never promoted to latest. When such a build is also published to the
