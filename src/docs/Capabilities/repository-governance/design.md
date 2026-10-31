@@ -105,10 +105,18 @@ the same structure:
 | `README.md`, `AGENTS.md`, client routes, `.gitattributes`, and `.gitignore` | Required locally | Explain and govern the defaults repository; they are not organization defaults. |
 
 All inherited community files live under `.github/` in the defaults repository
-so their scope is visible from their path. A local file in a target repository
-takes precedence and therefore records a deliberate repository exception. If a
-target defines any local issue-template set, it owns that complete set rather
-than combining local and central forms.
+so their scope is visible from their path. Validate required defaults in that
+source repository, not by requiring consumer copies. A target retains a local
+community file only for genuine repository-specific content or a documented
+exception under [Organization Standard](../../Ways-of-Working/Organization-Standard.md#community-files-are-organization-defaults).
+If a target defines any local issue-template set, it owns that complete set
+rather than combining local and central forms.
+
+[GitHub's fallback](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file)
+exposes supported defaults without placing them in consumer clones, packages,
+or downloads. Consumer checks resolve the effective contribution guidance from
+the local guide when needed or the shared source; absence of an unnecessary
+local copy is not drift.
 
 The defaults repository does not centralize repository ownership, dependency
 updates, release configuration, license terms, or other repository-specific
@@ -133,8 +141,10 @@ names.
 ## Required files by type
 
 The [Repository Standard](../../Ways-of-Working/Repository-Standard.md#required-files)
-owns the file list and which type adds to it. This design owns only the
-enforcement: presence is checked by reconciliation on the default branch, at
+owns the file list, its conditional contribution rule, and which type adds to
+it. This design owns only the enforcement: reconciliation checks required local
+files on the default branch and resolves effective contribution guidance under
+the [contribution rule](../../Ways-of-Working/Repository-Standard.md#contribution-guidance), at
 **Block** severity for the files that make a repository contributable and
 **Report** severity for the rest.
 
@@ -162,7 +172,8 @@ the contract below, not the implementation that satisfies it.
 | Exemption is justified | Does an exempted repository carry a recorded reason? |
 | Rulesets apply | Do the rulesets the type implies actually evaluate against this repository? |
 | Branch shape matches | Do the protected branches, merge methods, and required checks match what the type declares? |
-| Required files present | Does the default branch carry the governed baseline and the files its type adds, or the explicit Unmanaged discoverability minimum? |
+| Required local files present | Does the default branch carry the locally required baseline and type-specific files, or the explicit Unmanaged discoverability minimum, including a local contribution guide only when needed? |
+| Contribution guidance available | Does effective local or shared contribution guidance resolve, with required organization defaults validated in their source repository rather than copied into consumers? |
 
 ### Severity decides the response
 

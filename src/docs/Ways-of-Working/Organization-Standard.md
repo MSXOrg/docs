@@ -49,8 +49,9 @@ These standards must be written down before broad alignment work starts. File al
 Community policies are organization-wide commitments, not repository-specific
 configuration. Each initiative organization MUST provide its code of conduct,
 security policy, support policy, and pull request template as defaults in its
-special `.github` repository. These defaults apply whenever a repository does
-not need a documented local exception.
+special `.github` repository. Ordinary repositories inherit these defaults
+unless genuine repository-specific content or a documented exception requires
+a local community file.
 
 Store every organization community default under the `.github/` directory of
 the special `.github` repository:
@@ -62,22 +63,25 @@ the special `.github` repository:
 | `.github/SUPPORT.md` | Defines where users ask for help. |
 | `.github/pull_request_template.md` | Scaffolds pull requests in the organization's required format. |
 
-A repository MAY carry a local copy only when it needs a material,
-repository-specific exception. The local copy takes precedence, so the
-exception and its owner MUST be documented in the initiative guidance.
+A repository MAY retain a local community file only for genuine
+repository-specific content or a documented policy exception. The local file
+takes precedence. A policy exception and its owner MUST be documented in the
+initiative guidance; repository-specific contribution instructions follow the
+[conditional contribution rule](Repository-Standard.md#contribution-guidance).
 
 An organization MAY also provide optional defaults in the same repository:
 
 | File or directory | Purpose |
 | --- | --- |
-| `.github/CONTRIBUTING.md` | Provides organization-wide contribution guidance that repositories can inherit or use as the source for their local contribution guide. |
+| `.github/CONTRIBUTING.md` | Provides organization-wide contribution guidance inherited where no local contribution guide is needed. |
 | `.github/ISSUE_TEMPLATE/` | Provides shared issue forms and template configuration for consistent issue intake. |
 
-These optional defaults are subscriptions, not additional repository baseline
-files. A repository-local contribution guide remains required where the
-[Repository Standard](Repository-Standard.md#required-files) calls for
-repository-specific build, test, or contribution instructions. A repository MAY
-provide local issue templates when it needs a documented local variation.
+These defaults are optional for the organization to supply, not additional
+files for consumers to copy or subscribe to. When supplied, they apply through
+GitHub's fallback. Local contribution guidance follows
+[Repository Standard](Repository-Standard.md#contribution-guidance). A repository
+MAY provide local issue templates for genuine repository-specific intake or a
+documented exception.
 
 The same repository MAY publish `profile/README.md` as the public organization
 profile and MAY keep its supporting assets under `media/`. Neither surface is
@@ -95,17 +99,17 @@ owns the complete structure and distribution behavior.
 ## Repository-local context is the enforceable surface
 
 Every ordinary repository still carries the context that cannot be inferred
-from an organization default: its `README.md`, `.github/CONTRIBUTING.md`, and
-`AGENTS.md` with its client routes. The contribution guide tells humans and
-agents how the organization defaults apply and where the central pull request
-template lives. Automation configuration, ownership, and repository-specific
-legal terms also remain repository-local where the
+from an organization default: its `README.md` and `AGENTS.md` with its client
+routes. A local contribution guide carries only needed repository-specific
+instructions or a documented exception; inherited guidance does not require a
+local file. Automation configuration, ownership, and repository-specific
+legal terms remain repository-local where the
 [Repository Standard](Repository-Standard.md) requires them. The special
 `.github` repository uses the purpose-specific baseline above.
 
 ## Managed files
 
-Shared files should be managed from a central source and delivered to repositories through pull requests. Direct pushes to repository default branches are not the standard path.
+Centrally managed repository-local files are delivered through pull requests. Organization community defaults are reviewed in their source repository and inherited, not distributed as local copies. Direct pushes to repository default branches are not the standard path.
 
 A managed-file system must:
 
@@ -131,9 +135,11 @@ Organizations must distinguish mandatory files from optional or type-specific fi
 | Repository-specific | Local files that are intentionally owned by one repository and not managed centrally. |
 
 Repository-local context, dependency updates, ownership, license terms, and
-type-specific files are candidates for mandatory file sets. Organization
-community defaults are mandatory at the organization level; repositories use
-them through GitHub's fallback unless they have a documented exception. Linter
+type-specific files are candidates for mandatory file sets. Contribution files
+follow the conditional rule rather than an unconditional local-file requirement.
+Required organization community defaults are mandatory in their source home;
+repositories use supplied defaults through GitHub's fallback unless local content
+is needed under the community-file rule above. Linter
 settings, agent instructions, and workflow defaults may be global or
 type-specific depending on the initiative.
 
