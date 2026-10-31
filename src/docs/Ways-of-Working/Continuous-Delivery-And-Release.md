@@ -90,10 +90,11 @@ Several signals suggest what kind of change a pull request contains: the shape o
 diff, whether tests were added or changed, the commit messages, and an AI-assisted
 reading of the change. Those signals MUST be treated as input. The
 [resolved release decision](../Capabilities/release-management/design.md#version-computation)
-comes from an explicit owned label or the repository's configured default, and
+comes from an explicit owned bump label or the valid effective `DefaultBump`,
+including shared defaults, repository settings and supported caller overrides, and
 its suitability for the audience is reviewed at the pull-request gate.
 
-A configured default is a prior policy decision, not an omission to interpret
+A documented effective default is a prior policy decision, not an omission to interpret
 later. The pull request records the effective level and its source, and review
 confirms that the level fits the declared user/integrator impact. A missing
 decision fails a required CI check and blocks merge; publication

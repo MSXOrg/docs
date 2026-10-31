@@ -117,8 +117,26 @@ VSIX artifact — this framework does not re-implement it:
 - A prerelease is requested by `release:prerelease` with a resolved bump on
   an open pull request (or by a prerelease branch), producing a prerelease VSIX
   that is never promoted to latest. When such a build is also published to the
-  VS Code Marketplace, it goes out with `@vscode/vsce publish --pre-release` and
-  an odd minor-version number, the Marketplace's pre-release-channel convention.
+  VS Code Marketplace, its native prerelease flag and declared native version
+  mapping must agree with the canonical identity.
+
+### Marketplace version mapping
+
+The adapter declares stable and prerelease numeric-version mappings together
+before Marketplace publication is enabled. The Marketplace accepts a three-part
+numeric version and a separate prerelease flag, not an arbitrary canonical
+SemVer suffix. No direct stable mapping plus an independently invented
+prerelease mapping is assumed.
+
+The producer's mapping contract must identify supported canonical identities,
+reserve distinct native coordinates, define series/counter allocation, and
+prove collision-free stable/prerelease publication and retry behavior. An
+odd-minor convention applies only when the stable mapping reserves that space;
+it is not a universal conversion for arbitrary stable minor versions. Record
+both identities with immutable producer and artifact evidence. Unsupported
+mappings and collisions fail before build/publication rather than silently
+changing a version or channel. The GitHub VSIX path does not require Marketplace
+publication, but an enabled required target is not silently skipped.
 
 ## Publishing and distribution
 

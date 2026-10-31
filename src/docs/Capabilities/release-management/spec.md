@@ -373,6 +373,8 @@ consumer-change evidence, and maintainer evidence under
 [PR Format](../../Ways-of-Working/PR-Format.md), or equivalent reviewed aggregate
 context for a manual release.
 
+#### Release evidence
+
 The complete description MUST contain exactly one announcement boundary after
 its leading summary. Each result MUST explain what changed, why, affected
 supported uses, compatibility, exact adoption actions with prerequisites,
@@ -492,10 +494,12 @@ A consumer MAY select exactly one of these policies:
 | `lock-immutable-fingerprint` | No automatic movement from one exact content identity. |
 
 When no policy is selected, the consumer MUST use the most immutable reference
-available. A boundary policy MUST be available only when the producer and target
-publish the corresponding major or minor alias. Where the consumer syntax
-accepts no version range, the producer alias carries that bound; a range-like
-string MUST NOT be treated as a resolver expression.
+available. A boundary policy MUST use a supported native version constraint or,
+when the consumer syntax has no range resolver, the corresponding producer
+major or minor alias. A target with native bounded ranges MUST NOT require a
+moving alias merely to express that bound. Resolve and retain the immutable
+reference required by the trust policy. A range-like string in an opaque Git or
+container reference field MUST NOT be treated as a resolver expression.
 
 Mutable aliases MAY be used only within the consumer's permitted trust boundary.
 An external producer, including one owned by another team in the same company,
@@ -508,10 +512,19 @@ by the trust boundary.
 ```gherkin
 Scenario: An unsupported boundary policy fails explicitly
   Given a consumer requests lock-minor-boundary
+  And its consumer field has no native range resolver
   And the producer does not publish the minor alias family
   When the policy is resolved
   Then the request fails as unsupported
   And it is not widened to latest or a major boundary
+
+Scenario: A native bounded range does not require an alias
+  Given a consumer requests lock-minor-boundary
+  And its target supports a native minor-bounded range
+  And the producer publishes no minor alias
+  When the policy is resolved
+  Then the supported native range supplies the bound
+  And the selected version is retained with the immutable reference required by trust policy
 
 Scenario: An external producer remains immutable
   Given a consumer selects latest for a producer outside its trust boundary

@@ -25,7 +25,7 @@ extension inherits a working build-test-release path on day one.
 This capability rests on the [Principles](../../Ways-of-Working/Principles/index.md):
 
 - **[Everything as Code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).** The pipeline, the version decision, and the extension's configuration are version-controlled workflow and settings — never a GUI action or a hand-run packaging command.
-- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** The pull request is the decision point; its review gate approves the code *and* the release it produces. An owned bump label supplies the level or overrides a configured repository default; the effective decision and its source are recorded.
+- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** The pull request is the decision point; its review gate approves the code *and* the release it produces. An owned bump label overrides the valid effective default, including shared policy and supported caller inputs; the decision and its source are recorded.
 - **[Extensible by default](../../Ways-of-Working/Principles/Software-Design.md#extensible-by-default).** The lifecycle is the stable core; host versions, the operating-system matrix, and publish targets are extension-specific settings that slot in. A new publish destination is a configured step, not a new pipeline.
 - **[Least-privilege](../../Ways-of-Working/Principles/Purpose-and-Direction.md#least-privilege).** The pipeline runs read-only by default; only the stage that cuts the release holds write, and only the scope it needs.
 
@@ -74,7 +74,7 @@ framework itself.
 - Creating a repository from the template and providing a valid release decision yields a green build, a passing test run, and a packaged VSIX with no extension-specific configuration written.
 - An eligible pull request merged to a release branch produces a GitHub Release carrying an installable VSIX whose version matches the explicit or default bump. Omitting a bump label uses the valid effective default; invalid settings and conflicting owned labels fail required CI before merge.
 - The tests that gate the release exercise the exact VSIX that is released, on every supported host version and operating system.
-- A documentation-only or CI-only change carrying `release:skip` runs its checks but produces no new version.
+- On a managed VSIX route, a change outside the artifact/consumer scope carrying `release:skip` runs its checks without publication. An unmanaged route has no release metadata or labels.
 - A user installs any released version straight from its GitHub Release with no marketplace account; where marketplace publishing is enabled, that same version also appears in the marketplace.
 - An open pull request can publish a prerelease VSIX for testing that never becomes the latest stable version, and it is cleaned up when the pull request closes.
 - Adopting the framework in a new extension is a short caller plus a settings file — the pipeline itself is never copied into the repository.

@@ -28,16 +28,28 @@ producer-owned alias movement explicitly.
 
 ## Refresh tags once
 
-Before this command, preserve or rename any local-only tags you need. Pruning
-tags removes local tags that do not exist on the remote, and force permits the
-remote's tag values to replace local values.
+Before this command, back up any needed local-only tags **outside `refs/tags/`**
+and verify the backup. Renaming a local tag within that namespace does not
+protect it: the renamed tag is still absent from the remote and will be pruned.
+A Git bundle can preserve the original tag objects and reachable history:
 
 ```bash
-git fetch --tags --force --prune --prune-tags
+git bundle create owned-tags-backup.bundle --tags
+git bundle verify owned-tags-backup.bundle
+```
+
+Keep that backup private and outside checked-in paths. Pruning removes local tags
+that do not exist on the selected remote, and force permits that remote's tag
+values to replace local values. Confirm that `origin` is the intended trusted
+producer and that no exact-version-tag integrity incident is being normalized.
+
+```bash
+git fetch --tags --force --prune --prune-tags origin
 ```
 
 This refreshes moved aliases and removes tags deleted from the configured
-remote. Review the fetch output before building or resolving a dependency.
+`origin` remote. Review the fetch output before building or resolving a
+dependency; never let an implicit upstream choose the source of this refresh.
 
 ## Keep owned aliases current
 
@@ -51,15 +63,17 @@ git config --get-all remote.origin.fetch
 If the output does not already contain `+refs/tags/*:refs/tags/*`, add it once:
 
 ```bash
-git config --add remote.origin.fetch '+refs/tags/*:refs/tags/*'
-git config fetch.prune true
-git config fetch.pruneTags true
+git config --local --add remote.origin.fetch '+refs/tags/*:refs/tags/*'
+git config --local remote.origin.prune true
+git config --local remote.origin.pruneTags true
 ```
 
 The leading `+` allows the remote's tag namespace to update local tags
 non-fast-forward. The prune settings remove local tag references no longer
-present on the remote. Use this configuration only when `origin` is inside the
-consumer's permitted trust boundary and the producer owns the moving aliases.
+present on `origin`. These settings are specific to that remote, not clone-wide
+`fetch.prune` or `fetch.pruneTags` defaults that could affect another remote.
+Use this configuration only when `origin` is inside the consumer's permitted
+trust boundary and the producer owns the moving aliases.
 
 After configuration, a normal fetch from `origin` keeps branches and tags
 aligned:

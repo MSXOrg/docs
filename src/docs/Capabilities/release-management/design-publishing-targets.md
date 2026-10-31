@@ -45,7 +45,7 @@ frees a canonical version or prerelease identifier for reuse.
 | Target | Version scheme | Prerelease | Immutable reference | Withdrawal | Alias families | Native constraints | Release record |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | **GitHub Releases** | Exact `vMAJOR.MINOR.PATCH` or prerelease tag | SemVer suffix and native prerelease flag | Protected exact tag, source commit, and asset digest | Delete or mark unavailable; coordinate remains reserved | `latest`, major, minor as optional Git tags; native Latest separately | No range resolver | GitHub Release and durable release intent |
-| **PowerShell Gallery** | `MAJOR.MINOR.PATCH` module version | SemVer suffix | Published module version | Unlist; downloads already held remain; version is not reusable | None | NuGet ranges through PSResourceGet; mapped manifest constraints | Gallery listing joined from GitHub Release |
+| **PowerShell Gallery** | Numeric manifest core plus validated `PSData.Prerelease` | Two-field module/label mapping | Published module version | Unlist; downloads already held remain; version is not reusable | None | NuGet ranges through PSResourceGet; mapped manifest constraints | Gallery listing joined from GitHub Release |
 | **NuGet** | `MAJOR.MINOR.PATCH` package version | SemVer suffix | Published package version and package hash | Unlist or deprecate; version is not reusable | None | NuGet version ranges | Package listing joined from GitHub Release |
 | **VS Code Marketplace** | Marketplace-compatible extension version mapped from canonical SemVer | Separate prerelease channel and flag | Published extension version | Unpublish where permitted; version is not reusable | Native stable/prerelease channel selection, not release aliases | No consumer-selected SemVer range | Marketplace listing joined from GitHub Release |
 | **Container registry** | Version tag plus content digest | SemVer suffix in exact tag | Manifest or image digest | Delete tag or manifest where permitted; reservation remains | `latest`, major, minor as optional tags | No range resolver | Registry digest joined from GitHub Release |
@@ -139,10 +139,18 @@ retirement, withdrawal, alias reconciliation, and announcements.
 
 ### PowerShell Gallery version and prerelease mapping
 
-The module manifest and gallery coordinate use canonical SemVer without the
-leading `v`. A prerelease suffix is retained where the gallery and module
-manifest permit it. Mapping validation runs before publication so a native
-version cannot collide with another canonical release.
+The manifest's `ModuleVersion` is a numeric three-part `System.Version`, not a
+SemVer prerelease string. For a prerelease, put its supported label in
+`PrivateData.PSData.Prerelease`; the Gallery combines the numeric core and label
+into its native package coordinate.
+
+For example, canonical `2.5.0-alpha` maps to `ModuleVersion = '2.5.0'` and
+`PrivateData.PSData.Prerelease = 'alpha'`, not `ModuleVersion = '2.5.0-alpha'`.
+The adapter validates the label against the selected publishing client's actual
+syntax; dotted or build-metadata forms are not assumed to be accepted. A
+non-preserving conversion requires an explicit collision-free, ordering-aware
+mapping or fails as unsupported before publication. Record both canonical and
+native identities. See [PowerShell prerelease module fields](https://learn.microsoft.com/en-us/powershell/gallery/concepts/module-prerelease-support).
 
 ### PowerShell Gallery immutability and withdrawal
 
@@ -201,11 +209,19 @@ owns the detailed VSIX and marketplace behavior.
 
 ### VS Code Marketplace version and prerelease mapping
 
-Stable extension versions map directly to the marketplace-compatible version in
-the VSIX manifest. The marketplace represents prereleases through its separate
-prerelease channel and `--pre-release` publication flag, including the
-framework's odd-minor convention. The adapter records the canonical prerelease
-and native extension version together and MUST guarantee a one-to-one mapping.
+The owning framework declares and verifies stable and prerelease mappings
+together before enabling Marketplace publication. The Marketplace accepts a
+numeric three-part extension version and a separate prerelease channel/flag,
+not an arbitrary canonical prerelease suffix. There is no assumed direct stable
+mapping plus an independently invented prerelease mapping.
+
+An odd-minor convention is valid only when the declared stable mapping reserves
+that space and the series/counter allocation is proven collision-free across
+every supported canonical identity. Record canonical and native versions
+together; an unsupported mapping or coordinate collision blocks publication.
+The [owning framework's mapping contract](../vscode-extension-framework/design.md#marketplace-version-mapping)
+controls that conversion, while the immutable GitHub VSIX install path remains
+available without Marketplace support.
 
 ### VS Code Marketplace immutability and withdrawal
 

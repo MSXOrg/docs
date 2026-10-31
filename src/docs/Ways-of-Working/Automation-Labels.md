@@ -53,32 +53,27 @@ namespaced, including the release set:
 | `release:patch` | Publish a patch release. |
 | `release:minor` | Publish a minor release. |
 | `release:major` | Publish a major release. |
-| `release:prerelease` | Publish a prerelease from the open pull request using the resolved bump. |
+| `release:prerelease` | Publish a prerelease from the open pull request. |
 | `release:skip` | Validate the change without publishing a release. |
 
-The owned set is exactly these five labels. It applies only on managed release
-routes, including native producer pipelines. Unmanaged routes omit every
-`release:*` label; absence of `.github/release.config.yml` does not determine
-applicability.
+This set applies only when the pull request's target route invokes Release
+Management, including through a native producer pipeline. An unmanaged route
+does not apply or report any
+`release:*` label, including `release:skip`. The optional
+`.github/release.config.yml` file refines an invocation; its absence alone does
+not determine whether the route invokes the capability.
 
 These labels are read by
 [release management](../Capabilities/release-management/spec.md) and by nothing else.
-One owned bump label overrides the valid effective `DefaultBump`; without one,
-documented defaults, repository settings, and supported caller inputs supply the
-level. `release:skip` records a no-release decision. `release:prerelease` uses
-the resolved bump and never combines with skip. Multiple bumps and skip with
-another owned release label fail. Release-candidate routing and announcement
-delivery are supported settings, not additional labels.
-
-Release Management owns the
-[resolver and required pre-merge validation](../Capabilities/release-management/design.md#version-computation).
-Omitted settings inherit the documented patch default; invalid supplied
-settings and conflicting owned labels fail rather than select a fallback.
-[Producer conformance](../Capabilities/release-management/design.md#intended-and-implemented-behavior)
-requires the actual immutable producer revision's mapping to be verified before
-canonical signals are used. A differing interface needs a verified adapter or
-producer/configuration migration; an unsupported signal is never a successful
-ignored skip.
+One owned bump label records an explicit level and overrides the valid effective
+`DefaultBump`; without a bump label, documented defaults, repository settings,
+and supported caller overrides supply it. `release:skip` records a no-release decision.
+`release:prerelease` is a mode used with a resolved explicit or default bump,
+never with `release:skip`. Release Management owns the
+[resolver and required pre-merge validation](../Capabilities/release-management/design.md#version-computation);
+an omitted setting inherits the documented patch default, while invalid settings
+and conflicting owned labels fail rather than select a fallback. Settings, not
+additional release labels, select configured release-candidate and announcement behavior.
 
 Reserving bare words would be weaker because it depends on a documented
 prohibition rather than making ownership visible in the label itself.

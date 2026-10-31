@@ -26,13 +26,15 @@ Documentation alone does not make a lifecycle control or setting available.
 6. **Consumers choose policy within a trust boundary.** Producers expose only
    the controlled references required to implement that policy.
 
-## Release authority and interfaces {#branching-model}
+## Applicability
 
 The effective pipeline establishes whether the target route produces a
 versioned, immutable output consumed by version. Managed routes participate
 whether they use a shared workflow or a native producer pipeline, and whether
 `.github/release.config.yml` exists. Unmanaged routes omit release metadata and
 every `release:*` label; a Pages deployment alone is not a versioned release.
+
+## Release authority and interfaces {#branching-model}
 
 Release branches are keyed by `ReleaseType.Stable`, `ReleaseType.Prerelease`,
 and `ReleaseType.ReleaseCandidate`, each with its own `Branch`. The stable
@@ -483,15 +485,17 @@ The consumer resolves one of five policies:
 | Policy | Producer mechanism | Durable consumer reference |
 | --- | --- | --- |
 | `latest` | Discover the greatest eligible completed stable release. | The discovered immutable version or fingerprint required by trust policy. |
-| `lock-major-boundary` | Producer major alias, such as `v3`. | Moving alias only inside the allowed trust boundary. |
-| `lock-minor-boundary` | Producer minor alias, such as `v3.4`. | Moving alias only inside the allowed trust boundary. |
+| `lock-major-boundary` | Supported native major-bounded constraint, or producer major alias for an opaque reference field. | The resolved immutable reference required by trust policy, or an allowed owned alias. |
+| `lock-minor-boundary` | Supported native minor-bounded constraint, or producer minor alias for an opaque reference field. | The resolved immutable reference required by trust policy, or an allowed owned alias. |
 | `lock-specific-version` | Exact immutable version. | Exact version. |
 | `lock-immutable-fingerprint` | Content digest, commit SHA, or equivalent. | Immutable fingerprint. |
 
-A requested boundary is unsupported when the producer does not publish the
-matching alias; it is never widened silently. When a consumer field accepts only
-one opaque reference, a text such as `>=3,<4` is not a range expression. The
-producer carries the bound through its controlled alias.
+A requested boundary is unsupported only when neither the consumer/target's
+native constraints nor a permitted matching producer alias can express it; it
+is never widened silently. PowerShell Gallery and NuGet consumers can use their
+supported native bounds without producer aliases. When a field accepts only
+one opaque Git or container reference, a text such as `>=3,<4` is not a range
+expression; its bound requires the corresponding controlled alias.
 
 Moving references are allowed only for producers inside the consumer's declared
 trust boundary. Another team is external even when it belongs to the same
@@ -527,6 +531,8 @@ Repositories keep the existing MSX configuration file:
 ```text
 .github/release.config.yml
 ```
+
+### Configuration surface
 
 The canonical settings surface is:
 
