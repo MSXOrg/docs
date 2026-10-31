@@ -9,8 +9,10 @@ The behaviour in the [spec](spec.md) is delivered by a **shared reusable
 workflow** and a **template repository**, following the org's `Process-*` /
 `Template-*` convention (as [Process-PSModule](https://github.com/PSModule/Process-PSModule)
 does for PowerShell modules). A repository opts in with a short caller workflow
-and a single `.github/vscode-extension.yml` settings file; everything else has a
-secure, working default, so a minimal caller is enough to adopt it. Step logic
+and a single `.github/vscode-extension.yml` extension settings file. Build and
+test settings have secure, working defaults; release decisions follow
+[Release Management](../release-management/design.md#version-computation).
+Step logic
 lives in versioned scripts the workflow calls, never inline shell.
 
 ## The pipeline
@@ -20,15 +22,17 @@ every downstream stage reuses the exact output of the stages before it:
 
 ```mermaid
 flowchart LR
-  find["Find version\ntags + release policy"] --> build["Build\nstamp · bundle · package VSIX"]
+  find["Find version\ntags + resolved decision"] --> build["Build\nstamp · bundle · package VSIX"]
   build --> test["Test\nreal VS Code host · matrix"]
   lint["Lint & type-check"] --> release
   test --> release["Release\npublish the built VSIX"]
 ```
 
-- **Find version** — compute the version once, from the latest `vX.Y.Z` tag or
-  release plus one explicit owned bump label or the resolved `DefaultBump`.
-  Independent of the other stages.
+- **Find version** — validate the release decision and compute the version once,
+  from the latest `vX.Y.Z` tag or release plus an explicit owned bump label or
+  the valid effective `DefaultBump`.
+  Independent of the other stages and required by the merge ruleset; a missing
+  decision is a failed check, not a post-merge surprise.
 - **Lint & type-check** — static analysis and the type checker. Independent, so
   it fails fast in parallel with the build.
 - **Build** — stamp the computed version into the manifest, compile the
@@ -44,7 +48,7 @@ flowchart LR
 The version is computed once and flows through the pipeline as artifacts, so the
 thing that ships is the thing that was tested:
 
-1. **Find version** decides `vX.Y.Z` from tags plus the resolved bump policy.
+1. **Find version** decides `vX.Y.Z` from tags plus the resolved explicit or default bump.
 2. **Build** stamps it into `package.json` (and `package-lock.json`), compiles
    the bundle, and runs the packaging CLI to produce a single VSIX. The stamped
    manifest is uploaded alongside the VSIX so the manifest under test — including
@@ -99,20 +103,23 @@ pass before the release stage runs, alongside a green test result.
 Versioning is [Release Management](../release-management/design.md) applied to a
 VSIX artifact — this framework does not re-implement it:
 
-- `DefaultBump` accepts exactly `patch`, `minor`, or `major` and resolves to
-  `patch` when omitted. When present, one of `release:patch`, `release:minor`, or
-  `release:major` overrides it. Multiple owned bump labels and `release:skip`
-  with any other owned release label are rejected; bare and unrelated labels are
-  ignored.
-- `release:skip` prevents publication.
+- The shared resolver uses one explicit owned bump label or, without one, the
+  valid effective `DefaultBump`. The documented shared patch default,
+  repository settings, and supported caller inputs resolve under the shared
+  [settings contract](../release-management/design.md#settings-and-caller-overrides).
+  A valid `release:skip` reports a no-release decision without skipping
+  validation. Invalid supplied settings and conflicting owned labels fail;
+  another input never masks them.
+- The version check re-evaluates source, release-label, and release-settings
+  changes and follows the shared
+  [pre-merge gate](../release-management/design.md#required-pre-merge-decision-check).
 - The version is computed once and stamped into the manifest; it is never
   hand-edited.
-- A prerelease is requested by `release:prerelease` on an open pull request (or
-  by a prerelease branch), using one explicit owned bump label when present and
-  the resolved `DefaultBump` otherwise. It produces a prerelease VSIX that is
-  never promoted to latest. When such a build is also published to the VS Code
-  Marketplace, it goes out with `@vscode/vsce publish --pre-release` and an odd
-  minor-version number, the Marketplace's pre-release-channel convention.
+- A prerelease is requested by `release:prerelease` with a resolved bump on
+  an open pull request (or by a prerelease branch), producing a prerelease VSIX
+  that is never promoted to latest. When such a build is also published to the
+  VS Code Marketplace, it goes out with `@vscode/vsce publish --pre-release` and
+  an odd minor-version number, the Marketplace's pre-release-channel convention.
 
 ## Publishing and distribution
 
@@ -170,8 +177,9 @@ Every external Action is pinned to a commit SHA; organization- or initiative-own
 | --- | --- |
 | Adoption (opt-in) | a short caller workflow that calls the reusable workflow |
 | Host + OS matrix, marketplace toggle, extras | `.github/vscode-extension.yml` |
-| Default bump | `DefaultBump` in `.github/release.config.yml` |
-| Bump override / prerelease / skip | pull-request label |
+| Default bump and overrides | shared `DefaultBump: patch`, repository settings, and supported caller inputs |
+| Explicit bump / prerelease / skip | owned pull-request label |
+| Pre-merge decision validation | version check required by the branch ruleset or protection |
 | Release types + branch mapping + path filter | `.github/release.config.yml` ([Release Management](../release-management/design.md)) |
 | Marketplace publish tokens | a GitHub environment's secrets |
 | Extension manifest (`engines.vscode`, `contributes`, activation) | `package.json` |

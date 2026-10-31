@@ -5,7 +5,7 @@ description: Which language each artifact is written in, and the plain-language 
 
 # Natural Language
 
-Natural language is source code for humans and agents. It drives issues, pull requests, documentation, prompts, comments, error messages, release notes, and memory. Write it with the same care as code: clear, testable, consistent, and easy to change.
+Natural language is source code for humans and agents. It drives issues, pull requests, documentation, prompts, comments, error messages, and release notes. Write it with the same care as code: clear, testable, consistent, and easy to change.
 
 This standard defines which language each artifact is written in, and how English prose is written in the MSX ecosystem. The project dialect is **American English (`en-US`)**.
 
@@ -76,7 +76,7 @@ Prefer specific, observable language over vague intent.
 | Prefer | Avoid |
 | --- | --- |
 | The workflow fails when `release:patch` and `release:minor` are both present. | There may be some issues with labels. |
-| Add `release:skip` to documentation-only PRs. | Make sure docs PRs are handled correctly. |
+| On a managed release route, select `release:skip` when documentation does not affect the artifact. | Make sure docs PRs are handled correctly. |
 | The agent reads `AGENTS.md` before editing files. | The agent should probably look at the instructions. |
 
 Use **MUST**, **SHOULD**, and **MAY** only when a sentence is intentionally normative. If a rule is optional, say what trade-off decides it.
@@ -121,10 +121,9 @@ Prefer:
 Before editing:
 
 1. Resolve the host, organization, repository, path, and task.
-2. Read the organization docs index.
-3. Read relevant organization memory.
-4. Read the repository README and local instructions.
-5. Apply path-specific instructions for files being changed.
+2. Read the designated organization documentation source entry index.
+3. Read the repository README and local instructions.
+4. Apply path-specific instructions for files being changed.
 ```
 
 Avoid:
@@ -154,7 +153,9 @@ A good error message includes:
 
 Prefer:
 
-> Release labels conflict: `release:patch` and `release:minor` cannot be combined. Keep one owned bump label, or remove both to use `DefaultBump`.
+```text
+Release decision cannot be resolved for this managed route. Correct the invalid DefaultBump setting or conflicting release labels. A valid effective default supplies the bump without a per-PR bump label; one release:patch, release:minor, or release:major label overrides it, and release:skip selects no release. Prerelease mode uses release:prerelease and the resolved bump. This required CI check must pass before merge.
+```
 
 Avoid:
 
@@ -180,7 +181,7 @@ Prompts are requests, not guesses. A good prompt names the desired outcome, the 
 Prefer:
 
 ```text
-Create a spec and design for org-scoped agent docs and memory in MSXOrg/docs. Follow the existing spec/design documentation model and use American English.
+Create a spec and design for org-scoped agent documentation in MSXOrg/docs. Follow the existing spec/design documentation model and use American English.
 ```
 
 Avoid:
@@ -188,19 +189,6 @@ Avoid:
 ```text
 Make something for agents.
 ```
-
-## Memory notes
-
-Memory notes should be short, factual, and reusable. They should not be a transcript of a session.
-
-Include:
-
-- the durable lesson;
-- the affected project or repository;
-- links to the issue, PR, file, or command that proves it;
-- the date when the fact was learned, if timing matters.
-
-Do not include secrets, private personal notes, or speculation.
 
 ## Where this connects
 

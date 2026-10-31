@@ -1,6 +1,6 @@
 ---
 title: Runtime Integration
-description: How a runtime is wired into the framework — the entry file it reads, the lifecycle point its refresh attaches to, the permissions it needs, and what a new runtime must supply to be supported.
+description: How a runtime is wired into the framework — the entry file it reads, the lifecycle point where it verifies context freshness, the permissions it needs, and what a new runtime must supply to be supported.
 ---
 
 # Runtime Integration
@@ -19,7 +19,7 @@ MUST supply, and nothing else.
 | Obligation | What it means | Where it is defined |
 | --- | --- | --- |
 | **Entry file** | The instruction file the runtime reads first, which routes to the canonical router rather than restating it | [Pointer files](design.md#pointer-files) |
-| **Lifecycle point** | The moment before the first turn where the context refresh runs | [Refresh hooks](design.md#refresh-hooks) |
+| **Lifecycle point** | The moment before the first turn where the runtime verifies and synchronizes context | [Context freshness](design.md#context-freshness) |
 | **Tool declaration** | The shared tool server set, expressed in the runtime's own configuration format | [MCP Servers](mcp-servers.md#same-contract-different-declaration-syntax) |
 | **Identity** | The credential the runtime authenticates with, and the permissions that identity holds | [Permissions](#permissions-follow-the-identity-not-the-runtime) |
 
@@ -45,9 +45,8 @@ Four shapes cover the field:
 | **Review-time** | Triggered by a platform event on a pull request | Reads instructions from the branch under review, not from a local clone |
 | **Scheduled** | On a timer, with no human present | No earlier lifecycle point exists, and no one is watching a failure |
 
-The same bootstrap, the same router, and the same tool contract serve all four. What changes
-is only where the trigger hangs — which is exactly the property that makes adding a runtime
-cheap.
+The same Git synchronization contract, the same router, and the same tool contract serve all
+four. What changes is only where synchronization runs.
 
 ### Local interactive
 
@@ -55,11 +54,10 @@ The durable workspace is the hazard. A local runtime is the only shape whose con
 survives between sessions, which means it is the only shape that can read a week-old standard
 while believing it is canonical.
 
-So the refresh MUST attach to a session-start lifecycle point in the runtime's own
-configuration, and it MUST run before the first turn rather than on first use of context. A
-refresh triggered by need is a refresh that has already been skipped once.
+So Git synchronization MUST attach to a session-start lifecycle point in the runtime's own
+configuration, and it MUST run before the first turn rather than on first use of context.
 
-Where the runtime offers no session-start point, the refresh MUST be invoked explicitly
+Where the runtime offers no session-start point, Git synchronization MUST be invoked explicitly
 before context is read.
 
 ### Hosted
@@ -67,7 +65,7 @@ before context is read.
 A hosted runtime gets a fresh workspace per run, so staleness is not the risk — *absence*
 is. The environment either establishes context during setup or the agent works without it.
 
-The refresh therefore belongs in the environment's setup steps, and setup failure MUST fail
+Git synchronization therefore belongs in the environment's setup steps, and setup failure MUST fail
 the run. An agent that starts successfully against missing context produces work that looks
 finished and was never governed, which is the most expensive failure in the set because it is
 the one that reaches review looking normal.
@@ -84,8 +82,8 @@ carefully as code, since they are live before merge.
 
 ### Scheduled
 
-A scheduled runtime has no lifecycle point earlier than the job itself, so the bootstrap is
-the job's first step. It also has no human to notice a problem, which raises the bar on
+A scheduled runtime has no lifecycle point earlier than the job itself, so Git synchronization
+is the job's first step. It also has no human to notice a problem, which raises the bar on
 failure handling: a scheduled run MUST fail loudly and MUST NOT proceed with partial context,
 because a silent partial run repeats on the schedule.
 
@@ -120,7 +118,8 @@ Adding a runtime is a documentation change plus four declarations, in this order
 
 1. Identify its **shape** from the table above; the shape determines the lifecycle point.
 2. Add its **entry file** as a route to the canonical router, carrying no process content.
-3. Attach the **refresh** to its lifecycle point, using the existing idempotent bootstrap.
+3. Attach Git synchronization to its lifecycle point, preserving the clean, default-branch,
+   fast-forward-only contract.
 4. Declare the **shared tool set** in the runtime's native configuration format.
 5. Record the **identity** it authenticates as and the permissions that identity holds.
 
@@ -135,7 +134,7 @@ that this runtime is special.
 
 ## Where this connects
 
-- [Design](design.md#refresh-hooks) — the lifecycle table each shape's refresh attaches to, and the idempotence requirement.
+- [Design](design.md#context-freshness) — the lifecycle table where each shape verifies context freshness.
 - [Design](design.md#client-behavior) — why entry files differ in filename and are identical in content.
 - [MCP Servers](mcp-servers.md) — the shared tool layer every runtime declares.
 - [Plugin Distribution](plugin-distribution.md) — named intents, which are per-runtime packaging over the same documented procedures.

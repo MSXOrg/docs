@@ -25,7 +25,7 @@ extension inherits a working build-test-release path on day one.
 This capability rests on the [Principles](../../Ways-of-Working/Principles/index.md):
 
 - **[Everything as Code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).** The pipeline, the version decision, and the extension's configuration are version-controlled workflow and settings — never a GUI action or a hand-run packaging command.
-- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** The pull request is the decision point; its review gate approves the code *and* the release it produces. The version-controlled `DefaultBump` records the normal versioning policy, and an owned bump label records a reviewed override.
+- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** The pull request is the decision point; its review gate approves the code *and* the release it produces. An owned bump label supplies the level or overrides a configured repository default; the effective decision and its source are recorded.
 - **[Extensible by default](../../Ways-of-Working/Principles/Software-Design.md#extensible-by-default).** The lifecycle is the stable core; host versions, the operating-system matrix, and publish targets are extension-specific settings that slot in. A new publish destination is a configured step, not a new pipeline.
 - **[Least-privilege](../../Ways-of-Working/Principles/Purpose-and-Direction.md#least-privilege).** The pipeline runs read-only by default; only the stage that cuts the release holds write, and only the scope it needs.
 
@@ -55,12 +55,12 @@ framework itself.
 ## Requirements
 
 - **Opt-in from a template.** A new extension starts from a template repository and inherits the whole pipeline. Adopting the framework is adding a short caller and a settings file, never copying a pipeline into the repo.
-- **A single settings file with secure, working defaults.** Behaviour is configured in one version-controlled settings file. Zero configuration MUST produce a correct build, test, and VSIX; every setting defaults to a secure, sensible value and is overridable in that one place.
+- **A single extension settings file with secure, working defaults.** Extension-specific behavior is configured in one version-controlled settings file. With a valid release decision, zero extension-specific configuration MUST produce a correct build, test, and VSIX. Build, test, and release settings have documented defaults and supported caller overrides under [Smart defaults, local overrides](../../Ways-of-Working/Principles/Software-Design.md#smart-defaults-local-overrides); the effective release default follows Release Management.
 - **A reproducible, self-contained bundle.** The extension is compiled into a single self-contained bundle with no unbundled runtime dependencies; the same commit always produces the same output.
 - **Tested on a real host.** The extension is tested against a real VS Code host, across the host versions and operating systems the extension declares as supported. Tests exercise the exact bundle that ships — never a separately compiled copy.
 - **A static quality gate.** Every change is linted and type-checked, and the pipeline holds on any error. Quality is validated at pull-request time, not after merge.
 - **Built once, shipped once.** The version is computed once, stamped into the manifest, and the same packaged VSIX is what is tested and what is published. Build, test, and release MUST NOT diverge.
-- **Policy-driven, semantic versioning.** Versioning follows [Release Management](../release-management/spec.md): `DefaultBump` accepts `patch`, `minor`, or `major` and resolves to `patch` when omitted; one owned bump label overrides it; `release:prerelease` uses the owned bump label when present and the resolved `DefaultBump` otherwise; and `release:skip` prevents publication. Conflicting owned labels are rejected, while bare and unrelated labels are ignored. The version is [SemVer](https://semver.org/) and is derived automatically — never hand-edited in the manifest.
+- **Policy-driven, semantic versioning.** Versioning follows [Release Management](../release-management/spec.md): an explicit owned bump label overrides the valid effective `DefaultBump`; without a bump label, the documented default supplies the level. Invalid settings and conflicting owned labels MUST fail the required PR check and block merge. `release:skip` prevents publication, and `release:prerelease` MAY use the resolved explicit or default bump. The version is [SemVer](https://semver.org/) and is derived automatically — never hand-edited in the manifest.
 - **An installable artifact on every release.** Each release produces an installable VSIX attached to its [GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases), together with an immutable reference. A user MUST be able to install a specific released version without a marketplace account.
 - **Optional marketplace publication.** Where configured, the same VSIX is also published to an extension marketplace (the VS Code Marketplace and/or Open VSX). Marketplace publication is opt-in and MUST NOT be a prerequisite for the GitHub-Release install path.
 - **A prerelease from an open pull request.** A prerelease VSIX MUST be obtainable from an open pull request for testing before merge, without being promoted to the latest stable version.
@@ -71,8 +71,8 @@ framework itself.
 
 ## Success criteria
 
-- Creating a repository from the template and pushing a first change yields a green build, a passing test run, and a packaged VSIX with no configuration written.
-- A pull request merged to a release branch produces a GitHub Release carrying an installable VSIX whose version uses one explicit owned bump label or the resolved `DefaultBump`; conflicting owned labels are rejected, while bare and unrelated labels are ignored.
+- Creating a repository from the template and providing a valid release decision yields a green build, a passing test run, and a packaged VSIX with no extension-specific configuration written.
+- An eligible pull request merged to a release branch produces a GitHub Release carrying an installable VSIX whose version matches the explicit or default bump. Omitting a bump label uses the valid effective default; invalid settings and conflicting owned labels fail required CI before merge.
 - The tests that gate the release exercise the exact VSIX that is released, on every supported host version and operating system.
 - A documentation-only or CI-only change carrying `release:skip` runs its checks but produces no new version.
 - A user installs any released version straight from its GitHub Release with no marketplace account; where marketplace publishing is enabled, that same version also appears in the marketplace.

@@ -16,8 +16,8 @@ no hand-edited version file, no tagging ritual.
 
 | Page | Description |
 | --- | --- |
-| [Spec](spec.md) | Requirements for release management — automatic, policy-driven, versioned releases driven entirely on the GitHub platform. |
-| [Design](design.md) | How release management is built — a shared reusable workflow that resolves a configured or label-selected SemVer bump, builds once, and publishes. |
+| [Spec](spec.md) | Requirements for release management — validated defaults, reviewed overrides, immutable artifacts, and complete consumer release records. |
+| [Design](design.md) | How release management is built — effective defaults, owned overrides, keyed release types, source-bound notes, and build-once publication. |
 | [Publishing Targets](design-publishing-targets.md) | The contract every publishing destination documents, with GitHub Releases as the reference target. |
 
 <!-- INDEX:END -->

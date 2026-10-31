@@ -56,12 +56,21 @@ namespaced, including the release set:
 | `release:prerelease` | Publish a prerelease using an owned bump label or the resolved `DefaultBump`. |
 | `release:skip` | Validate the change without publishing a release. |
 
+This set applies only on a managed release route, including native producer
+pipelines. Unmanaged routes omit every `release:*` label; absence of
+`.github/release.config.yml` does not determine applicability.
+
 These labels are read by
 [release management](../Capabilities/release-management/spec.md) and by nothing else.
-The configured `DefaultBump` supplies the release decision when no owned bump
-label is present. One owned bump label overrides it. `release:prerelease` is an
-optional mode used alone or with one owned bump label, while `release:skip` is
-used alone and prevents publication. Conflicting owned labels fail.
+One owned bump label overrides the valid effective `DefaultBump`; without one,
+the documented shared default, repository settings, and supported caller
+overrides supply it. `release:skip` records a no-release decision.
+`release:prerelease` is a mode used with a resolved explicit or default bump,
+never with `release:skip`. Release Management owns the
+[resolver and required pre-merge validation](../Capabilities/release-management/design.md#version-computation);
+omitted settings inherit the documented patch default, while invalid settings
+and conflicting owned labels fail rather than select a fallback. Settings, not
+additional release labels, select configured release-candidate and announcement behavior.
 
 Reserving bare words would be weaker because it depends on a documented
 prohibition rather than making ownership visible in the label itself.
@@ -82,7 +91,9 @@ label, because it teaches a contributor a rule that does not hold.
 
 ## Why not paths, states, or free text
 
-Labels are chosen over the alternatives because of what each one costs:
+For per-change overrides, labels are chosen over the alternatives because of what
+each one costs. Repository defaults remain version-controlled settings, not
+another label vocabulary:
 
 | Alternative | Cost |
 | --- | --- |
@@ -96,6 +107,6 @@ decision applies, and unambiguous about who acts on it.
 
 ## Where this connects
 
-- [Release Management](../Capabilities/release-management/spec.md) — the configured default, namespaced override vocabulary, and conflict rules.
+- [Release Management](../Capabilities/release-management/spec.md) — effective defaults, namespaced overrides, and required decision validation.
 - [Repository Governance](../Capabilities/repository-governance/design.md) — the controls that read repository state, of which labels are one.
 - [Repository Standard](Repository-Standard.md) — the repository-level requirement that labels be provisioned rather than improvised.

@@ -108,24 +108,6 @@ product — MAY carry a weaker review gate than a repository shipping executable
 code, because its build check verifies more of what could break. Whether it does
 is an organization decision ([FR12](spec.md#the-review-gate)).
 
-### Memory
-
-Declares that the repository is an [agent memory
-store](../agentic-development/memory-template.md): append-mostly, written by
-agents in small commits, and read at the start of a session.
-
-| | |
-| --- | --- |
-| Branch model | None of its own |
-| Adjusts | The pull-request requirement, which MUST NOT apply — memory is written by direct commit |
-
-Memory removes only that one obligation. Its protected branches still reject
-deletion and force-pushes, its required checks and automated review still apply,
-and merged pull-request branches still use the repository-level cleanup setting.
-This targeted subtraction is why the pull-request gate is written as an exclusion
-([filter by
-exclusion](../../Ways-of-Working/Repository-Type-Property.md#filter-by-exclusion-not-by-inclusion)).
-
 ## The exemption type
 
 ### Unmanaged
@@ -162,7 +144,6 @@ in is not.
 | Infrastructure **+** Docs | Promotion flow, plus the documentation-build check on both protected branches |
 | Infrastructure **+** Artifact | Promotion flow; the artifact history rule applies to merges into the integration branch, and the promotion merge remains a merge commit |
 | Docs alone | Standard branch model by default, plus the documentation-build check |
-| Memory | Baseline applied except the pull-request requirement |
 | Unmanaged | No baseline; the recorded reason applies |
 
 Precedence, stated once:

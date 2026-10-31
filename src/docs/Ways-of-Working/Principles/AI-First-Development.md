@@ -33,7 +33,7 @@ Agent context is delivered through three layers, in priority order:
 
 1. **Documentation** — the primary source. Published documentation, READMEs, and issue bodies are written for humans and naturally consumable by agents.
 2. **Canonical workflow** — one documented process owns the order of work and links to ordinary documentation for each stage procedure. Indexes provide the default discovery path; clear task language may shortcut stage selection without creating separate instructions.
-3. **Local pointer files** — each repository's agent router, and the content-free client routes that reach it, which read outward from the repository's own files to the organization's documentation, and to memory last.
+3. **Local pointer files** — each repository's agent router, and the content-free client routes that reach it, which read outward from the repository's own files to the applicable organization and initiative documentation.
 
 ## Augmentation, not replacement
 

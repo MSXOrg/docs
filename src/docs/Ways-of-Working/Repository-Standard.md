@@ -1,6 +1,6 @@
 ---
 title: Repository Standard
-description: The baseline files and behaviours every repository must expose so it is understandable, secure, and maintainable.
+description: The baseline files and behaviors every repository must expose so it is understandable, secure, and maintainable.
 ---
 
 # Repository Standard
@@ -23,18 +23,28 @@ discoverability minimum defined below instead.
 
 | File | Requirement |
 | --- | --- |
-| `README.md` | Acts as the repository start page: purpose, value, access, first mental model, and where to go next. |
+| `README.md` | Acts as the repository start page: purpose, target audience, value, access, first mental model, and where to go next. |
 | `LICENSE` | States the legal terms for reuse and redistribution. |
-| `CONTRIBUTING.md` | Explains how to contribute or links to the initiative contribution guide. |
-| `SECURITY.md` | Explains supported versions and private vulnerability reporting. |
-| `SUPPORT.md` | Explains where users ask for help. |
-| `CODE_OF_CONDUCT.md` | Defines expected community behaviour. |
-| `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation, then to memory. [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior) names the files and the path each one sits at. |
+| `.github/CONTRIBUTING.md` | Explains how to contribute, including how the organization defaults and central pull request template apply. |
+| `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation. [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior) names the files and the path each one sits at. |
 | `.github/dependabot.yml` | Configures platform-native dependency-update pull requests for supported ecosystems. The `github-actions` ecosystem is expected in virtually every repository; an unsupported ecosystem follows the centrally managed exception path rather than a repository-local updater. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
-| `.github/pull_request_template.md` | Scaffolds pull requests in the MSX [PR Format](PR-Format.md) (PR Manager) style — an icon + change-type + user-facing-outcome title, user-facing description sections, an optional technical-details block, and a related-issues block. |
 | `.gitattributes` | Normalizes line endings and declares text/binary handling so the repository can be developed and built consistently on Linux, macOS, and Windows. |
 | `.gitignore` | Ignores files that must never be committed, tailored to the repository's ecosystem: operating-system files, editor and developer-tooling files, language and test-harness artifacts, and all local build outputs and files created during build and test. |
+
+The organization provides `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`,
+and `.github/pull_request_template.md` as GitHub community defaults. It MAY
+also provide `.github/CONTRIBUTING.md` and `.github/ISSUE_TEMPLATE/` as
+optional defaults. Do not copy any of these organization defaults into a
+repository unless it needs a documented local exception; see
+[Organization Standard](Organization-Standard.md#community-files-are-organization-defaults).
+
+The special organization `.github` repository uses the purpose-specific file
+set defined by the
+[Repository Governance design](../Capabilities/repository-governance/design.md#organization-defaults-repository)
+instead of carrying repository-specific baseline files that have no function
+there. Its own README, agent routes, text handling, and ignore rules remain
+local; only supported community defaults are inherited by other repositories.
 
 Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
 
@@ -52,8 +62,7 @@ stated below, not for the governed baseline.
 | **Artifact** | The artifact's own manifest or metadata file — whatever declares its identity to the ecosystem it publishes into — and a changelog where the ecosystem expects one rather than reading [GitHub Releases](../Capabilities/release-management/design-publishing-targets.md). |
 | **Infrastructure** | Documentation of each environment the repository deploys to and how a change reaches it, plus the promotion automation the [promotion flow](../Capabilities/repository-governance/design-types.md#infrastructure) requires. |
 | **Docs** | The documentation source root and the build configuration the documentation-build check runs. |
-| **Memory** | The structure documented by the [memory repository template](../Capabilities/agentic-development/memory-template.md). |
-| **Unmanaged** | Nothing — but the exemption does not extend to discoverability: `README.md`, `SECURITY.md`, and the agent router remain required, because a repository nobody governs is still a repository someone will open. |
+| **Unmanaged** | Nothing — but the exemption does not extend to discoverability: `README.md`, `.github/CONTRIBUTING.md`, and the agent router remain required, because a repository nobody governs is still a repository someone will open. |
 
 The set a governed repository is audited against is the mandatory set plus the
 additions of every type it declares; an Unmanaged repository is audited only
@@ -72,12 +81,17 @@ A README answers these questions, in this order:
 | Question | README responsibility |
 | --- | --- |
 | What is it? | Name the product or artifact and its scope. |
+| Who is it for? | State the [target audience and supported uses](Readme-Driven-Context.md#target-audience), or explicitly adopt the initiative's definition and state any specialization. |
 | Why should I care? | State the value or problem it solves. |
 | How do I get it? | Show the shortest install, download, import, or usage entry point. |
 | How does it work? | Give a concise introduction to the main capability or operating model. |
 | How do I get more info? | Point to the documentation surface that owns the details. |
 
-Do not use the README as a community-file index. Assume readers can find standard repository files such as `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, and `CODE_OF_CONDUCT.md` through GitHub's UI and repository conventions. The README should mention them only when the repository has an unusual rule that readers must know before using the product.
+Do not use the README as a community-file index. Assume readers can find the
+organization's standard community defaults and repository-local files such as
+`LICENSE` and `.github/CONTRIBUTING.md` through GitHub's UI and repository
+conventions. The README should mention them only when the repository has an
+unusual rule that readers must know before using the product.
 
 Do not repeat repository-sidebar information in prose. If GitHub already exposes the repository description, deployments, releases, or site URL, the README may rely on those surfaces unless the information is necessary to answer the start-page questions.
 
@@ -95,7 +109,7 @@ Default expectations by repository type:
 | Libraries, services, CLIs, and applications | Product docs live under `docs/` and are published when the product needs more than a small README. |
 | GitHub Actions | The README is the main documentation surface because GitHub Actions users expect inputs, outputs, permissions, and examples next to `action.yml`. |
 | Reusable workflows | The README is the main documentation surface because callers need workflow interface, permissions, secrets, and examples in the repository. |
-| Documentation repositories | The published site is the product. The repository README explains what the source repository is and how it is laid out, and points to `CONTRIBUTING.md` for the authoring conventions and the local build. |
+| Documentation repositories | The published site is the product. The repository README explains what the source repository is and how it is laid out, and points to `.github/CONTRIBUTING.md` for the authoring conventions and the local build. |
 
 Documentation content lives in one folder, never spread across the repository root. A repository whose product is content — a documentation site, a reference collection, an archive of external material — keeps that content under a single documentation root: `docs/` by default, or a generator's source root such as `src/docs/` when the site tooling needs one. The repository root stays reserved for the README, the tooling, and the governance files, so a reader can tell content from machinery without opening a folder.
 
@@ -160,9 +174,12 @@ Default title pattern:
 <Icon> [<Change type>]: <User-facing outcome>
 ```
 
-The description should lead with user-facing impact, continue with user-facing change sections, include optional technical details after those sections, and end with the related-issues block. It closes one scoped Task or Bug as required by [PR Format](PR-Format.md), with any additional closing links limited to issues the session-end convergence sweep shows are fully delivered by the same diff.
+Use [PR Format](PR-Format.md) for audience-based change classification and the complete description structure, including its required consumer evidence and ending blocks. A PR closes one scoped Task or Bug, with any additional closing links limited to issues the session-end convergence sweep shows are fully delivered by the same diff.
 
-Repository templates may be simpler than the full PR Manager body, but they must gather enough information to reconstruct it.
+The organization-level `.github` repository supplies the default template.
+The repository-local contribution guide directs humans and agents to the
+organization template and its required format. A repository carries a local
+template only for a documented exception.
 
 ## Managed files
 
@@ -191,7 +208,7 @@ An initiative should document:
 - How the distributor or equivalent automation discovers repositories.
 - How exceptions are approved.
 
-For example, PSModule can define its module-specific managed files in `PSModule/docs` and implement distribution in `PSModule/Distributor`. MSX only defines that such a standard and distribution path must exist.
+For example, PSModule can define its module-specific managed files in `PSModule/Process-PSModule` and implement distribution in `PSModule/Distributor`. MSX only defines that such a standard and distribution path must exist.
 
 ## Where this connects
 
