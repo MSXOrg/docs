@@ -37,6 +37,8 @@ Check each dimension per [Review Etiquette](../Review-Etiquette.md):
 - **Issue convergence sweep** — the pull request records the author's [sweep](Implement.md#6-issue-convergence-sweep), including scoped search coverage and any convergent issues linked with closing keywords. Spot-check at least one linked closing issue against the delivered diff; a claimed convergence with no visible delivery evidence is a blocking finding.
 - **Tests** — new behaviour has tests; bugs get regression tests.
 
+For documentation and design, verify the shared [completion evidence gate](../Definition-of-Ready-and-Done.md#documentation-and-design-evidence): current artifacts, examples, links, and instructions, including justified no-change evidence where they already match the delivered behavior.
+
 ### 4. Post the review
 
 Use severity prefixes per [Review Etiquette](../Review-Etiquette.md): `Blocking:`, `Question:`, `Suggestion:`, `Nit:`. Out-of-scope suggestions become new issues, not blocking comments.

@@ -38,6 +38,11 @@ different runtime, or a person, weeks later.
 Intent MUST be recorded separately from implementation. The issue states *what* is wanted and
 *why*; the pull request proposes *how*.
 
+The canonical [issue planning altitude](../../Ways-of-Working/Issues/Process/Planning.md)
+governs the issue body. Task and Bug leaves retain technical decisions and test-first plans;
+the pull request contains the proposed implementation. Consumer-only aggregate guidance does
+not remove those delivery plans.
+
 The separation earns its keep at rejection. When a single artifact holds both, discarding a
 bad implementation discards the reasoning that motivated it, and the next attempt starts from
 nothing. When they are separate, the pull request closes and the issue stands — still stating
@@ -107,5 +112,5 @@ what happens next by looking at the artifact, without reconstructing a conversat
 - [Advisory Agents](advisory-agents.md) — how an agent publishes judgement onto these artifacts without taking authority.
 - [Automation Labels](../../Ways-of-Working/Automation-Labels.md) — the label vocabulary and ownership rules.
 - [Workflow](../../Ways-of-Working/Workflow.md) — the stages these artifacts move through.
-- [Issue Format](../../Ways-of-Working/Issues/index.md) — what an issue states.
+- [Issues](../../Ways-of-Working/Issues/index.md) and [Issue Planning](../../Ways-of-Working/Issues/Process/Planning.md) — issue discovery and type-specific intent and delivery planning.
 - [PR Format](../../Ways-of-Working/PR-Format.md) — what a pull request states.

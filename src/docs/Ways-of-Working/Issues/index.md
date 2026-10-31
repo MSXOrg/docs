@@ -7,6 +7,8 @@ description: How issues are formatted and organized across the MSX ecosystem.
 
 Guidance for how issues are formatted and organized across the MSX ecosystem.
 
+Start with [Issue Planning](Process/Planning.md) to separate Epic/PBI consumer expectations from Task/Bug technical delivery plans, then follow the native type and process pages below.
+
 <!-- INDEX:START -->
 
 | Section | Description |

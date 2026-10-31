@@ -36,13 +36,13 @@ Ground the issue so anyone reading it agrees on what "done" means, up to the [De
 
 ### 3. Plan
 
-Decide how the work will happen and record the decisions.
+Separate consumer expectations from delivery planning at the canonical [issue planning altitude](../Issues/Process/Planning.md).
 
 1. Route the work through the [Issue Hierarchy](../Issues/Types/Hierarchy.md); do not infer altitude from effort, priority, or a legacy label.
-2. For an Epic or PBI, establish native containment and dependency relationships and refine the first required children to their own readiness gates.
-3. For a Task or Bug, produce one executable delivery plan sized for one pull request. Use the audited operational Task path only when no repository artifact exists.
+2. For an Epic or PBI, apply the [consumer-expectation rule](../Issues/Process/Planning.md#consumer-expectations), establish native containment and dependency relationships, and refine the first required children to their own readiness gates.
+3. For a Task or Bug, retain technical decisions and produce one test-first executable delivery plan sized for one pull request, including relevant design and documentation verification. Use the audited operational Task path only when no repository artifact exists.
 4. Find the minimum viable path — spike, then proof of concept, then minimum viable product, then improve.
-5. Record decisions at the issue's [planning altitude](../Issues/Process/Planning.md), with rationale and alternatives where they matter.
+5. Keep durable technical choices in the design and per-change decisions in delivery leaves; link those artifacts from aggregates rather than prescribing their implementation.
 6. Resolve open questions before finishing; defer anything that does not block this slice to a follow-up issue.
 
 ## Operating rules
