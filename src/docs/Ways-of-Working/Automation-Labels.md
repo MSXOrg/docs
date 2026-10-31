@@ -50,25 +50,28 @@ namespaced, including the release set:
 
 | Label | Instruction |
 | --- | --- |
-| `release:patch` | Override the effective default and publish a patch release. |
-| `release:minor` | Override the effective default and publish a minor release. |
-| `release:major` | Override the effective default and publish a major release. |
-| `release:prerelease` | Publish a prerelease using an owned bump label or the resolved `DefaultBump`. |
+| `release:patch` | Publish a patch release. |
+| `release:minor` | Publish a minor release. |
+| `release:major` | Publish a major release. |
+| `release:prerelease` | Publish a prerelease from the open pull request. |
 | `release:skip` | Validate the change without publishing a release. |
 
-This set applies only on a managed release route, including native producer
-pipelines. Unmanaged routes omit every `release:*` label; absence of
-`.github/release.config.yml` does not determine applicability.
+This set applies only when the pull request's target route invokes Release
+Management, including through a native producer pipeline. An unmanaged route
+does not apply or report any
+`release:*` label, including `release:skip`. The optional
+`.github/release.config.yml` file refines an invocation; its absence alone does
+not determine whether the route invokes the capability.
 
 These labels are read by
 [release management](../Capabilities/release-management/spec.md) and by nothing else.
-One owned bump label overrides the valid effective `DefaultBump`; without one,
-the documented shared default, repository settings, and supported caller
-overrides supply it. `release:skip` records a no-release decision.
+One owned bump label records an explicit level and overrides the valid effective
+`DefaultBump`; without a bump label, documented defaults, repository settings,
+and supported caller overrides supply it. `release:skip` records a no-release decision.
 `release:prerelease` is a mode used with a resolved explicit or default bump,
 never with `release:skip`. Release Management owns the
 [resolver and required pre-merge validation](../Capabilities/release-management/design.md#version-computation);
-omitted settings inherit the documented patch default, while invalid settings
+an omitted setting inherits the documented patch default, while invalid settings
 and conflicting owned labels fail rather than select a fallback. Settings, not
 additional release labels, select configured release-candidate and announcement behavior.
 
@@ -107,6 +110,6 @@ decision applies, and unambiguous about who acts on it.
 
 ## Where this connects
 
-- [Release Management](../Capabilities/release-management/spec.md) — effective defaults, namespaced overrides, and required decision validation.
+- [Release Management](../Capabilities/release-management/spec.md) — the namespaced bump vocabulary, optional repository default, and required decision validation.
 - [Repository Governance](../Capabilities/repository-governance/design.md) — the controls that read repository state, of which labels are one.
 - [Repository Standard](Repository-Standard.md) — the repository-level requirement that labels be provisioned rather than improvised.

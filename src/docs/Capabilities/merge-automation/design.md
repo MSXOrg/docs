@@ -103,5 +103,5 @@ approval to the eligible set the ruleset actually lets it satisfy.
 - [Spec](spec.md) — the requirements this design delivers.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md#gate-merges-with-a-named-status-check) — authoring the named checks this consumes.
 - [Dependency Updates](../dependency-updates/design.md) — the auto-merge policy this generalises; dependency update PRs are the canonical eligible set.
-- [Release Management](../release-management/design.md) — the release a merge triggers.
+- [Release Management](../release-management/design.md) — the release a merge triggers on an invoked route.
 - [Branching and Merging](../../Ways-of-Working/Branching-and-Merging.md) — pull-request-only integration and readable history.

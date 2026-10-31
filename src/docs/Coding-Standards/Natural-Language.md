@@ -33,7 +33,7 @@ The split is per artifact, not per repository. A repository that serves a Norweg
 | `scripts/Test-Link.mjs` | `scripts/Test-Lenker.mjs` |
 | `Update-Source.ps1 -Offline` | `Update-Source.ps1 -Frakoblet` |
 | `Source not found: <path>` | `Kilden finnes ikke: <path>` |
-| `🪲 [Fix]: Broken links no longer reach main` | `🪲 [Fix]: Brutte lenker stoppes` |
+| `Broken links no longer reach main` | `Brutte lenker stoppes` |
 
 Repository artifacts are read by contributors, reviewers, and agents who do not share one first language, and by tooling built for English. Mixed-language automation splinters the vocabulary — `-Frakoblet` and `-Offline` are the same switch — and makes shared standards, linters, and scripts unreusable across repositories.
 
@@ -75,8 +75,8 @@ Prefer specific, observable language over vague intent.
 
 | Prefer | Avoid |
 | --- | --- |
-| The workflow fails when `release:patch` and `release:minor` are both present. | There may be some issues with labels. |
-| On a managed release route, select `release:skip` when documentation does not affect the artifact. | Make sure docs PRs are handled correctly. |
+| The workflow fails when the release decision is missing. | There may be some issues with labels. |
+| On a release-managed route, add `release:skip` when documentation does not affect the artifact. | Make sure docs PRs are handled correctly. |
 | The agent reads `AGENTS.md` before editing files. | The agent should probably look at the instructions. |
 
 Use **MUST**, **SHOULD**, and **MAY** only when a sentence is intentionally normative. If a rule is optional, say what trade-off decides it.
@@ -169,10 +169,11 @@ PR titles and descriptions are written for the user of the change first, then th
 
 | Prefer | Avoid |
 | --- | --- |
-| `📖 [Docs]: Agentic development framework documented` | `Update framework docs` |
+| `Agentic development guidance defines the framework` | `Update framework docs` |
 | `Agents segment project context before loading standards.` | `Refactor AGENTS.md instructions.` |
 
-Technical implementation details belong in a clearly named technical section at the bottom of the PR body.
+Technical implementation details belong in the `Technical details` block for
+the reader-facing result they support.
 
 ## Prompts
 

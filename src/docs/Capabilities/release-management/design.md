@@ -121,7 +121,7 @@ set fail validation, even when a narrower override or bump label exists.
 
 | Setting | Shared default | Repository override | Supported caller override |
 | --- | --- | --- | --- |
-| `DefaultBump` | `patch` | `DefaultBump` in `.github/release.config.yml` | Explicit `DefaultBump` input for the managed invocation. |
+| `DefaultBump` | `patch` | `DefaultBump` in `.github/release.config.yml` | Explicitly supplied caller override supported and documented by the invoked producer for this setting. |
 
 A repository can select minor as its normal level without requiring a minor
 label on every publishing PR:
@@ -248,7 +248,7 @@ every merge; only the release step is skipped when no artifact-affecting path
 changed.
 
 Derive these paths from the delivered product and its
-[audience-facing contracts](../../Ways-of-Working/PR-Format.md#detecting-the-change-type),
+[audience-facing contracts](../../Ways-of-Working/PR-Format.md#identify-the-readers),
 not directory names alone. Include callable workflows and build configuration
 that changes delivered runtime requirements or behavior. Do not retain an
 exclusion that overrides an included consumer interface or artifact input.
@@ -267,11 +267,11 @@ release-paths:
 
 The GitHub Release **name** is the resolved version. Its **body** preserves the
 release-bound PR title and complete description, using
-[PR Format](../../Ways-of-Working/PR-Format.md#description-structure) as the
-authoring contract. Summary, user-facing changes, adoption, release impact,
-consumer change records, template evidence, and both ending details blocks stay
-intact. There is no parallel JSON/YAML contract and no extraction of only the
-user-facing headings.
+[PR Format](../../Ways-of-Working/PR-Format.md#write-the-description) as the
+authoring contract. The leading summary, single boundary, non-empty classified
+results, scoped supporting evidence and related references, and conditional
+release-decision block stay intact. There is no parallel JSON/YAML contract or
+extraction of only selected headings.
 
 Each release explains the complete delivered delta from its identified baseline:
 what changed, why, affected supported uses, compatibility, and exact actions
@@ -286,6 +286,11 @@ not require installing that version unless its instructions explicitly require
 an intermediate installation or run. PRs and diffs provide optional depth;
 missing required instructions are evidence gaps, not implicit no-action results.
 Resource docs describe supported target-state behavior and usage.
+
+Each result's prose and examples hold the consumer's instructions; its technical
+details hold the supporting evidence. Internal-only work without a classified
+section puts the action or no-action result in the summary and the applicable
+evidence in the supporting block after its boundary.
 
 ### Bind the note to the released source
 
@@ -331,8 +336,8 @@ documentation.
 | Publication path | Authored record |
 | --- | --- |
 | Single merged PR | That PR's complete title and description, reconciled with the resolved source comparison. |
-| Bundled release | The release-bound integration PR covers every bundled delta from the declared change baseline, not just the most recent feature PR. It links the contributing work as supporting evidence. |
-| Optional ad hoc dispatch | Complete reviewed release-note context with the same adoption, consumer-change, template, and release-impact evidence. Record the dispatch source and reason; do not create or imply an empty PR. |
+| Bundled release | The integration PR retains every consumer delta and required action from the declared change baseline, including skipped changes, grouped by result; contributing work provides optional depth. |
+| Optional ad hoc dispatch | Complete reviewed release-note context with the same classified structure and applicable result-scoped evidence. Record source and reason; do not create or imply an empty PR. |
 | Prerelease | The PR or integration record appropriate to that published source, captured for that release. Later edits to the final PR do not overwrite the prerelease snapshot or attribute unreleased behavior to it. |
 
 If the relationship between a record and its source cannot be established, or

@@ -67,7 +67,8 @@ a fleet of pin-update pull requests.
   version comment.
 - **Apply the updater's default three-day cooldown** before adopting a freshly published version. Omit an explicit `cooldown` mapping unless the repository deliberately adopts a non-default duration.
 - **Make the release decision separately** after dependency changes are
-  collected, under [Release Management](../Capabilities/release-management/design.md).
+  collected when the target route invokes [Release
+  Management](../Capabilities/release-management/design.md).
 - **Publish owned floating major tags only through controlled release
   automation.** The release gate validates compatibility, publishes the immutable
   version tag first, and then advances the major tag to that stable release.
