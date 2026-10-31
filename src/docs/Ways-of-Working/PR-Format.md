@@ -84,9 +84,12 @@ State only outcomes the evidence supports:
 Before adding release metadata or changing a `release:*` label, determine
 whether the repository invokes [Release
 Management](../Capabilities/release-management/spec.md) for the pull request's
-target route. Inspect the caller workflows and their effective inputs. The
-optional `.github/release.config.yml` file refines that invocation; its absence
-alone does not prove that release management is absent.
+target route. Inspect the effective pipeline and its inputs, including native
+producer pipelines that publish versioned artifacts without calling a named
+shared workflow. The [applicability contract](../Capabilities/release-management/design.md#applicability)
+is about the route's release behavior, not one implementation. The optional
+`.github/release.config.yml` file refines the route's settings; its absence alone
+does not prove that release management is absent.
 
 If the route does not invoke Release Management, omit the entire `Release
 decisions` block and do not apply or report any `release:*` label, including
@@ -100,16 +103,19 @@ complete change and the effective
    or a supported consumer contract. Otherwise select `release:skip`.
 2. **Version bump.** For a release, choose Patch, Minor, or Major from the
    compatibility impact. An explicit bump label overrides a valid
-   `DefaultBump`; a matching configured default may supply the level without an
-   explicit bump label.
+   effective `DefaultBump`; a matching default supplies the level without a
+   per-PR bump label. Resolve the documented shared default, repository settings,
+   and supported caller overrides under
+   [settings and caller overrides](../Capabilities/release-management/design.md#settings-and-caller-overrides).
 3. **Mode.** Record Stable or Prerelease from the target route and any valid
-   `release:pre-release` override. Prerelease mode still requires a resolved
-   bump.
+   `release:prerelease` override. Identify a configured release-candidate route
+   in the mode evidence; release candidates are prereleases, not another bump.
 
 Use only the labels owned by the
 [`release:` namespace](Automation-Labels.md#every-set-is-namespaced). Missing,
 invalid, or conflicting decisions are errors to resolve before review, not
-reasons to assume a patch release.
+reasons to invent a fallback. Inheriting the documented patch default is a valid
+decision source, not an error recovery path.
 
 ### Select the news
 
@@ -337,6 +343,12 @@ invoked route with a no-release decision, replace the release block with the
 shorter no-release form shown in
 [Record release decisions only when invoked](#record-release-decisions-only-when-invoked).
 
+For a publishing decision, retain the resolved bump and mode with their input
+sources. A valid effective `DefaultBump` needs no per-PR bump label: report
+`Labels: None` when no owned override applies, or the exact mode label when it
+does. Include configured release-candidate routing in the mode evidence. Never
+turn invalid settings or conflicting owned labels into a no-action result.
+
 ````markdown
 {{ One or two short summary paragraphs that state what changes, why, who is
 affected, and required adoption actions or an explicit no-action result. }}
@@ -544,9 +556,12 @@ evidence. }}
 - **Release:** {{ Yes or No }} - {{ Evidence from the artifact, route, and
   supported consumer contract. }}
 - **Version bump:** {{ Patch, Minor, or Major }} - {{ Compatibility evidence.
-  Delete this field when Release is No. }}
+  Identify the explicit label, supported caller input, repository setting, or
+  documented shared default that supplies it. Delete this field when Release
+  is No. }}
 - **Mode:** {{ Stable or Prerelease }} - {{ Target-route or override evidence.
-  Delete this field when Release is No. }}
+  Identify configured release-candidate routing when applicable. Delete this
+  field when Release is No. }}
 - **Labels:** {{ Exact `release:*` labels, or `None` when effective configuration
   supplies the decision without an override label. }}
 

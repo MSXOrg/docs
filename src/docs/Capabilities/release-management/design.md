@@ -5,27 +5,31 @@ description: How release management is built — a shared reusable workflow that
 
 # Release Management — Design
 
-The behaviour in the [spec](spec.md) is delivered by a **shared reusable release
-workflow**. A repository opts a target route in with a short caller workflow.
-The optional `.github/release.config.yml` file refines that invocation; it does
-not opt a route in, and its absence does not opt an invoked route out. The
-workflow supplies the shared mechanics; an explicit label or an intentionally
-configured default supplies the release level.
+The behavior in the [spec](spec.md) is delivered by shared release mechanics,
+through a reusable workflow or a native producer pipeline. A repository's
+effective release pipeline establishes which target routes are managed. The
+optional `.github/release.config.yml` file refines those settings; it does not
+create a release pipeline, and its absence does not opt a managed route out.
+Documented defaults make a managed route usable without per-PR bump labels;
+repository settings, supported caller inputs, and owned labels provide overrides.
 
 ## Applicability
 
-Inspect the effective workflow configuration for the pull request's target
-route before reading release settings or labels.
+Inspect the effective pipeline for the pull request's target route before
+reading release settings or labels. A managed route produces a versioned,
+immutable output that another system consumes by version.
 
-- When the route invokes the shared Release Management workflow, evaluate its
-  release decision and require the configured pre-merge check. This remains true
-  when `.github/release.config.yml` is absent.
-- When the route does not invoke the workflow, Release Management does not
+- When a shared workflow or native producer pipeline delivers that release
+  behavior, evaluate its release decision and require the pre-merge check. This
+  remains true when `.github/release.config.yml` is absent or the route does not
+  call a named shared workflow.
+- When the route has no versioned release behavior, Release Management does not
   apply. Omit the `Release decisions` block and every `release:*` label,
-  including `release:skip`.
+  including `release:skip`. A site deployment without a versioned artifact is
+  not by itself a release-managed route.
 
 Configuration can change branch types, paths, a default bump, and other release
-behavior only after the invocation establishes that the route is managed.
+behavior only after the effective pipeline establishes that the route is managed.
 
 ## Branching model
 
@@ -88,49 +92,72 @@ Two consequences follow, and they are the point of the model:
 
 ## Version computation
 
-For PR-driven releases on an invoked route, the shared resolver reads the owned
-labels and optional `DefaultBump` in `.github/release.config.yml`. The setting
-accepts `patch`, `minor`, or `major`; omitting the file or field does not supply a
-level and does not skip evaluation. For example, this configuration explicitly
-chooses patch releases when no bump label is provided:
+For PR-driven releases on a managed route, the shared resolver reads the owned
+labels and effective settings. It records the chosen bump, mode, and the input
+that supplied each decision before Build.
+
+### Settings and caller overrides
+
+Follow [Smart defaults, local overrides](../../Ways-of-Working/Principles/Software-Design.md#smart-defaults-local-overrides):
+shared defaults are overridden by repository settings in the optional
+`.github/release.config.yml`, then by explicitly supplied supported caller
+inputs for that invocation. Omitted caller inputs preserve repository settings;
+they do not overwrite them with an input's default. The implementing workflow
+or action documents its exact supported caller surface and validates it through
+the same settings resolver rather than maintaining another algorithm.
+
+`DefaultBump` accepts exactly `patch`, `minor`, or `major`. Its documented shared
+default is `patch`; omitting the configuration file or field inherits that value.
+A caller can deliberately select another supported level. Unknown setting names,
+null or empty values, and values outside the documented set fail validation,
+even when a narrower override or bump label exists.
+
+| Setting | Shared default | Repository override | Supported caller override |
+| --- | --- | --- | --- |
+| `DefaultBump` | `patch` | `DefaultBump` in `.github/release.config.yml` | Explicit `DefaultBump` input for the managed invocation. |
+
+For example, a repository can select minor as its normal level without requiring
+a minor label on every publishing PR:
 
 ```yaml
 # .github/release.config.yml
-DefaultBump: patch
+DefaultBump: minor
 ```
 
 | Label | Meaning | Valid combination |
 | --- | --- | --- |
-| `release:patch` | Resolve the next patch version, overriding the configured default. | Alone or with `release:pre-release`. |
-| `release:minor` | Resolve the next minor version, overriding the configured default. | Alone or with `release:pre-release`. |
-| `release:major` | Resolve the next major version, overriding the configured default. | Alone or with `release:pre-release`. |
-| `release:pre-release` | Publish the open pull request as a prerelease using the resolved bump. | With one explicit bump or a configured default; never with `release:skip`. |
+| `release:patch` | Resolve the next patch version, overriding the effective default. | Alone or with `release:prerelease`. |
+| `release:minor` | Resolve the next minor version, overriding the effective default. | Alone or with `release:prerelease`. |
+| `release:major` | Resolve the next major version, overriding the effective default. | Alone or with `release:prerelease`. |
+| `release:prerelease` | Publish the open pull request as a prerelease using the resolved bump. | With one explicit bump or the effective default; never with `release:skip`. |
 | `release:skip` | Run validation without resolving or publishing a version. | Alone. |
 
 Resolve the decision in this order:
 
-1. Validate `DefaultBump` when present and reject conflicting owned labels.
-   An invalid setting is an error even when an explicit label is supplied.
-   Bare and unrelated labels do not participate.
+1. Validate supplied settings and the effective configuration, then reject
+   conflicting owned labels. An invalid setting is an error even when another
+   input would supply a valid level. Bare and unrelated labels do not participate.
 2. Honor a valid `release:skip` as the explicit no-release decision and stop bump
    resolution.
-3. Use the single owned bump label when present; otherwise use the configured
-   `DefaultBump`. Record the chosen level and whether the label or setting
-   supplied it.
-4. If neither supplies a level, fail with a missing-decision error that tells the
-   author to select a bump, configure the default, or choose `release:skip`.
-   There is no built-in patch fallback. Prerelease mode does not supply a bump.
+3. Use the single owned bump label when present; otherwise use the valid
+   effective `DefaultBump`. Record whether the label, caller input, repository
+   setting, or shared default supplied the level.
+4. If neither resolves a valid level, fail with an actionable decision error.
+   Inheriting the documented patch default is a valid policy decision; choosing
+   patch to recover from invalid or unresolved input is forbidden. Prerelease
+   mode does not supply a bump.
 
-| PR input | `DefaultBump` | Decision-check result |
+| PR input | Effective default and source | Decision-check result |
 | --- | --- | --- |
-| `release:major` | `patch` or absent | Pass: explicit major overrides the default. |
-| No owned release labels | `minor` | Pass: configured minor; record the setting as the source. |
-| No release decision | Absent | Fail: missing decision; merge blocked. |
-| `release:skip` alone | Valid or absent | Pass: no release; no bump is required. |
-| `release:pre-release` alone | `patch` | Pass: configured patch in prerelease mode. |
-| `release:pre-release` alone | Absent | Fail: mode does not supply a bump; merge blocked. |
+| `release:major` | Valid `patch` from any supported scope | Pass: explicit major overrides the default. |
+| No owned release labels | No repository or caller override; shared `patch` | Pass: documented patch default; no per-PR bump label required. |
+| No owned release labels | Repository `minor`; caller omitted | Pass: repository minor; record the setting as the source. |
+| No owned release labels | Repository `major`; explicit caller `patch` | Pass: caller patch overrides repository major. |
+| `release:skip` alone | Valid default | Pass: no release; no bump is required. |
+| `release:prerelease` alone | Valid effective `minor` | Pass: default minor in prerelease mode. |
+| No bump label | No valid effective default can be resolved | Fail: unresolved decision; no invented fallback. |
 | Multiple bump labels, or skip with another owned release label | Any | Fail: conflicting decisions; no fallback. |
-| Any | Invalid value | Fail: invalid configuration; no fallback. |
+| Any, including an explicit bump or skip | Invalid supplied setting | Fail: invalid configuration; no fallback or masking by an override. |
 
 - **First release** starts from a baseline (`v0.1.0` or `v1.0.0`). Pre-`1.0.0`
   breaking changes are `release:minor` per [SemVer §4](https://semver.org/#spec-item-4);
@@ -158,17 +185,18 @@ invocation has neither the block nor any `release:*` labels.
 
 ### Required pre-merge decision check
 
-PR CI runs the resolver read-only against the candidate release settings and
-current owned labels, without creating tags, releases, or published artifacts.
+PR CI runs the resolver read-only against the candidate release settings,
+supported caller inputs, and current owned labels, without creating tags,
+releases, or published artifacts.
 An existing version-resolution check may own this validation; do not duplicate
 the resolver. The check reports the effective decision and its source, not a
 promised final stable version.
 
-The validator runs for every PR targeting an invoked release route, including
-changes that will not publish and invoked repositories without a release
-configuration file. It re-runs when source, release labels, release settings, or
-the effective workflow invocation changes, so a stale result is not evidence for
-different inputs. Missing, invalid, or conflicting decisions produce a failed
+The validator runs for every PR targeting a managed release route, including
+native producer routes, changes that will not publish, and repositories without
+a release configuration file. It re-runs when source, release labels, release
+settings, supported caller inputs, or the effective pipeline changes, so a stale
+result is not evidence for different inputs. Missing, invalid, or conflicting decisions produce a failed
 check with an actionable error. A valid skip reports success with a no-release
 result; path filters do not skip the validator.
 
@@ -207,7 +235,7 @@ either: rerun the existing release with the same artifact and version under the
 
 - **Branch-level** — a prerelease-type branch publishes on every push, using the
   branch name as the identifier: `v1.3.0-dev.1`, `v1.3.0-dev.2`, …
-- **PR-level** — `release:pre-release` with a resolved explicit or configured bump publishes
+- **PR-level** — `release:prerelease` with a resolved explicit or default bump publishes
   `v<base>-<identifier>.<counter>`: `base` is the next version from that bump,
   `identifier` is the normalized branch name, and `counter`
   auto-increments per push.
@@ -442,9 +470,9 @@ release, and its runs are serialised like any other.
 
 | Surface | Where |
 | --- | --- |
-| Release Management applicability | target-route caller workflow invoking the shared Release Management workflow |
+| Release Management applicability | effective target-route pipeline, including shared workflows and native producers |
 | Release branches + type | optional `.github/release.config.yml`; the default branch is stable when omitted |
-| Optional default bump | `DefaultBump` in `.github/release.config.yml` |
+| Default bump and overrides | documented shared `DefaultBump: patch`, repository settings, then supported caller inputs |
 | Explicit bump / prerelease / skip | `release:` PR label on an invoked route |
 | Pre-merge decision validation | named PR check required by the branch ruleset or protection |
 | Optional ad hoc release | `workflow_dispatch` inputs |

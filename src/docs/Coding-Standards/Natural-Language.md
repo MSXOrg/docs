@@ -154,7 +154,7 @@ A good error message includes:
 Prefer:
 
 ```text
-Release decision is missing for this release-managed route. Add a release:patch, release:minor, or release:major label, configure DefaultBump in .github/release.config.yml, or select release:skip. Prerelease mode still requires a resolved bump. This required CI check must pass before merge.
+Release decision cannot be resolved for this managed route. Correct the invalid DefaultBump setting or conflicting release labels. A valid effective default supplies the bump without a per-PR bump label; one release:patch, release:minor, or release:major label overrides it, and release:skip selects no release. Prerelease mode uses release:prerelease and the resolved bump. This required CI check must pass before merge.
 ```
 
 Avoid:
