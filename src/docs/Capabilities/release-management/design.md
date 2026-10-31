@@ -71,6 +71,12 @@ duplicate the promotion process.
 Resolve creates or loads one durable release intent before Build. Its stable
 identity makes duplicate delivery and retries idempotent.
 
+The identity includes the separately approved logical request, not only its
+source commit. Duplicate delivery or retry of that request loads the same
+frozen intent. A new corrective request requires distinct approval/request
+identity and explicitly records which prior intent it replaces; it cannot reuse
+the retired or withdrawn version, even when its reviewed source is unchanged.
+
 | Field | Frozen or progressive | Purpose |
 | --- | --- | --- |
 | Intent identity and idempotency key | Frozen | Identifies one logical release independently of a workflow run. |
@@ -537,8 +543,11 @@ execution queues.
 For each stable line, the reconciler finds source revisions not yet accounted
 for by a complete, retired, or superseding intent. It processes the oldest
 unsettled range first. Duplicate triggers use an idempotency key derived from the
-repository, stable line, fixed source, and request kind, and return the existing
-intent rather than creating another.
+repository, stable line, fixed source, request kind, and immutable approved
+request identity, and return the existing intent rather than creating another.
+A separately approved corrective release has a new request identity and version
+and retains its relationship to the prior intent; changing a delivery ID alone
+does not authorize a new release.
 
 This ordering prevents a later fast run from taking a version or release range
 that belongs to earlier unresolved work.

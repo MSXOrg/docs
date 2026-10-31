@@ -383,6 +383,12 @@ compatibility basis. Supporting evidence MUST remain scoped to its result;
 internal-only work without a classifier uses the supporting block after the
 summary marker. Announcements MUST NOT truncate the full release record.
 
+An affected integration template MUST be identified by repository and verified
+compatible immutable commit, with evidence for the exact producer source and
+linked template delivery or a justified no-change result. A moving branch,
+today's template, or an unsupported compatibility claim MUST NOT replace that
+evidence. If no template applies, record that result and its basis explicitly.
+
 Reading every applicable source-bound release record after the actual consumed
 baseline through the target in release order MUST be sufficient to compose the
 required actions. Notes MUST explain superseded actions while retaining required
