@@ -104,6 +104,7 @@ with no reader, so a folder appears the first time it has something to hold
 | **What was explored** before deciding | the capability's **research** |
 | **How the work is done** — process, principles, conventions | [Ways of Working](index.md) |
 | **How code looks** — style applied to code | [Coding Standards](../Coding-Standards/index.md) |
+| **Which consumer outcome this work accepts** | the Epic or PBI; see [consumer expectations](Issues/Process/Planning.md#consumer-expectations) |
 | **How this one change is implemented** — paths, trade-offs | the Task or Bug delivery leaf and its PR; see [Issue Planning](Issues/Process/Planning.md) |
 
 Keeping implementation out of the spec is what makes the spec durable:
@@ -138,6 +139,8 @@ Both the spec and the design are **evolutionary**: development almost always
 changes your understanding, so you amend them in place rather than treating the
 first draft as fixed. The gap between the spec and what the system actually does
 is the work.
+
+Completion follows the shared [documentation and design evidence](Definition-of-Ready-and-Done.md#documentation-and-design-evidence) gate. Update the owning artifact when the delivered result changes it; keep verification and justified no-change evidence in the delivery record instead of copying design or documentation into an aggregate issue.
 
 ## Evergreen and evolutionary
 

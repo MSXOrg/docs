@@ -13,7 +13,7 @@ Readiness is type-specific. The canonical type pages own the detailed criteria; 
 
 ### Aggregate readiness
 
-An [Epic](Issues/Types/Epic.md#ready) or [PBI](Issues/Types/PBI.md#ready) is ready to decompose or coordinate when its aggregate outcome and acceptance criteria are testable, its native containment and dependency relationships are current, and no open decision prevents the first required children from becoming ready. Readiness does not send an aggregate into Build.
+An [Epic](Issues/Types/Epic.md#ready) or [PBI](Issues/Types/PBI.md#ready) is ready to decompose or coordinate when its [consumer expectations and scenarios](Issues/Process/Planning.md#consumer-expectations) are testable, its native containment and dependency relationships are current, and no open decision prevents the first required children from becoming ready. Readiness does not send an aggregate into Build or require a technical implementation plan in its body.
 
 ### Delivery-leaf readiness
 
@@ -47,9 +47,17 @@ Auto-merge gates only on what the ruleset declares. It waits for the required st
 
 Completion follows the issue's delivery or aggregate path. Across all paths, the issue's acceptance criteria are verified, required documentation is current, and no known regression is left implicit.
 
+### Documentation and design evidence
+
+Relevant current specifications, designs, and documentation MUST match the delivered consumer expectations and behavior. Update the owning artifacts when the change affects their requirements, technical approach, supported usage, or instructions. Verify affected examples, links, and instruction routes together so a reader reaches consistent, working guidance.
+
+Link the relevant document or anchor and record the verification in the delivery PR or operational audit evidence. If an existing design or document already describes the delivered result correctly, link it and explain why no update is needed; do not edit it solely to satisfy a checkbox. A missing artifact required by the change is work to complete, not evidence of an already-correct design.
+
+Aggregate completion verifies this evidence against the combined consumer outcome, not only against each child's isolated result. The [Documentation Model](Documentation-Model.md#why-what-how-a-home-for-everything) owns where each artifact lives; issue bodies and PRs carry completion evidence rather than copies of those artifacts.
+
 ### Repository delivery leaf
 
-A repository-delivery Task or Bug is done when its reviewed pull request is merged and closes that one leaf, required checks and tests pass, applicable coding standards hold, and the affected evergreen specification and documentation describe the delivered behavior. Release or deploy it where that applies.
+A repository-delivery Task or Bug is done when its reviewed pull request is merged and closes that one leaf, required checks and tests pass, applicable coding standards hold, and the [documentation and design evidence](#documentation-and-design-evidence) is complete. Release or deploy it where that applies.
 
 ### Operational Task
 
@@ -57,6 +65,6 @@ An operational Task is done without a pull request only after the action has dur
 
 ### Aggregate issue
 
-A PBI or Epic is done only when every required native child is complete and its own aggregate acceptance criteria and evidence are verified. Close the aggregate directly after that verification; a delivery pull request must not close it.
+A PBI or Epic is done only when every required native child is complete and its own aggregate acceptance criteria, combined behavior, and [documentation and design evidence](#documentation-and-design-evidence) are verified. Close the aggregate directly after that verification; a delivery pull request must not close it.
 
 Done is binary. Skip a criterion only when it genuinely does not apply. If "done" repeatedly needs exceptions, fix the definition rather than quietly lowering the bar.

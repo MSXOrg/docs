@@ -94,7 +94,7 @@ The goal is **shared understanding** — everyone (humans and agents) agrees on 
 Turn the refined understanding into actionable work:
 
 - **Gap analysis** — diff the [evergreen specification](Documentation-Model.md#evergreen-and-evolutionary) for the affected capability against the current implementation. The gap is the work.
-- **Route and decide** — assign the native type and add decisions at its [planning altitude](Issues/Process/Planning.md).
+- **Route and define** — assign the native type and use its [planning altitude](Issues/Process/Planning.md): consumer expectations and scenarios in Epics/PBIs, technical decisions and test-first plans in Task/Bug leaves.
 - **Decompose aggregates** — use native sub-issues for Epic and PBI children, and native dependency edges only where execution is genuinely gated.
 - **Prepare delivery leaves** — refine Task and Bug children until they satisfy their type-specific readiness gate.
 
@@ -108,7 +108,7 @@ Execute one ready, unblocked Task or Bug. For repository delivery:
 
 1. **Branch** — create a branch (and [worktree](Git-Worktrees.md)) for the delivery leaf.
 2. **Draft PR** — push early and open a draft pull request scoped to one Task or Bug delivery leaf. The pull request closes that scoped leaf; any additional convergent issues are linked separately through the session-end issue convergence sweep. This makes progress visible and attaches CI from the start.
-3. **Implement** — work through the implementation plan. One logical change per commit. Update the issue as each plan step completes.
+3. **Implement** — work through the leaf's test-first implementation plan, including relevant [documentation and design evidence](Definition-of-Ready-and-Done.md#documentation-and-design-evidence). One logical change per commit. Update the issue as each plan step completes.
 4. **Test locally** — don't push known failures to CI. Push work as far inward as it can go.
 5. **Self-review with automation** — run the [Copilot review loop](Contribution-Workflow.md#the-copilot-review-loop) until it reports a clean round, fixing in-scope feedback and filing follow-up issues for the rest.
 6. **Standards and framework alignment pass** — once the change is complete, reconcile it against process, the applicable [Coding Standards](../Coding-Standards/index.md) chapters, and the repository's framework documentation, and record the result in the pull request. See [Implement](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass).
@@ -124,6 +124,7 @@ See [Commit Conventions](Commit-Conventions.md), [PR Format](PR-Format.md), [Con
 Every change gets a second perspective:
 
 - Does the PR deliver what its closing Task or Bug asks for?
+- Does the delivered slice satisfy its applicable consumer scenarios, with current design, documentation, and working instructions?
 - Does it follow the project's standards and conventions?
 - Are there security concerns or undiscussed decisions?
 - Is the code clear and maintainable?
@@ -138,7 +139,7 @@ Human review approves the ready pull request and the required checks stay green,
 
 The pull request description becomes the release note. Write it for end users, not reviewers.
 
-Parent PBI and Epic issues close separately when their native children and aggregate acceptance criteria are complete. See [PR Format](PR-Format.md), [Issue Lifecycle](Issues/Process/Lifecycle.md), and [Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge).
+Parent PBI and Epic issues close separately when their native children, aggregate consumer scenarios, and [documentation and design evidence](Definition-of-Ready-and-Done.md#documentation-and-design-evidence) are complete. See [PR Format](PR-Format.md), [Issue Lifecycle](Issues/Process/Lifecycle.md), and [Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge).
 
 ### Operate
 
@@ -162,7 +163,7 @@ Planning happens at different time horizons and levels of detail:
 Detail increases as work moves from Later toward Now.
 
 - A single task lives in **Now / Detailed**.
-- A PBI lives between **Now / Logical** and **Next / Detailed**.
-- An Epic spans **Now → Next → Later** at **Conceptual / Logical** fidelity.
+- A PBI's bounded consumer scenarios gain precision as it approaches **Now**; detailed implementation stays in its Task and Bug leaves.
+- An Epic spans **Now → Next → Later** with strategic consumer outcomes at **Conceptual / Logical** fidelity, not technical implementation plans.
 
 This workflow follows the [Human–agent coexistence](Principles/AI-First-Development.md#human-agent-coexistence) principle — it is designed for humans first, with agents joining the same process rather than running a parallel one.

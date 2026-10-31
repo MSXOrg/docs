@@ -15,7 +15,7 @@ Follow the universal [Issue Format](../Process/Format.md), with these Task-speci
 
 ### Context and request
 
-- State the single user, operator, or maintainer outcome.
+- State the single user, operator, or maintainer outcome and why it matters.
 - Write observable, testable acceptance criteria for that deliverable.
 - Identify constraints, dependencies, and explicit non-goals.
 - Link the parent PBI or Epic when the Task is part of an aggregate.
@@ -30,6 +30,8 @@ Follow the universal [Issue Format](../Process/Format.md), with these Task-speci
 ### Implementation plan
 
 Write an actionable checkbox plan at repository-path and behavior level. For each behavior, put the test or verification step before its implementation step, following the [test-first standard](../../../Coding-Standards/Testing.md#test-first). Include documentation and final validation in the same plan.
+
+Identify the relevant current design and documentation to verify through the shared [completion evidence gate](../../Definition-of-Ready-and-Done.md#documentation-and-design-evidence). Keep repository paths and technical steps here even when the parent uses consumer scenarios.
 
 The checklist describes one pull request. If it reveals independent deliverables, promote the issue to a PBI and create delivery children.
 
