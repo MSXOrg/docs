@@ -289,7 +289,8 @@ stay intact. There is no parallel JSON/YAML contract and no extraction of only
 selected headings or evidence blocks.
 
 The notes are the sufficient consumer upgrade record. Each release explains its
-complete delta from the identified consumer-change baseline: what changed, why,
+complete delta from the [actual successful artifact publication
+baseline](../../Ways-of-Working/PR-Format.md#resolve-release-coverage-first): what changed, why,
 affected supported uses, compatibility, and exact actions with applicable
 prerequisites, ordering, and verification, or an explicit no-action result and
 its compatibility basis. Necessary old-to-new examples stay in the note.
@@ -318,8 +319,11 @@ migration history or replace the instructions in the release record.
 
 1. **Resolve the evidence with the version.** Identify the release-bound PR or
    ad hoc context and the immutable source to build. Resolve the version base
-   and the source comparison baseline; reconcile every delivered consumer delta
-   in that range, including earlier merged or skipped changes. Confirm that each
+   and the [artifact-publication source comparison
+   baseline](../../Ways-of-Working/PR-Format.md#resolve-release-coverage-first);
+   pin it and the exact candidate independently of the scoped PR-base diff.
+   Reconcile every delivered consumer delta in that range, including earlier
+   merged, skipped, or unshipped changes. Confirm that each
    applicable section contains sufficient adoption instructions or a supported
    no-action result and that its technical details support the claim. Capture
    the applicable title and complete body together with the PR URL or context
@@ -345,7 +349,7 @@ release note:
 | Release identity | Actual version, stable/prerelease mode, tag, immutable source commit, and artifact identity or digest where applicable. |
 | Effective decision | The resolved semantic effect and its owned-label or configured-policy source; [version computation](#version-computation) remains authoritative. |
 | Version base | The actual version/source used to compute the version, or the explicit initial versioning baseline. |
-| Change baseline | The release and immutable source against which the consumer delta is described, plus a source comparison link; explicitly no predecessor for an initial release. |
+| Change baseline | Product/target/channel, actual latest successful artifact and publication evidence, its verified immutable source, and comparison to the exact candidate; explicitly no predecessor only for a verified initial publication. |
 | Note provenance | Release-bound PR URL or ad hoc context, its associated source identity, and snapshot time. The retained authored snapshot is the content reference, not the PR's later mutable body. |
 
 Version base and change baseline can differ, particularly for prereleases and
@@ -354,6 +358,11 @@ proof of the code a consumer crosses. When a result affects an integration
 template, its identity and compatibility evidence come from that result's
 technical details; a publisher does not substitute the latest template or infer
 historical compatibility from current documentation.
+
+For module notes, successful Gallery publication advances the consumer-change
+baseline even when later GitHub completion fails. Finishing that older GitHub
+record does not change the module's already-published range. This authoring
+baseline does not redefine version allocation or overall destination completion.
 
 ### Release-bound records
 

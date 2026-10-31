@@ -49,13 +49,92 @@ For documentation-only work, the delivered result is guidance. State what a
 reader can now understand or do; do not present documentation as product
 behavior that the change did not implement.
 
+### Resolve release coverage first
+
+For a release-bound record, establish the artifact-to-candidate range before
+inspecting a scoped PR diff or writing the title, classified results, adoption
+actions, or compatibility decision. The
+[actual publication route](../Capabilities/release-management/design.md#applicability)
+determines the product, publishing target, and stable/prerelease channel.
+Native producers participate even when they do not call a named shared workflow.
+If a record serves several artifact targets or channels, resolve each
+consumer-publication baseline independently and state each result's
+applicability. A metadata-only mirror's completion does not replace the actual
+artifact target's publication baseline.
+
+1. **Find the actual publication baseline.** Inspect the target's authoritative
+   publication inventory and successful-publication receipts for that same
+   product, target, and channel. Establish which artifact was last successfully
+   published from publication evidence, not an assumed highest version.
+   GitHub's Latest hint and moving tags may aid discovery but are not proof;
+   a failed run alone is not a published artifact.
+2. **Verify its immutable source.** Read back the artifact identity and retained
+   provenance linking it to the exact source tree. Pin the artifact version or
+   digest, publication evidence, source repository, and full source identity.
+   For module publication, PowerShell Gallery success counts even when later
+   GitHub completion fails. Completing that older GitHub record does not make
+   its already-published module changes new again.
+3. **Pin the exact candidate.** Record the candidate PR source repository and
+   full immutable source identity. Do not compare a moving branch name, tag,
+   latest commit selected later, or a different build's source.
+4. **Verify the comparison.** Check that the published and candidate sources
+   belong to the intended publication lineage. Compare those two source trees,
+   for example with `git diff <published-source> <candidate-source>`, and retain
+   the comparison evidence. A scoped PR-base diff or substituted merge base
+   does not define this boundary.
+5. **Inventory the complete delivered range.** Inspect every consumer-facing
+   change in that comparison, including earlier merged, skipped, or otherwise
+   unshipped changes. Use this inventory for the title, ordered result groups,
+   complete adoption actions, and compatibility decision. Do not classify a
+   change as new merely because an older publication record finished later.
+
+Record these identities in the applicable result's supporting evidence:
+
+| Field | Evidence |
+| --- | --- |
+| Product scope | Product, publishing target, and channel whose consumers receive the artifact. |
+| Published artifact | Actual latest successful artifact identity and publication receipt; explicitly no predecessor only for a verified initial publication. |
+| Published source | Source repository, full immutable source identity, and verified artifact-to-source provenance. |
+| Candidate source | Exact candidate source repository and full immutable identity reviewed for this record. |
+| Scoped PR comparison | PR base and candidate source identities, retained separately for implementation and reviewer evidence. |
+
+Missing or unverifiable publication/source evidence is an unresolved coverage
+gap, not a no-action result or proof of patch compatibility. If no predecessor
+exists, verify and record initial publication and review the whole candidate's
+supported consumer surface and initial adoption instructions instead of
+inventing a previous artifact or treating `0.0.0` as a consumed release. A
+version-computation baseline does not establish consumer history.
+
+Resolve diverged lineage or an ambiguous target/channel before making coverage
+claims; do not silently choose another release, branch, or merge base. Re-read
+the publication baseline and candidate before readiness and release-bound
+snapshot capture. If either identity changes, refresh the comparison,
+inventory, instructions, and compatibility evidence; the older analysis does
+not validate the new pair.
+
+#### Coverage counterexamples
+
+| Evidence | Release-bound coverage | Scoped PR evidence |
+| --- | --- | --- |
+| Artifact source A is published; B merges a new input without publication; candidate C adds a fix. | A-to-C includes B's new input and C's fix, even if B was skipped. | B-to-C describes only the current PR's implementation. |
+| Module source B is successfully published to Gallery, but its GitHub completion fails; candidate C follows. | B-to-C describes only changes not already published to module consumers. Later GitHub completion of B does not reintroduce A-to-B as new. | The current PR diff remains separate; GitHub's older Latest hint is not the module baseline. |
+
+A, B, and C represent pinned immutable source identities, not moving refs.
+These cases establish authoring scope, not a new publisher or version resolver.
+
 ### Read the whole change
 
-Inspect the complete base-to-head diff before writing. For a release-bound
-record, reconcile the complete delivered change since its identified
-release/source baseline, including earlier merged or skipped changes in that
-range. A promotion or bundled release must retain every applicable consumer
-delta, not just the latest commit or pull request.
+For a release-bound record, inspect the complete
+[resolved publication-to-candidate comparison](#resolve-release-coverage-first).
+A promotion or bundled release retains every applicable consumer delta, not
+just the latest commit or pull request.
+
+Inspect the ordinary base-to-head PR diff separately to establish the scoped
+implementation, validation, Task/Bug plan progress, and issue-convergence
+evidence reviewers need. It does not replace the release-note coverage range
+or make earlier work part of this PR's implementation. When no release-bound
+artifact record applies, this scoped diff supplies the PR's change coverage;
+do not manufacture a publication baseline or release metadata.
 
 Check claims against the changed public interfaces, documentation,
 configuration, tests, and generated output. Commit messages and an earlier pull
@@ -105,7 +184,7 @@ decisions` block and do not apply or report any `release:*` label, including
 `release:skip`.
 
 If the route does invoke Release Management, resolve these decisions from the
-complete change and the effective
+complete [delivered consumer range](#resolve-release-coverage-first) and the effective
 [configuration](../Capabilities/release-management/design.md#configuration-surface):
 
 1. **Release or skip.** Release when the change affects the versioned artifact
@@ -147,7 +226,9 @@ own sections and classify each result once.
 
 ## Write the title
 
-Use one short statement of the most important user-facing result:
+Use one short statement of the most important user-facing result. For a
+release-bound record, choose it from the complete resolved delivered range,
+not only the scoped PR implementation:
 
 ```text
 LLM Gateway streaming requests report usage
@@ -271,6 +352,11 @@ same scoped block. Keep the consumer's instructions in the result's prose and
 examples; the supporting evidence verifies those instructions rather than
 replacing them.
 
+Include the [publication-baseline and candidate
+identities](#resolve-release-coverage-first), comparison, and freshness evidence
+for a release-bound result. Identify the scoped PR-base comparison separately;
+it supports implementation review, not release-note coverage.
+
 Record the closing delivery leaf's implementation-plan progress and the
 [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep)
 search scope and outcome in that same block, including when no additional issue
@@ -393,12 +479,14 @@ additional issue converges. }}
 | --- | --- | --- | --- |
 | `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
 
-{{ For an applicable release-managed result, identify the consumer-change release
-and source baseline and evidence supporting the actions or no-action result
-above. For an affected integration template, identify its repository, verified
-compatible immutable commit, and compatibility evidence. Publication resolves
-actual release coordinates; do not predict a final version. Delete inapplicable
-evidence. }}
+{{ Publication-baseline evidence: for a release-bound result, identify the
+product/target/channel, latest successful artifact and immutable source, exact
+candidate source, comparison, and freshness under Resolve release coverage
+first. Retain the scoped PR-base comparison separately. Support the actions or
+no-action result above. For an affected integration template, identify its
+repository, verified compatible immutable commit, and compatibility evidence.
+Publication resolves actual coordinates; do not predict a final version.
+Delete inapplicable evidence. }}
 
 </details>
 
@@ -434,12 +522,14 @@ additional issue converges. }}
 | --- | --- | --- | --- |
 | `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
 
-{{ For an applicable release-managed result, identify the consumer-change release
-and source baseline and evidence supporting the actions or no-action result
-above. For an affected integration template, identify its repository, verified
-compatible immutable commit, and compatibility evidence. Publication resolves
-actual release coordinates; do not predict a final version. Delete inapplicable
-evidence. }}
+{{ Publication-baseline evidence: for a release-bound result, identify the
+product/target/channel, latest successful artifact and immutable source, exact
+candidate source, comparison, and freshness under Resolve release coverage
+first. Retain the scoped PR-base comparison separately. Support the actions or
+no-action result above. For an affected integration template, identify its
+repository, verified compatible immutable commit, and compatibility evidence.
+Publication resolves actual coordinates; do not predict a final version.
+Delete inapplicable evidence. }}
 
 </details>
 
@@ -475,12 +565,14 @@ additional issue converges. }}
 | --- | --- | --- | --- |
 | `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
 
-{{ For an applicable release-managed result, identify the consumer-change release
-and source baseline and evidence supporting the actions or no-action result
-above. For an affected integration template, identify its repository, verified
-compatible immutable commit, and compatibility evidence. Publication resolves
-actual release coordinates; do not predict a final version. Delete inapplicable
-evidence. }}
+{{ Publication-baseline evidence: for a release-bound result, identify the
+product/target/channel, latest successful artifact and immutable source, exact
+candidate source, comparison, and freshness under Resolve release coverage
+first. Retain the scoped PR-base comparison separately. Support the actions or
+no-action result above. For an affected integration template, identify its
+repository, verified compatible immutable commit, and compatibility evidence.
+Publication resolves actual coordinates; do not predict a final version.
+Delete inapplicable evidence. }}
 
 </details>
 
@@ -516,12 +608,14 @@ additional issue converges. }}
 | --- | --- | --- | --- |
 | `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
 
-{{ For an applicable release-managed result, identify the consumer-change release
-and source baseline and evidence supporting the actions or no-action result
-above. For an affected integration template, identify its repository, verified
-compatible immutable commit, and compatibility evidence. Publication resolves
-actual release coordinates; do not predict a final version. Delete inapplicable
-evidence. }}
+{{ Publication-baseline evidence: for a release-bound result, identify the
+product/target/channel, latest successful artifact and immutable source, exact
+candidate source, comparison, and freshness under Resolve release coverage
+first. Retain the scoped PR-base comparison separately. Support the actions or
+no-action result above. For an affected integration template, identify its
+repository, verified compatible immutable commit, and compatibility evidence.
+Publication resolves actual coordinates; do not predict a final version.
+Delete inapplicable evidence. }}
 
 </details>
 
@@ -557,12 +651,14 @@ additional issue converges. }}
 | --- | --- | --- | --- |
 | `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
 
-{{ For an applicable release-managed result, identify the consumer-change release
-and source baseline and evidence supporting the actions or no-action result
-above. For an affected integration template, identify its repository, verified
-compatible immutable commit, and compatibility evidence. Publication resolves
-actual release coordinates; do not predict a final version. Delete inapplicable
-evidence. }}
+{{ Publication-baseline evidence: for a release-bound result, identify the
+product/target/channel, latest successful artifact and immutable source, exact
+candidate source, comparison, and freshness under Resolve release coverage
+first. Retain the scoped PR-base comparison separately. Support the actions or
+no-action result above. For an affected integration template, identify its
+repository, verified compatible immutable commit, and compatibility evidence.
+Publication resolves actual coordinates; do not predict a final version.
+Delete inapplicable evidence. }}
 
 </details>
 
@@ -601,9 +697,16 @@ Before marking the pull request ready, verify:
   references, lists, or attribution;
 - the summary is accurate on its own and the marker appears exactly once in the
   required position;
-- every claim matches the complete diff or promotion range;
-- the complete delivered range since the identified consumer-change baseline is
-  covered, including every bundled consumer delta;
+- release-bound claims match the complete published-artifact-to-candidate
+  range; implementation claims match the separate scoped PR diff;
+- the product/target/channel, actual successful publication, immutable
+  artifact/source provenance, and exact candidate identities are verified and
+  current, including partial-publication evidence rather than a GitHub hint;
+- the complete delivered range is covered, including earlier merged, skipped,
+  unshipped, and bundled consumer deltas;
+- missing or unverifiable baselines, diverged lineage, and changing comparison
+  inputs are resolved; an initial publication has explicit reviewed initial
+  coverage rather than a fabricated predecessor or no-action assumption;
 - classified sections are non-empty, ordered, and grouped by reader-facing
   result;
 - the notes explain what changed, why, affected supported uses, compatibility,
