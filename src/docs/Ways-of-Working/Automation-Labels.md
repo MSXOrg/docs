@@ -50,9 +50,9 @@ namespaced, including the release set:
 
 | Label | Instruction |
 | --- | --- |
-| `release:patch` | Override the configured default and publish a patch release. |
-| `release:minor` | Override the configured default and publish a minor release. |
-| `release:major` | Override the configured default and publish a major release. |
+| `release:patch` | Override the effective default and publish a patch release. |
+| `release:minor` | Override the effective default and publish a minor release. |
+| `release:major` | Override the effective default and publish a major release. |
 | `release:prerelease` | Publish a prerelease using an owned bump label or the resolved `DefaultBump`. |
 | `release:skip` | Validate the change without publishing a release. |
 

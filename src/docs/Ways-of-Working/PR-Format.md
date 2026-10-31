@@ -118,6 +118,11 @@ Ordered, top to bottom.
 
 A concise paragraph describing **what changes for the user**. Present tense, active voice. Never open with implementation language ("Refactored", "Updated class", "Added null checks").
 
+End the leading summary with the single announcement boundary shown in the
+example below, on its own line and outside code fences in the actual PR body.
+The complete title and description remain the release record; sharing the
+summary never truncates the published body.
+
 ### 2. User-facing changes — sections with headers
 
 Organize by **what the user experiences**, not by what was changed internally.
@@ -266,6 +271,8 @@ This illustrative configuration change uses the same record shape for any artifa
 
 ````markdown
 Job timeouts use the explicit `timeoutSeconds` setting. Existing timeout values and the 30-second default are unchanged.
+
+<!-- ANNOUNCEMENT STOP -->
 
 ## Breaking Changes
 
