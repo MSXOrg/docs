@@ -468,10 +468,12 @@ The publication envelope augments, but does not rewrite, the authored note:
 - note snapshot provenance; and
 - completion, retirement, withdrawal, alias, and announcement events.
 
-These bases can differ. With completed `1.4.2` and permanently reserved retired
-`1.5.0`, a patch resolves from `1.5.0` to `1.5.1`, while its consumer delta still
-starts from completed source `1.4.2`. Freeze and publish both identities rather
-than presenting the completed source as proof of the version calculation.
+These bases can differ. With completed `1.4.2`, a permanently reserved retired
+`1.5.0` attempt containing an approved unreleased minor change still establishes
+minor as the minimum aggregate increment. A reviewed minor resolves from the
+reserved base `1.5.0` to `1.6.0`, while its consumer delta starts from completed
+source `1.4.2`; patch is rejected for that range. Freeze and publish both bases
+rather than presenting the completed source as proof of the calculation.
 
 A later explanatory correction is another append-only metadata event containing
 before and after text, reason, actor, time, and source evidence. It cannot change

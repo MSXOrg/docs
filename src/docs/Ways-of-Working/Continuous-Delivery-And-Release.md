@@ -86,6 +86,11 @@ guarantee instead.
 
 ### D2 — Version signals feed in, the decision is reviewed at the PR gate {#d2-version-signals-feed-in-the-label-decides-at-the-pr-gate}
 
+This decision protocol applies only to actual Release Management routes,
+including native producer pipelines. An unmanaged route has no release-decision
+block, `release:*` labels, or missing-decision check; continuous delivery alone
+does not opt it into a versioned release process.
+
 Several signals suggest what kind of change a pull request contains: the shape of the
 diff, whether tests were added or changed, the commit messages, and an AI-assisted
 reading of the change. Those signals MUST be treated as input. The
