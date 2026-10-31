@@ -29,12 +29,15 @@ flowchart LR
 ```
 
 - **Find version** — validate the release decision and compute the version once,
-  from the latest `vX.Y.Z` tag or release plus the explicit or configured bump.
+  through the shared release resolver's authoritative version base and valid
+  effective bump, not a separate latest-tag algorithm. Resolve
+  the canonical release identity and any declared native numeric mapping before
+  Build; retain both with their source evidence.
   Independent of the other stages and required by the merge ruleset; a missing
   decision is a failed check, not a post-merge surprise.
 - **Lint & type-check** — static analysis and the type checker. Independent, so
   it fails fast in parallel with the build.
-- **Build** — stamp the computed version into the manifest, compile the
+- **Build** — stamp the resolved native extension version into the manifest, compile the
   production bundle, and package **one** VSIX. Uploads the bundle, the VSIX, and
   the stamped manifest as artifacts.
 - **Test** — download a real editor host and run the extension test suite
@@ -47,13 +50,17 @@ flowchart LR
 The version is computed once and flows through the pipeline as artifacts, so the
 thing that ships is the thing that was tested:
 
-1. **Find version** decides `vX.Y.Z` from tags plus the resolved explicit or configured bump.
-2. **Build** stamps it into `package.json` (and `package-lock.json`), compiles
+1. **Find version** decides the canonical release version and validated native
+   extension version together, before Build.
+2. **Build** stamps the resolved native version into `package.json` (and
+   `package-lock.json`), compiles
    the bundle, and runs the packaging CLI to produce a single VSIX. The stamped
    manifest is uploaded alongside the VSIX so the manifest under test — including
    the version the running extension reports — matches the packaged artifact.
 3. **Test** restores that bundle and manifest and tests them.
-4. **Release** restores and publishes that same VSIX.
+4. **Release** restores and publishes that same VSIX. Its GitHub Release uses
+   the canonical identity and records the native mapping; enabled marketplaces
+   receive the unchanged VSIX and the corresponding native version/channel.
 
 Build, test, and release never re-compile or re-package; they pass the built
 artifact forward.
@@ -103,20 +110,40 @@ Versioning is [Release Management](../release-management/design.md) applied to a
 VSIX artifact — this framework does not re-implement it:
 
 - The shared resolver uses one explicit owned bump label or, without one, the
-  optional `DefaultBump` in `.github/release.config.yml`. A valid `release:skip`
-  reports a no-release decision without skipping validation; otherwise a missing
-  level fails the required PR decision check. Invalid defaults and conflicting
-  owned labels also fail. No implicit patch is selected.
-- The version check re-evaluates source, release-label, and release-settings
-  changes and follows the shared
+  valid effective `DefaultBump`. The documented shared patch default,
+  repository settings, and supported caller inputs resolve under the shared
+  [settings contract](../release-management/design.md#settings-and-caller-overrides).
+  A valid `release:skip` reports a no-release decision without skipping
+  validation. Invalid supplied settings and conflicting owned labels fail;
+  another input never masks them.
+- The version check re-evaluates source, release labels, release settings,
+  supported caller inputs, and the effective pipeline, following the shared
   [pre-merge gate](../release-management/design.md#required-pre-merge-decision-check).
-- The version is computed once and stamped into the manifest; it is never
-  hand-edited.
-- A prerelease is requested by `release:pre-release` with a resolved bump on
+- Canonical and native versions are resolved once before Build; the native
+  extension version is stamped into the manifest, never hand-edited.
+- A prerelease is requested by `release:prerelease` with a resolved bump on
   an open pull request (or by a prerelease branch), producing a prerelease VSIX
   that is never promoted to latest. When such a build is also published to the
-  VS Code Marketplace, it goes out with `@vscode/vsce publish --pre-release` and
-  an odd minor-version number, the Marketplace's pre-release-channel convention.
+  VS Code Marketplace, its native prerelease flag and declared native version
+  mapping must agree with the canonical identity.
+
+### Marketplace version mapping
+
+The adapter declares stable and prerelease numeric-version mappings together
+before Marketplace publication is enabled. The Marketplace accepts a three-part
+numeric version and a separate prerelease flag, not an arbitrary canonical
+SemVer suffix. No direct stable mapping plus an independently invented
+prerelease mapping is assumed.
+
+The producer's mapping contract must identify supported canonical identities,
+reserve distinct native coordinates, define series/counter allocation, and
+prove collision-free stable/prerelease publication and retry behavior. An
+odd-minor convention applies only when the stable mapping reserves that space;
+it is not a universal conversion for arbitrary stable minor versions. Record
+both identities with immutable producer and artifact evidence. Unsupported
+mappings and collisions fail before build/publication rather than silently
+changing a version or channel. The GitHub VSIX path does not require Marketplace
+publication, but an enabled required target is not silently skipped.
 
 ## Publishing and distribution
 
@@ -174,10 +201,10 @@ Every external Action is pinned to a commit SHA; organization- or initiative-own
 | --- | --- |
 | Adoption (opt-in) | a short caller workflow that calls the reusable workflow |
 | Host + OS matrix, marketplace toggle, extras | `.github/vscode-extension.yml` |
+| Default bump and overrides | shared `DefaultBump: patch`, repository settings, and supported caller inputs |
 | Explicit bump / prerelease / skip | owned pull-request label |
-| Optional default bump | `DefaultBump` in `.github/release.config.yml` |
 | Pre-merge decision validation | version check required by the branch ruleset or protection |
-| Release branches + path filter | `.github/release.config.yml` ([Release Management](../release-management/design.md)) |
+| Release types + branch mapping + path filter | `.github/release.config.yml` ([Release Management](../release-management/design.md)) |
 | Marketplace publish tokens | a GitHub environment's secrets |
 | Extension manifest (`engines.vscode`, `contributes`, activation) | `package.json` |
 

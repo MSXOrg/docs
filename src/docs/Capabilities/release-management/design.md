@@ -1,40 +1,69 @@
 ---
 title: Design
-description: How release management is built — a shared reusable workflow that resolves an explicit or configured SemVer bump, builds once, and publishes.
+description: How release management is built — effective defaults, owned overrides, keyed release types, source-bound notes, and build-once publication.
 ---
 
 # Release Management — Design
 
-The behaviour in the [spec](spec.md) is delivered by a **shared reusable release
-workflow**. A repository opts in with a short caller workflow and a small
-`.github/release.config.yml`. The workflow supplies the shared mechanics; an
-explicit label or an intentionally configured default supplies the release level.
+The behavior in the [spec](spec.md) is delivered by shared release mechanics,
+through a reusable workflow or a native producer pipeline. The effective
+pipeline determines which routes produce versioned, immutable output consumed
+by version. The optional `.github/release.config.yml` refines those settings;
+its absence does not opt a managed route out.
+
+## Applicability
+
+Inspect the actual target route, including native producer pipelines, rather
+than testing for a named shared workflow or the presence of a configuration file.
+Managed routes evaluate release decisions and require pre-merge validation.
+Routes without versioned release behavior omit release metadata and every
+`release:*` label, including `release:skip`. A Pages deployment alone is not a
+versioned release.
+
+Verify the immutable producer revision's supported settings and owned-label
+mapping. A differing released interface requires a verified adapter or a
+producer/configuration migration before canonical signals are used; exact
+adoption instructions belong in that producer's PR/release record. Missing
+support blocks finalization and decision validation rather than making an
+ignored label a successful skip or opting the route out.
 
 ## Branching model
 
-A **release branch** is any branch configured as a release target, each with a
-**release type** — `stable` or `prerelease`.
+A **release branch** is a branch assigned to one key in the `ReleaseType`
+configuration object. The fixed keys are `Stable`, `Prerelease`, and
+`ReleaseCandidate`; each key owns the properties for that release type,
+including its `Branch`.
 
-- **Single branch (zero-config).** One release branch (the default branch)
-  produces stable releases. Prereleases are opt-in via a PR label.
-- **Multi-branch.** `dev` (prerelease) collects PRs and publishes a prerelease
-  on every merge; `main` (stable) receives `dev`. Merging `dev → main` computes
-  the stable version from the **latest stable release** plus the merge PR's
-  resolved bump — the prerelease counter does not carry over.
-- **One production authority.** At most one branch is `release-type: stable`;
-  every other release branch is `prerelease`. The single stable branch
-  (typically `main`) owns the production version — a prerelease branch can never
-  cut a stable release.
+- **Single branch (zero-config).** `ReleaseType.Stable.Branch` always resolves:
+  when `ReleaseType` or its `Stable` key is omitted, it uses the default branch.
+  `Prerelease` and `ReleaseCandidate` are optional. Prereleases remain available
+  from an open pull request through the mode label.
+- **Multi-branch.** A full promotion path uses
+  `ReleaseType.Prerelease.Branch` for early testing,
+  `ReleaseType.ReleaseCandidate.Branch` for the promotable candidate, and
+  `ReleaseType.Stable.Branch` for production. Each configured branch publishes
+  only its keyed release type. Promotion to `ReleaseType.Stable.Branch` computes
+  from the latest stable release plus the merge pull request's resolved bump;
+  prerelease and release-candidate counters do not carry over.
+- **One branch per type.** Each release-type key has at most one `Branch`, and
+  the same branch MUST NOT appear under more than one key. Unknown keys and
+  duplicate branch assignments are rejected.
+- **One production authority.** `Stable.Branch` is the only branch that cuts a
+  stable release. A prerelease or release-candidate branch can never publish the
+  production version.
 - **Bundled releases.** A **staging branch** collects feature PRs; merging it to
   a release branch produces **exactly one** release for all bundled changes.
 
 ```yaml
 # .github/release.config.yml
-release-branches:
-  - branch: main
-    release-type: stable
-  - branch: dev
-    release-type: prerelease
+DefaultBump: patch
+ReleaseType:
+  Stable:
+    Branch: main
+  Prerelease:
+    Branch: dev
+  ReleaseCandidate:
+    Branch: rc
 ```
 
 ## The pipeline
@@ -71,66 +100,94 @@ Two consequences follow, and they are the point of the model:
 
 ## Version computation
 
-For PR-driven releases, the shared resolver reads the owned labels and optional
-`DefaultBump` in `.github/release.config.yml`. The setting accepts `patch`,
-`minor`, or `major`; omitting it does not supply a level. For example, this
-configuration explicitly chooses patch releases when no bump label is provided:
+For PR-driven releases on a managed route, the shared resolver reads the owned
+labels and effective settings. It records the chosen bump, mode, and the input
+that supplied each decision before Build.
+
+### Settings and caller overrides
+
+Follow [Smart defaults, local overrides](../../Ways-of-Working/Principles/Software-Design.md#smart-defaults-local-overrides):
+shared defaults are overridden by repository settings in the optional
+`.github/release.config.yml`, then by explicitly supplied supported caller
+inputs for that invocation. Omitted caller inputs preserve repository settings;
+they do not overwrite them with an input's default. The implementing workflow
+or action documents its exact supported caller surface and validates it through
+the same settings resolver rather than maintaining another algorithm.
+
+`DefaultBump` accepts exactly `patch`, `minor`, or `major`. Its documented shared
+default is `patch`; omitting the configuration file or field inherits that value.
+Unknown setting names, null or empty values, and values outside the documented
+set fail validation, even when a narrower override or bump label exists.
+
+| Setting | Shared default | Repository override | Supported caller override |
+| --- | --- | --- | --- |
+| `DefaultBump` | `patch` | `DefaultBump` in `.github/release.config.yml` | Explicitly supplied caller override supported and documented by the invoked producer for this setting. |
+
+A repository can select minor as its normal level without requiring a minor
+label on every publishing PR:
 
 ```yaml
 # .github/release.config.yml
-DefaultBump: patch
+DefaultBump: minor
 ```
 
 | Label | Meaning | Valid combination |
 | --- | --- | --- |
-| `release:patch` | Resolve the next patch version, overriding the configured default. | Alone or with `release:pre-release`. |
-| `release:minor` | Resolve the next minor version, overriding the configured default. | Alone or with `release:pre-release`. |
-| `release:major` | Resolve the next major version, overriding the configured default. | Alone or with `release:pre-release`. |
-| `release:pre-release` | Publish the open pull request as a prerelease using the resolved bump. | With one explicit bump or a configured default; never with `release:skip`. |
+| `release:patch` | Resolve the next patch version, overriding the effective default. | Alone or with `release:prerelease`. |
+| `release:minor` | Resolve the next minor version, overriding the effective default. | Alone or with `release:prerelease`. |
+| `release:major` | Resolve the next major version, overriding the effective default. | Alone or with `release:prerelease`. |
+| `release:prerelease` | Publish the open pull request as a prerelease using the resolved bump. | With one explicit bump or the effective default; never with `release:skip`. |
 | `release:skip` | Run validation without resolving or publishing a version. | Alone. |
 
 Resolve the decision in this order:
 
-1. Validate `DefaultBump` when present and reject conflicting owned labels.
-   An invalid setting is an error even when an explicit label is supplied.
-   Bare and unrelated labels do not participate.
+1. Validate supplied settings and the effective configuration, then reject
+   conflicting owned labels. An invalid setting is an error even when another
+   input would supply a valid level. Bare and unrelated labels do not participate.
 2. Honor a valid `release:skip` as the explicit no-release decision and stop bump
    resolution.
-3. Use the single owned bump label when present; otherwise use the configured
-   `DefaultBump`. Record the chosen level and whether the label or setting
-   supplied it.
-4. If neither supplies a level, fail with a missing-decision error that tells the
-   author to select a bump, configure the default, or choose `release:skip`.
-   There is no built-in patch fallback. Prerelease mode does not supply a bump.
+3. Use the single owned bump label when present; otherwise use the valid
+   effective `DefaultBump`. Record whether the label, caller input, repository
+   setting, or shared default supplied the level.
+4. If neither resolves a valid level, fail with an actionable decision error.
+   Inheriting the documented patch default is a valid policy decision; choosing
+   patch to recover from invalid or unresolved input is forbidden. Prerelease
+   mode does not supply a bump.
 
-| PR input | `DefaultBump` | Decision-check result |
+| PR input | Effective default and source | Decision-check result |
 | --- | --- | --- |
-| `release:major` | `patch` or absent | Pass: explicit major overrides the default. |
-| No owned release labels | `minor` | Pass: configured minor; record the setting as the source. |
-| No release decision | Absent | Fail: missing decision; merge blocked. |
-| `release:skip` alone | Valid or absent | Pass: no release; no bump is required. |
-| `release:pre-release` alone | `patch` | Pass: configured patch in prerelease mode. |
-| `release:pre-release` alone | Absent | Fail: mode does not supply a bump; merge blocked. |
+| `release:major` | Valid `patch` from any supported scope | Pass: explicit major overrides the default. |
+| No owned release labels | No repository or caller override; shared `patch` | Pass: documented patch default; no per-PR bump label required. |
+| No owned release labels | Repository `minor`; caller omitted | Pass: repository minor; record the setting as the source. |
+| No owned release labels | Repository `major`; explicit caller `patch` | Pass: caller patch overrides repository major. |
+| `release:skip` alone | Valid default | Pass: no release; no bump is required. |
+| `release:prerelease` alone | Valid effective `minor` | Pass: default minor in prerelease mode. |
+| No bump label | No valid effective default can be resolved | Fail: unresolved decision; no invented fallback. |
 | Multiple bump labels, or skip with another owned release label | Any | Fail: conflicting decisions; no fallback. |
-| Any | Invalid value | Fail: invalid configuration; no fallback. |
+| Any, including an explicit bump or skip | Invalid supplied setting | Fail: invalid configuration; no fallback or masking by an override. |
 
-- **First release** starts from a baseline (`v0.1.0` or `v1.0.0`). Pre-`1.0.0`
-  breaking changes are `release:minor` per [SemVer §4](https://semver.org/#spec-item-4);
-  `release:major` is never auto-detected pre-`1.0.0`.
+- **First release** uses `0.0.0` as the version base when no stable history
+  exists. The resolved patch, minor, or deliberate major bump produces
+  `0.0.1`, `0.1.0`, or `1.0.0`, respectively. Pre-`1.0.0` breaking changes
+  use minor per [SemVer §4](https://semver.org/#spec-item-4); reaching `1.0.0`
+  is a deliberate major decision, never an auto-detected breaking classification.
 - The tag is created on the commit now at the head of the release branch —
   squash, merge-commit, and rebase strategies alike.
 
 ### Required pre-merge decision check
 
-PR CI runs the resolver read-only against the candidate release settings and
-current owned labels, without creating tags, releases, or published artifacts.
+PR CI runs the resolver read-only against the candidate release settings,
+supported caller inputs, and current owned labels, without creating tags,
+releases, or published artifacts.
 An existing version-resolution check may own this validation; do not duplicate
 the resolver. The check reports the effective decision and its source, not a
 promised final stable version.
 
-The validator runs for every PR targeting a release branch, including changes
-that will not publish. It re-runs when source, release labels, or release settings
-change, so a stale result is not evidence for different inputs. Missing,
+The validator runs for every PR targeting a managed release route, including
+native producer routes, changes that will not publish, and repositories without
+a release configuration file. It re-runs when source, release labels, release
+settings, supported caller inputs, or the effective pipeline changes, so a stale
+result is not evidence for different inputs. Missing,
 invalid, or conflicting decisions produce a failed check with an actionable
 error. A valid skip reports success with a no-release result; path filters do
 not skip the validator.
@@ -166,17 +223,20 @@ happen. Retrying failed validation or publication is not an ad hoc release
 either: rerun the existing release with the same artifact and version under the
 [recovery rule](#the-pipeline).
 
-## Prereleases
+## Prereleases and release candidates
 
-- **Branch-level** — a prerelease-type branch publishes on every push, using the
-  branch name as the identifier: `v1.3.0-dev.1`, `v1.3.0-dev.2`, …
-- **PR-level** — `release:pre-release` with a resolved explicit or configured bump publishes
-  `v<base>-<identifier>.<counter>`: `base` is the next version from that bump,
-  `identifier` is the normalized branch name, and `counter`
-  auto-increments per push.
+- **Prerelease branch** — `ReleaseType.Prerelease.Branch` publishes on every
+  push, using the branch name as the identifier: `v1.3.0-dev.1`,
+  `v1.3.0-dev.2`, …
+- **Release-candidate branch** — `ReleaseType.ReleaseCandidate.Branch` publishes
+  `v1.3.0-rc.1`, `v1.3.0-rc.2`, … and never promotes one to latest.
+- **PR-level** — `release:prerelease` on an open PR publishes
+  `v<base>-<identifier>.<counter>`: `base` is the next version from one explicit
+  owned bump label when present, otherwise from the resolved `DefaultBump`;
+  `identifier` is the normalized branch name, and `counter` auto-increments per
+  push.
 - Artifact-specific conventions replace the SemVer suffix where they exist
-  (`-alpha.N` for npm, `.devN` for Python). Release candidates use `-rc.N`,
-  auto-incrementing.
+  (`-alpha.N` for npm, `.devN` for Python).
 - **Cleanup** deletes prerelease tags, releases, and artifacts after the PR
   closes (configurable); stable releases are never touched.
 
@@ -188,7 +248,7 @@ every merge; only the release step is skipped when no artifact-affecting path
 changed.
 
 Derive these paths from the delivered product and its
-[audience-facing contracts](../../Ways-of-Working/PR-Format.md#detecting-the-change-type),
+[audience-facing contracts](../../Ways-of-Working/PR-Format.md#identify-the-readers),
 not directory names alone. Include callable workflows and build configuration
 that changes delivered runtime requirements or behavior. Do not retain an
 exclusion that overrides an included consumer interface or artifact input.
@@ -207,18 +267,38 @@ release-paths:
 
 The GitHub Release **name** is the resolved version. Its **body** preserves the
 release-bound PR title and complete description, using
-[PR Format](../../Ways-of-Working/PR-Format.md#description-structure) as the
-authoring contract. Summary, user-facing changes, adoption, release impact,
-consumer change records, template evidence, and both ending details blocks stay
-intact. There is no parallel JSON/YAML contract and no extraction of only the
-user-facing headings.
+[PR Format](../../Ways-of-Working/PR-Format.md#write-the-description) as the
+authoring contract. The leading summary, single boundary, non-empty classified
+results, scoped supporting evidence and related references, and conditional
+release-decision block stay intact. There is no parallel JSON/YAML contract or
+extraction of only selected headings.
+
+Each release explains the complete delivered delta from its identified baseline:
+what changed, why, affected supported uses, compatibility, and exact actions
+with prerequisites, ordering, and verification, or an explicit no-action result
+with its compatibility basis. Required old-to-new instructions stay in the note,
+not repository migration guides or a parallel changelog.
+
+Reading all applicable records after the actual consumed baseline through the
+target is sufficient to compose the actions. A later record explains superseded
+actions while preserving required intermediate operations. Reading a record does
+not require installing that version unless its instructions explicitly require
+an intermediate installation or run. PRs and diffs provide optional depth;
+missing required instructions are evidence gaps, not implicit no-action results.
+Resource docs describe supported target-state behavior and usage.
+
+Each result's prose and examples hold the consumer's instructions; its technical
+details hold the supporting evidence. Internal-only work without a classified
+section puts the action or no-action result in the summary and the applicable
+evidence in the supporting block after its boundary.
 
 ### Bind the note to the released source
 
 1. **Resolve the evidence with the version.** Identify the release-bound PR or
    ad hoc context and the immutable source to build. Resolve the version base
-   and the source comparison baseline; confirm that the consumer record
-   describes that delta. Capture the applicable title and complete body together
+   and the source comparison baseline; reconcile every delivered consumer delta,
+   including earlier merged or skipped changes, and confirm the complete
+   adoption actions or supported no-action result. Capture the applicable title and complete body together
    with the PR URL or context reference, source identity, and snapshot time.
    Retain that snapshot as release evidence.
 2. **Keep identity separate from authored prose.** Resolve the actual publication
@@ -256,11 +336,12 @@ documentation.
 | Publication path | Authored record |
 | --- | --- |
 | Single merged PR | That PR's complete title and description, reconciled with the resolved source comparison. |
-| Bundled release | The release-bound integration PR covers every bundled delta from the declared change baseline, not just the most recent feature PR. It links the contributing work as supporting evidence. |
-| Optional ad hoc dispatch | Complete reviewed release-note context with the same adoption, consumer-change, template, and release-impact evidence. Record the dispatch source and reason; do not create or imply an empty PR. |
+| Bundled release | The integration PR retains every consumer delta and required action from the declared change baseline, including skipped changes, grouped by result; contributing work provides optional depth. |
+| Optional ad hoc dispatch | Complete reviewed release-note context with the same classified structure and applicable result-scoped evidence. Record source and reason; do not create or imply an empty PR. |
 | Prerelease | The PR or integration record appropriate to that published source, captured for that release. Later edits to the final PR do not overwrite the prerelease snapshot or attribute unreleased behavior to it. |
 
-If the relationship between a record and its source cannot be established,
+If the relationship between a record and its source cannot be established, or
+required consumer instructions are missing,
 stop the affected publication and register the evidence gap. The process does
 not substitute the newest note, guess a baseline, or treat an empty adoption
 section as a no-action result.
@@ -372,15 +453,16 @@ Serialisation is provided once by the reusable workflow so every repository
 inherits it; the mechanism is the
 [GitHub Actions standard](../../Coding-Standards/GitHub-Actions.md#concurrency).
 The single-stable-branch rule above is what keeps the production version under
-one authority — the stable branch is the only ref that ever cuts a production
-release, and its runs are serialised like any other.
+one authority — `ReleaseType.Stable.Branch` is the only ref that ever cuts a
+production release, and its runs are serialised like any other.
 
 ## Configuration surface
 
 | Surface | Where |
 | --- | --- |
-| Release branches + type | `.github/release.config.yml` |
-| Optional default bump | `DefaultBump` in `.github/release.config.yml` |
+| Release Management applicability | effective target-route pipeline, including shared workflows and native producers |
+| Release types + branch mapping | `ReleaseType` in `.github/release.config.yml` |
+| Default bump and overrides | documented shared `DefaultBump: patch`, repository settings, then supported caller inputs |
 | Explicit bump / prerelease / skip | `release:` PR label |
 | Pre-merge decision validation | named PR check required by the branch ruleset or protection |
 | Optional ad hoc release | `workflow_dispatch` inputs |

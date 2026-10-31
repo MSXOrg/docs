@@ -1,321 +1,640 @@
 ---
 title: PR Format
-description: Pull request title, description, change types, and labels.
+description: Audience-first pull request titles and descriptions with evidence-based, conditional release decisions.
 ---
 
 # PR Format
 
-Pull requests in the MSX ecosystem double as **release notes**. Write for end users, including downstream integrators: what changes, who is affected, and how to adopt it. Keep consumer instructions distinct from reviewer and maintainer evidence.
+A pull request title and description are release-note-ready artifacts. They
+explain one complete change to the people who use what the repository delivers,
+while carrying the evidence reviewers and maintainers need.
 
-## The source of truth
+The release-bound title and complete description author the eventual release
+note. Published release records are the consumer's sufficient upgrade history:
+what changed, why, who is affected, compatibility, and exactly how to adopt each
+release, including an explicit no-action result when applicable. PRs and diffs
+provide optional depth, not required instructions missing from the notes.
 
-The release-bound PR title and complete description are the authored release note. The contract lives in structured Markdown in that body, not a parallel JSON/YAML file or a version-specific migration guide. [Release Management](../Capabilities/release-management/design.md#release-notes) owns publication, resolved release coordinates, provenance, and traceable corrections.
+Consumers read every applicable release after their actual consumed baseline
+through the chosen target in release order and compose the necessary actions.
+Reading those records does not require installing every intermediate version;
+an intermediate installation or run is required only when a note explicitly
+requires it. [Resource documentation](Documentation-Model.md#current-product-guidance-and-release-history)
+describes supported target-state behavior and usage, not release-specific
+transitions or history.
 
-Describe the **incremental change introduced by this release**, not a migration manual from every previous version. Consumers compose the applicable records across their upgrade range; a note for the newest release does not replace the intervening evidence.
+This page owns the title and description format. The
+[Contribution Workflow](Contribution-Workflow.md) owns draft, assignment,
+review, and handoff mechanics; [Branching and Merging](Branching-and-Merging.md)
+owns branches, commits, and integration.
 
-## Title
+## Analyze before writing
+
+Write from evidence, not from the branch name, commit messages, or the existing
+pull request text. Those surfaces are useful leads, but the complete change is
+the source.
+
+### Identify the readers
+
+Start with the repository [README audience
+declaration](Readme-Driven-Context.md#target-audience), then inspect linked user
+documentation, capability specifications, and effective configuration.
+
+Treat every supported interface as reader-facing when someone depends on it.
+Commands, APIs, configuration, reusable workflows, Actions, templates, and
+published guidance can all be the product. Do not classify an integration as
+internal merely because its readers write scripts or maintain another product.
+
+For documentation-only work, the delivered result is guidance. State what a
+reader can now understand or do; do not present documentation as product
+behavior that the change did not implement.
+
+### Read the whole change
+
+Inspect the complete base-to-head diff before writing. For a release-bound
+record, reconcile the complete delivered change since its identified
+release/source baseline, including earlier merged or skipped changes in that
+range. A promotion or bundled release must retain every applicable consumer
+delta, not just the latest commit or pull request.
+
+Check claims against the changed public interfaces, documentation,
+configuration, tests, and generated output. Commit messages and an earlier pull
+request description may be incomplete or stale and never replace this check.
+
+### Keep claims accurate
+
+State only outcomes the evidence supports:
+
+- Describe a dependency update's behavior or security benefit only when upstream
+  notes, tests, or product evidence establish that result.
+- Describe documentation work as changed guidance unless the same change also
+  changes the documented product.
+- Distinguish a public contract change from the internal implementation that
+  delivers it.
+- Check affected supported uses for compatibility, prerequisites, and exact
+  adoption actions, including required ordering or intermediate operations.
+- State an explicit no-action result and its compatibility basis when adoption
+  needs no consumer change beyond selecting the release reference.
+- Treat missing applicability or migration instructions as an evidence gap to
+  resolve in the note, not a reason to send consumers to PRs, diffs, or
+  historical product docs.
+
+### Resolve release decisions
+
+Before adding release metadata or changing a `release:*` label, determine
+whether the repository invokes [Release
+Management](../Capabilities/release-management/spec.md) for the pull request's
+target route. Inspect the effective pipeline and its inputs, including native
+producer pipelines that publish versioned artifacts without calling a named
+shared workflow. The [applicability contract](../Capabilities/release-management/design.md#applicability)
+is about the route's release behavior, not one implementation. The optional
+`.github/release.config.yml` file refines the route's settings; its absence alone
+does not prove that release management is absent.
+
+Verify the immutable producer revision's supported settings and owned-label
+mapping before using the canonical signals below. A native producer participates
+in the contract but does not gain support for those signals from this
+documentation alone. If its released interface differs, require a verified
+adapter or a producer/configuration migration with complete adoption actions in
+that producer's PR/release record. Hold finalization until the effective mapping
+and required decision check are verified; do not apply a label the pipeline
+ignores, silently translate it, or classify an incompatible producer as unmanaged.
+
+If the route does not invoke Release Management, omit the entire `Release
+decisions` block and do not apply or report any `release:*` label, including
+`release:skip`.
+
+If the route does invoke Release Management, resolve these decisions from the
+complete change and the effective
+[configuration](../Capabilities/release-management/design.md#configuration-surface):
+
+1. **Release or skip.** Release when the change affects the versioned artifact
+   or a supported consumer contract. Otherwise select `release:skip`.
+2. **Version bump.** For a release, choose Patch, Minor, or Major from the
+   compatibility impact. An explicit bump label overrides a valid
+   effective `DefaultBump`; a matching default supplies the level without a
+   per-PR bump label. Resolve the documented shared default, repository settings,
+   and supported caller overrides under
+   [settings and caller overrides](../Capabilities/release-management/design.md#settings-and-caller-overrides).
+3. **Mode.** Record Stable or Prerelease from the target route and any valid
+   `release:prerelease` override. Identify a configured release-candidate route
+   in the mode evidence; release candidates are prereleases, not another bump.
+
+Use only the labels owned by the
+[`release:` namespace](Automation-Labels.md#every-set-is-namespaced). Missing,
+invalid, or conflicting decisions are errors to resolve before review, not
+reasons to invent a fallback. Inheriting the documented patch default is a valid
+decision source, not an error recovery path.
+
+### Select the news
+
+Keep the summary and named sections focused on results that matter to the
+identified readers without omitting a consumer delta or required action. Put
+implementation facts, validation, and process evidence in supporting details.
+Omit internal facts that neither explain a reader-facing result nor help review
+it.
+
+Internal-only work can still have a clear result, such as a shared automation
+configuration. When it has no reader-facing classified section, summarize the
+result and put necessary supporting blocks directly after the summary marker.
+
+### Group related changes
+
+Group changes by audience-facing result or affected interface, not by commit,
+file, issue, or implementation step. One section may describe several files
+that jointly deliver one result. Separate unrelated reader outcomes into their
+own sections and classify each result once.
+
+## Write the title
+
+Use one short statement of the most important user-facing result:
 
 ```text
-<Icon> [<Type>]: <User-facing outcome>
+LLM Gateway streaming requests report usage
 ```
 
-- The **Icon** matches the change type.
-- The **Type** in brackets is one of: `Major`, `Feature` (Minor), `Patch`, `Fix`, `Docs`, `Maintenance`.
-- The **outcome** describes what changed from the end user's perspective. Do not lead with private function or class names or refactoring verbs; public commands, inputs, APIs, paths, and settings are consumer-facing concepts.
+For internal-only work, name the operational result:
 
-### Good titles
+```text
+Release automation uses a shared configuration
+```
 
-- `🌟 [Major]: Legacy export command removed`
-- `🚀 [Feature]: Custom templates now supported`
-- `🩹 [Patch]: Default timeout value corrected`
-- `🪲 [Fix]: Parameter validation no longer fails on null input`
-- `📖 [Docs]: Installation guide updated with prerequisites`
-- `⚙️ [Maintenance]: Internal build tooling stays current`
+The title must not contain:
 
-### Bad titles
+- an icon or type prefix;
+- a Conventional Commit prefix such as `feat:` or `docs:`;
+- an issue reference;
+- a list of unrelated changes;
+- AI or agent attribution;
+- an implementation detail when a reader-facing result is available.
 
-- `Add support for custom templates` — describes the action, not the outcome.
-- `Refactor parameter validation logic` — implementation language.
-- `Update stuff` — meaningless.
+## Write the description
 
-## Change types
+The description stands on its own for a reader who has not inspected the diff.
+Use the following structure.
 
-| Type        | Icon | Label            | Description                                           |
-| ----------- | ---- | ---------------- | ----------------------------------------------------- |
-| Major       | 🌟   | `release:major`  | Breaking changes that affect compatibility            |
-| Feature     | 🚀   | `release:minor`  | New features or enhancements                          |
-| Patch       | 🩹   | `release:patch`  | Small fixes or improvements                           |
-| Fix         | 🪲   | `release:patch`  | Bugfixes (patch-level release impact)                 |
-| Docs        | 📖   | `release:skip`   | Documentation changes only                            |
-| Maintenance | ⚙️   | `release:skip`   | Internal upkeep with no change to shipped behavior or integration contracts |
+### Summarize the result
 
-`release:pre-release` is a release mode, not a change type. It uses one explicit
-bump label or the repository's configured `DefaultBump` when an open pull request
-must publish a prerelease. The mode alone supplies no level. Never combine it
-with `release:skip`; [Release Management](../Capabilities/release-management/design.md#version-computation)
-owns resolution and validation.
+Start with one or two short paragraphs and no `Summary` heading. Lead with
+required action and breaking impact when either exists. A short unordered list
+is acceptable only when the change has several distinct result groups that
+cannot be stated clearly in prose.
 
-### Detecting the change type
+Use the vocabulary of the supported interface. Describe what changes, who is
+affected, and what they need to do. Keep implementation narration out of the
+summary.
 
-Decide the type from the change **for the declared target audience**, including its integrators, not from the maintainer's implementation effort or the names of changed files. Read the [audience declaration in the README](Readme-Driven-Context.md#target-audience) and any explicitly adopted initiative definition first. Resolve and record missing or ambiguous audience context before finalizing the type; do not guess it from repository ownership.
+### End the shareable summary
 
-Assess every affected supported use: commands, parameters, APIs, output shapes, configuration, permissions, installation, and runtime/tool requirements. User and integrator may be the same person, as the [PSModule audience](../Initiatives/PSModule.md#target-audience) illustrates. An interactive command still working does not make a change compatible if the same user's supported script integration breaks.
+End the summary with the exact HTML marker shown in the
+[complete template](#copy-the-complete-template).
 
-The change type is decided in this order:
+The marker appears exactly once, on its own line, outside a code fence, and
+before the first detailed section. Text before it must remain useful when shared
+without the rest of the description.
 
-1. **Explicit user input** — if the contributor / Shipper specified a type, verify it against the audience impact and applicable version policy. Resolve a conflict before finalizing the release decision; a label does not make a breaking change compatible.
-2. **Pre-1.0.0 rule** — projects with no version tags or latest tag below `v1.0.0` follow [SemVer §4](https://semver.org/#spec-item-4). Major is **never** auto-detected for pre-1.0.0 projects. Breaking changes there are classified as Minor (`0.x.0`).
-3. **Find the affected consumer contracts** in the branch diff. Paths help locate evidence; they do not determine impact:
+### Explain each reader-facing result
 
-    | Artifact type | Recognition hints | Consumer contract to inspect |
-    | --- | --- | --- |
-    | Library / Module | Source and package manifest | Public commands/APIs, parameters, output shapes, defaults, installation, and supported runtimes. |
-    | GitHub Action | `action.yml` and its implementation | Inputs, outputs, permissions, execution environment, and behavior. |
-    | Reusable Workflow | Callable workflows under `.github/workflows/` | Caller inputs, secrets, permissions, configuration, tool requirements, and behavior. |
-    | Infrastructure module | Module source, variables, and outputs | Variable/output contracts, defaults, provider requirements, and managed-resource behavior. |
+Use these classifiers in this order and omit empty groups:
 
-4. **Classification rules** (apply in order, against those contracts):
-    1. **Docs** — documentation-only changes, not a functional change merely stored in a documentation file.
-    2. **Maintenance** — internal-only changes with no effect on shipped behavior or supported integration contracts.
-    3. **Major** — a supported user or integration contract breaks (pre-1.0.0 auto-detection maps this to Minor).
-    4. **Feature (Minor)** — backward-compatible capabilities are added.
-    5. **Patch or Fix** — backward-compatible fixes or small improvements.
+1. `## Breaking: <result>`
+2. `## Removed: <result>`
+3. `## New: <result>`
+4. `## Changed: <result>`
+5. `## Fixed: <result>`
 
-Use the highest impact across the affected supported contracts, then apply the version policy. A small fix can be breaking; unrelated internal changes or documentation do not lower that impact.
-
-A configured default supplies a release level, not evidence of compatibility. Check it against the audience impact and apply an explicit override when the change requires a different level.
-
-Illustrative cases, not release history:
-
-| Change | Audience-based classification |
+| Classifier | Use when |
 | --- | --- |
-| Remove a supported `Process-PSModule` caller input | Breaking for module maintainers integrating the workflow, not Maintenance because the edit is under `.github/`. |
-| Change a module's supported output shape or raise its minimum PowerShell version | Breaking for PowerShell users and their integrations, even if only a manifest or one line changes. |
-| Add an optional module parameter without changing existing calls | Feature (Minor): a compatible capability for the same PowerShell audience. |
+| `Breaking` | A supported consumer must act or an existing supported use becomes incompatible. |
+| `Removed` | A supported capability, interface, or documented path is no longer available. |
+| `New` | Readers gain a capability, interface, or body of guidance. |
+| `Changed` | Existing behavior, configuration, or guidance changes compatibly. |
+| `Fixed` | An incorrect behavior or guidance now works as intended. |
 
-## Description structure
+Each section heading states one result, not a component name. Open the section
+with one or two prose paragraphs that explain what changes, why, affected
+supported uses, compatibility, and exact adoption actions or an explicit
+no-action result. Include applicable prerequisites, verification, and ordering
+constraints. A later release that supersedes an earlier action explains how
+consumers compose the remaining actions through its target; preserve any
+required intermediate installation or run. A documentation change uses the
+classifier that describes what its guidance now provides.
 
-Ordered, top to bottom.
+### Show interfaces after the prose
 
-### 1. Leading paragraph — Summary
+After the opening prose, add an interface example or compact table only when it
+makes the reader's action clearer. Do not lead a section with a code block or
+table. Include necessary old-to-new examples, before-and-after comparisons, or
+diagrams in the note itself when they explain an applicable transition. Keep
+release-specific migration details here; evergreen resource docs show supported
+usage without accumulating those transitions.
 
-A concise paragraph describing **what changes for the user**. Present tense, active voice. Never open with implementation language ("Refactored", "Updated class", "Added null checks").
+Link optional usage documentation using an absolute default-branch URL or the
+canonical published URL so the link survives when the pull request becomes a
+release record. Such links supplement the note; consumers must not need them to
+discover required upgrade actions. Never include secret values.
 
-### 2. User-facing changes — sections with headers
+### Close each section with supporting details
 
-Organize by **what the user experiences**, not by what was changed internally.
-
-- `## Breaking Changes` — what stopped working or changed incompatibly, regardless of the selected change type. Include pre-1.0 breaking behavior even when the version policy classifies it as Minor.
-- `## New: <capability>` — new things the user can do.
-- `## Changed: <behavior>` — existing behavior that now works differently.
-- `## Fixed: <problem>` — problems now resolved.
-
-Under each header:
-
-- What the user can now do, or what changed for them.
-- Who is affected, including changed public parameters and defaults.
-- A link to the release-wide adoption path rather than a second sequence of instructions.
-- Examples or code snippets showing new usage.
-
-Do **not** include private implementation details or refactoring decisions here. Exact public interface names belong here when users need them to understand or adopt the change.
-
-### 3. Adopting this release
-
-Every PR includes `## Adopting this release` before the technical details. Give one ordered, release-wide path for the affected consumers, with applicability, prerequisites, and any required intermediate steps. Adapt the actions to the artifact: a library call, workflow input, service setting, or infrastructure module may need different consumer changes.
-
-When updating the reference is sufficient, state: **No configuration, code, or invocation changes are required beyond selecting this release.** For a non-releasing change, state its adoption outcome explicitly too. An empty section or an absent migration paragraph is not evidence that no action is needed.
-
-### 4. Release impact
-
-Every PR includes `## Release impact`. Report the release resolver's decision; do not introduce a second version-selection policy.
-
-When `DefaultBump` supplies an MSX release level, record the setting and value as the source. Unless a valid `release:skip` is selected, missing both an explicit level and a configured default fails the [required decision check](../Capabilities/release-management/design.md#required-pre-merge-decision-check) and blocks merge; never infer a patch release from missing input.
-
-| Field | Required content |
-| --- | --- |
-| Effective decision | The selected owned label and its semantic effect, or the configured policy that supplies the decision where supported. Identify the decision's source; do not assume a label name across producers. |
-| Semantic effect | Major, minor, patch, or no release, plus stable/prerelease mode where applicable. Describe breaking behavior separately from its version classification. |
-| Release/base coordinates | Before publication, state that final coordinates are resolved by the release process. The published record supplies the actual target version, tag, immutable source, version-computation base, and release/source baseline for the consumer delta, distinguishing the two bases when they differ. |
-
-Before publication, name the intended semantic effect and state that final coordinates are **resolved by the release process**. Do not assign a final version in advance or retain a numeric prediction after the base changes. The publisher records the actual coordinates in a distinct publication envelope without rewriting the authored body. For a first release, identify the initial versioning baseline and state that there is no prior release; for `release:skip`, state that no version is produced.
-
-### 5. Required ending blocks
-
-At the very end of every PR description, use this exact structure:
+A named section may end with either or both of these optional blocks, in this
+order:
 
 ```markdown
----
 <details>
 <summary>Technical details</summary>
 
-### Consumer change record
-
-<Incremental consumer evidence or an explicit no-action result.>
-
-### Template baseline
-
-<Verified compatible immutable template evidence, or why no template applies.>
-
-### Maintainer evidence
-
-<Implementation notes, plan progress, alignment, and issue-convergence evidence.>
+Implementation and validation evidence for this result.
 
 </details>
 
 <details>
-<summary>Relevant issues (or links)</summary>
+<summary>Related references</summary>
 
-- Resolves Org/Repo#123
-- Resolves Org/OtherRepo#124
-
-### Related work
-
-- Depends on Org/OtherRepo#124
-- Followed by Org/OtherRepo#125
-- References Org/OtherRepo#126
+- Resolves MSXOrg/repository#123
+- Depends on MSXOrg/other-repository#456
 
 </details>
 ```
 
-The **Technical details** block uses the three `###` headings shown above to separate consumer evidence from maintainer evidence. The deeper headings below organize this standard, not the PR body.
+The blocks are section-scoped. Do not add global catch-all `Technical details`
+or `Related references` blocks after several classified sections. If the pull
+request is internal-only and has no classified section, place its supporting
+blocks directly after the summary marker.
 
-#### Consumer change record
+Put the standards and framework alignment evidence required by
+[Implement](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass)
+in the `Technical details` block for the result it supports. For a
+release-managed result, include the applicable consumer, template, and baseline
+evidence required by [Release
+Management](../Capabilities/release-management/spec.md#release-evidence) in that
+same scoped block. Keep the consumer's instructions in the result's prose and
+examples; the supporting evidence verifies those instructions rather than
+replacing them.
 
-Use one row per affected surface. A stable identifier within the record lets the adoption steps and later release records refer to the same change.
+Record the closing delivery leaf's implementation-plan progress and the
+[issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep)
+search scope and outcome in that same block, including when no additional issue
+converges. For internal-only work without classified sections, the block after
+the summary marker carries this evidence and any applicable release evidence.
 
-| Identifier / surface | Before | After | Applicability / prerequisites | Consumer action | Verification |
-| --- | --- | --- | --- | --- | --- |
-| `<change ID and public surface>` | `<previous behavior>` | `<released behavior>` | `<affected consumers and required starting state>` | `<exact edit or linked numbered detail>` | `<observable result or existing check>` |
+Use fully qualified `owner/repository#number` references for every same-instance
+GitHub issue or pull request, including references to the current repository.
+Use closing keywords only for issues the complete change actually resolves.
+Prefix non-closing relationships with terms such as `References`, `Depends on`,
+or `Followed by`. Use absolute Markdown links for Jira, cross-instance GitHub,
+and references that will render outside GitHub.
 
-Record exact changed configuration keys, workflow contracts, permissions, secret **names, never values**, public APIs, runtime/tool requirements, defaults, removals, and behavior. A list of changed filenames alone is insufficient. Link to numbered detail in the adoption path when commands or coordinated edits need more room; do not maintain competing instructions.
+Do not include AI or agent attribution anywhere in the description.
 
-Record no-action outcomes explicitly, including changes that affect behavior but require no consumer edit. If no consumer-facing surface changes, say so instead of leaving an empty table. Applicability distinguishes consumers that need an action from those already using the released contract.
+### Record release decisions only when invoked
 
-#### Template baseline
+When the target route invokes Release Management, add one `Release decisions`
+block after the classified sections and apply the exact labels the block
+reports:
 
-Where a framework or product has an applicable integration template, record:
+```markdown
+<details>
+<summary>Release decisions</summary>
 
-| Field | Required content |
-| --- | --- |
-| Producer identity | Producer version and immutable source, or the immutable candidate source before publication. |
-| Template identity | Template repository and full immutable commit SHA, not a branch, floating tag, or today's latest template. |
-| Compatibility evidence | Evidence that this template commit works with the identified producer source, including required integration surfaces and the relevant validation result. |
-| Template work | Linked template PRs and their delivery state, or a justified no-change result. An earlier compatible commit may be reused when the evidence supports it. |
+- **Release:** Yes - the delivered artifact and supported caller contract change.
+- **Version bump:** Minor - callers gain a compatible optional input.
+- **Mode:** Stable - the target route publishes stable releases.
+- **Labels:** `release:minor`
 
-Every applicable release identifies its verified compatible baseline; a claim of compatibility without evidence is insufficient. If no template applies, state that fact and why. Do not invent a template or describe pending template work as delivered.
+</details>
+```
 
-#### Maintainer evidence
+For a no-release decision, include only the decision and its label:
 
-Keep internal implementation notes separate from the consumer record:
+```markdown
+<details>
+<summary>Release decisions</summary>
 
-- Which internal functions, classes, or files were changed.
-- Implementation approach and design decisions.
-- Internal compatibility considerations not already owned by the consumer record.
-- **Implementation plan progress** — cross-reference the closing Task or Bug's plan. Which plan steps does this PR complete? Which were moved to follow-up delivery issues?
-- **Standards and framework alignment** — the result of the [alignment pass](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass), as one row per changed surface. The stage procedure owns when and how the pass is run; this block only carries its evidence.
-- **Issue convergence sweep** — the scope used for the [session-end sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) and which additional open issues (if any) the finished diff fully satisfied.
+- **Release:** No - the change does not affect the artifact or its supported consumer contracts.
+- **Labels:** `release:skip`
 
-| Changed surface | Standards checked | Framework docs checked | Result |
-| --- | --- | --- | --- |
-| `src/**` (PowerShell) | Naming, Functions | Module source layout | Aligned |
-| `.github/workflows/**` | GitHub Actions | Reusable workflow contract | Exception — Org/Repo#123 |
+</details>
+```
 
-A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link to the follow-up issue that carries it. A surface with no framework or domain documentation of its own is recorded as `None (no framework-specific docs)`.
+The evidence after each decision must identify the applicable route,
+configuration, and audience impact. List the exact resulting labels, or `None`
+when effective configuration supplies the release decision and no override
+label applies. Do not predict the final version; Release Management resolves it
+from the actual base.
 
-The **Relevant issues (or links)** block is required and uses fully qualified references (`Org/Repo#N`) so links work across repositories.
+When the target route does not invoke Release Management, omit this block and
+all `release:*` labels. Do not add `release:skip` merely because the repository
+has no `.github/release.config.yml`.
 
-Use one bullet per linked reference. Begin with the closing issues, each prefixed with `Resolves`; this applies to the scoped Task or Bug delivered by the pull request and to additional issues the [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) confirms are fully satisfied by the same finished diff. When the PR relates to other issues or pull requests, add a `### Related work` header below the `Resolves` list, then list each qualified reference with its relationship, such as `Depends on`, `Followed by`, or `References`. Closing keywords do not close pull requests. A parent PBI or Epic may appear as context without a closing keyword; never close an aggregate through a delivery pull request. Partially convergent or supporting issues are linked as non-closing context.
+### Assemble the body
 
-A PR that delivers a scoped Task or Bug must include at least one `Resolves` link. A PR that does not resolve an issue must include a `### Related work` header and an unordered list of qualified relationship references. If additional `Resolves` links are used, include sweep evidence in Technical details that shows those issues are fully satisfied. The [Issue Hierarchy](Issues/Types/Hierarchy.md) and [Issue Lifecycle](Issues/Process/Lifecycle.md) own type and closure semantics.
+Use this order:
 
-## Formatting
+1. Summary prose.
+2. The shareable-summary marker.
+3. Classified sections in the required order, each with its own optional
+   `Technical details` and `Related references` blocks.
+4. Supporting blocks directly after the marker only when internal-only work has
+   no classified section.
+5. The conditional `Release decisions` block, only when the target route
+   invokes Release Management.
 
-- Paragraphs are written as a **single unbroken line**. GitHub renders mid-paragraph newlines as spaces.
-- The PR description is **the release note**. Write it for users, not reviewers.
-- The PR title and description align with the closing Task or Bug's user-facing framing and recorded technical decisions.
-- Refer to every issue or pull request as `Org/Repo#N`, including references in the current repository; do not use bare `#N` references.
+Do not add a `Summary` heading, empty classified sections, global supporting
+blocks, or parallel release-note metadata.
 
-## Example
+### Copy the complete template
 
-This illustrative configuration change uses the same record shape for any artifact type; it does not depend on a particular package manager, language, or deployment mechanism.
+Start from this complete body. Replace every placeholder and delete every
+classifier section, supporting block, example, or release field that does not
+apply. Repeat a complete classifier section when several distinct results share
+the same classifier, and keep every remaining classifier group in the order
+shown.
+
+For internal-only work with no classified result, delete all five classifier
+groups and place one applicable `Technical details` block and `Related
+references` block directly after the marker. Delete the complete `Release
+decisions` block when the target route does not invoke Release Management. On an
+invoked route with a no-release decision, replace the release block with the
+shorter no-release form shown in
+[Record release decisions only when invoked](#record-release-decisions-only-when-invoked).
+
+For a publishing decision, retain the resolved bump and mode with their input
+sources. A valid effective `DefaultBump` needs no per-PR bump label: report
+`Labels: None` when no owned override applies, or the exact mode label when it
+does. Include configured release-candidate routing in the mode evidence. Never
+turn invalid settings or conflicting owned labels into a no-action result.
 
 ````markdown
-Job timeouts use the explicit `timeoutSeconds` setting. Existing timeout values and the 30-second default are unchanged.
+{{ One or two short summary paragraphs that state what changes, why, who is
+affected, and required adoption actions or an explicit no-action result. }}
 
-## Breaking Changes
+<!-- ANNOUNCEMENT STOP -->
 
-The `timeout` configuration key is removed. Configurations that still supply it are rejected. Rename it using the [adoption path](#adopting-this-release); configurations that omit the key need no configuration edit.
+## Breaking: {{ Reader-facing result }}
 
-## Adopting this release
+{{ Explain what changes, why, affected supported uses, compatibility, and exact
+adoption actions or an explicit no-action result. Include applicable
+prerequisites, verification, ordering, and any required intermediate installation
+or run. }}
 
-1. If the job configuration sets `timeout`, rename that key to `timeoutSeconds`, preserving its positive integer value in seconds. For example, `timeout: 20` becomes `timeoutSeconds: 20`. Do not supply both keys. If the key is absent, retain the 30-second default without adding a setting.
-2. Select the published release through the integration's version reference or deployment mechanism. Apply the configuration edit with that version change, not to the previous version.
-3. Run the existing configuration validation against the selected version: `timeoutSeconds: 20` is accepted and the removed `timeout: 20` is rejected. Run the existing timeout check to confirm cancellation at the configured limit, or 30 seconds when omitted.
+{{ Interface or old-to-new example, comparison, or diagram after the prose when
+needed to make adoption unambiguous. Keep required transition details in this
+note; link to evergreen usage docs only for optional depth. Delete when prose
+is sufficient. }}
 
-## Release impact
-
-| Field | Value |
-| --- | --- |
-| Effective decision | `release:major`, selected for removal of a supported configuration key. |
-| Semantic effect | Major, stable; existing explicit configurations require the edit above. |
-| Release/base coordinates | The release process resolves the actual version base, change baseline, target version, tag, and immutable source at publication. No final numeric version is assigned in this PR. |
-
----
 <details>
 <summary>Technical details</summary>
 
-### Consumer change record
-
-| Identifier / surface | Before | After | Applicability / prerequisites | Consumer action | Verification |
-| --- | --- | --- | --- | --- | --- |
-| TIMEOUT-KEY / job configuration | Optional `timeout`, a positive integer in seconds; default 30. | Optional `timeoutSeconds`, with the same units and default; `timeout` is rejected. | Every integration; only configurations using the removed key need an edit. | Rename the key without changing its value; see adoption steps 1-2. No configuration change when omitted. | Adoption step 3 accepts the new key, rejects the old key, and confirms the timeout behavior. |
-
-### Template baseline
-
-Not applicable: this product does not distribute an integration template.
-
-### Maintainer evidence
-
-- The configuration parser accepts `timeoutSeconds` and reports the removed key as invalid.
-- Implementation plan progress: all steps in Org/Repo#218 are complete, including explicit-value and default-value coverage.
-- Issue convergence sweep: configuration and timeout issues were inspected; no additional issue is fully satisfied.
+{{ Implementation and validation evidence, closing delivery-leaf plan progress,
+and issue-convergence search scope and outcome for this result, even when no
+additional issue converges. }}
 
 | Changed surface | Standards checked | Framework docs checked | Result |
 | --- | --- | --- | --- |
-| Configuration parsing and timeout behavior | Naming, Error Handling, Testing | Product configuration contract | Aligned |
+| `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
+
+{{ For an applicable release-managed result, identify the consumer-change release
+and source baseline and evidence supporting the actions or no-action result
+above. For an affected integration template, identify its repository, verified
+compatible immutable commit, and compatibility evidence. Publication resolves
+actual release coordinates; do not predict a final version. Delete inapplicable
+evidence. }}
 
 </details>
 
 <details>
-<summary>Relevant issues (or links)</summary>
+<summary>Related references</summary>
 
-- Resolves Org/Repo#218
+- Resolves MSXOrg/repository#123
+- References MSXOrg/repository#456
+- Depends on MSXOrg/other-repository#789
 
-### Related work
+</details>
 
-- References Org/Repo#220
+## Removed: {{ Reader-facing result }}
+
+{{ Explain what changes, why, affected supported uses, compatibility, and exact
+adoption actions or an explicit no-action result. Include applicable
+prerequisites, verification, ordering, and any required intermediate installation
+or run. }}
+
+{{ Interface or old-to-new example, comparison, or diagram after the prose when
+needed to make adoption unambiguous. Keep required transition details in this
+note; link to evergreen usage docs only for optional depth. Delete when prose
+is sufficient. }}
+
+<details>
+<summary>Technical details</summary>
+
+{{ Implementation and validation evidence, closing delivery-leaf plan progress,
+and issue-convergence search scope and outcome for this result, even when no
+additional issue converges. }}
+
+| Changed surface | Standards checked | Framework docs checked | Result |
+| --- | --- | --- | --- |
+| `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
+
+{{ For an applicable release-managed result, identify the consumer-change release
+and source baseline and evidence supporting the actions or no-action result
+above. For an affected integration template, identify its repository, verified
+compatible immutable commit, and compatibility evidence. Publication resolves
+actual release coordinates; do not predict a final version. Delete inapplicable
+evidence. }}
+
+</details>
+
+<details>
+<summary>Related references</summary>
+
+- Resolves MSXOrg/repository#123
+- References MSXOrg/repository#456
+- Depends on MSXOrg/other-repository#789
+
+</details>
+
+## New: {{ Reader-facing result }}
+
+{{ Explain what changes, why, affected supported uses, compatibility, and exact
+adoption actions or an explicit no-action result. Include applicable
+prerequisites, verification, ordering, and any required intermediate installation
+or run. }}
+
+{{ Interface or old-to-new example, comparison, or diagram after the prose when
+needed to make adoption unambiguous. Keep required transition details in this
+note; link to evergreen usage docs only for optional depth. Delete when prose
+is sufficient. }}
+
+<details>
+<summary>Technical details</summary>
+
+{{ Implementation and validation evidence, closing delivery-leaf plan progress,
+and issue-convergence search scope and outcome for this result, even when no
+additional issue converges. }}
+
+| Changed surface | Standards checked | Framework docs checked | Result |
+| --- | --- | --- | --- |
+| `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
+
+{{ For an applicable release-managed result, identify the consumer-change release
+and source baseline and evidence supporting the actions or no-action result
+above. For an affected integration template, identify its repository, verified
+compatible immutable commit, and compatibility evidence. Publication resolves
+actual release coordinates; do not predict a final version. Delete inapplicable
+evidence. }}
+
+</details>
+
+<details>
+<summary>Related references</summary>
+
+- Resolves MSXOrg/repository#123
+- References MSXOrg/repository#456
+- Depends on MSXOrg/other-repository#789
+
+</details>
+
+## Changed: {{ Reader-facing result }}
+
+{{ Explain what changes, why, affected supported uses, compatibility, and exact
+adoption actions or an explicit no-action result. Include applicable
+prerequisites, verification, ordering, and any required intermediate installation
+or run. }}
+
+{{ Interface or old-to-new example, comparison, or diagram after the prose when
+needed to make adoption unambiguous. Keep required transition details in this
+note; link to evergreen usage docs only for optional depth. Delete when prose
+is sufficient. }}
+
+<details>
+<summary>Technical details</summary>
+
+{{ Implementation and validation evidence, closing delivery-leaf plan progress,
+and issue-convergence search scope and outcome for this result, even when no
+additional issue converges. }}
+
+| Changed surface | Standards checked | Framework docs checked | Result |
+| --- | --- | --- | --- |
+| `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
+
+{{ For an applicable release-managed result, identify the consumer-change release
+and source baseline and evidence supporting the actions or no-action result
+above. For an affected integration template, identify its repository, verified
+compatible immutable commit, and compatibility evidence. Publication resolves
+actual release coordinates; do not predict a final version. Delete inapplicable
+evidence. }}
+
+</details>
+
+<details>
+<summary>Related references</summary>
+
+- Resolves MSXOrg/repository#123
+- References MSXOrg/repository#456
+- Depends on MSXOrg/other-repository#789
+
+</details>
+
+## Fixed: {{ Reader-facing result }}
+
+{{ Explain what changes, why, affected supported uses, compatibility, and exact
+adoption actions or an explicit no-action result. Include applicable
+prerequisites, verification, ordering, and any required intermediate installation
+or run. }}
+
+{{ Interface or old-to-new example, comparison, or diagram after the prose when
+needed to make adoption unambiguous. Keep required transition details in this
+note; link to evergreen usage docs only for optional depth. Delete when prose
+is sufficient. }}
+
+<details>
+<summary>Technical details</summary>
+
+{{ Implementation and validation evidence, closing delivery-leaf plan progress,
+and issue-convergence search scope and outcome for this result, even when no
+additional issue converges. }}
+
+| Changed surface | Standards checked | Framework docs checked | Result |
+| --- | --- | --- | --- |
+| `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
+
+{{ For an applicable release-managed result, identify the consumer-change release
+and source baseline and evidence supporting the actions or no-action result
+above. For an affected integration template, identify its repository, verified
+compatible immutable commit, and compatibility evidence. Publication resolves
+actual release coordinates; do not predict a final version. Delete inapplicable
+evidence. }}
+
+</details>
+
+<details>
+<summary>Related references</summary>
+
+- Resolves MSXOrg/repository#123
+- References MSXOrg/repository#456
+- Depends on MSXOrg/other-repository#789
+
+</details>
+
+<details>
+<summary>Release decisions</summary>
+
+- **Release:** {{ Yes or No }} - {{ Evidence from the artifact, route, and
+  supported consumer contract. }}
+- **Version bump:** {{ Patch, Minor, or Major }} - {{ Compatibility evidence.
+  Identify the explicit label, supported caller input, repository setting, or
+  documented shared default that supplies it. Delete this field when Release
+  is No. }}
+- **Mode:** {{ Stable or Prerelease }} - {{ Target-route or override evidence.
+  Identify configured release-candidate routing when applicable. Delete this
+  field when Release is No. }}
+- **Labels:** {{ Exact `release:*` labels, or `None` when effective configuration
+  supplies the decision without an override label. }}
 
 </details>
 ````
 
-For a no-action patch, keep both required user-facing blocks. State the no-action adoption outcome and record either the affected behavior with `No consumer edit required` or `No consumer-facing surface changes` under Consumer change record. Do not copy the breaking example's configuration actions into an unaffected release.
+## Check readiness
 
-## Drafts and readiness
+Before marking the pull request ready, verify:
 
-- The Shipper always creates the PR as **draft** so CI attaches immediately.
-- A pull request is marked ready only when it meets every item in the [Definition of Ready for Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review) — nothing in that gate is left open. That page is the single checklist; this section does not restate it.
-- Marking ready is a gate, not a person: anyone who can verify that gate — a contributor, or an agent acting on their behalf — may mark it ready. The gate, not the actor, is what makes it ready.
-- Once ready, enable auto-merge (squash) so the change lands when review approves and the required checks stay green. See [Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge).
+- the title states one result and contains none of the prohibited prefixes,
+  references, lists, or attribution;
+- the summary is accurate on its own and the marker appears exactly once in the
+  required position;
+- every claim matches the complete diff or promotion range;
+- the complete delivered range since the identified consumer-change baseline is
+  covered, including every bundled consumer delta;
+- classified sections are non-empty, ordered, and grouped by reader-facing
+  result;
+- the notes explain what changed, why, affected supported uses, compatibility,
+  and exact applicable actions or an explicit no-action result, without
+  requiring PRs, diffs, or historical product docs to discover instructions;
+- release-order composition preserves required intermediate operations without
+  assuming every intermediate version must be installed;
+- prose precedes optional examples and tables;
+- supporting blocks are scoped to their section and ordered correctly;
+- same-instance references are fully qualified and closing keywords are
+  accurate;
+- release metadata and `release:*` labels are absent when the route does not
+  invoke Release Management;
+- when Release Management applies, the decision block, labels, effective
+  configuration, and complete-change evidence agree;
+- the description contains no AI or agent attribution.
 
-## Branches and commits
+The pull request still follows the complete [Definition of Ready for
+Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review).
 
-- Branch naming: `<type>/<issue-number>-<short-slug>`, e.g. `fix/123-pagination-truncation`.
-- Commit messages: plain, direct, descriptive. **No conventional-commit prefixes** (`fix:`, `feat:`, `docs:`). See [Commit Conventions](Commit-Conventions.md).
-- Self-review the staged diff before each commit. Unintended files (debug output, editor temp, credentials) get caught before they reach the remote.
+## Where this connects
 
-## Labels and assignment
-
-- Apply an owned release label for an explicit decision or override. A matching configured `DefaultBump` may supply the bump without a label; record that source. Use `release:skip` for an explicit no-release decision.
-- Apply phase labels if the repo uses them (Planning, Implementation, etc.).
-- Assign the current user.
-- Request reviewers per `CODEOWNERS`; if none, fall back to repo defaults or skip.
+- [README-Driven Context](Readme-Driven-Context.md) — where the product audience
+  and supported interfaces are declared.
+- [Contribution Workflow](Contribution-Workflow.md) — how a draft pull request
+  moves through automated and human review.
+- [Definition of Ready and Done](Definition-of-Ready-and-Done.md) — the gate
+  before review and completion.
+- [Branching and Merging](Branching-and-Merging.md) — branch, integration, and
+  merge rules.
+- [Automation Labels](Automation-Labels.md) — ownership and meaning of
+  `release:*` labels.
+- [Release Management](../Capabilities/release-management/design.md) — release
+  invocation, configuration, decision resolution, and publication.

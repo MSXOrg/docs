@@ -38,7 +38,7 @@ Every repository README MUST identify its target audience, the jobs the product 
 
 **User and integrator are roles, not necessarily different people.** An integration interface is user-facing when the audience depends on it; it does not become internal because its users write scripts, compose APIs, or maintain another product. The audience is not inferred from who authors or reviews a pull request.
 
-Detailed users and jobs belong in the [capability specification](Spec-Driven-Development.md#what-a-specification-is), linked from the README rather than copied. This declared audience anchors [change classification](PR-Format.md#detecting-the-change-type) and the consumer evidence in release notes.
+Detailed users and jobs belong in the [capability specification](Spec-Driven-Development.md#what-a-specification-is), linked from the README rather than copied. This declared audience anchors [reader identification](PR-Format.md#identify-the-readers) and the evidence in pull request descriptions.
 
 ## When to update the README
 
