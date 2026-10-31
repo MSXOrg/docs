@@ -313,7 +313,7 @@ query($owner: String!, $repo: String!, $number: Int!, $endCursor: String) {
   repository(owner: $owner, name: $repo) {
     issue(number: $number) {
       closedByPullRequestsReferences(first: 100, after: $endCursor, includeClosedPrs: true) {
-        nodes { number url state }
+        nodes { id number url state }
         pageInfo { hasNextPage endCursor }
       }
     }
