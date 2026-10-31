@@ -29,7 +29,8 @@ flowchart LR
 ```
 
 - **Find version** — validate the release decision and compute the version once,
-  from the latest `vX.Y.Z` tag or release plus the valid effective bump. Resolve
+  through the shared release resolver's authoritative version base and valid
+  effective bump, not a separate latest-tag algorithm. Resolve
   the canonical release identity and any declared native numeric mapping before
   Build; retain both with their source evidence.
   Independent of the other stages and required by the merge ruleset; a missing
