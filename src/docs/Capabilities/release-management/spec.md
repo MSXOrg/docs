@@ -500,12 +500,15 @@ A consumer MAY select exactly one of these policies:
 | `lock-immutable-fingerprint` | No automatic movement from one exact content identity. |
 
 When no policy is selected, the consumer MUST use the most immutable reference
-available. A boundary policy MUST use a supported native version constraint or,
-when the consumer syntax has no range resolver, the corresponding producer
-major or minor alias. A target with native bounded ranges MUST NOT require a
-moving alias merely to express that bound. Resolve and retain the immutable
-reference required by the trust policy. A range-like string in an opaque Git or
-container reference field MUST NOT be treated as a resolver expression.
+available. A boundary policy MUST use a supported native version constraint,
+permitted bounded update selection, or a permitted corresponding producer major
+or minor alias. Native bounded ranges and permitted bounded update selection
+MUST NOT require a moving alias merely to express that bound. When neither
+resolver is available, an opaque reference field requires the matching
+permitted alias; otherwise the boundary is unsupported. Resolve and retain the
+immutable reference required by the trust policy. A range-like string in an
+opaque Git or container reference field MUST NOT be treated as a resolver
+expression.
 
 Mutable aliases MAY be used only within the consumer's permitted trust boundary.
 An external producer, including one owned by another team in the same company,
@@ -526,10 +529,21 @@ availability alone MUST NOT relax the narrower consumer rule.
 Scenario: An unsupported boundary policy fails explicitly
   Given a consumer requests lock-minor-boundary
   And its consumer field has no native range resolver
+  And permitted bounded update selection is unavailable
   And the producer does not publish the minor alias family
   When the policy is resolved
   Then the request fails as unsupported
   And it is not widened to latest or a major boundary
+
+Scenario: Bounded updates retain a SHA-pinned reference
+  Given an Action or reusable-workflow consumer requests lock-minor-boundary
+  And permitted bounded update selection is available
+  And its reference is a full commit SHA
+  And the producer publishes no minor alias
+  When a newer compatible patch is selected
+  Then the reference is updated to that patch's full commit SHA
+  And the selected major and minor remain unchanged
+  And no minor alias is retained
 
 Scenario: A native bounded range does not require an alias
   Given a consumer requests lock-minor-boundary

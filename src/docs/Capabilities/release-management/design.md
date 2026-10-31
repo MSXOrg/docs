@@ -510,17 +510,20 @@ The consumer resolves one of five policies:
 | Policy | Producer mechanism | Durable consumer reference |
 | --- | --- | --- |
 | `latest` | Discover the greatest eligible completed stable release. | The discovered immutable version or fingerprint required by trust policy. |
-| `lock-major-boundary` | Supported native major-bounded constraint, or producer major alias for an opaque reference field. | The resolved immutable reference required by trust policy, or an allowed owned alias. |
-| `lock-minor-boundary` | Supported native minor-bounded constraint, or producer minor alias for an opaque reference field. | The resolved immutable reference required by trust policy, or an allowed owned alias. |
+| `lock-major-boundary` | Supported native major-bounded constraint, permitted bounded update selection, or a permitted producer major alias. | The resolved immutable reference required by trust policy, or an allowed owned alias. |
+| `lock-minor-boundary` | Supported native minor-bounded constraint, permitted bounded update selection, or a permitted producer minor alias. | The resolved immutable reference required by trust policy, or an allowed owned alias. |
 | `lock-specific-version` | Exact immutable version. | Exact version. |
 | `lock-immutable-fingerprint` | Content digest, commit SHA, or equivalent. | Immutable fingerprint. |
 
 A requested boundary is unsupported only when neither the consumer/target's
-native constraints nor a permitted matching producer alias can express it; it
-is never widened silently. PowerShell Gallery and NuGet consumers can use their
-supported native bounds without producer aliases. When a field accepts only
-one opaque Git or container reference, a text such as `>=3,<4` is not a range
-expression; its bound requires the corresponding controlled alias.
+native constraints, permitted bounded update selection, nor a permitted
+matching producer alias can express it; it is never widened silently.
+PowerShell Gallery and NuGet consumers can use their supported native bounds
+without producer aliases. Bounded update selection can likewise retain an
+immutable reference without requiring an alias. When a field accepts only one
+opaque Git or container reference, a text such as `>=3,<4` is not a range
+expression. Without a permitted resolver outside that field, its bound
+requires the corresponding permitted controlled alias.
 
 Moving references are allowed only for producers inside the consumer's declared
 trust boundary. Another team is external even when it belongs to the same
