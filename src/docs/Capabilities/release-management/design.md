@@ -121,7 +121,7 @@ even when a narrower override or bump label exists.
 
 | Setting | Shared default | Repository override | Supported caller override |
 | --- | --- | --- | --- |
-| `DefaultBump` | `patch` | `DefaultBump` in `.github/release.config.yml` | Explicit `DefaultBump` input for the managed invocation. |
+| `DefaultBump` | `patch` | `DefaultBump` in `.github/release.config.yml` | Explicitly supplied caller override supported and documented by the invoked producer for this setting. |
 
 For example, a repository can select minor as its normal level without requiring
 a minor label on every publishing PR:
