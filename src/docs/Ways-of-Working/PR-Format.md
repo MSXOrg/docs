@@ -49,11 +49,28 @@ Describe the **incremental change introduced by this release**, not a migration 
 | Docs        | 📖   | `release:skip`   | Documentation changes only                            |
 | Maintenance | ⚙️   | `release:skip`   | Internal upkeep with no change to shipped behavior or integration contracts |
 
-`release:pre-release` is a release mode, not a change type. It uses one explicit
-bump label or the repository's configured `DefaultBump` when an open pull request
+`release:prerelease` is a release mode, not a change type. It uses one explicit
+bump label or the valid effective `DefaultBump` when an open pull request
 must publish a prerelease. The mode alone supplies no level. Never combine it
 with `release:skip`; [Release Management](../Capabilities/release-management/design.md#version-computation)
 owns resolution and validation.
+
+Resolve the actual target route before applying release metadata or labels.
+Managed routes include native producer pipelines publishing versioned artifacts;
+unmanaged routes omit release metadata and every `release:*` label, including
+`release:skip`. The documented shared default, repository settings, and supported
+caller inputs resolve under the shared
+[settings contract](../Capabilities/release-management/design.md#settings-and-caller-overrides).
+An explicit owned bump label overrides the valid effective default; invalid
+supplied settings and conflicting owned signals fail even when another input
+supplies a valid level.
+
+Verify the immutable producer revision's actual supported settings and label
+mapping. A differing interface requires a verified adapter or a
+producer/configuration migration before canonical signals are used. Its exact
+adoption instructions belong in the producer's PR/release record. Missing
+support blocks finalization rather than making an ignored label a successful
+skip or opting the managed route out.
 
 ### Detecting the change type
 
@@ -101,6 +118,11 @@ Ordered, top to bottom.
 
 A concise paragraph describing **what changes for the user**. Present tense, active voice. Never open with implementation language ("Refactored", "Updated class", "Added null checks").
 
+End the leading summary with the single announcement boundary shown in the
+example below, on its own line and outside code fences in the actual PR body.
+The complete title and description remain the release record; sharing the
+summary never truncates the published body.
+
 ### 2. User-facing changes — sections with headers
 
 Organize by **what the user experiences**, not by what was changed internally.
@@ -127,9 +149,17 @@ When updating the reference is sufficient, state: **No configuration, code, or i
 
 ### 4. Release impact
 
-Every PR includes `## Release impact`. Report the release resolver's decision; do not introduce a second version-selection policy.
+Only a PR targeting a managed release route includes `## Release impact`.
+Unmanaged routes omit this section and all `release:*` labels. Report the release
+resolver's decision; do not introduce a second version-selection policy.
 
-When `DefaultBump` supplies an MSX release level, record the setting and value as the source. Unless a valid `release:skip` is selected, missing both an explicit level and a configured default fails the [required decision check](../Capabilities/release-management/design.md#required-pre-merge-decision-check) and blocks merge; never infer a patch release from missing input.
+When `DefaultBump` supplies an MSX release level, record its value and whether
+the shared default, repository setting, or supported caller input supplied it.
+A valid effective default needs no per-PR bump label. Omission inherits the
+documented patch default; invalid settings, unresolved decisions, and conflicting
+owned labels fail the [required decision check](../Capabilities/release-management/design.md#required-pre-merge-decision-check).
+Removing a bump override re-evaluates that default rather than making a decision
+missing.
 
 | Field | Required content |
 | --- | --- |
@@ -242,6 +272,8 @@ This illustrative configuration change uses the same record shape for any artifa
 ````markdown
 Job timeouts use the explicit `timeoutSeconds` setting. Existing timeout values and the 30-second default are unchanged.
 
+<!-- ANNOUNCEMENT STOP -->
+
 ## Breaking Changes
 
 The `timeout` configuration key is removed. Configurations that still supply it are rejected. Rename it using the [adoption path](#adopting-this-release); configurations that omit the key need no configuration edit.
@@ -315,7 +347,7 @@ For a no-action patch, keep both required user-facing blocks. State the no-actio
 
 ## Labels and assignment
 
-- Apply an owned release label for an explicit decision or override. A matching configured `DefaultBump` may supply the bump without a label; record that source. Use `release:skip` for an explicit no-release decision.
+- Apply release labels only on a verified managed route. A valid effective `DefaultBump` supplies the bump without a per-PR bump label; record its source. An explicit owned bump label overrides it, and `release:skip` selects no release. Unmanaged routes omit all `release:*` labels.
 - Apply phase labels if the repo uses them (Planning, Implementation, etc.).
 - Assign the current user.
 - Request reviewers per `CODEOWNERS`; if none, fall back to repo defaults or skip.

@@ -64,6 +64,12 @@ Out of scope:
 - Repository rulesets and branch protections, except for the release checks they
   must require.
 
+The effective target route determines applicability, including native producer
+pipelines that publish versioned, immutable outputs without a named shared
+workflow. A route without versioned release behavior carries no release metadata
+or `release:*` labels. Absence of `.github/release.config.yml` does not opt a
+managed route out.
+
 ## Requirements
 
 Requirements use [BCP 14](https://www.rfc-editor.org/info/bcp14) keywords.
@@ -72,11 +78,28 @@ Identifiers are append-only and MUST NOT be renumbered or reused.
 ### FR1 — Every release has an approved decision and fixed source {#fr1}
 
 The release decision MUST be major, minor, patch, or skip. For a change with an
-associated pull request, one explicit owned decision MUST override the
-repository's configured fallback. Missing, invalid, or conflicting decisions
-MUST fail closed. A skip decision MUST suppress immediate publication without
+associated reviewed pull request, one explicit owned bump label MUST override
+the valid effective `DefaultBump`. Without that label, documented defaults,
+repository settings, and supported caller overrides MUST supply the level
+without requiring a per-PR bump label. `DefaultBump` accepts exactly `patch`,
+`minor`, or `major` and has the shared default `patch`. Unknown settings, invalid
+supplied values, and conflicting owned signals MUST fail even when another
+input supplies a valid level. A skip decision MUST suppress immediate publication without
 removing the change from a later release range. Commit-message syntax MUST NOT
 select the decision.
+
+The owned labels are exactly `release:patch`, `release:minor`, `release:major`,
+`release:prerelease`, and `release:skip`. Prerelease mode uses the resolved bump;
+it MUST NOT supply a level or combine with skip. Multiple owned bump labels and
+skip with another owned release label MUST fail. Bare and unrelated labels MUST
+be ignored. Release-candidate and announcement behavior are settings, not
+additional owned release labels.
+
+The effective producer revision's supported settings and owned-label mapping
+MUST be verified. A differing released interface MUST have a verified adapter
+or producer/configuration migration before canonical signals are used. Missing
+support MUST block finalization and required validation; exact adoption actions
+belong in that producer's PR/release record, not a repository migration guide.
 
 The ordinary stable release path MUST be an approved pull request merged to the
 stable line. A direct push with no associated review MUST validate but MUST NOT
@@ -97,6 +120,28 @@ Scenario: An explicit decision overrides the fallback
   When release resolution runs
   Then the resolved decision is minor
   And the fallback is recorded as not used
+
+Scenario: A documented default needs no per-PR bump label
+  Given a reviewed pull request has no owned bump label
+  And no repository setting or caller override changes the shared patch default
+  When release resolution runs
+  Then the resolved decision is patch
+  And the shared default is recorded as its source
+
+Scenario: A supported caller override wins over repository settings
+  Given the repository DefaultBump is major
+  And the invocation explicitly sets DefaultBump to minor
+  And the reviewed pull request has no owned bump label
+  When release resolution runs
+  Then the resolved decision is minor
+  And the caller input is recorded as its source
+
+Scenario: An explicit bump cannot mask invalid settings
+  Given a supplied DefaultBump value is invalid
+  And the reviewed pull request carries release:major
+  When release resolution runs
+  Then validation fails before build
+  And no fallback level is selected
 
 Scenario: A direct push does not inherit the fallback
   Given the repository fallback is patch
@@ -328,6 +373,23 @@ consumer-change evidence, and maintainer evidence under
 [PR Format](../../Ways-of-Working/PR-Format.md), or equivalent reviewed aggregate
 context for a manual release.
 
+The complete description MUST contain exactly one announcement boundary after
+its leading summary. Each result MUST explain what changed, why, affected
+supported uses, compatibility, exact adoption actions with prerequisites,
+ordering, and verification, or an explicit no-action result with its
+compatibility basis. Supporting evidence MUST remain scoped to its result;
+internal-only work without a classifier uses the supporting block after the
+summary marker. Announcements MUST NOT truncate the full release record.
+
+Reading every applicable source-bound release record after the actual consumed
+baseline through the target in release order MUST be sufficient to compose the
+required actions. Notes MUST explain superseded actions while retaining required
+intermediate installations or runs; reading a record MUST NOT itself require
+installing its version. PRs and diffs MAY provide optional depth but MUST NOT
+replace required instructions. Missing instructions MUST block the affected
+publication as evidence gaps. Resource docs describe supported target-state
+behavior and usage, not version-specific migration history or a parallel changelog.
+
 The resolved version, version baseline, change baseline, fixed source, artifact
 fingerprint, effective decision and source, destination coordinates, and note
 snapshot provenance MUST be retained as a publication envelope without replacing
@@ -461,8 +523,10 @@ Scenario: An external producer remains immutable
 ### FR15 — Release-decision validation blocks an invalid merge {#fr15}
 
 Every pull request targeting a release line MUST receive a named release-decision
-check required by branch policy. The check MUST re-evaluate when source, owned
-release markers, or release settings change. A missing, conflicting, or invalid
+check required by branch policy, including native producer routes and routes
+without a release configuration file. The check MUST re-evaluate when source,
+owned release markers, release settings, supported caller inputs, or the
+effective pipeline changes. A missing, conflicting, or invalid
 decision MUST fail; a valid skip MUST pass with an explicit no-release result.
 A failed, pending, absent, or stale required result MUST block manual and
 automated merge.
@@ -472,8 +536,9 @@ automated merge.
 ```gherkin
 Scenario: Decision input changes invalidate the prior result
   Given a pull request has a successful release-decision check
-  When its only owned decision is removed
+  When its owned bump override is removed
   Then the check is rerun
+  And the valid effective DefaultBump supplies the new level
   And merge remains blocked until the new inputs resolve validly
 ```
 
@@ -615,8 +680,8 @@ Scenario: AC3 Withdrawal changes eligibility without changing history
 
 ## Where this connects
 
-- [Design](design.md) — how the intended lifecycle and current implementation
-  coverage realize these requirements.
+- [Design](design.md) — the lifecycle, input resolution, and producer conformance
+  that realize these requirements.
 - [Publishing Targets](design-publishing-targets.md) — the destination contract
   and native behavior.
 - [Automation Labels](../../Ways-of-Working/Automation-Labels.md) — the owned

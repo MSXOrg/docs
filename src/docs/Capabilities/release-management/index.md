@@ -21,7 +21,7 @@ consumers select an update policy that matches their trust boundary.
 | Page | Description |
 | --- | --- |
 | [Spec](spec.md) | Requirements for durable, recoverable, policy-driven releases and trustworthy consumer updates. |
-| [Design](design.md) | Durable release intents, lifecycle transitions, recovery, withdrawal, aliases, announcements, and implementation coverage. |
+| [Design](design.md) | Durable release intents, lifecycle transitions, recovery, withdrawal, aliases, announcements, and producer conformance. |
 | [Publishing Targets](design-publishing-targets.md) | Destination contracts for version mapping, prereleases, immutability, withdrawal, aliases, constraints, and release records. |
 | [Accept Moved Release Tags](accept-moved-release-tags.md) | Refresh an owned moving release alias locally and configure Git to keep it current. |
 

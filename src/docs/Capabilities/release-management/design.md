@@ -1,15 +1,15 @@
 ---
 title: Design
-description: Durable release intents, lifecycle transitions, recovery, withdrawal, aliases, announcements, and implementation coverage.
+description: Durable release intents, lifecycle transitions, recovery, withdrawal, aliases, announcements, and producer conformance.
 ---
 
 # Release Management — Design
 
-This page realizes the [release-management specification](spec.md) while keeping
-repositories on one shared, GitHub-native release path. It describes the
-**intended lifecycle** first, then identifies which parts the current shared
-automation baseline implements. The specification remains normative even where
-the implementation crosswalk records a gap.
+This page realizes the [release-management specification](spec.md) through
+shared, GitHub-native release mechanics, including native producer pipelines.
+It defines the durable lifecycle and input contract; the immutable producer
+revision's documented interface and verified behavior establish conformance.
+Documentation alone does not make a lifecycle control or setting available.
 
 ## Design principles
 
@@ -27,6 +27,18 @@ the implementation crosswalk records a gap.
    the controlled references required to implement that policy.
 
 ## Release authority and interfaces {#branching-model}
+
+The effective pipeline establishes whether the target route produces a
+versioned, immutable output consumed by version. Managed routes participate
+whether they use a shared workflow or a native producer pipeline, and whether
+`.github/release.config.yml` exists. Unmanaged routes omit release metadata and
+every `release:*` label; a Pages deployment alone is not a versioned release.
+
+Release branches are keyed by `ReleaseType.Stable`, `ReleaseType.Prerelease`,
+and `ReleaseType.ReleaseCandidate`, each with its own `Branch`. The stable
+branch defaults to the repository default branch; the other keys are optional.
+A branch cannot belong to two types, and unknown keys or duplicate assignments
+fail validation.
 
 Exactly one configured stable line owns stable publication. A repository can
 develop on several branches, but only a merge or approved manual request whose
@@ -62,7 +74,7 @@ identity makes duplicate delivery and retries idempotent.
 | Intent identity and idempotency key | Frozen | Identifies one logical release independently of a workflow run. |
 | Trigger and approval evidence | Frozen | Shows who or what authorized the release and included range. |
 | Stable line, fixed source, and range baseline | Frozen | Defines the exact source history being released. |
-| Aggregate decision and its source | Frozen | Records major, minor, patch, or skip and whether the fallback was used. |
+| Aggregate decision and its source | Frozen | Records major, minor, patch, or skip and the owned label, caller input, repository setting, or shared default that supplied it. |
 | Canonical version and reservation state | Frozen after Resolve | Prevents later work from taking the same coordinate. |
 | Release-note snapshot and provenance | Frozen | Preserves the reviewed contributor-authored account. |
 | Required destinations and announcement routes | Frozen | Prevents configuration drift during recovery. |
@@ -152,23 +164,53 @@ conflicts live in [Automation Labels](../../Ways-of-Working/Automation-Labels.md
 | `release:minor` | Selects a minor aggregate increment. |
 | `release:patch` | Selects a patch aggregate increment. |
 | `release:skip` | Validates and accumulates the change without immediate publication. |
-| `release:pre-release` | Publishes an ordinary prerelease series for the next stable candidate. |
-| `release:rc` | Publishes the next constant-identifier release candidate for the next stable candidate. |
-| `release:announce` | Enables configured completion announcements for the frozen request. |
+| `release:prerelease` | Publishes an ordinary prerelease series using the resolved bump. |
 
-Exactly one of major, minor, patch, or skip can own the decision. An ordinary
-prerelease or RC is a modifier on a major, minor, or patch request; neither can
-modify skip, and the two prerelease modes conflict with one another.
-`release:announce` does not select a version or authorize publication.
+One owned bump label overrides the valid effective `DefaultBump`; without one,
+that default supplies the level. Multiple bump labels and skip with any other
+owned release label fail. Prerelease mode uses the resolved bump, not another
+level. Release-candidate routing comes from `ReleaseType.ReleaseCandidate`;
+announcement behavior comes from supported settings, not additional labels.
 
-The required pull-request check recomputes when source, owned markers, or
-`.github/release.config.yml` changes. It publishes one named required result and
+### Settings and caller overrides
+
+Follow [Smart defaults, local overrides](../../Ways-of-Working/Principles/Software-Design.md#smart-defaults-local-overrides):
+shared defaults are overridden by repository settings, then by explicitly
+supplied supported caller inputs for the invocation. Omitted caller inputs
+preserve repository settings; they do not reset them to an input's default.
+
+`DefaultBump` accepts exactly `patch`, `minor`, or `major`. Its documented shared
+default is `patch`, including when the configuration file or field is omitted.
+Validate every supplied setting before resolving labels: unknown names, null or
+empty values, and invalid values fail even when a narrower override or explicit
+bump would supply a valid level. Bare and unrelated labels do not participate.
+
+Verify the immutable producer revision's supported settings and owned-label
+mapping. A differing released interface requires a verified adapter or
+producer/configuration migration before canonical signals are used. Exact
+adoption instructions stay in that producer's PR/release record. Missing
+support blocks finalization and decision validation rather than becoming a
+successful ignored skip or opting the managed route out.
+
+| PR input | Effective default and source | Result |
+| --- | --- | --- |
+| No owned bump label | No repository/caller override; shared `patch` | Patch; shared default recorded, no per-PR bump label required. |
+| No owned bump label | Repository `major`; explicit caller `minor` | Minor; caller overrides repository policy. |
+| `release:major` | Valid effective `patch` | Major; explicit label overrides the default. |
+| `release:prerelease` alone | Valid effective `minor` | Minor in prerelease mode. |
+| `release:skip` alone | Valid settings | No release; validation still runs. |
+| Multiple bumps, or skip with another owned label | Any | Fail: conflicting owned signals. |
+| Any, including explicit bump or skip | Invalid supplied setting | Fail: no fallback or masking by another input. |
+
+The required pull-request check recomputes when source, owned markers, release
+settings, supported caller inputs, or the effective pipeline change. It publishes
+one named required result and
 fails closed for missing, conflicting, invalid, stale, or unsupported input.
 
 ### Required pre-merge decision check {#required-pre-merge-decision-check}
 
 The decision check is the release resolver in validation mode. It validates the
-current pull-request decision, configured fallback, modifier conflicts, source
+current pull-request decision, valid effective default, modifier conflicts, source
 scope, and whether the known accumulated range can be approved by this request.
 It never publishes or reserves a version. Branch policy requires its exact
 check name, so absent and stale results block merge as well as explicit failure.
@@ -358,6 +400,13 @@ publication. Resolve freezes whether announcements are enabled and which
 configured destinations apply. Complete freezes the canonical message context:
 version, immutable release link, summary, and release-intent identity.
 
+The summary is exactly the leading text before the single
+`<!-- ANNOUNCEMENT STOP -->` marker required by [PR Format](../../Ways-of-Working/PR-Format.md).
+Validate that boundary outside code fences before preparing the message;
+missing or duplicate markers are errors, not instructions to truncate elsewhere.
+The complete captured title and body remain in the GitHub release record.
+Announcement delivery never extracts a subset of that record for publication.
+
 Each announcement destination has its own delivery record and idempotency key.
 The sender records attempts and acknowledgements. If acknowledgement is missing,
 it may resend the same logical message; receivers therefore observe
@@ -374,17 +423,32 @@ reducing it to a generated commit list. The frozen note snapshot follows
 [PR Format](../../Ways-of-Working/PR-Format.md) and covers every reviewed pull
 request in the accumulated range, including skipped changes.
 
+Each result's prose and examples contain what changed, why, affected uses,
+compatibility, exact actions with prerequisites, ordering, and verification, or
+an explicit no-action result with its compatibility basis. Required old-to-new
+instructions stay in the note, not repository migration guides or a parallel
+changelog. Result-scoped technical details hold supporting evidence; internal-only
+work without a classifier uses the block after the summary marker.
+
+Consumers read every applicable source-bound record after their actual consumed
+baseline through the target and compose the actions in release order. Later
+notes explain superseded actions while retaining required intermediate
+installations or runs. Reading a record does not require installing its version
+unless the note explicitly requires that operation. PRs and diffs provide
+optional depth; resource docs describe supported target-state behavior and usage.
+
 Manual requests supply equivalent reviewed context for direct or otherwise
-unaccounted changes. Resolve fails if a source revision in the range has neither
-reviewed note context nor an explicit evidence-gap record approved with the
-manual request.
+unaccounted changes. Resolve fails if a source revision in the range lacks
+reviewed note context or required consumer instructions. An evidence-gap record
+identifies missing facts but never waives the complete consumer record or
+authorizes a publisher to invent a no-action result.
 
 The publication envelope augments, but does not rewrite, the authored note:
 
 - canonical and destination-native versions;
 - previous completed stable baseline;
 - fixed source and included range;
-- aggregate decision, decision source, and fallback use;
+- aggregate decision and its owned-label or effective-setting source;
 - artifact fingerprint and verification evidence;
 - destination coordinates and release-record links;
 - note snapshot provenance; and
@@ -396,12 +460,12 @@ the version, source, artifact, decision, or behavior attributed to the release.
 
 ## Release scope
 
-`Paths` is evaluated over the complete accumulated range. With no explicit
+`release-paths` is evaluated over the complete accumulated range. With no explicit
 configuration, every path is release-affecting. A repository can narrow scope
 only after accounting for direct and transitive artifact inputs.
 
 ```yaml
-Paths:
+release-paths:
   - src/**
   - module/**
   - build/**
@@ -464,61 +528,53 @@ Repositories keep the existing MSX configuration file:
 .github/release.config.yml
 ```
 
-The current baseline surface remains:
+The canonical settings surface is:
 
 ```yaml
-ReleaseBranches:
-  - main
 DefaultBump: patch
-Paths:
+ReleaseType:
+  Stable:
+    Branch: main
+  Prerelease:
+    Branch: dev
+  ReleaseCandidate:
+    Branch: rc
+release-paths:
   - src/**
   - module/**
 ```
 
-- `ReleaseBranches` identifies branches evaluated by the existing schema. The
-  intended lifecycle permits exactly one value to authorize stable publication;
-  any additional branch can validate or publish prereleases only.
-- `DefaultBump` accepts only `major`, `minor`, or `patch` and applies only to an
+- `ReleaseType` owns the keyed branch mapping. `Stable.Branch` defaults to the
+  repository default branch; `Prerelease` and `ReleaseCandidate` are optional.
+  Unknown keys and duplicate branch assignments fail.
+- `DefaultBump` has the shared default `patch` and accepts only `patch`, `minor`,
+  or `major`. Repository settings and supported caller inputs override it, then
+  a single owned bump label overrides the valid effective default for the
   associated reviewed pull request.
-- `Paths` declares artifact-affecting scope. Omission means every path.
+- `release-paths` declares artifact-affecting scope. Omission means every path.
 
-The intended configuration surface additionally needs independently disabled
+Lifecycle controls include independently disabled
 `latest`, major, and minor aliases; publishing destinations; announcement
 destinations; retained-artifact policy; and destination-specific native mapping.
-Those fields are not documented as YAML keys until the shared implementation
-defines and validates them. Unknown fields and values fail closed; repositories
-must not invent local release schema.
+An implementation documents the exact keys and caller inputs it supports;
+this contract does not make unsupported controls available. Unknown fields and
+values fail closed; repositories must not invent local release schema.
 
 Repositories choose policy. Shared automation owns resolution, durable state,
 SemVer calculation, artifact handoff, retry rules, target adapters, discovery,
 alias reconciliation, and evidence format.
 
-## Intended and implemented behavior
+## Implementation conformance {#intended-and-implemented-behavior}
 
-The lifecycle above is the target design. The implementation lives in shared
-release automation rather than this documentation repository, and each
-repository remains governed by the workflow revision it invokes. The table
-records the audited shared baseline that this capability documentation
-synchronizes against; an **intended** row MUST NOT be treated as available until
-the invoked workflow documents and exposes it.
+Each repository is governed by the immutable producer revision it invokes.
+Verify the documented setting and label mappings, actual supported lifecycle
+controls, and conformance evidence before relying on them. A configuration
+example or normative requirement is not proof that an older producer implements
+it. Version-specific implementation deltas and required adoption actions belong
+in that producer's PR/release record, not a parallel status or migration history
+in this design.
 
-| Surface | Baseline coverage | Intended behavior still required |
-| --- | --- | --- |
-| Pull-request release decision | Implemented for explicit major, minor, patch, skip, ordinary prerelease, and `DefaultBump`. | Aggregate the full unreleased range and preserve the frozen decision source. |
-| Direct pushes | Validation and push-triggered processing exist. | Prevent fallback-based publication and require an approved manual aggregate request. |
-| Manual stable releases | Not implemented as a release-creation path. | Fixed stable-line source, explicit aggregate increment, complete notes, and range approval. |
-| Dedicated RC mode | Not implemented. | `release:rc`, constant `rc` identifier, monotonic counters, and conflict with `release:pre-release`. |
-| Durable release intent | Workflow-run evidence exists; resolution is based on current pull-request metadata and tags. | Durable frozen inputs, lifecycle state, idempotency, and permanent version reservations. |
-| Build-once recovery | A run can hand one build artifact to later jobs. | Retain successful bytes across runs, verify the fingerprint, and resume by recorded phase without rebuilding. |
-| Multi-target completion | Publication can target configured destinations. | Durable per-destination progress and completion only after every required target succeeds. |
-| Current-version discovery | Version calculation is tag-oriented. | Select the greatest eligible completed stable intent and exclude incomplete or withdrawn releases. |
-| Moving aliases | Existing shared flows can update configured aliases. | Closed opt-in families, monotonic completion updates, and withdrawal-aware reselection or removal. |
-| Announcements | Durable announcement delivery is not implemented. | Frozen message context, per-destination journal, idempotency, and at-least-once retry after completion. |
-| Retirement and withdrawal | End-to-end lifecycle operations are not implemented. | Preserve failure or completion history, permanent reservations, target-native withdrawal evidence, and replay-safe terminal outcomes. |
-| Immutable GitHub Releases | Exact version tags are treated as immutable by policy. | Reconcile and verify the repository's immutable-release setting where GitHub supports it. |
-| Published-note correction | Release notes and evidence are published. | Append-only correction records with source evidence and unchanged release identity. |
-
-Until the durable lifecycle is implemented, an operator MUST NOT work around a
+For an incomplete release, an operator MUST NOT work around a
 partial release by rerunning against changed metadata or rebuilding under the
 same exposed version. Stop, preserve evidence, and roll forward with a newly
 approved version when byte identity cannot be proven.

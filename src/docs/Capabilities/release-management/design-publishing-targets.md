@@ -94,10 +94,10 @@ successful only when the existing tag, assets, and release record match the
 frozen release intent.
 
 Repositories enable GitHub's immutable-release protection where the platform
-supports it. Shared automation reconciles and verifies that setting rather than
-assuming repository policy remained unchanged. Until setting reconciliation is
-implemented, exact tags and assets remain immutable by MSX policy but lack the
-full intended platform enforcement.
+supports it. Verify the effective repository setting and producer controls from
+read-back evidence rather than assuming they exist because this contract
+describes them. Policy alone is not proof of platform enforcement; missing
+controls are conformance gaps to record and resolve.
 
 ### GitHub withdrawal
 
@@ -126,8 +126,12 @@ moving tag.
 
 ### GitHub release record
 
-The GitHub Release contains the contributor-authored note, publication envelope,
-fixed source, and links to every destination coordinate. The durable release
+The GitHub Release contains the complete captured contributor-authored title and
+description, publication envelope, fixed source, and links to every destination
+coordinate. The single announcement boundary separates the leading shareable
+summary, not the published record. The notes themselves carry all applicable
+consumer adoption actions or an explicit no-action result; another repository
+migration guide or changelog never supplies missing instructions. The durable release
 intent remains the authority for lifecycle state, including partial publication,
 retirement, withdrawal, alias reconciliation, and announcements.
 
@@ -159,7 +163,7 @@ version.
 ### PowerShell Gallery release record
 
 The gallery listing and package hash are recorded as destination evidence. The
-GitHub Release links the gallery coordinate to the canonical source, notes, and
+GitHub Release links the gallery coordinate to the canonical source, complete notes, and
 cross-target release intent.
 
 ## NuGet
@@ -187,7 +191,8 @@ An exact package version remains the immutable release coordinate.
 ### NuGet release record
 
 The package listing, content hash, and withdrawal or deprecation state are
-destination evidence. The GitHub Release is the human-readable join point.
+destination evidence. The GitHub Release is the human-readable join point and
+preserves the complete consumer record.
 
 ## VS Code Marketplace
 

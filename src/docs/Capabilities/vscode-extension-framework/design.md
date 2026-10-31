@@ -103,16 +103,18 @@ Versioning is [Release Management](../release-management/design.md) applied to a
 VSIX artifact — this framework does not re-implement it:
 
 - The shared resolver uses one explicit owned bump label or, without one, the
-  optional `DefaultBump` in `.github/release.config.yml`. A valid `release:skip`
-  reports a no-release decision without skipping validation; otherwise a missing
-  level fails the required PR decision check. Invalid defaults and conflicting
-  owned labels also fail. No implicit patch is selected.
-- The version check re-evaluates source, release-label, and release-settings
-  changes and follows the shared
+  valid effective `DefaultBump`. The documented shared patch default,
+  repository settings, and supported caller inputs resolve under the shared
+  [settings contract](../release-management/design.md#settings-and-caller-overrides).
+  A valid `release:skip` reports a no-release decision without skipping
+  validation. Invalid supplied settings and conflicting owned labels fail;
+  another input never masks them.
+- The version check re-evaluates source, release labels, release settings,
+  supported caller inputs, and the effective pipeline, following the shared
   [pre-merge gate](../release-management/design.md#required-pre-merge-decision-check).
 - The version is computed once and stamped into the manifest; it is never
   hand-edited.
-- A prerelease is requested by `release:pre-release` with a resolved bump on
+- A prerelease is requested by `release:prerelease` with a resolved bump on
   an open pull request (or by a prerelease branch), producing a prerelease VSIX
   that is never promoted to latest. When such a build is also published to the
   VS Code Marketplace, it goes out with `@vscode/vsce publish --pre-release` and
@@ -175,7 +177,7 @@ Every external Action is pinned to a commit SHA; organization- or initiative-own
 | Adoption (opt-in) | a short caller workflow that calls the reusable workflow |
 | Host + OS matrix, marketplace toggle, extras | `.github/vscode-extension.yml` |
 | Explicit bump / prerelease / skip | owned pull-request label |
-| Optional default bump | `DefaultBump` in `.github/release.config.yml` |
+| Default bump and overrides | shared `DefaultBump: patch`, repository settings, and supported caller inputs |
 | Pre-merge decision validation | version check required by the branch ruleset or protection |
 | Release branches + path filter | `.github/release.config.yml` ([Release Management](../release-management/design.md)) |
 | Marketplace publish tokens | a GitHub environment's secrets |
