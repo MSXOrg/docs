@@ -109,8 +109,8 @@ VSIX artifact — this framework does not re-implement it:
   A valid `release:skip` reports a no-release decision without skipping
   validation. Invalid supplied settings and conflicting owned labels fail;
   another input never masks them.
-- The version check re-evaluates source, release-label, and release-settings
-  changes and follows the shared
+- The version check re-evaluates source, release labels, release settings,
+  supported caller inputs, and the effective pipeline, following the shared
   [pre-merge gate](../release-management/design.md#required-pre-merge-decision-check).
 - The version is computed once and stamped into the manifest; it is never
   hand-edited.
