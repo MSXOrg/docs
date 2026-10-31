@@ -27,7 +27,7 @@ Include what is relevant. Not every repository needs every section.
 | **Usage**            | Examples and explanations of key functionality. Code samples where applicable.   |
 | **Configuration**    | Settings, environment variables, or options the user can control.                |
 | **Architecture**     | High-level overview — folders, components, data flow — for complex repos.        |
-| **Contributing**     | How to contribute, or a link to the organization-level contributing guide.       |
+| **Contributing**     | Applicable contribution guidance: the organization default, or a [local guide when needed](Repository-Standard.md#contribution-guidance). |
 | **License**          | License type or a link to the LICENSE file.                                      |
 
 For simple repositories (e.g., a single GitHub Action), a subset is fine — at minimum the title, description, and usage sections.

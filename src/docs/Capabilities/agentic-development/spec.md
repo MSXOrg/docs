@@ -81,7 +81,7 @@ Applies to any organization that wants a shared project knowledge base for agent
 - An agent working in `github.com/MSXOrg/<repo>` resolves `github.com/MSXOrg/docs` as the canonical project context.
 - An agent working in `<host>/<org>/<repo>` for any adopting organization resolves its designated documentation repository as the canonical project context, with no change to the framework.
 - A new product repository can adopt the framework by adding a router and the client routes that reach it, without copying standards pages.
-- An agent reads the repository's own README and CONTRIBUTING before it reads an organization standard, and still applies the organization standard when the two disagree.
+- An agent reads the repository's own README and [applicable contribution guidance](../../Ways-of-Working/Repository-Standard.md#contribution-guidance), local when needed and otherwise shared, before an organization standard, and still applies the organization standard when the two disagree.
 - A human or agent can follow the declared entry index to the applicable Workflow and current stage procedure.
 - A prompt such as `Review this PR <link>` reaches the Review procedure directly, while `Make this issue <description>` reaches Define, without a parallel process definition.
 - A missing, dirty, locally ahead, diverged, wrong-branch, or unreachable canonical context repository stops discovery before any context index is read.
@@ -96,7 +96,7 @@ The framework uses this normative reading order:
 2. **User-global preferences** — the human operator's baseline style and risk posture.
 3. **Repository router** — `AGENTS.md` identifies the host, organization, and the context sources below, in the order they are read.
 4. **Freshness gate** — fetch every canonical context repository and stop unless each clean default-branch checkout exactly matches its remote head.
-5. **Repository context** — README, CONTRIBUTING, local docs, and narrow repository exceptions.
+5. **Repository context** — README, applicable contribution guidance (local when needed, otherwise shared), local docs, and narrow repository exceptions.
 6. **Path-scoped repository rules** — local rules that apply to the files being read, generated, reviewed, or edited.
 7. **Organization documentation** — the designated documentation repository for the resolved organization: start at its entry index, resolve the current stage, then load the relevant standards, specs, and designs.
 8. **Inherited ecosystem documentation** — where the organization inherits from a broader standard set, the layer it inherits from.
