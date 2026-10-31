@@ -91,6 +91,15 @@ is about the route's release behavior, not one implementation. The optional
 `.github/release.config.yml` file refines the route's settings; its absence alone
 does not prove that release management is absent.
 
+Verify the immutable producer revision's supported settings and owned-label
+mapping before using the canonical signals below. A native producer participates
+in the contract but does not gain support for those signals from this
+documentation alone. If its released interface differs, require a verified
+adapter or a producer/configuration migration with complete adoption actions in
+that producer's PR/release record. Hold finalization until the effective mapping
+and required decision check are verified; do not apply a label the pipeline
+ignores, silently translate it, or classify an incompatible producer as unmanaged.
+
 If the route does not invoke Release Management, omit the entire `Release
 decisions` block and do not apply or report any `release:*` label, including
 `release:skip`.
@@ -262,6 +271,12 @@ same scoped block. Keep the consumer's instructions in the result's prose and
 examples; the supporting evidence verifies those instructions rather than
 replacing them.
 
+Record the closing delivery leaf's implementation-plan progress and the
+[issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep)
+search scope and outcome in that same block, including when no additional issue
+converges. For internal-only work without classified sections, the block after
+the summary marker carries this evidence and any applicable release evidence.
+
 Use fully qualified `owner/repository#number` references for every same-instance
 GitHub issue or pull request, including references to the current repository.
 Use closing keywords only for issues the complete change actually resolves.
@@ -370,7 +385,9 @@ is sufficient. }}
 <details>
 <summary>Technical details</summary>
 
-{{ Implementation and validation evidence for this result. }}
+{{ Implementation and validation evidence, closing delivery-leaf plan progress,
+and issue-convergence search scope and outcome for this result, even when no
+additional issue converges. }}
 
 | Changed surface | Standards checked | Framework docs checked | Result |
 | --- | --- | --- | --- |
@@ -409,7 +426,9 @@ is sufficient. }}
 <details>
 <summary>Technical details</summary>
 
-{{ Implementation and validation evidence for this result. }}
+{{ Implementation and validation evidence, closing delivery-leaf plan progress,
+and issue-convergence search scope and outcome for this result, even when no
+additional issue converges. }}
 
 | Changed surface | Standards checked | Framework docs checked | Result |
 | --- | --- | --- | --- |
@@ -448,7 +467,9 @@ is sufficient. }}
 <details>
 <summary>Technical details</summary>
 
-{{ Implementation and validation evidence for this result. }}
+{{ Implementation and validation evidence, closing delivery-leaf plan progress,
+and issue-convergence search scope and outcome for this result, even when no
+additional issue converges. }}
 
 | Changed surface | Standards checked | Framework docs checked | Result |
 | --- | --- | --- | --- |
@@ -487,7 +508,9 @@ is sufficient. }}
 <details>
 <summary>Technical details</summary>
 
-{{ Implementation and validation evidence for this result. }}
+{{ Implementation and validation evidence, closing delivery-leaf plan progress,
+and issue-convergence search scope and outcome for this result, even when no
+additional issue converges. }}
 
 | Changed surface | Standards checked | Framework docs checked | Result |
 | --- | --- | --- | --- |
@@ -526,7 +549,9 @@ is sufficient. }}
 <details>
 <summary>Technical details</summary>
 
-{{ Implementation and validation evidence for this result. }}
+{{ Implementation and validation evidence, closing delivery-leaf plan progress,
+and issue-convergence search scope and outcome for this result, even when no
+additional issue converges. }}
 
 | Changed surface | Standards checked | Framework docs checked | Result |
 | --- | --- | --- | --- |

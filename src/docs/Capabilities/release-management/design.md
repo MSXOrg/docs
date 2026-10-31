@@ -1,6 +1,6 @@
 ---
 title: Design
-description: How release management is built — a shared reusable workflow that resolves an explicit or configured SemVer bump, builds once, and publishes.
+description: How release management is built — effective defaults, owned overrides, source-bound notes, and build-once publication.
 ---
 
 # Release Management — Design
@@ -30,6 +30,13 @@ immutable output that another system consumes by version.
 
 Configuration can change branch types, paths, a default bump, and other release
 behavior only after the effective pipeline establishes that the route is managed.
+
+Inspect the immutable producer revision's actual settings and label mapping.
+Legacy or differing interfaces require a verified adapter or producer/configuration
+migration before the canonical signals are used. Keep exact adoption instructions
+in that producer's PR/release record. A missing mapping blocks finalization and
+decision validation; it does not opt the route out or turn an ignored signal into
+a successful skip.
 
 ## Branching model
 
@@ -159,9 +166,11 @@ Resolve the decision in this order:
 | Multiple bump labels, or skip with another owned release label | Any | Fail: conflicting decisions; no fallback. |
 | Any, including an explicit bump or skip | Invalid supplied setting | Fail: invalid configuration; no fallback or masking by an override. |
 
-- **First release** starts from a baseline (`v0.1.0` or `v1.0.0`). Pre-`1.0.0`
-  breaking changes are `release:minor` per [SemVer §4](https://semver.org/#spec-item-4);
-  `release:major` is never auto-detected pre-`1.0.0`.
+- **First release** uses `0.0.0` as the version base when no stable history
+  exists. The resolved patch, minor, or deliberate major bump produces
+  `0.0.1`, `0.1.0`, or `1.0.0`, respectively. Pre-`1.0.0` breaking changes
+  use minor per [SemVer §4](https://semver.org/#spec-item-4); reaching `1.0.0`
+  is a deliberate major decision, never an auto-detected breaking classification.
 - The tag is created on the commit now at the head of the release branch —
   squash, merge-commit, and rebase strategies alike.
 
@@ -286,6 +295,11 @@ prerequisites, ordering, and verification, or an explicit no-action result and
 its compatibility basis. Necessary old-to-new examples stay in the note.
 Consumer instructions appear in each result's prose and examples; scoped
 technical details retain their supporting evidence.
+
+For internal-only work without a classified section, the summary contains the
+adoption or explicit no-action result and the supporting block after its marker
+contains the applicable evidence. Preserve that permitted PR Format shape rather
+than manufacturing a classified result solely to hold metadata.
 
 Consumers read every applicable record after their actual consumed baseline
 through their chosen target in release order, then compose the necessary
