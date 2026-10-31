@@ -52,16 +52,13 @@ owns it.
 7. Open the pull request as a draft and follow the
    [Contribution Workflow](https://msxorg.github.io/docs/Ways-of-Working/Contribution-Workflow/).
 
-## Pull request template
+## Pull request format
 
-This repository intentionally has no local pull request template. GitHub inherits
-the [MSX organization
-template](https://github.com/MSXOrg/.github/blob/main/.github/pull_request_template.md)
-from the special `MSXOrg/.github` repository. Treat that template as a starting
-scaffold; the canonical [PR
-Format](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/) controls the
-final title and description. Start from its
-[complete description template](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/#copy-the-complete-template).
+Write the actual title and complete description using [canonical PR
+Format](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/).
+Use its [complete description example](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/#complete-description-example)
+and verify the resulting record and its release-range/source evidence against
+that guidance.
 
 ## Authoring conventions
 

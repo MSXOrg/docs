@@ -25,15 +25,15 @@ discoverability minimum defined below instead.
 | --- | --- |
 | `README.md` | Acts as the repository start page: purpose, target audience, value, access, first mental model, and where to go next. |
 | `LICENSE` | States the legal terms for reuse and redistribution. |
-| `.github/CONTRIBUTING.md` | Explains how to contribute, including how the organization defaults and central pull request template apply. |
+| `.github/CONTRIBUTING.md` | Explains repository-specific contribution steps and links to applicable organization defaults and canonical PR Format. |
 | `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation. [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior) names the files and the path each one sits at. |
 | `.github/dependabot.yml` | Configures platform-native dependency-update pull requests for supported ecosystems. The `github-actions` ecosystem is expected in virtually every repository; an unsupported ecosystem follows the centrally managed exception path rather than a repository-local updater. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
 | `.gitattributes` | Normalizes line endings and declares text/binary handling so the repository can be developed and built consistently on Linux, macOS, and Windows. |
 | `.gitignore` | Ignores files that must never be committed, tailored to the repository's ecosystem: operating-system files, editor and developer-tooling files, language and test-harness artifacts, and all local build outputs and files created during build and test. |
 
-The organization provides `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`,
-and `.github/pull_request_template.md` as GitHub community defaults. It MAY
+The organization provides `CODE_OF_CONDUCT.md`, `SECURITY.md`, and `SUPPORT.md`
+as GitHub community defaults. It MAY
 also provide `.github/CONTRIBUTING.md` and `.github/ISSUE_TEMPLATE/` as
 optional defaults. Do not copy any of these organization defaults into a
 repository unless it needs a documented local exception; see
@@ -178,11 +178,23 @@ the same diff. When the target route invokes Release Management, the description
 and labels carry its evidence-based release decision. A route without that
 invocation carries neither the `Release decisions` block nor `release:*` labels.
 
-The organization-level `.github` repository supplies the default template.
-The repository-local contribution guide directs humans and agents to the
-organization template and the canonical format. The inherited template is a
-scaffold; PR Format remains authoritative. A repository carries a local template
-only for a documented exception.
+Contribution guidance and thin skills direct humans and agents to the
+[complete PR description example](PR-Format.md#complete-description-example).
+Verify the actual title, complete body, source coverage, and required supporting
+evidence against PR Format.
+
+### No PR-template files
+
+GitHub PR-template files MUST NOT be stored, inherited, distributed, or generated
+by MSX repositories. This applies to every repository type and the special
+`MSXOrg/.github` and `PSModule/.github` sources, default-template files, and
+multiple-template directories. There is no PR-template-file exception.
+
+Authors use the canonical [PR Format](PR-Format.md) procedure and complete
+description example for the actual record. An inherited scaffold, file-presence
+check, or similarity to a central copy is not evidence of format adherence.
+Other community defaults, genuine repository-specific contribution
+instructions, and product integration templates remain unaffected.
 
 ## Managed files
 

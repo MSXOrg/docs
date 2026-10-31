@@ -268,7 +268,7 @@ summary.
 ### End the shareable summary
 
 End the summary with the exact HTML marker shown in the
-[complete template](#copy-the-complete-template).
+[complete description example](#complete-description-example).
 
 The marker appears exactly once, on its own line, outside a code fence, and
 before the first detailed section. Text before it must remain useful when shared
@@ -345,7 +345,8 @@ blocks directly after the summary marker.
 Put the standards and framework alignment evidence required by
 [Implement](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass)
 in the `Technical details` block for the result it supports. For a
-release-managed result, include the applicable consumer, template, and baseline
+release-managed result, include the applicable consumer, product-integration,
+and baseline
 evidence required by [Release
 Management](../Capabilities/release-management/spec.md#release-evidence) in that
 same scoped block. Keep the consumer's instructions in the result's prose and
@@ -428,9 +429,10 @@ Use this order:
 Do not add a `Summary` heading, empty classified sections, global supporting
 blocks, or parallel release-note metadata.
 
-### Copy the complete template
+### Complete description example
 
-Start from this complete body. Replace every placeholder and delete every
+Use the complete example below to write the actual PR description. Replace
+every placeholder and delete every
 classifier section, supporting block, example, or release field that does not
 apply. Repeat a complete classifier section when several distinct results share
 the same classifier, and keep every remaining classifier group in the order

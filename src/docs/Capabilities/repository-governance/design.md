@@ -97,7 +97,6 @@ the same structure:
 | `.github/CODE_OF_CONDUCT.md` | Required | Inherited by a repository that has no local code of conduct. |
 | `.github/SECURITY.md` | Required | Inherited by a repository that has no local security policy. |
 | `.github/SUPPORT.md` | Required | Inherited by a repository that has no local support policy. |
-| `.github/pull_request_template.md` | Required | Used when a repository has no local pull request template. |
 | `.github/CONTRIBUTING.md` | Optional | Provides an organization-wide fallback where local contribution guidance is absent. |
 | `.github/ISSUE_TEMPLATE/` | Optional | Provides the organization's issue forms and template configuration where a repository defines no local issue-template set. |
 | `profile/README.md` | Optional | Publishes the public organization profile; it is not inherited by repositories. |
@@ -109,6 +108,14 @@ so their scope is visible from their path. A local file in a target repository
 takes precedence and therefore records a deliberate repository exception. If a
 target defines any local issue-template set, it owns that complete set rather
 than combining local and central forms.
+
+There is no PR-template-file surface to inherit or distribute. Ordinary and
+defaults repositories follow the [Repository Standard's file
+policy](../../Ways-of-Working/Repository-Standard.md#no-pr-template-files).
+PR authoring evidence verifies the actual title, complete body, and source
+coverage against that contract, not a source scaffold's presence. Product
+integration templates and the other community defaults retain their own
+ownership.
 
 The defaults repository does not centralize repository ownership, dependency
 updates, release configuration, license terms, or other repository-specific
@@ -163,6 +170,7 @@ the contract below, not the implementation that satisfies it.
 | Rulesets apply | Do the rulesets the type implies actually evaluate against this repository? |
 | Branch shape matches | Do the protected branches, merge methods, and required checks match what the type declares? |
 | Required files present | Does the default branch carry the governed baseline and the files its type adds, or the explicit Unmanaged discoverability minimum? |
+| PR authoring and file policy | Are PR-template files absent under the [Repository Standard](../../Ways-of-Working/Repository-Standard.md#no-pr-template-files), and do actual records meet [PR Format](../../Ways-of-Working/PR-Format.md#check-readiness) with verified source coverage and supporting evidence? |
 
 ### Severity decides the response
 
