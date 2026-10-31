@@ -528,10 +528,19 @@ company. External dependencies use the strongest immutable reference available.
 The [Dependencies standard](../../Coding-Standards/Dependencies.md) owns the
 broader pinning and update trade-off.
 
+The consumer's artifact-specific pinning standard is an additional constraint,
+not replaced by trust or alias availability. The owned-automation controlled
+major-tag exception does not authorize a minor alias for Actions or reusable
+workflows. Such a consumer can express patch-only update selection while
+retaining the required immutable reference; it does not acquire broader mutable
+pinning permission from this policy table.
+
 Before `1.0.0`, SemVer permits a breaking change in each minor version. A major
 alias such as `v0` therefore crosses potentially breaking `0.y.z` releases. A
-consumer that wants patch-only movement before `1.0.0` uses a minor alias such
-as `v0.4`, not `v0`.
+consumer that wants patch-only movement before `1.0.0` uses a native minor bound
+or a permitted minor alias such as `v0.4`, not `v0`. Where its narrower pinning
+standard permits only an immutable reference, bounded update selection resolves
+and records the exact version or fingerprint instead.
 
 ## Ordering, idempotency, and reconciliation
 

@@ -13,6 +13,11 @@ Do not use this procedure for exact version tags such as `v3.4.2`. Exact version
 tags are immutable. A moved exact tag is a producer integrity incident, not a
 normal update.
 
+Use a mutable alias only when the consumer's artifact-specific pinning standard
+permits it. The owned Action/reusable-workflow major-tag exception does not
+authorize minor aliases; the examples here describe generic alias recovery, not
+permission to relax that narrower standard.
+
 ## Why an ordinary fetch can leave a stale tag
 
 Git protects existing local tags from being overwritten. An ordinary

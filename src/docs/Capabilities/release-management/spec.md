@@ -513,6 +513,13 @@ MUST be pinned to an immutable fingerprint or exact immutable version. `latest`
 MAY discover a release without an alias, then resolve it to the reference allowed
 by the trust boundary.
 
+Policy expressibility does not grant permission to retain a mutable reference.
+Consumers MUST also satisfy their artifact-specific pinning standard. For owned
+Actions and reusable workflows, the controlled major-tag exception does not
+authorize a minor alias; a patch-only policy uses immutable references with
+bounded update selection when that standard requires them. Producer alias
+availability alone MUST NOT relax the narrower consumer rule.
+
 #### FR14 scenarios
 
 ```gherkin
