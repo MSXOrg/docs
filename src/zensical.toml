@@ -124,6 +124,7 @@ nav = [
       {"Spec" = "Capabilities/release-management/spec.md"},
       {"Design" = "Capabilities/release-management/design.md"},
       {"Publishing Targets" = "Capabilities/release-management/design-publishing-targets.md"},
+      {"Accept Moved Release Tags" = "Capabilities/release-management/accept-moved-release-tags.md"},
     ]},
     {"Repository Governance" = [
       "Capabilities/repository-governance/index.md",
