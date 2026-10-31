@@ -59,7 +59,7 @@ framework itself.
 - **A reproducible, self-contained bundle.** The extension is compiled into a single self-contained bundle with no unbundled runtime dependencies; the same commit always produces the same output.
 - **Tested on a real host.** The extension is tested against a real VS Code host, across the host versions and operating systems the extension declares as supported. Tests exercise the exact bundle that ships — never a separately compiled copy.
 - **A static quality gate.** Every change is linted and type-checked, and the pipeline holds on any error. Quality is validated at pull-request time, not after merge.
-- **Built once, shipped once.** The version is computed once, stamped into the manifest, and the same packaged VSIX is what is tested and what is published. Build, test, and release MUST NOT diverge.
+- **Built once, shipped once.** The canonical release identity and validated native extension version MUST be resolved before Build. The native version is stamped into the manifest, and the same packaged VSIX is tested and published unchanged. The GitHub Release records the canonical/native mapping; destination-native numbers need not be textually identical. Build, test, and release MUST NOT diverge.
 - **Policy-driven, semantic versioning.** Versioning follows [Release Management](../release-management/spec.md): an explicit owned bump label overrides the valid effective `DefaultBump`; without a bump label, the documented default supplies the level. Invalid settings and conflicting owned labels MUST fail the required PR check and block merge. `release:skip` prevents publication, and `release:prerelease` MAY use the resolved explicit or default bump. The version is [SemVer](https://semver.org/) and is derived automatically — never hand-edited in the manifest.
 - **An installable artifact on every release.** Each release produces an installable VSIX attached to its [GitHub Release](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases), together with an immutable reference. A user MUST be able to install a specific released version without a marketplace account.
 - **Optional marketplace publication.** Where configured, the same VSIX is also published to an extension marketplace (the VS Code Marketplace and/or Open VSX). Marketplace publication is opt-in and MUST NOT be a prerequisite for the GitHub-Release install path.
@@ -72,10 +72,10 @@ framework itself.
 ## Success criteria
 
 - Creating a repository from the template and providing a valid release decision yields a green build, a passing test run, and a packaged VSIX with no extension-specific configuration written.
-- An eligible pull request merged to a release branch produces a GitHub Release carrying an installable VSIX whose version matches the explicit or default bump. Omitting a bump label uses the valid effective default; invalid settings and conflicting owned labels fail required CI before merge.
+- An eligible merged PR produces a GitHub Release whose canonical version reflects the resolved bump and whose unchanged VSIX uses the recorded native version mapping. Omitting a bump label uses the valid effective default; invalid settings and conflicting owned labels fail required CI before merge.
 - The tests that gate the release exercise the exact VSIX that is released, on every supported host version and operating system.
 - On a managed VSIX route, a change outside the artifact/consumer scope carrying `release:skip` runs its checks without publication. An unmanaged route has no release metadata or labels.
-- A user installs any released version straight from its GitHub Release with no marketplace account; where marketplace publishing is enabled, that same version also appears in the marketplace.
+- A user installs any released version from its canonical GitHub Release without a marketplace account; enabled marketplaces publish the unchanged VSIX under its recorded native version/channel mapping.
 - An open pull request can publish a prerelease VSIX for testing that never becomes the latest stable version, and it is cleaned up when the pull request closes.
 - Adopting the framework in a new extension is a short caller plus a settings file — the pipeline itself is never copied into the repository.
 
