@@ -77,7 +77,9 @@ identity makes duplicate delivery and retries idempotent.
 | Trigger and approval evidence | Frozen | Shows who or what authorized the release and included range. |
 | Stable line, fixed source, and range baseline | Frozen | Defines the exact source history being released. |
 | Aggregate decision and its source | Frozen | Records major, minor, patch, or skip and the owned label, caller input, repository setting, or shared default that supplied it. |
-| Canonical version and reservation state | Frozen after Resolve | Prevents later work from taking the same coordinate. |
+| Version-computation base and consumer-change baseline | Frozen | Distinguishes the actual calculation base from the completed source against which the consumer delta is described. |
+| Canonical version | Frozen after Resolve | Identifies the coordinate selected for this intent. |
+| Reservation state | Progressive, append-only | Starts provisional and becomes permanently reserved after successful build or external visibility; later events never free it for different content. |
 | Release-note snapshot and provenance | Frozen | Preserves the reviewed contributor-authored account. |
 | Required destinations and announcement routes | Frozen | Prevents configuration drift during recovery. |
 | Lifecycle stage and failure detail | Progressive | Records the last successful boundary and actionable failure. |
@@ -109,6 +111,7 @@ stateDiagram-v2
     Verified --> Verified: Publication attempt failed
     Publishing --> Publishing: Publication attempt failed
     Resolved --> Superseded: No successful build or external visibility
+    Resolved --> Retired: Externally visible and explicitly unrecoverable
     Built --> Retired: Explicitly unrecoverable
     Verified --> Retired: Explicitly unrecoverable
     Publishing --> Retired: Explicitly unrecoverable
@@ -120,6 +123,11 @@ failure against the last successful lifecycle boundary. `Superseded` applies
 only to work that never produced a successful build and never exposed a release
 coordinate. `Retired` preserves a permanently reserved coordinate for an
 incomplete release. `Withdrawn` preserves completion while changing eligibility.
+
+`Resolved → Retired` requires explicit maintainer authorization and a permanent
+reservation established by external visibility; untouched unbuilt and unexposed
+work follows the guarded supersession path instead. Reservation transitions are
+append-only evidence, not mutations of the frozen canonical version.
 
 ## Resolve
 
@@ -448,13 +456,22 @@ authorizes a publisher to invent a no-action result.
 The publication envelope augments, but does not rewrite, the authored note:
 
 - canonical and destination-native versions;
-- previous completed stable baseline;
+- version-computation base, including the stable version or permanently reserved
+  coordinate actually used, and explicit `0.0.0` when no stable version or
+  permanent reservation exists;
+- consumer-change baseline: the previous completed stable release/source for
+  the included delta, or explicitly no predecessor for an initial release;
 - fixed source and included range;
 - aggregate decision and its owned-label or effective-setting source;
 - artifact fingerprint and verification evidence;
 - destination coordinates and release-record links;
 - note snapshot provenance; and
 - completion, retirement, withdrawal, alias, and announcement events.
+
+These bases can differ. With completed `1.4.2` and permanently reserved retired
+`1.5.0`, a patch resolves from `1.5.0` to `1.5.1`, while its consumer delta still
+starts from completed source `1.4.2`. Freeze and publish both identities rather
+than presenting the completed source as proof of the version calculation.
 
 A later explanatory correction is another append-only metadata event containing
 before and after text, reason, actor, time, and source evidence. It cannot change
