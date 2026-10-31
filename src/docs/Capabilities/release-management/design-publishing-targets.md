@@ -25,7 +25,7 @@ Every target documents seven dimensions:
 | **Immutability** | Which reference cannot change and what a repeated publication does. |
 | **Withdrawal** | The strongest supported hide, unlist, yank, or delete operation and whether existing consumers retain access. |
 | **Alias families** | Whether `latest`, major, or minor moving references can be represented and reconciled. |
-| **Version constraints** | Whether consumers can express native ranges or need a producer-controlled alias. |
+| **Version constraints** | Whether native ranges or permitted bounded update selection express the bound, or a permitted producer-controlled alias is required. |
 | **Release record** | Where the durable, linkable destination evidence is stored. |
 
 A target MUST answer all seven before it is enabled. It MUST also define:
@@ -119,10 +119,14 @@ They are separate from exact version tags and can move only through
 Consumers must explicitly accept moved owned tags; see
 [Accept moved release tags](accept-moved-release-tags.md).
 
-Git references do not resolve SemVer range expressions. A major or minor
-boundary therefore requires the corresponding producer alias. External
-consumers use an exact commit SHA or another immutable fingerprint rather than a
-moving tag.
+Git reference fields do not resolve SemVer range expressions. Permitted bounded
+update selection can choose an immutable commit within the requested major or
+minor boundary without a producer alias. The corresponding permitted alias is
+required only when no other permitted resolver supplies the bound. If no
+permitted resolver or alias can express it, resolution fails as unsupported.
+The consumer's artifact-specific pinning standard still governs the retained
+reference. External consumers use an exact commit SHA or another immutable
+fingerprint rather than a moving tag.
 
 ### GitHub release record
 
@@ -264,8 +268,12 @@ disappeared.
 Optional tags can implement the `latest`, major, and minor alias families.
 Reconciliation updates each enabled tag to the digest of the greatest eligible
 matching release. Container references do not evaluate SemVer ranges, so
-consumers use a controlled producer alias inside the allowed trust boundary or
-pin a digest.
+permitted bounded update selection resolves the eligible version outside that
+field and can retain its digest without a moving alias. A corresponding
+controlled alias is required only when no other permitted resolver supplies
+the requested bound. That alias must satisfy the consumer's trust boundary and
+artifact-specific pinning standard; an unsupported bound fails rather than
+widening silently.
 
 ### Container registry release record
 
@@ -279,7 +287,8 @@ links that digest to source, notes, verification, and lifecycle state.
    versions to native coordinates and flags.
 3. Define the immutable identity and read-back check used by idempotent retry.
 4. Define the strongest supported withdrawal behavior and its limitations.
-5. State which, if any, alias families and native constraints consumers can use.
+5. State which native constraints, permitted bounded update selection, or
+   permitted alias families consumers can use.
 6. Define publication, withdrawal, and reconciliation evidence.
 7. Add the adapter to the required destination set so durable completion and
    phase-aware recovery include it.
