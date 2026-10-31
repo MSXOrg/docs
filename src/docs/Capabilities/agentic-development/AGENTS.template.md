@@ -30,7 +30,7 @@ pointers to canonical documentation pages.
 Read in this order:
 
 1. `README.md` — what this repository is and how it builds.
-2. `.github/CONTRIBUTING.md` — how a change is made and reviewed here.
+2. `.github/CONTRIBUTING.md` — repository-specific contribution instructions, when present.
 3. `docs/index.md` — this repository's own documentation.
 <!-- Add initiative-specific guidance here, after the local repository entries. -->
 4. [MSXOrg/docs](https://github.com/MSXOrg/docs/) — the organization standards.
@@ -39,3 +39,12 @@ Clone each linked repository locally, keep its configuration local to that
 clone, and update it before reading it.
 
 ````
+
+Tailor the entries to real destinations. Keep the local contribution entry only
+[when a local guide is needed](../../Ways-of-Working/Repository-Standard.md#contribution-guidance);
+otherwise replace it with a link to the organization default at its source. If
+the organization supplies no contribution default, link to the shared
+[Contribution Workflow](../../Ways-of-Working/Contribution-Workflow.md).
+Inherited community files are not included in clones, so a router uses a source
+link rather than a nonexistent local path. Do not create a local contribution
+file solely to fill the template.

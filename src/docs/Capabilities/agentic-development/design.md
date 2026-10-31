@@ -52,7 +52,7 @@ Product repositories carry local context and thin pointers:
   .claude/
     CLAUDE.md                      # required: routes Claude Code — @../AGENTS.md
   .github/
-    CONTRIBUTING.md                # how a change is made here
+    CONTRIBUTING.md                # conditional: repo-specific instructions or exception
     copilot-instructions.md        # required: routes the Copilot surfaces that need it
     instructions/
       <scope>.instructions.md      # exceptional: a path-scoped local caveat
@@ -60,7 +60,9 @@ Product repositories carry local context and thin pointers:
   docs/                            # architecture and domain context
 ```
 
-The repository owns only repository-specific nuance, and each kind has a file that owns it: `README.md` for what the repository is and how it builds, `.github/CONTRIBUTING.md` for contribution mechanics, `docs/` for architecture and domain context, and path-scoped rule files for local caveats. `AGENTS.md` points at them and holds none of it. Cross-cutting standards remain in `docs`. Thin means "no duplicated reusable process," not "discard the local operating contract" — the contract lives, it just lives in the file a human would read.
+The repository owns only repository-specific nuance, and each kind has a file that owns it: `README.md` for what the repository is and how it builds, `.github/CONTRIBUTING.md` for contribution mechanics [when a local guide is needed](../../Ways-of-Working/Repository-Standard.md#contribution-guidance), `docs/` for architecture and domain context, and path-scoped rule files for local caveats. `AGENTS.md` points at them and holds none of it. Cross-cutting standards remain in `docs`. Thin means "no duplicated reusable process," not "discard the local operating contract" — the contract lives, it just lives in the file a human would read.
+
+Inherited community files are not included in clones. When no local contribution guide is needed, the router links to the organization's contribution default at its source. If the organization supplies no contribution default, link to the shared [Contribution Workflow](../../Ways-of-Working/Contribution-Workflow.md). Do not create a local guide merely to fill a router entry.
 
 ## OKF page model
 
@@ -112,7 +114,7 @@ flowchart TD
   msx --> refresh["Synchronize selected docs with Git<br/>stop unless exactly synchronized"]
   psmodule --> refresh
   other --> refresh
-  refresh --> repo["Read README, CONTRIBUTING,<br/>and local docs"]
+  refresh --> repo["Read README, contribution guidance,<br/>and local docs"]
   repo --> path["Apply path-scoped local rules"]
   path --> orgdocs["Read organization<br/>documentation"]
   orgdocs --> docs["Read inherited<br/>ecosystem documentation"]
@@ -142,7 +144,7 @@ mechanics, or standards.
 Read in this order:
 
 1. `README.md` — what this repository is and how it builds.
-2. `.github/CONTRIBUTING.md` — how a change is made and reviewed here.
+2. `.github/CONTRIBUTING.md` — repository-specific contribution instructions, when present.
 3. `docs/index.md` — this repository's own documentation.
 4. [MSXOrg/docs](https://github.com/MSXOrg/docs/) — the organization standards.
 
@@ -152,7 +154,7 @@ clone, and update it before reading it.
 Read nearest first. A local file never overrides a standard.
 ```
 
-A router lists the destinations that exist in that repository, written as the paths that repository actually uses — the ones above are an example, not a required layout. A repository with no documentation of its own drops that line; one that publishes the standards resolves steps 3 and 4 to the same tree and drops the duplicate. Writing a real path matters more than matching the example, because the router is read literally.
+A router lists the destinations that actually exist — the ones above are an example, not a required layout. Replace the optional local contribution entry with a link to the inherited organization default when no local guide is needed. A repository with no documentation of its own drops that line; one that publishes the standards resolves steps 3 and 4 to the same tree and drops the duplicate. Writing a real path or source link matters more than matching the example, because the router is read literally.
 
 The index trail is the default. A clear prompt can shortcut stage discovery: `Review this PR <link>` enters Review, `Make this issue <description>` enters Define, and `Implement <issue>` enters Implement. These phrases are routing hints interpreted by [Workflow](../../Ways-of-Working/Workflow.md#find-the-current-stage), not commands with independent procedures.
 
