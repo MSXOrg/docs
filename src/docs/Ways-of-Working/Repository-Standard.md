@@ -25,15 +25,15 @@ discoverability minimum defined below instead.
 | --- | --- |
 | `README.md` | Acts as the repository start page: purpose, target audience, value, access, first mental model, and where to go next. |
 | `LICENSE` | States the legal terms for reuse and redistribution. |
-| `.github/CONTRIBUTING.md` | Explains how to contribute, including how the organization defaults and central pull request template apply. |
+| `.github/CONTRIBUTING.md` | Explains repository-specific contribution steps and links to applicable organization defaults and canonical PR Format. |
 | `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation. [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior) names the files and the path each one sits at. |
 | `.github/dependabot.yml` | Configures platform-native dependency-update pull requests for supported ecosystems. The `github-actions` ecosystem is expected in virtually every repository; an unsupported ecosystem follows the centrally managed exception path rather than a repository-local updater. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
 | `.gitattributes` | Normalizes line endings and declares text/binary handling so the repository can be developed and built consistently on Linux, macOS, and Windows. |
 | `.gitignore` | Ignores files that must never be committed, tailored to the repository's ecosystem: operating-system files, editor and developer-tooling files, language and test-harness artifacts, and all local build outputs and files created during build and test. |
 
-The organization provides `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`,
-and `.github/pull_request_template.md` as GitHub community defaults. It MAY
+The organization provides `CODE_OF_CONDUCT.md`, `SECURITY.md`, and `SUPPORT.md`
+as GitHub community defaults. It MAY
 also provide `.github/CONTRIBUTING.md` and `.github/ISSUE_TEMPLATE/` as
 optional defaults. Do not copy any of these organization defaults into a
 repository unless it needs a documented local exception; see
@@ -166,20 +166,35 @@ When a tool only discovers config at the repository root, keep it there and docu
 
 ## Pull request defaults
 
-Repository pull requests must use the PR Manager style for title and description when a release note may be generated from the PR.
+Repository pull requests follow [PR Format](PR-Format.md): one short
+reader-facing result in the title, an audience-first description of the complete
+change, and supporting evidence scoped to the result it supports. Repository or
+initiative guidance MUST NOT add an icon, type prefix, issue reference, or
+internal campaign identifier to the title.
 
-Default title pattern:
+A pull request closes one scoped Task or Bug, with any additional closing links
+limited to issues the session-end convergence sweep shows are fully delivered by
+the same diff. When the target route invokes Release Management, the description
+and labels carry its evidence-based release decision. A route without that
+invocation carries neither the `Release decisions` block nor `release:*` labels.
 
-```text
-<Icon> [<Change type>]: <User-facing outcome>
-```
+Contribution guidance and thin skills direct humans and agents to the
+[complete PR description example](PR-Format.md#complete-description-example).
+Verify the actual title, complete body, source coverage, and required supporting
+evidence against PR Format.
 
-Use [PR Format](PR-Format.md) for audience-based change classification and the complete description structure, including its required consumer evidence and ending blocks. A PR closes one scoped Task or Bug, with any additional closing links limited to issues the session-end convergence sweep shows are fully delivered by the same diff.
+### No PR-template files
 
-The organization-level `.github` repository supplies the default template.
-The repository-local contribution guide directs humans and agents to the
-organization template and its required format. A repository carries a local
-template only for a documented exception.
+GitHub PR-template files MUST NOT be stored, inherited, distributed, or generated
+by MSX repositories. This applies to every repository type and the special
+`MSXOrg/.github` and `PSModule/.github` sources, default-template files, and
+multiple-template directories. There is no PR-template-file exception.
+
+Authors use the canonical [PR Format](PR-Format.md) procedure and complete
+description example for the actual record. An inherited scaffold, file-presence
+check, or similarity to a central copy is not evidence of format adherence.
+Other community defaults, genuine repository-specific contribution
+instructions, and product integration templates remain unaffected.
 
 ## Managed files
 
@@ -218,7 +233,7 @@ For example, PSModule can define its module-specific managed files in `PSModule/
 - [Agentic Development](../Capabilities/agentic-development/index.md) — which agent files a repository carries and why the entry point is a pointer.
 - [Repository Type Property](Repository-Type-Property.md) — the `Type` custom property that classifies a repository and drives which type-specific files and controls apply.
 - [README-Driven Context](Readme-Driven-Context.md) — why the README is the front door.
-- [PR Format](PR-Format.md) — the PR Manager-style title and description format.
+- [PR Format](PR-Format.md) — the audience-first title and description format.
 - [Natural Language](../Coding-Standards/Natural-Language.md) — which language each artifact is written in, and how English prose is written.
 - [GitHub Actions](../Coding-Standards/GitHub-Actions.md) — workflow and automation standards.
 - [Dependency Updates](../Capabilities/dependency-updates/spec.md) — supply-chain update requirements.
