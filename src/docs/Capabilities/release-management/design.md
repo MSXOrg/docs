@@ -8,7 +8,7 @@ description: How release management is built — effective defaults, owned overr
 The behavior in the [spec](spec.md) is delivered by shared release mechanics,
 through a reusable workflow or a native producer pipeline. The effective
 pipeline determines which routes produce versioned, immutable output consumed
-by version. The optional `.github/release.config.yml` refines those settings;
+by version. The optional `.github/release.settings.yml` refines those settings;
 its absence does not opt a managed route out.
 
 ## Applicability
@@ -55,7 +55,7 @@ including its `Branch`.
   a release branch produces **exactly one** release for all bundled changes.
 
 ```yaml
-# .github/release.config.yml
+# .github/release.settings.yml
 DefaultBump: patch
 ReleaseType:
   Stable:
@@ -108,7 +108,7 @@ that supplied each decision before Build.
 
 Follow [Smart defaults, local overrides](../../Ways-of-Working/Principles/Software-Design.md#smart-defaults-local-overrides):
 shared defaults are overridden by repository settings in the optional
-`.github/release.config.yml`, then by explicitly supplied supported caller
+`.github/release.settings.yml`, then by explicitly supplied supported caller
 inputs for that invocation. Omitted caller inputs preserve repository settings;
 they do not overwrite them with an input's default. The implementing workflow
 or action documents its exact supported caller surface and validates it through
@@ -121,13 +121,13 @@ set fail validation, even when a narrower override or bump label exists.
 
 | Setting | Shared default | Repository override | Supported caller override |
 | --- | --- | --- | --- |
-| `DefaultBump` | `patch` | `DefaultBump` in `.github/release.config.yml` | Explicitly supplied caller override supported and documented by the invoked producer for this setting. |
+| `DefaultBump` | `patch` | `DefaultBump` in `.github/release.settings.yml` | Explicitly supplied caller override supported and documented by the invoked producer for this setting. |
 
 A repository can select minor as its normal level without requiring a minor
 label on every publishing PR:
 
 ```yaml
-# .github/release.config.yml
+# .github/release.settings.yml
 DefaultBump: minor
 ```
 
@@ -242,7 +242,7 @@ either: rerun the existing release with the same artifact and version under the
 
 ## Path filtering
 
-`.github/release.config.yml` declares `release-paths` as ordered include/exclude
+`.github/release.settings.yml` declares `release-paths` as ordered include/exclude
 globs (excludes win). The workflow **always runs** so validation executes on
 every merge; only the release step is skipped when no artifact-affecting path
 changed.
@@ -461,12 +461,12 @@ production release, and its runs are serialised like any other.
 | Surface | Where |
 | --- | --- |
 | Release Management applicability | effective target-route pipeline, including shared workflows and native producers |
-| Release types + branch mapping | `ReleaseType` in `.github/release.config.yml` |
+| Release types + branch mapping | `ReleaseType` in `.github/release.settings.yml` |
 | Default bump and overrides | documented shared `DefaultBump: patch`, repository settings, then supported caller inputs |
 | Explicit bump / prerelease / skip | `release:` PR label |
 | Pre-merge decision validation | named PR check required by the branch ruleset or protection |
 | Optional ad hoc release | `workflow_dispatch` inputs |
-| Path filter | `.github/release.config.yml` |
+| Path filter | `.github/release.settings.yml` |
 | Prerelease cleanup toggle | release config / workflow input |
 | Publishing targets | reusable-workflow input + GitHub environment; see [Publishing Targets](design-publishing-targets.md) |
 
