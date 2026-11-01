@@ -249,6 +249,22 @@ Describe 'Solution-owned settings naming contract' {
         $moduleSettings | Should -Match 'https://psmodule\.io/Process-PSModule/reference/workflow-inputs/'
         $moduleSettings | Should -Match 'https://psmodule\.io/Process-PSModule/reference/settings/'
     }
+
+    It 'retains the VS Code template settings interface as a documented naming exception' {
+        $path = [IO.Path]::Combine(
+            $documentationRoot, 'Capabilities', 'vscode-extension-framework', 'design.md'
+        )
+        $guidance = [IO.File]::ReadAllText($path)
+
+        $guidance | Should -Match (
+            '`\.github/vscode-extension\.yml` is the documented template settings interface'
+        )
+        $guidance | Should -Match 'Naming\.md#solution-settings-files'
+        $guidance | Should -Match 'supported naming exception'
+        $guidance | Should -Match 'does not change this interface or its settings keys'
+        $guidance | Should -Match 'a verified reader and a separate template/caller migration'
+        $guidance | Should -Not -Match 'vscode-extension\.settings\.yml'
+    }
 }
 
 Describe 'Repository PR-template-file policy' {
