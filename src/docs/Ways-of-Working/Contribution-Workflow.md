@@ -34,10 +34,15 @@ flowchart TD
    that delivery issue and the pull request, not in the spec, design, or parent
    aggregate.
 2. **Open the pull request as a draft.** A draft attaches CI and keeps the change
-   out of people's review queues while you iterate.
+   out of people's review queues while you iterate. Assign the pull request to
+   its author and apply any repository-owned workflow labels.
 3. **Run the Copilot review loop** (below) until Copilot reports a clean round —
    no changes requested and no new inline comments.
-4. **Mark the pull request ready for review** once it meets the
+4. **Finalize and mark the pull request ready for review.** Re-read the complete
+   diff and finalize the title and description per [PR Format](PR-Format.md).
+   If the target route invokes Release Management, reconcile the conditional
+   decision block and `release:*` labels with its effective configuration. If it
+   does not, omit both. Then confirm the
    [Definition of Ready for Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review).
 5. **Enable auto-merge** so the change lands automatically when human review
    approves and the required checks stay green. Human review takes over from there.
@@ -121,7 +126,8 @@ the approval identity that satisfies the gate.
 
 - [Workflow](Workflow.md) — the spec-led loop this operates within.
 - [Issue Lifecycle](Issues/Process/Lifecycle.md) — why only ready Task and Bug leaves enter this flow.
-- [PR Format](PR-Format.md) — the pull request title, description, and labels.
+- [PR Format](PR-Format.md) — the pull request title, description, and
+  route-conditional release metadata.
 - [Definition of Ready and Done](Definition-of-Ready-and-Done.md#definition-of-ready-for-review) — the readiness gate this hands off at.
 - [Branching and Merging](Branching-and-Merging.md) — the branch model a pull request builds on.
 - [Review Etiquette](Review-Etiquette.md) — how human review proceeds once the pull request is ready.
