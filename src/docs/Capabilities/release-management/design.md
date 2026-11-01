@@ -83,7 +83,7 @@ the retired or withdrawn version, even when its reviewed source is unchanged.
 | Trigger and approval evidence | Frozen | Shows who or what authorized the release and included range. |
 | Stable line, fixed source, and range baseline | Frozen | Defines the exact source history being released. |
 | Aggregate decision and its source | Frozen | Records major, minor, patch, or skip and the owned label, caller input, repository setting, or shared default that supplied it. |
-| Version-computation base and consumer-change baseline | Frozen | Distinguishes the actual calculation base from the completed source against which the consumer delta is described. |
+| Version-computation base and consumer-change baseline | Frozen | Distinguishes the actual calculation base from the verified successful artifact-publication source for each product, target, and channel against which the consumer delta is described. |
 | Canonical version | Frozen after Resolve | Identifies the coordinate selected for this intent. |
 | Reservation state | Progressive, append-only | Starts provisional and becomes permanently reserved after successful build or external visibility; later events never free it for different content. |
 | Release-note snapshot and provenance | Frozen | Preserves the reviewed contributor-authored account. |
@@ -436,8 +436,26 @@ post-completion task.
 
 Release notes preserve contributor-authored pull-request content rather than
 reducing it to a generated commit list. The frozen note snapshot follows
-[PR Format](../../Ways-of-Working/PR-Format.md) and covers every reviewed pull
-request in the accumulated range, including skipped changes.
+[PR Format](../../Ways-of-Working/PR-Format.md) and covers the complete
+publication-to-candidate consumer range, including earlier merged, skipped,
+direct, or unshipped changes.
+
+Before writing the record or capturing its snapshot, follow [Resolve release
+coverage first](../../Ways-of-Working/PR-Format.md#resolve-release-coverage-first).
+For each product, artifact target, and channel, verify the latest successful
+artifact publication, its receipt and immutable artifact/source provenance, and
+the exact fixed candidate. Compare those immutable source trees and retain the
+ordinary scoped PR-base comparison separately. A metadata-only mirror's
+completion does not replace the artifact target's publication baseline.
+With no predecessor, verify initial publication and review the whole initial
+consumer surface rather than using `0.0.0` as consumed history.
+
+Re-read the publication baseline and candidate before readiness and Resolve.
+Changed identities require refreshed coverage, instructions, and compatibility
+evidence before capture. Resolve freezes these baselines with the approved note;
+a retry preserves that snapshot rather than re-resolving later metadata.
+This authoring range does not change aggregate approval of the accumulated
+range, version allocation, or overall destination completion.
 
 Each result's prose and examples contain what changed, why, affected uses,
 compatibility, exact actions with prerequisites, ordering, and verification, or
@@ -445,6 +463,11 @@ an explicit no-action result with its compatibility basis. Required old-to-new
 instructions stay in the note, not repository migration guides or a parallel
 changelog. Result-scoped technical details hold supporting evidence; internal-only
 work without a classifier uses the block after the summary marker.
+
+Verify format adherence from the actual title, complete body, source coverage,
+and scoped supporting evidence. Similarity to an inherited scaffold or central
+copy is not evidence. An affected product integration template still requires
+its verified immutable identity and producer-compatibility evidence.
 
 Consumers read every applicable source-bound record after their actual consumed
 baseline through the target and compose the actions in release order. Later
@@ -465,8 +488,10 @@ The publication envelope augments, but does not rewrite, the authored note:
 - version-computation base, including the stable version or permanently reserved
   coordinate actually used, and explicit `0.0.0` when no stable version or
   permanent reservation exists;
-- consumer-change baseline: the previous completed stable release/source for
-  the included delta, or explicitly no predecessor for an initial release;
+- consumer-change baseline: each product/target/channel's latest successful
+  artifact publication, its receipt and verified immutable source, and the
+  comparison to the exact candidate; explicitly no predecessor only for a
+  verified initial publication;
 - fixed source and included range;
 - aggregate decision and its owned-label or effective-setting source;
 - artifact fingerprint and verification evidence;
@@ -475,11 +500,18 @@ The publication envelope augments, but does not rewrite, the authored note:
 - completion, retirement, withdrawal, alias, and announcement events.
 
 These bases can differ. With completed `1.4.2`, a permanently reserved retired
-`1.5.0` attempt containing an approved unreleased minor change still establishes
-minor as the minimum aggregate increment. A reviewed minor resolves from the
-reserved base `1.5.0` to `1.6.0`, while its consumer delta starts from completed
-source `1.4.2`; patch is rejected for that range. Freeze and publish both bases
-rather than presenting the completed source as proof of the calculation.
+`1.5.0` attempt containing an approved minor change not published to the selected
+artifact target still establishes minor as the minimum aggregate increment.
+A reviewed minor resolves from the reserved base `1.5.0` to `1.6.0`, while that
+target's consumer delta starts from published source `1.4.2`; patch is rejected
+for the accumulated range. Freeze and publish both bases rather than presenting
+the consumer-change source as proof of the calculation.
+
+For module notes, successful Gallery publication advances the consumer-change
+baseline even when later GitHub completion fails. Finishing that older GitHub
+record retains its original source-bound snapshot and does not make its
+already-published module changes new again. Completed-state discovery,
+advertising, recovery, and reservation rules remain unchanged.
 
 A later explanatory correction is another append-only metadata event containing
 before and after text, reason, actor, time, and source evidence. It cannot change

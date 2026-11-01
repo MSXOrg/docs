@@ -366,12 +366,26 @@ Scenario: A native coordinate collision blocks publication
 
 ### FR10 — The release record covers the complete included change {#fr10}
 
-Release notes MUST account for every change from the previous completed stable
-source through the fixed release source, including skipped and direct changes.
-They MUST preserve contributor-authored title, description, adoption guidance,
-consumer-change evidence, and maintainer evidence under
+Release-bound records MUST account for the complete source-tree change from the
+actual latest successful artifact publication for the same product, target, and
+channel through the fixed candidate source, including earlier merged, skipped,
+direct, or unshipped changes. Authors MUST resolve and verify that range before
+writing the record under the [publication-baseline-first
+procedure](../../Ways-of-Working/PR-Format.md#resolve-release-coverage-first).
+The scoped PR-base comparison MUST remain separate implementation evidence.
+A verified initial publication MUST have explicit initial coverage rather than
+an invented predecessor or a version-computation baseline.
+
+Successful artifact publication MUST count even when a later destination or
+overall release completion fails. Completing an older record MUST NOT make its
+already-published artifact changes new again. Record coverage MUST NOT redefine
+aggregate approval, version reservations, or completed-state discovery.
+
+The record MUST preserve contributor-authored title, complete description,
+adoption guidance, consumer-change evidence, and maintainer evidence under
 [PR Format](../../Ways-of-Working/PR-Format.md), or equivalent reviewed aggregate
-context for a manual release.
+context for a manual release. A prerelease MUST retain the snapshot appropriate
+to its immutable source, not a later description of different code.
 
 #### Release evidence
 
@@ -383,7 +397,13 @@ compatibility basis. Supporting evidence MUST remain scoped to its result;
 internal-only work without a classifier uses the supporting block after the
 summary marker. Announcements MUST NOT truncate the full release record.
 
-An affected integration template MUST be identified by repository and verified
+Canonical format adherence MUST be verified from the actual title, complete
+body, source coverage, and supporting evidence under
+[PR Format](../../Ways-of-Working/PR-Format.md#check-readiness).
+An inherited scaffold or similarity to a central copy MUST NOT substitute for
+that record evidence.
+
+An affected product integration template MUST be identified by repository and verified
 compatible immutable commit, with evidence for the exact producer source and
 linked template delivery or a justified no-change result. A moving branch,
 today's template, or an unsupported compatibility claim MUST NOT replace that
@@ -398,10 +418,13 @@ replace required instructions. Missing instructions MUST block the affected
 publication as evidence gaps. Resource docs describe supported target-state
 behavior and usage, not version-specific migration history or a parallel changelog.
 
-The resolved version, version baseline, change baseline, fixed source, artifact
-fingerprint, effective decision and source, destination coordinates, and note
-snapshot provenance MUST be retained as a publication envelope without replacing
-or rewriting the authored note.
+The resolved version, version baseline, product/target/channel publication
+baseline, publication receipt, verified immutable artifact/source provenance,
+fixed candidate source, comparison and freshness evidence, artifact fingerprint,
+effective decision and source, destination coordinates, and note snapshot
+provenance MUST be retained as a publication envelope without replacing or
+rewriting the authored note. Missing or unverifiable publication/source evidence
+MUST block the affected publication rather than become a no-action result.
 
 #### FR10 scenarios
 
@@ -411,6 +434,15 @@ Scenario: A later release includes a skipped change
   And approved change B triggers the next release
   When release notes are frozen
   Then the notes and aggregate decision cover A and B exactly once
+
+Scenario: Partial destination completion does not repeat published module changes
+  Given module source B was successfully published to Gallery
+  And its later GitHub completion failed
+  And exact candidate source C adds another module change
+  When the module release record is frozen
+  Then its consumer change comparison is B through C
+  And completing B's older GitHub record does not make B's module changes new again
+  And completed-state discovery still requires every required destination to complete
 ```
 
 ### FR11 — Eligibility evaluates the complete unreleased artifact scope {#fr11}
