@@ -148,6 +148,109 @@ Describe 'Canonical release-settings authoring contract' {
     }
 }
 
+Describe 'Solution-owned settings naming contract' {
+    BeforeAll {
+        $ErrorActionPreference = 'Stop'
+        $repositoryRoot = Split-Path -Path $PSScriptRoot -Parent
+        $script:documentationRoot = [IO.Path]::Combine($repositoryRoot, 'src', 'docs')
+        $script:namingPath = [IO.Path]::Combine($documentationRoot, 'Coding-Standards', 'Naming.md')
+        $script:naming = [IO.File]::ReadAllText($namingPath)
+        $script:settingsRule = [regex]::Match(
+            $naming,
+            '(?s)## Solution settings files\r?\n(?<body>.*?)(?:\r?\n## |\z)'
+        )
+        $script:moduleSettings = [IO.File]::ReadAllText(
+            [IO.Path]::Combine($documentationRoot, 'Initiatives', 'PSModule.md')
+        )
+    }
+
+    It 'defines the conventional settings filename once in the Naming standard' {
+        $settingsRule.Success | Should -BeTrue
+        $settingsRule.Groups['body'].Value | Should -Match (
+            'Solution-owned settings MUST use `<name>\.settings\.yml` as their conventional filename'
+        )
+        $owners = @(
+            [IO.Directory]::EnumerateFiles($documentationRoot, '*.md', [IO.SearchOption]::AllDirectories) |
+                Where-Object { [IO.File]::ReadAllText($_).Contains('`<name>.settings.yml`') }
+        )
+
+        $owners.Count | Should -Be 1
+        $owners[0] | Should -BeExactly $namingPath
+    }
+
+    It 'excludes tool-owned filenames and YAML that is not solution settings' {
+        $settingsRule.Groups['body'].Value | Should -Match (
+            'Tool-mandated manifests, lockfiles, workflow filenames'
+        )
+        $settingsRule.Groups['body'].Value | Should -Match (
+            'YAML files that are not solution-owned settings'
+        )
+    }
+
+    It 'leaves the settings directory with the owning solution' {
+        $settingsRule.Groups['body'].Value | Should -Match (
+            'Each solution documents its settings location'
+        )
+        $settingsRule.Groups['body'].Value | Should -Match 'does not impose a shared directory'
+    }
+
+    It 'preserves supported explicit custom paths instead of imposing a runtime restriction' {
+        $settingsRule.Groups['body'].Value | Should -Match 'documented explicit path override'
+        $settingsRule.Groups['body'].Value | Should -Match (
+            'does not remove that input or restrict otherwise supported custom paths'
+        )
+    }
+
+    It 'links <Directory>/<File> to the one naming rule' -ForEach @(
+        @{ Directory = @('Coding-Standards'); File = 'YAML.md' }
+        @{ Directory = @('Ways-of-Working'); File = 'Repository-Standard.md' }
+        @{ Directory = @('Capabilities', 'release-management'); File = 'design.md' }
+        @{ Directory = @('Initiatives'); File = 'PSModule.md' }
+    ) {
+        $segments = [string[]] (@($documentationRoot) + $Directory + @($File))
+        $guidance = [IO.File]::ReadAllText([IO.Path]::Combine($segments))
+
+        $guidance | Should -Match 'Naming\.md#solution-settings-files'
+        $guidance | Should -Not -Match ([regex]::Escape('`<name>.settings.yml`'))
+    }
+
+    It 'retains PSModule.yml through SettingsPath for module release settings' {
+        $moduleSettings | Should -Match (
+            'supported settings default is `\.github/PSModule\.yml`, through `SettingsPath`'
+        )
+        $moduleSettings | Should -Match 'including module release settings'
+        $moduleSettings | Should -Match (
+            'do not need a separate `\.github/release\.settings\.yml` file'
+        )
+        $moduleSettings | Should -Not -Match '(?i)psmodule\.settings\.yml'
+    }
+
+    It 'links the module compatibility boundary from <Directory>/<File>' -ForEach @(
+        @{ Directory = @('Ways-of-Working'); File = 'Repository-Standard.md' }
+        @{ Directory = @('Capabilities', 'release-management'); File = 'design.md' }
+    ) {
+        $segments = [string[]] (@($documentationRoot) + $Directory + @($File))
+        $guidance = [IO.File]::ReadAllText([IO.Path]::Combine($segments))
+
+        $guidance | Should -Match 'Initiatives/PSModule\.md#module-settings'
+    }
+
+    It 'distinguishes the release conventional filename from an implemented reader or renamed input' {
+        $path = [IO.Path]::Combine($documentationRoot, 'Capabilities', 'release-management', 'design.md')
+        $guidance = [IO.File]::ReadAllText($path)
+
+        $guidance | Should -Match '`ConfigurationFile`'
+        $guidance | Should -Match 'does not implement a reader or rename its public input'
+        $guidance | Should -Match 'supported explicit custom paths'
+        $guidance | Should -Not -Match 'auto-release\.yml|release\.config\.yml'
+    }
+
+    It 'points module settings to the verified canonical framework references' {
+        $moduleSettings | Should -Match 'https://psmodule\.io/Process-PSModule/reference/workflow-inputs/'
+        $moduleSettings | Should -Match 'https://psmodule\.io/Process-PSModule/reference/settings/'
+    }
+}
+
 Describe 'Repository PR-template-file policy' {
     BeforeAll {
         $ErrorActionPreference = 'Stop'
