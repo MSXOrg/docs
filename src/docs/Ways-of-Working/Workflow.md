@@ -136,7 +136,10 @@ See [Review Etiquette](Review-Etiquette.md).
 
 Human review approves the ready pull request and the required checks stay green, so auto-merge lands the change — squash-merged into the protected branch, its branch deleted — and closes its Task or Bug. Where the project releases from the trunk, the merge cuts the release.
 
-The pull request description becomes the release note. Write it for end users, not reviewers.
+The pull request description is release-note-ready. When Release Management
+publishes it, the description becomes part of the release record; otherwise it
+remains the durable change record. Write it for the identified readers, not
+only for reviewers.
 
 Parent PBI and Epic issues close separately when their native children and aggregate acceptance criteria are complete. See [PR Format](PR-Format.md), [Issue Lifecycle](Issues/Process/Lifecycle.md), and [Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge).
 

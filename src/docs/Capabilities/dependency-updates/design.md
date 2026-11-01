@@ -81,7 +81,7 @@ flowchart TD
   adoption --> ci["Required checks run<br/>(including adoption evidence)"]
   ci --> review["Review and merge"]
   review --> merged["Merged"]
-  merged --> release["Separate release decision<br/>see Release Management"]
+  merged --> release["Conditional release decision<br/>see Release Management"]
 ```
 
 ### Complete the adoption
@@ -102,9 +102,11 @@ adoption obligation to the existing review path, not another updater.
 
 ### Release decision
 
-Dependency changes are collected before the repository release decision is
-made. The repository-wide effect follows [Release
-Management](../release-management/design.md).
+Dependency changes are collected before any repository release decision is
+made. When the target route invokes [Release
+Management](../release-management/design.md), that capability resolves the
+repository-wide effect. Otherwise the pull request omits the `Release decisions`
+block and all `release:*` labels.
 
 ## Review and merge
 
@@ -136,8 +138,8 @@ supplies a proposal; it does not assert that the gate has passed.
 ## Security updates
 
 Raised on advisory disclosure, independently of the schedule, and
-**prioritised**. They otherwise follow the same review policy and release path as
-any other update.
+**prioritised**. They otherwise follow the same review policy and any applicable
+release path as another update.
 
 ## Configuration surface
 
@@ -147,7 +149,7 @@ any other update.
 | Unsupported ecosystems | Central exception register | Centrally managed shared mechanism |
 | Schedule (`interval`, `day` and `time`, or `cronjob`) and `timezone` | `.github/dependabot.yml` | Organization configuration |
 | Cooldown | Updater default (three days); explicit mapping only for a deliberate non-default duration | Organization configuration |
-| Release decision | Release Management | Decided for the collected repository change |
+| Release decision | Release Management, when invoked for the target route | Decided for the collected repository change |
 | Merge policy | Branch protection and merge automation | Organization configuration |
 | Security updates | Repository security settings | On by default |
 
@@ -161,6 +163,6 @@ rather than overwrite.
 - [Spec](spec.md) — the requirements this design delivers.
 - [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) — the procedure that turns an update proposal into verified adoption.
 - [Repository Governance](../repository-governance/design.md#drift-detection-and-reconciliation) — the reconciliation that compares generated configuration against what is committed.
-- [Release Management](../release-management/design.md) — the release an update PR cuts.
+- [Release Management](../release-management/design.md) — the conditional release decision and output for an update pull request.
 - [Downstream Release Propagation](../downstream-release-propagation/design.md) — the internal counterpart; propagation PRs are dependency updates too.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md#keep-pinned-actions-current) — the Action-pin specifics this builds on.

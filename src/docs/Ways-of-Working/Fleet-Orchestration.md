@@ -44,10 +44,13 @@ A campaign is one change rolled out across a set of repositories. Each
 repository's slice starts with one Task or Bug delivery leaf; it gets a branch
 and PR only when qualification establishes a needed repository change. A
 campaign has a short, stable **slug** (for example `process-psmodule-v6`) that
-names the issue and any PR everywhere.
+prefixes every delivery issue. A campaign pull request carries that identity
+through its native Development link to the prefixed issue, leaving the pull
+request title free for its reader-facing result. A closing keyword creates that
+link only when the pull request targets the repository's default branch.
 
 An **existing open pull request can be adopted** when its scope matches the
-campaign slice. Ensure it closes exactly one correctly typed Task or Bug,
+campaign slice. Link it to exactly one correctly typed Task or Bug,
 creating that delivery issue first when it is missing, then add the remaining
 change to the existing branch instead of opening a duplicate. Reusing what is
 already open avoids competing pull requests without bypassing the canonical
@@ -75,19 +78,35 @@ copied into another state-bearing field, because duplicated state drifts.
 | Integration complete | pull request **merged** |
 | No upgrade needed | Unneeded leaf **closed as not planned**, with the [no-upgrade outcome](Consumer-Upgrades.md#stage-2-fix-the-target-and-release-path) evidenced |
 | Delivery complete | The [completion-owning issue](Definition-of-Ready-and-Done.md#post-merge-completion-ownership) **closed as completed** with its gate evidenced |
-| Issue ↔ PR link | the pull request's one closing reference |
+| Issue ↔ PR link | the native Development link; a supported default-branch closing reference or an explicit manual link |
 
 "Ready for review" is the draft flag flipping off; "merged" records integration.
 Both are native signals. Merge or automatic issue closure alone does not prove
 required publication, deployment, or producer/template completion; linked
 delivery evidence records those obligations separately.
 
-### Campaign identity lives in the title
+### Campaign identity lives on the delivery issue
 
 Campaign membership is carried in a stable square-bracket prefix on every
-delivery issue and pull request title, for example `[process-psmodule-v6]`. The
-prefix is the cross-repository join key; labels stay reserved for mutable
-workflow state.
+delivery issue title, for example `[shared-workflow-alignment]`. Each campaign
+pull request is natively linked to exactly one of those issues, so the
+Development relationship joins it to the campaign without copying internal metadata into
+its title. Labels stay reserved for mutable workflow state.
+
+### Link and close for the actual target
+
+For a default-branch target, use the scoped closing reference from [PR
+Format](PR-Format.md). For a non-default target, explicitly link the pull request
+and delivery issue through GitHub's **Development** sidebar and verify the native
+link; description closing keywords are ignored on those targets. See
+[GitHub's linking rules](https://docs.github.com/en/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue).
+
+A non-default merge does not close the issue automatically. Keep the delivery
+issue open until its recorded [Definition of Done](Definition-of-Ready-and-Done.md#repository-delivery-leaf)
+holds, including any required default-branch integration or publication. The
+recorded completion owner then verifies the evidence and closes it explicitly,
+or links the completed delivery to a qualifying default-branch integration PR.
+Never close it merely to make the dashboard show Done.
 
 ### Process labels fill the gap
 
@@ -102,11 +121,13 @@ same way.
 | `stage:in-progress` | Actively being changed; the assignee owns it. |
 | `stage:blocked` | Needs a human decision or a manual, off-platform action before it can proceed. |
 
-Rules: the campaign prefix is mandatory on every delivery issue and pull request; at most one
-`stage:*` label applies at a time; and `stage:*` may be dropped once a pull
-request carries the signal itself (a ready pull request needs no `stage` label,
-but `stage:blocked` stays explicit because "a human must act" has no built-in
-equivalent). The slug inside the prefix is lowercase and hyphenated.
+Rules: the campaign prefix is mandatory on every delivery issue; each campaign
+pull request is natively linked to one prefixed issue and uses the reader-facing title from [PR
+Format](PR-Format.md) without the prefix; at most one `stage:*` label applies at
+a time; and `stage:*` may be dropped once a pull request carries the signal
+itself (a ready pull request needs no `stage` label, but `stage:blocked` stays
+explicit because "a human must act" has no built-in equivalent). The slug inside
+the issue prefix is lowercase and hyphenated.
 
 ## Effective status
 
@@ -153,27 +174,28 @@ flowchart TD
 ```
 
 1. **Queue and qualify the work.** Create one Task or Bug delivery issue per repository, with
-  the campaign prefix in the title and `stage:queued`. Route it through the
-  [Issue Hierarchy](Issues/Types/Hierarchy.md) and follow its canonical type
-  page. For an upgrade, establish the actual baseline and fixed target through
-  [Consumer Upgrades](Consumer-Upgrades.md#stage-1-establish-the-actual-baseline)
-  before creating or adopting a branch/PR. A proven no-upgrade outcome with no
-  other local work becomes *Not needed*; unknown provenance becomes *Blocked*.
-  When considering an existing PR, qualify against the actual pre-upgrade
-  consumer state, not its proposed new references, and preserve any remaining
-  local acceptance work.
+   the campaign prefix in the title and `stage:queued`. Route it through the
+   [Issue Hierarchy](Issues/Types/Hierarchy.md) and follow its canonical type
+   page. For an upgrade, establish the actual baseline and fixed target through
+   [Consumer Upgrades](Consumer-Upgrades.md#stage-1-establish-the-actual-baseline)
+   before creating or adopting a branch/PR. A proven no-upgrade outcome with no
+   other local work becomes *Not needed*; unknown provenance becomes *Blocked*.
+   When considering an existing PR, qualify against the actual pre-upgrade
+   consumer state, not its proposed new references, and preserve any remaining
+   local acceptance work.
 2. **For a needed change, branch and open a draft.** Create a worktree and branch
-   ([Git Worktrees](Git-Worktrees.md)), then open a **draft** pull request that
-  closes exactly that delivery issue, per [PR Format](PR-Format.md). Use the same
-  campaign prefix in the pull request title and move the stage to
-  `stage:in-progress`, clearing the issue's `stage:queued` so the repository
-  delivery never carries two stages at once. If the repository already has an open
-  pull request that covers part of the change, adopt it instead of opening a
-  new one: add the remaining change to its branch, return it to **draft** while
-  work is in progress, and give it the same campaign prefix and
-  `stage:in-progress` label (clearing `stage:*` from its closing issue). Add the
-  one closing Task or Bug reference before continuing if the adopted pull
-  request did not already have it.
+   ([Git Worktrees](Git-Worktrees.md)), then open a **draft** pull request natively
+   linked to exactly that prefixed delivery issue, per [PR Format](PR-Format.md)
+   and the target-specific linking rules above.
+   The Development link carries campaign membership, so the pull request title
+   states only its reader-facing result. Move the stage to `stage:in-progress`,
+   clearing the issue's `stage:queued` so the repository delivery never carries
+   two stages at once. If the repository already has an open pull request that
+   covers part of the change, adopt it instead of opening a new one: add the
+   remaining change to its branch, return it to **draft** while work is in
+   progress, and give it `stage:in-progress` (clearing `stage:*` from its delivery
+   issue). Verify its native link to the prefixed Task or Bug before continuing
+   if the adopted pull request did not already have one.
 3. **Apply the change and run the loop.** Make the change and take the pull
    request through the [Contribution Workflow](Contribution-Workflow.md) —
    the Copilot review loop — exactly as any single-repository change. The
@@ -188,8 +210,9 @@ flowchart TD
    and CI is green, mark the pull request ready for review per the
    [Definition of Ready and Done](Definition-of-Ready-and-Done.md). The draft
    flag flips and the repository delivery becomes *Ready for review*.
-6. **Human review and merge land it.** Merging lands the change and closes its
-   Task or Bug through the pull request's one closing reference.
+6. **Human review and merge land it.** Merging lands the change. A qualifying
+   default-branch closing reference closes its Task or Bug automatically;
+   non-default delivery follows the recorded completion and closure rules above.
    The campaign's job is to get every pull request to *Ready*;
    [Branching and Merging](Branching-and-Merging.md) governs how it merges.
 
@@ -247,10 +270,28 @@ identical diff.
 
 A campaign is watched through a **dashboard** — a deterministic projection of
 GitHub state, not a store of its own. A script enumerates the campaign's
-repository deliveries by title prefix (`[<slug>]` across the owners), reads each pull request's
-built-in properties, computes the effective status, and renders a page. It can
-regenerate on an interval so the view refreshes as GitHub changes; deleting it
-loses nothing, because GitHub is the source of truth.
+delivery issues by title prefix (`[<slug>]` across the owners), follows each
+native Development link to its pull request, reads the built-in properties,
+computes the effective status, and renders a page. It can regenerate on an
+interval so the view refreshes as GitHub changes; deleting it loses nothing,
+because GitHub is the source of truth.
+
+Read linked pull requests with full pagination and include closed or merged
+ones. `closedByPullRequestsReferences` retrieves closing associations, not every
+manual Development link. Also read the issue's native `ConnectedEvent` and
+`DisconnectedEvent` timeline entries, including both source and subject.
+Fold those entries in returned timeline order for each issue–PR pair: a
+connection adds the manual association and a disconnection removes it. Keep only
+pairs with the queried issue's node ID at one endpoint and a PR at the other;
+use PR node IDs, not display numbers, as the identity. Combine
+the current manual associations with closing references, deduplicate by PR
+identity, then read each PR's live state. Ordinary prose cross-references do not
+replace a verified Development association.
+
+Verify explicit links for non-default targets rather than reconstructing
+them from ignored keywords or assuming the closing-reference query is complete.
+A missing or unreadable link on an in-progress
+delivery is a discovery gap to report, not an empty or completed delivery.
 
 Typical columns: effective status, repository, delivery issue and pull request, draft/ready,
 CI, review decision and open-thread count, assignee, the latest progress note,
@@ -276,11 +317,12 @@ a deterministic label-and-comment write, so it is scripted; the judgement of
 Because all state is on GitHub and the workflow labels are generic:
 
 - **A person** can run a whole campaign from the GitHub UI — filter by
-  the campaign prefix in the title, read each pull request's draft and merge state, move
-  `stage:*` labels, and merge.
+  the campaign prefix in delivery issue titles, follow each issue's linked pull
+  request, read its draft and merge state, move `stage:*` labels, and merge.
 - **An automated system** — a scheduled workflow, a different agent framework, or
-  a teammate's tooling — can enumerate the work with one query and pick up any
-  delivery. The state is portable and self-describing.
+  a teammate's tooling — can enumerate the issues with one query, follow their
+  native pull request references, and pick up any delivery. The state is
+  portable and self-describing.
 
 If an automated run stops midway, nothing is lost: the board is complete, every
 in-flight pull request shows its true state, and anyone can finish the job. This
@@ -293,9 +335,61 @@ hand. Labels and comments use the issues API, which serves issues and pull
 requests alike.
 
 ```powershell
-# enumerate a campaign's pull requests across an owner
-gh search prs 'in:title "[<slug>]"' --owner <owner> `
-  --json number,repository,title,url,isDraft,state
+# enumerate a campaign's delivery issues across an owner
+gh search issues 'in:title "[<slug>]"' --owner <owner> `
+  --json number,repository,title,url,state
+
+# read closing associations, including closed/merged PRs, with full pagination
+$query = @'
+query($owner: String!, $repo: String!, $number: Int!, $endCursor: String) {
+  repository(owner: $owner, name: $repo) {
+    issue(number: $number) {
+      closedByPullRequestsReferences(first: 100, after: $endCursor, includeClosedPrs: true) {
+        nodes { id number url state }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}
+'@
+gh api graphql --paginate -f query="$query" -f owner='<owner>' -f repo='<repo>' -F number='<n>'
+
+# read manual Development associations separately; fold connect/disconnect pairs
+$developmentQuery = @'
+fragment DevelopmentSubject on ReferencedSubject {
+  __typename
+  ... on Issue { id url }
+  ... on PullRequest { id number url }
+}
+query($owner: String!, $repo: String!, $number: Int!, $endCursor: String) {
+  repository(owner: $owner, name: $repo) {
+    issue(number: $number) {
+      id
+      timelineItems(
+        first: 100
+        after: $endCursor
+        itemTypes: [CONNECTED_EVENT, DISCONNECTED_EVENT]
+      ) {
+        nodes {
+          __typename
+          ... on ConnectedEvent {
+            createdAt
+            source { ...DevelopmentSubject }
+            subject { ...DevelopmentSubject }
+          }
+          ... on DisconnectedEvent {
+            createdAt
+            source { ...DevelopmentSubject }
+            subject { ...DevelopmentSubject }
+          }
+        }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+  }
+}
+'@
+gh api graphql --paginate -f query="$developmentQuery" -f owner='<owner>' -f repo='<repo>' -F number='<n>'
 
 # read one pull request's authoritative state
 gh pr view <n> --repo <owner>/<repo> --json `
@@ -312,26 +406,32 @@ gh pr ready <n> --repo <owner>/<repo>
 
 ## Worked example: A shared workflow upgrade
 
-A shared workflow campaign resolves one producer target and discovers the
-repositories that consume it. Producer-owned guidance identifies its release
-and template sources; [Consumer Upgrades](Consumer-Upgrades.md) supplies the
-per-repository procedure.
+A shared workflow campaign resolves one fixed producer release and discovers
+its consumers. Producer-owned guidance identifies its release and template
+sources; source-bound release records own version-specific migration actions.
+[Consumer Upgrades](Consumer-Upgrades.md) supplies the per-repository procedure
+without inventing or duplicating those instructions.
 
-- **Slug:** a stable name identifying the resolved producer target.
+- **Slug:** `shared-workflow-alignment`.
 - **Discover the fleet:** find consumers of the reusable workflow with a code
   search for its `uses:` reference, then queue a Task delivery issue in each.
-- **Per repository:** establish the actual immutable baseline, inspect its
-  complete applicable release range, compose the required actions, preserve
-  intentional template differences, and validate the consumer. Do not copy
+- **Per repository:** establish its actual immutable baseline and fixed target,
+  read every applicable source-bound release record, compose the required
+  actions and intermediate operations, reconcile immutable template compatibility
+  while preserving intentional local differences, and verify the result with its
+  existing checks. Missing required evidence blocks that delivery; do not copy
   another repository's edits or assume every consumer needs a test migration.
-- **Track it:** every issue and pull request starts with the campaign's
-  `[<slug>]`. The dashboard shows *Queued* through
-  *Merged*, while the linked evidence distinguishes integration from completion.
+- **Track it:** every delivery issue starts with `[shared-workflow-alignment]`;
+  each pull request uses a reader-facing title and a verified native issue link.
+  Default-branch closing keywords and explicit non-default linking follow the
+  target-specific rules above. The dashboard retains both live and merged PRs.
+  Linked evidence distinguishes integration from delivery completion.
 
 ## What this is not
 
 - **Not a database.** Any `JSON` or `HTML` is a disposable projection of GitHub.
 - **Not agent-specific.** The model stays fully operable by people and non-agent
   tools; nothing in it depends on a particular assistant.
-- **Not a shared label store.** Labels are per-repository; the campaign title
-  prefix is the shared contract, created in each participating repository.
+- **Not a shared label store.** Labels are per-repository; the delivery-issue
+  prefix plus the native Development link is the shared contract in each
+  participating repository.

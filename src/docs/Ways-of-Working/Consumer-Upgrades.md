@@ -121,7 +121,7 @@ traversal.
 
 Read each applicable record in full, including adoption instructions,
 consumer-change evidence, prerequisites, no-action outcomes, and template
-compatibility. [PR Format](PR-Format.md#consumer-change-record) owns the MSX
+compatibility. [PR Format](PR-Format.md#complete-description-example) owns the MSX
 authoring structure; this ledger consumes it rather than defining another
 release schema.
 
@@ -210,7 +210,7 @@ remains blocked.
 ### Stage 6 - Hand off and complete
 
 Carry the [outputs and evidence](#outputs-and-evidence) into the upgrade PR,
-using the existing [PR Format](PR-Format.md#description-structure). Keep the
+using the existing [PR Format](PR-Format.md#write-the-description). Keep the
 consumer's own release decision separate from the upstream target selection;
 classify its supported audience impact through that standard.
 

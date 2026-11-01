@@ -105,7 +105,7 @@ with no reader, so a folder appears the first time it has something to hold
 | **How the work is done** — process, principles, conventions | [Ways of Working](index.md) |
 | **How code looks** — style applied to code | [Coding Standards](../Coding-Standards/index.md) |
 | **How this one change is implemented** — paths, trade-offs | the Task or Bug delivery leaf and its PR; see [Issue Planning](Issues/Process/Planning.md) |
-| **What one release changes and how to adopt it** | its source-bound PR and published release record; see [PR Format](PR-Format.md) |
+| **What a release changes, why, and how consumers align** | its source-bound release record, authored in the release-bound PR; see [PR Format](PR-Format.md) |
 
 Keeping implementation out of the spec is what makes the spec durable:
 implementation detail rots fastest, so the spec leaves it to the design, the
@@ -150,8 +150,9 @@ history records what changed; the document records only what is true now.
   trusts any line as the current contract.
 - **Normative.** Requirements use MUST / SHOULD / MAY so obligations are
   unambiguous.
-- **No status, deltas, phasing, or open questions.** Those rot the moment they
-  are written; they belong in issues, PRs, and git history.
+- **No status, deltas, phasing, or open questions.** Delivery plans belong in
+  issues and PRs; release-specific changes and adoption instructions belong in
+  release records.
 - **Measurable success criteria.** A spec states outcomes a reader can verify —
   *"a repository list returns every repository by default, with no silent
   truncation"* — never *"the sync is fast."*
@@ -163,22 +164,31 @@ present-tense and free of status? — applied in the reviewer's head and the PR
 
 ### Current product guidance and release history
 
-Product specs, designs, implementation docs, guides, and references describe
-the current contract and supported behavior. Per-release changes, historical
-migration instructions, and delivery plans belong in issues, PRs, and
-[source-bound release records](../Capabilities/release-management/design.md#release-notes),
-not a parallel changelog or version-by-version migration cookbook in product
-docs. A normative contract is not proof that its implementation or CI
-enforcement exists; delivery records carry that evidence and any remaining gap.
+Resource docs, including READMEs, specs, designs, implementation docs, guides,
+and references, describe supported target-state behavior and usage for their
+readers. Update them in place as that contract changes. Keep release-specific
+old-to-new transitions, migration instructions, and change history in the
+[release records](../Capabilities/release-management/design.md#release-notes),
+not a parallel history file or migration-guide hierarchy.
+
+A normative contract is not proof that its implementation or CI enforcement
+exists; delivery records carry that evidence and any remaining gap.
+
+Release notes explain what changed, why, who is affected, compatibility, and
+exact applicable adoption actions or an explicit no-action result. Reading all
+applicable records after the actual consumed baseline through the target is
+sufficient to compose the required upgrade actions; PRs and diffs provide
+optional depth. General upgrade procedures may explain how to use those
+records, without becoming another source of release-specific instructions.
 
 A consumer adopting an older target reads its immutable source/documentation
 snapshot and release records through [Consumer Upgrades](Consumer-Upgrades.md),
 not today's product guidance as a claim about an older version.
 
-Decision records and research remain deliberate exceptions: decisions retain
-one-way-door choices and their supersession links, while research retains
-point-in-time findings. Keeping product guidance evergreen does not erase
-those artifact tiers or turn them into delivery plans.
+Decision records and research retain their distinct purposes: decisions preserve
+the choices, rationale, and supersession links, while research preserves
+point-in-time findings. Keeping resource docs evergreen does not erase these
+records.
 
 ## Concise by default
 
