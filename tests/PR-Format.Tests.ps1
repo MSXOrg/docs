@@ -67,6 +67,87 @@ Describe 'PR Format authoring contract' {
     }
 }
 
+Describe 'Canonical release-settings authoring contract' {
+    BeforeAll {
+        $ErrorActionPreference = 'Stop'
+        $script:repositoryRoot = Split-Path -Path $PSScriptRoot -Parent
+        $script:documentationRoot = [IO.Path]::Combine($repositoryRoot, 'src', 'docs')
+        $releaseRoot = [IO.Path]::Combine($documentationRoot, 'Capabilities', 'release-management')
+        $script:releaseDesign = [IO.File]::ReadAllText([IO.Path]::Combine($releaseRoot, 'design.md'))
+        $script:releaseSpec = [IO.File]::ReadAllText([IO.Path]::Combine($releaseRoot, 'spec.md'))
+    }
+
+    It 'uses only the canonical release.settings.yml filename in <Directory>/<File>' -ForEach @(
+        @{ Directory = @('Ways-of-Working'); File = 'PR-Format.md' }
+        @{ Directory = @('Ways-of-Working'); File = 'Automation-Labels.md' }
+        @{ Directory = @('Capabilities', 'release-management'); File = 'spec.md' }
+        @{ Directory = @('Capabilities', 'release-management'); File = 'design.md' }
+        @{ Directory = @('Capabilities', 'vscode-extension-framework'); File = 'design.md' }
+    ) {
+        $segments = [string[]] (@($documentationRoot) + $Directory + @($File))
+        $guidance = [IO.File]::ReadAllText([IO.Path]::Combine($segments))
+
+        ($guidance -cmatch '\.github/release\.settings\.yml') | Should -BeTrue
+        ($guidance -cmatch 'release\.config\.yml') | Should -BeFalse
+    }
+
+    It 'preserves the branch, bump, and path-filter settings in the examples' {
+        $releaseDesign | Should -Match (
+            'release-branches:\s+- branch: main\s+release-type: stable\s+' +
+            '- branch: dev\s+release-type: prerelease'
+        )
+        $releaseDesign | Should -Match '(?m)^DefaultBump: minor\r?$'
+        $releaseDesign | Should -Match '(?m)^release-paths:\r?$'
+        $releaseDesign | Should -Match 'ordered\s+include/exclude globs \(excludes win\)'
+    }
+
+    It 'preserves defaults, caller precedence, omission, and invalid-setting validation' {
+        $releaseDesign | Should -Match '`DefaultBump` accepts exactly `patch`, `minor`, or `major`'
+        $releaseDesign | Should -Match (
+            'default is `patch`; omitting the configuration file or field inherits that value'
+        )
+        $releaseDesign | Should -Match (
+            '(?s)shared defaults are overridden by repository settings in the optional\s+' +
+            '`[^`]+`, then by explicitly supplied supported caller\s+inputs for that invocation'
+        )
+        $releaseDesign | Should -Match (
+            'Omitted caller inputs preserve repository settings;\s+' +
+            'they do not overwrite them with an input''s default'
+        )
+        $releaseDesign | Should -Match (
+            'Unknown setting names,\s+null or empty values, and values outside the documented set fail validation,\s+' +
+            'even when a narrower override or bump label exists'
+        )
+    }
+
+    It 'keeps the optional file separate from target-route applicability' {
+        $releaseSpec | Should -Match (
+            'does not create a release pipeline, and its absence\s+does not opt a managed route out'
+        )
+        $releaseDesign | Should -Match (
+            'A site deployment without a versioned artifact is\s+not by itself a release-managed route'
+        )
+        $releaseSpec | Should -Match (
+            'A route without versioned release behavior MUST NOT require, apply, or report the ' +
+            '`Release decisions` block or any `release:\*` label'
+        )
+    }
+
+    It 'preserves required decision checks for managed routes without the optional file' {
+        $releaseSpec | Should -Match (
+            'Every PR targeting an invoked release route MUST receive a named release-decision CI check ' +
+            'required by the branch ruleset or protection'
+        )
+        $releaseSpec | Should -Match 'MUST block both manual and automated merge'
+        $releaseDesign | Should -Match (
+            'native producer routes, changes that will not publish, and repositories without\s+' +
+            'a release configuration file'
+        )
+        $releaseDesign | Should -Match 'path filters do not skip the validator'
+        $releaseDesign | Should -Match 'failure, pending execution, and\s+absence block merge'
+    }
+}
+
 Describe 'Repository PR-template-file policy' {
     BeforeAll {
         $ErrorActionPreference = 'Stop'
