@@ -88,7 +88,7 @@ target route. Inspect the effective pipeline and its inputs, including native
 producer pipelines that publish versioned artifacts without calling a named
 shared workflow. The [applicability contract](../Capabilities/release-management/design.md#applicability)
 is about the route's release behavior, not one implementation. The optional
-`.github/release.config.yml` file refines the route's settings; its absence alone
+`.github/release.settings.yml` file refines the route's settings; its absence alone
 does not prove that release management is absent.
 
 Verify the immutable producer revision's supported settings and owned-label
@@ -324,7 +324,7 @@ from the actual base.
 
 When the target route does not invoke Release Management, omit this block and
 all `release:*` labels. Do not add `release:skip` merely because the repository
-has no `.github/release.config.yml`.
+has no `.github/release.settings.yml`.
 
 ### Assemble the body
 

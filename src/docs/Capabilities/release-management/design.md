@@ -31,7 +31,7 @@ Documentation alone does not make a lifecycle control or setting available.
 The effective pipeline establishes whether the target route produces a
 versioned, immutable output consumed by version. Managed routes participate
 whether they use a shared workflow or a native producer pipeline, and whether
-`.github/release.config.yml` exists. Unmanaged routes omit release metadata and
+`.github/release.settings.yml` exists. Unmanaged routes omit release metadata and
 every `release:*` label; a Pages deployment alone is not a versioned release.
 
 ## Release authority and interfaces {#branching-model}
@@ -569,7 +569,7 @@ that belongs to earlier unresolved work.
 Repositories keep the existing MSX configuration file:
 
 ```text
-.github/release.config.yml
+.github/release.settings.yml
 ```
 
 ### Configuration surface

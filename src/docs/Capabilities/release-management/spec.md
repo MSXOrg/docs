@@ -67,7 +67,7 @@ Out of scope:
 The effective target route determines applicability, including native producer
 pipelines that publish versioned, immutable outputs without a named shared
 workflow. A route without versioned release behavior carries no release metadata
-or `release:*` labels. Absence of `.github/release.config.yml` does not opt a
+or `release:*` labels. Absence of `.github/release.settings.yml` does not opt a
 managed route out.
 
 ## Requirements
