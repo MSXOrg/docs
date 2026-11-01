@@ -53,18 +53,27 @@ namespaced, including the release set:
 | `release:patch` | Publish a patch release. |
 | `release:minor` | Publish a minor release. |
 | `release:major` | Publish a major release. |
-| `release:pre-release` | Publish a prerelease from the open pull request. |
+| `release:prerelease` | Publish a prerelease from the open pull request. |
 | `release:skip` | Validate the change without publishing a release. |
+
+This set applies only when the pull request's target route invokes Release
+Management, including through a native producer pipeline. An unmanaged route
+does not apply or report any
+`release:*` label, including `release:skip`. The optional
+`.github/release.config.yml` file refines an invocation; its absence alone does
+not determine whether the route invokes the capability.
 
 These labels are read by
 [release management](../Capabilities/release-management/spec.md) and by nothing else.
-One owned bump label records an explicit level and overrides the optional
-repository `DefaultBump`; for publishing decisions without a bump label, a valid
-configured default supplies it. `release:skip` records a no-release decision.
-`release:pre-release` is a mode used with a resolved explicit or configured bump,
+One owned bump label records an explicit level and overrides the valid effective
+`DefaultBump`; without a bump label, documented defaults, repository settings,
+and supported caller overrides supply it. `release:skip` records a no-release decision.
+`release:prerelease` is a mode used with a resolved explicit or default bump,
 never with `release:skip`. Release Management owns the
 [resolver and required pre-merge validation](../Capabilities/release-management/design.md#version-computation);
-an absent label and absent default are not an implicit patch decision.
+an omitted setting inherits the documented patch default, while invalid settings
+and conflicting owned labels fail rather than select a fallback. Settings, not
+additional release labels, select configured release-candidate and announcement behavior.
 
 Reserving bare words would be weaker because it depends on a documented
 prohibition rather than making ownership visible in the label itself.

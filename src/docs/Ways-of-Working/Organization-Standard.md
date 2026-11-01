@@ -32,11 +32,11 @@ Every initiative organization must define standards for these shared file famili
 
 | File family | Standard owns |
 | --- | --- |
-| Community health files | Central code of conduct, support policy, security policy, and pull request template defaults, plus contribution guidance where provided. |
+| Community health files | Central code of conduct, support policy, and security policy defaults, plus contribution guidance where provided. |
 | Issue intake | Central issue forms and issue-template configuration defaults, where the organization wants a shared intake model. |
 | Organization profile | The public organization introduction and any assets it uses. |
 | Repository context | README defaults, documentation ownership, and repository metadata expectations. |
-| Review workflow | Pull request template, review routing, CODEOWNERS, namespace-qualified automation label sets, and change-type conventions. |
+| Review workflow | Canonical PR-format guidance, review routing, CODEOWNERS, namespace-qualified automation label sets, and change-type conventions. |
 | Supply chain | Dependency update configuration, security update behavior, and review expectations. |
 | Linters and enforcement | Linter configuration derived from the written standards. |
 | Agent context | Organization settings plus repository-local instructions, prompts, hooks, and agent guidance. |
@@ -48,7 +48,7 @@ These standards must be written down before broad alignment work starts. File al
 
 Community policies are organization-wide commitments, not repository-specific
 configuration. Each initiative organization MUST provide its code of conduct,
-security policy, support policy, and pull request template as defaults in its
+security policy, and support policy as defaults in its
 special `.github` repository. Ordinary repositories inherit these defaults
 unless genuine repository-specific content or a documented exception requires
 a local community file.
@@ -61,13 +61,16 @@ the special `.github` repository:
 | `.github/CODE_OF_CONDUCT.md` | Defines expected community behavior. |
 | `.github/SECURITY.md` | Defines supported versions and private vulnerability reporting. |
 | `.github/SUPPORT.md` | Defines where users ask for help. |
-| `.github/pull_request_template.md` | Scaffolds pull requests in the organization's required format. |
 
 A repository MAY retain a local community file only for genuine
 repository-specific content or a documented policy exception. The local file
 takes precedence. A policy exception and its owner MUST be documented in the
 initiative guidance; repository-specific contribution instructions follow the
 [conditional contribution rule](Repository-Standard.md#contribution-guidance).
+
+PR authoring follows the [Repository Standard's no-PR-template-file
+policy](Repository-Standard.md#no-pr-template-files) and canonical [PR Format](PR-Format.md).
+PR templates are not organization defaults or eligible local exceptions.
 
 An organization MAY also provide optional defaults in the same repository:
 
@@ -102,7 +105,8 @@ Every ordinary repository still carries the context that cannot be inferred
 from an organization default: its `README.md` and `AGENTS.md` with its client
 routes. A local contribution guide carries only needed repository-specific
 instructions or a documented exception; inherited guidance does not require a
-local file. Automation configuration, ownership, and repository-specific
+local file. Contribution guidance links to canonical [PR Format](PR-Format.md).
+Automation configuration, ownership, and repository-specific
 legal terms remain repository-local where the
 [Repository Standard](Repository-Standard.md) requires them. The special
 `.github` repository uses the purpose-specific baseline above.

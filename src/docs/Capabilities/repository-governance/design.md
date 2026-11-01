@@ -97,7 +97,6 @@ the same structure:
 | `.github/CODE_OF_CONDUCT.md` | Required | Inherited by a repository that has no local code of conduct. |
 | `.github/SECURITY.md` | Required | Inherited by a repository that has no local security policy. |
 | `.github/SUPPORT.md` | Required | Inherited by a repository that has no local support policy. |
-| `.github/pull_request_template.md` | Required | Used when a repository has no local pull request template. |
 | `.github/CONTRIBUTING.md` | Optional | Provides an organization-wide fallback where local contribution guidance is absent. |
 | `.github/ISSUE_TEMPLATE/` | Optional | Provides the organization's issue forms and template configuration where a repository defines no local issue-template set. |
 | `profile/README.md` | Optional | Publishes the public organization profile; it is not inherited by repositories. |
@@ -117,6 +116,14 @@ exposes supported defaults without placing them in consumer clones, packages,
 or downloads. Consumer checks resolve the effective contribution guidance from
 the local guide when needed or the shared source; absence of an unnecessary
 local copy is not drift.
+
+There is no PR-template-file surface to inherit or distribute. Ordinary and
+defaults repositories follow the [Repository Standard's file
+policy](../../Ways-of-Working/Repository-Standard.md#no-pr-template-files).
+PR authoring evidence verifies the actual title, complete body, and source
+coverage against that contract, not a source scaffold's presence. Product
+integration templates and the other community defaults retain their own
+ownership.
 
 The defaults repository does not centralize repository ownership, dependency
 updates, release configuration, license terms, or other repository-specific
@@ -174,6 +181,7 @@ the contract below, not the implementation that satisfies it.
 | Branch shape matches | Do the protected branches, merge methods, and required checks match what the type declares? |
 | Required local files present | Does the default branch carry the locally required baseline and type-specific files, or the explicit Unmanaged discoverability minimum, including a local contribution guide only when needed? |
 | Contribution guidance available | Does effective local or shared contribution guidance resolve, with required organization defaults validated in their source repository rather than copied into consumers? |
+| PR authoring and file policy | Are PR-template files absent under the [Repository Standard](../../Ways-of-Working/Repository-Standard.md#no-pr-template-files), and do actual records meet [PR Format](../../Ways-of-Working/PR-Format.md#check-readiness) with verified source coverage and supporting evidence? |
 
 ### Severity decides the response
 
