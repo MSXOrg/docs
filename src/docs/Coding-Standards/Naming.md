@@ -44,7 +44,7 @@ Tool-mandated manifests, lockfiles, workflow filenames, and YAML files that are 
 
 A reader MAY expose a documented explicit path override. This convention does not remove that input or restrict otherwise supported custom paths.
 
-A supported naming exception MUST be documented by the owning solution. Verify the reader before changing a released conventional filename, and keep exact migration actions in its [release record](../Capabilities/release-management/design.md#release-notes). Review verifies adoption against the reader contract; documentation-contract tests guard this rule and its linked guidance.
+A supported naming exception MUST be documented by the owning solution. Verify the reader before changing a released conventional filename, and keep exact migration actions in its [release record](../Capabilities/release-management/design.md#release-notes). Review verifies adoption against the reader contract.
 
 ## Scope and length
 
