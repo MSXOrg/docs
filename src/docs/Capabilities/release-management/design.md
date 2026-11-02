@@ -8,7 +8,7 @@ description: How release management is built — effective defaults, owned overr
 The behavior in the [spec](spec.md) is delivered by shared release mechanics,
 through a reusable workflow or a native producer pipeline. A repository's
 effective release pipeline establishes which target routes are managed. The
-optional `.github/release.settings.yml` file refines those settings; it does not
+release solution's optional `.github/release.settings.yml` file refines those settings; it does not
 create a release pipeline, and its absence does not opt a managed route out.
 Documented defaults make a managed route usable without per-PR bump labels;
 repository settings, supported caller inputs, and owned labels provide overrides.
@@ -116,6 +116,12 @@ labels and effective settings. It records the chosen bump, mode, and the input
 that supplied each decision before Build.
 
 ### Settings and caller overrides
+
+The release solution uses `.github/release.settings.yml` under the [Naming standard](../../Coding-Standards/Naming.md#solution-settings-files).
+
+A filename convention does not implement a reader or rename its public input. Verify the immutable producer revision's declared settings input and default before adoption. `ConfigurationFile`, where exposed, remains the settings-path input; supported explicit custom paths follow that producer's contract.
+
+[Module settings](../../Initiatives/PSModule.md#module-settings) retain their supported initiative interface; the release-solution filename does not replace it.
 
 Follow [Smart defaults, local overrides](../../Ways-of-Working/Principles/Software-Design.md#smart-defaults-local-overrides):
 shared defaults are overridden by repository settings in the optional

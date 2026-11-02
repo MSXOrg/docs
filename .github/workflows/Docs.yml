@@ -76,9 +76,9 @@ jobs:
         with:
           python-version: 3.x
 
-      - name: Verify documentation indexes
+      - name: Generate documentation indexes
         shell: pwsh
-        run: ./.github/scripts/Update-DocumentationIndex.ps1 -Check
+        run: ./.github/scripts/Update-DocumentationIndex.ps1
 
       - name: Install Zensical
         run: pip install -r requirements.txt

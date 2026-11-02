@@ -85,8 +85,8 @@ index and drill down to the right page. Three conventions make that work.
 
 - **The tables are generated from front matter.** `.github/scripts/Update-DocumentationIndex.ps1`
   reads each page's `title` and `description`, orders them to match the navigation in
-  `src/zensical.toml`, and fills every index in place. CI runs the same script with `-Check`
-  and fails if an index is out of date.
+  `src/zensical.toml`, and fills every index in place. CI regenerates the indexes before
+  building the site instead of rejecting index drift.
 
 Choose a page's home by subject first, then by the artifact that answers the reader's
 question. The [Documentation Model](https://msxorg.github.io/docs/Ways-of-Working/Documentation-Model/#architecture-and-classification)

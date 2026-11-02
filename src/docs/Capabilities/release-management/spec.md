@@ -16,7 +16,7 @@ release CLI, a hand-edited version file, or a tagging convention.
 A target route participates when its effective pipeline produces a versioned,
 immutable output consumed by version. This includes a shared Release Management
 workflow and a native producer pipeline; the contract is not conditional on one
-implementation's name. The optional `.github/release.settings.yml` file refines a
+implementation's name. The release solution's optional `.github/release.settings.yml` file refines a
 managed route's settings but does not create a release pipeline, and its absence
 does not opt a managed route out.
 
