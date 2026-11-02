@@ -197,6 +197,8 @@ Every external Action is pinned to a commit SHA; organization- or initiative-own
 
 ## Configuration surface
 
+`.github/vscode-extension.yml` is the documented template settings interface and a [supported naming exception](../../Coding-Standards/Naming.md#solution-settings-files). The naming convention does not change this interface or its settings keys; a filename change requires a verified reader and a separate template/caller migration.
+
 | Surface | Where |
 | --- | --- |
 | Adoption (opt-in) | a short caller workflow that calls the reusable workflow |

@@ -21,11 +21,12 @@
 .EXAMPLE
     ./Update-DocumentationIndex.ps1
     Updates every section index.md in place from the current front matter.
+    CI runs this mode before building the site.
 
 .EXAMPLE
     ./Update-DocumentationIndex.ps1 -Check
     Verifies the indexes are current without writing; exits non-zero on drift.
-    This is the mode the CI build job runs.
+    This is an optional local diagnostic, not a CI gate.
 #>
 [CmdletBinding()]
 param(

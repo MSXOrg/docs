@@ -63,9 +63,7 @@ Move quality gates as early as possible in the development cycle. The later a pr
 
 ### Testable locally
 
-A developer (or agent) must be able to run the full test suite locally, without requiring cloud resources, special access, or environment secrets that can't be mocked. If you can't test it on your machine, you can't reason about it in your editor.
-
-This is a design constraint, not an optional addition. A solution that is untestable locally has a hidden cost that compounds with every change. When building new workflows, modules, or automation, ask early: *can someone run this locally?*
+Keep a fast local inner loop so a developer or agent can reason about behavior in the editor. The [Testing standard](../../Coding-Standards/Testing.md#testable-locally) owns the local-loop requirements, real-API checks, test-double exceptions, and execution evidence.
 
 ### Pre-commit hooks
 

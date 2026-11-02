@@ -190,6 +190,12 @@ announcement behavior comes from supported settings, not additional labels.
 
 ### Settings and caller overrides
 
+The release solution uses `.github/release.settings.yml` under the [Naming standard](../../Coding-Standards/Naming.md#solution-settings-files).
+
+A filename convention does not implement a reader or rename its public input. Verify the immutable producer revision's declared settings input and default before adoption. `ConfigurationFile`, where exposed, remains the settings-path input; supported explicit custom paths follow that producer's contract.
+
+[Module settings](../../Initiatives/PSModule.md#module-settings) retain their supported initiative interface; the release-solution filename does not replace it.
+
 Follow [Smart defaults, local overrides](../../Ways-of-Working/Principles/Software-Design.md#smart-defaults-local-overrides):
 shared defaults are overridden by repository settings, then by explicitly
 supplied supported caller inputs for the invocation. Omitted caller inputs
@@ -598,7 +604,7 @@ that belongs to earlier unresolved work.
 
 ## Configuration
 
-Repositories keep the existing MSX configuration file:
+The release solution's optional settings file is:
 
 ```text
 .github/release.settings.yml
