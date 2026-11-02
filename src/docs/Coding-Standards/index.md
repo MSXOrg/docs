@@ -39,7 +39,7 @@ The baseline pages apply to all code and come first; the per-language standards 
 | [Error Handling](Error-Handling.md) | Fail fast, never swallow, and write messages that help the next person. |
 | [Documentation](Documentation.md) | Help that lives next to the code and explains the why. |
 | [Natural Language](Natural-Language.md) | Which language each artifact is written in, and the plain-language writing rules for docs, issues, pull requests, comments, prompts, and agent-facing text — with American English as the project dialect. |
-| [Testing](Testing.md) | The executable specification — test-first, locally runnable, deterministic. |
+| [Testing](Testing.md) | Prove supported behavior through real entry points and APIs, with justified test doubles and honest coverage. |
 | [Performance](Performance.md) | Scale with the input, measure before optimizing, clarity first. |
 | [Security](Security.md) | Least privilege, secret hygiene, and the OWASP baseline. |
 | [Dependencies](Dependencies.md) | How dependencies are pinned and kept current — the locking spectrum from identity pins to floating latest, and the balance between update velocity and supply-chain exposure. |
