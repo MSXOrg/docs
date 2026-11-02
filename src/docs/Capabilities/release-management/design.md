@@ -43,7 +43,8 @@ a successful skip.
 A **release branch** is a branch assigned to one key in the `ReleaseType`
 configuration object. The fixed keys are `Stable`, `Prerelease`, and
 `ReleaseCandidate`; each key owns the properties for that release type,
-including its `Branch`.
+including its `Branch`. These are routing types, not additional publication
+modes: `Prerelease` and `ReleaseCandidate` both publish prereleases.
 
 - **Single branch (zero-config).** `ReleaseType.Stable.Branch` always resolves:
   when `ReleaseType` or its `Stable` key is omitted, it uses the default branch.
@@ -56,9 +57,12 @@ including its `Branch`.
   only its keyed release type. Promotion to `ReleaseType.Stable.Branch` computes
   from the latest stable release plus the merge pull request's resolved bump;
   prerelease and release-candidate counters do not carry over.
-- **One branch per type.** Each release-type key has at most one `Branch`, and
+- **One branch per routing type.** Each release-type key has at most one `Branch`, and
   the same branch MUST NOT appear under more than one key. Unknown keys and
-  duplicate branch assignments are rejected.
+  duplicate branch assignments are rejected after resolving inherited defaults.
+  The inherited default branch counts as the `Stable` assignment even when
+  `ReleaseType` or `Stable` is omitted; assigning that branch to `Prerelease`
+  or `ReleaseCandidate` is invalid.
 - **One production authority.** `Stable.Branch` is the only branch that cuts a
   stable release. A prerelease or release-candidate branch can never publish the
   production version.
