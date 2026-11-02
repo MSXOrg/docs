@@ -16,7 +16,7 @@ release CLI, a hand-edited version file, or a tagging convention.
 A target route participates when its effective pipeline produces a versioned,
 immutable output consumed by version. This includes a shared Release Management
 workflow and a native producer pipeline; the contract is not conditional on one
-implementation's name. The optional `.github/release.config.yml` file refines a
+implementation's name. The release solution's optional `.github/release.settings.yml` file refines a
 managed route's settings but does not create a release pipeline, and its absence
 does not opt a managed route out.
 
@@ -41,7 +41,7 @@ If no, there is nothing to release and the pull request carries neither the
 ## Requirements
 
 - **Semantic versioning.** Versions follow [SemVer 2.0.0](https://semver.org/) (`vMAJOR.MINOR.PATCH`), derived automatically — never written by hand.
-- **Release behavior determines applicability.** Release Management MUST evaluate every pull request targeting a managed release route, including native producer routes and routes without `.github/release.config.yml`. A route without versioned release behavior MUST NOT require, apply, or report the `Release decisions` block or any `release:*` label.
+- **Release behavior determines applicability.** Release Management MUST evaluate every pull request targeting a managed release route, including native producer routes and routes without `.github/release.settings.yml`. A route without versioned release behavior MUST NOT require, apply, or report the `Release decisions` block or any `release:*` label.
 - **Producer compatibility is verified, not inferred.** Authors MUST verify the effective producer revision's settings and owned-label mapping. A differing released interface MUST have a verified adapter or producer/configuration migration before the canonical signals are used. Unsupported signals MUST block finalization and required decision validation, not become ignored skip requests or an excuse to classify a managed route as unmanaged. The producer's PR/release record owns its exact adoption actions.
 - **Settings have documented defaults and supported overrides.** Release automation MUST document its setting names, accepted values, shared defaults, and supported caller overrides. Repository settings MUST override shared defaults; explicitly supplied supported caller inputs MUST override repository settings for that invocation. Unknown settings and invalid supplied values MUST fail even when a narrower override or explicit bump label exists. Omission MUST inherit a documented default rather than require configuration to become usable.
 - **A resolved PR release decision.** `DefaultBump` accepts exactly `patch`, `minor`, or `major` and has the shared default `patch`. Multiple owned bump labels, or `release:skip` combined with another owned release label, MUST fail. A valid `release:skip` MUST select no release without resolving a bump. For publishing decisions, one owned `release:patch`, `release:minor`, or `release:major` label MUST take precedence over the valid effective default; without a bump label, that default MUST supply the level without requiring a per-PR bump label. If neither source resolves a valid level, automation MUST fail with an actionable decision error; it MUST NOT recover from invalid input by selecting patch. `release:prerelease` MAY use either the explicit or default bump; the mode alone does not supply a level. Bare or unrelated labels MUST be ignored. Conventional commit messages are **not** required.
@@ -88,7 +88,7 @@ Because versions are semantic, immutable, and published once, a consumer can ado
 ## Success criteria
 
 - Merging an eligible PR with an explicit or configured bump produces a GitHub Release, a git tag, and (where one exists) a published artifact, with no manual step.
-- A pull request targeting a managed release route, including a native producer route, is evaluated even when `.github/release.config.yml` is absent; an unmanaged route carries no release decision block, label, or check.
+- A pull request targeting a managed release route, including a native producer route, is evaluated even when `.github/release.settings.yml` is absent; an unmanaged route carries no release decision block, label, or check.
 - With no repository setting, caller override, or bump label, a publishing PR resolves the documented patch default. A repository default and supported caller override resolve in that order, and an explicit owned bump label overrides the valid effective default.
 - The resolver records the effective value and its source. Invalid supplied settings and conflicting owned labels block merge even when another input would supply a valid level; no success-shaped fallback occurs.
 - Removing a bump override re-evaluates the PR check against the effective default; changing source, settings, or route inputs also re-evaluates it. A prior result does not validate different inputs.

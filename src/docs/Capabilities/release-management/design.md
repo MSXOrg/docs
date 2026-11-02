@@ -8,7 +8,7 @@ description: How release management is built — effective defaults, owned overr
 The behavior in the [spec](spec.md) is delivered by shared release mechanics,
 through a reusable workflow or a native producer pipeline. A repository's
 effective release pipeline establishes which target routes are managed. The
-optional `.github/release.config.yml` file refines those settings; it does not
+release solution's optional `.github/release.settings.yml` file refines those settings; it does not
 create a release pipeline, and its absence does not opt a managed route out.
 Documented defaults make a managed route usable without per-PR bump labels;
 repository settings, supported caller inputs, and owned labels provide overrides.
@@ -21,7 +21,7 @@ immutable output that another system consumes by version.
 
 - When a shared workflow or native producer pipeline delivers that release
   behavior, evaluate its release decision and require the pre-merge check. This
-  remains true when `.github/release.config.yml` is absent or the route does not
+  remains true when `.github/release.settings.yml` is absent or the route does not
   call a named shared workflow.
 - When the route has no versioned release behavior, Release Management does not
   apply. Omit the `Release decisions` block and every `release:*` label,
@@ -57,7 +57,7 @@ A **release branch** is any branch configured as a release target, each with a
   a release branch produces **exactly one** release for all bundled changes.
 
 ```yaml
-# .github/release.config.yml
+# .github/release.settings.yml
 release-branches:
   - branch: main
     release-type: stable
@@ -105,9 +105,15 @@ that supplied each decision before Build.
 
 ### Settings and caller overrides
 
+The release solution uses `.github/release.settings.yml` under the [Naming standard](../../Coding-Standards/Naming.md#solution-settings-files).
+
+A filename convention does not implement a reader or rename its public input. Verify the immutable producer revision's declared settings input and default before adoption. `ConfigurationFile`, where exposed, remains the settings-path input; supported explicit custom paths follow that producer's contract.
+
+[Module settings](../../Initiatives/PSModule.md#module-settings) retain their supported initiative interface; the release-solution filename does not replace it.
+
 Follow [Smart defaults, local overrides](../../Ways-of-Working/Principles/Software-Design.md#smart-defaults-local-overrides):
 shared defaults are overridden by repository settings in the optional
-`.github/release.config.yml`, then by explicitly supplied supported caller
+`.github/release.settings.yml`, then by explicitly supplied supported caller
 inputs for that invocation. Omitted caller inputs preserve repository settings;
 they do not overwrite them with an input's default. The implementing workflow
 or action documents its exact supported caller surface and validates it through
@@ -121,13 +127,13 @@ even when a narrower override or bump label exists.
 
 | Setting | Shared default | Repository override | Supported caller override |
 | --- | --- | --- | --- |
-| `DefaultBump` | `patch` | `DefaultBump` in `.github/release.config.yml` | Explicitly supplied caller override supported and documented by the invoked producer for this setting. |
+| `DefaultBump` | `patch` | `DefaultBump` in `.github/release.settings.yml` | Explicitly supplied caller override supported and documented by the invoked producer for this setting. |
 
 For example, a repository can select minor as its normal level without requiring
 a minor label on every publishing PR:
 
 ```yaml
-# .github/release.config.yml
+# .github/release.settings.yml
 DefaultBump: minor
 ```
 
@@ -256,7 +262,7 @@ either: rerun the existing release with the same artifact and version under the
 
 ## Path filtering
 
-When present, `.github/release.config.yml` declares `release-paths` as ordered
+When present, `.github/release.settings.yml` declares `release-paths` as ordered
 include/exclude globs (excludes win). On an invoked route, the workflow
 **always runs** so validation executes on every merge; only the release step is
 skipped when no artifact-affecting path changed.
@@ -494,12 +500,12 @@ release, and its runs are serialised like any other.
 | Surface | Where |
 | --- | --- |
 | Release Management applicability | effective target-route pipeline, including shared workflows and native producers |
-| Release branches + type | optional `.github/release.config.yml`; the default branch is stable when omitted |
+| Release branches + type | optional `.github/release.settings.yml`; the default branch is stable when omitted |
 | Default bump and overrides | documented shared `DefaultBump: patch`, repository settings, then supported caller inputs |
 | Explicit bump / prerelease / skip | `release:` PR label on an invoked route |
 | Pre-merge decision validation | named PR check required by the branch ruleset or protection |
 | Optional ad hoc release | `workflow_dispatch` inputs |
-| Path filter | `.github/release.config.yml` |
+| Path filter | `.github/release.settings.yml` |
 | Prerelease cleanup toggle | release config / workflow input |
 | Publishing targets | reusable-workflow input + GitHub environment; see [Publishing Targets](design-publishing-targets.md) |
 
