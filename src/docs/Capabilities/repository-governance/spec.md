@@ -63,7 +63,7 @@ subject to the same baseline, regardless of type:
 - **FR7 — Required checks gate the merge.** A pull request MUST NOT be mergeable until the checks its type declares have passed.
 - **FR8 — A review is requested automatically.** Every pull request MUST have a review requested without the author asking. Whether that review *gates* the merge is a separate rule ([the review gate](#the-review-gate)).
 - **FR9 — Merged branches are deleted.** The repository-level `delete_branch_on_merge` setting MUST delete the head branch of a merged pull request automatically. A protected branch MUST NOT be deleted by this setting.
-- **FR10 — Contribution rules are present.** Every governed repository MUST carry the [required files](../../Ways-of-Working/Repository-Standard.md#required-files) its type declares, so a contributor arriving at the repository can act without leaving it.
+- **FR10 — Contribution rules are present.** Every governed repository MUST carry the [required local files](../../Ways-of-Working/Repository-Standard.md#required-files) its type declares and expose discoverable [contribution guidance](../../Ways-of-Working/Repository-Standard.md#contribution-guidance), inherited or repository-specific under that rule.
 
 ### The review gate
 

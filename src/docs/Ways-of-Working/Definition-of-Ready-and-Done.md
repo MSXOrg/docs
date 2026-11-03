@@ -39,6 +39,13 @@ Absent checks are not a pass. When a pull request reports no checks at all, the 
 
 If any item is open, the pull request stays a draft. Marking it ready with known-open work shifts the author's unfinished job onto reviewers — the opposite of what the signal means.
 
+When a change affects community or contribution guidance, verify
+[effective contribution guidance](Repository-Standard.md#contribution-guidance):
+shared files remain in their organization `.github` source home, inherited
+guidance resolves without repository-local copies, and needed local instructions
+or documented exceptions are preserved. Already-correct guidance does not
+require a file edit.
+
 Once every item holds, hand the change off: mark it ready for review and enable auto-merge so it lands the moment review approves and the required checks stay green. See [Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge).
 
 Auto-merge gates only on what the ruleset declares. It waits for the required status checks and required approvals the branch ruleset names, and for nothing else — so where a ruleset declares no required status checks, an armed auto-merge lands on approval alone and never waits for CI, and "auto-merge is enabled" means considerably less than it appears to. That is a misconfiguration, not a local variation to work around: [Required checks and auto-merge](Branching-and-Merging.md#required-checks-and-auto-merge) already requires the ruleset to enforce required status checks, so a repository without them is in breach of it. The fix is to add the rule, not to compensate by watching the build by hand.
