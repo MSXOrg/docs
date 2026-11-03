@@ -9,6 +9,8 @@ One skeleton per artifact tier defined in [Spec-Driven Development](Spec-Driven-
 
 Each template assumes the [authoring conventions](Spec-Driven-Development.md#authoring-conventions): present tense, impersonal, normative, and free of dates and status.
 
+These are durable artifact templates, not issue-body or implementation-plan templates. Issues follow their canonical [planning altitude](Issues/Process/Planning.md); delivered work verifies the resulting artifacts through the shared [documentation and design evidence](Definition-of-Ready-and-Done.md#documentation-and-design-evidence) gate.
+
 ## Specification
 
 ````markdown

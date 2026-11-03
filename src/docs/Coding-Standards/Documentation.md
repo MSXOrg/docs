@@ -51,7 +51,7 @@ This is a floor, not a ceiling. Internal and private units — helper functions 
 
 ## The README is the front door
 
-Every repository has a README that is the single source of truth for what the repository is and does. It is **evergreen** — updated in the same pull request that changes behavior, never as a separate task. A feature that ships without a README update is not done.
+Every repository has a README that is the single source of truth for what the repository is and does. It is **evergreen** — kept current in the same pull request that changes behavior, never as a separate task. Relevant README content follows the shared [documentation and design evidence](../Ways-of-Working/Definition-of-Ready-and-Done.md#documentation-and-design-evidence) gate, including verification when it already describes the delivered result correctly.
 
 See [README-Driven Context](../Ways-of-Working/Readme-Driven-Context.md) for the full model.
 

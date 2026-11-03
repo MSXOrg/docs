@@ -48,7 +48,9 @@ instead of carrying repository-specific baseline files that have no function
 there. Its own README, agent routes, text handling, and ignore rules remain
 local; only supported community defaults are inherited by other repositories.
 
-Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
+Repository types may require additional files. For example, a PowerShell module may require [`.github/PSModule.yml`](../Initiatives/PSModule.md#module-settings), while a GitHub Action may require `action.yml`.
+
+Solution-owned settings filenames follow the [Naming standard](../Coding-Standards/Naming.md#solution-settings-files).
 
 ### Required files by type
 
