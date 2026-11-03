@@ -81,8 +81,10 @@ exception ([FR16](spec.md#bypass)).
 
 ## Organization defaults repository
 
-Each organization carries one public repository named `.github`. It has three
-distinct surfaces: community files that GitHub inherits into repositories,
+Each organization carries one public repository named `.github`. This is the
+initiative's community repository and the normal source for shared contribution
+guidance. It has three distinct surfaces: community files that GitHub inherits
+into repositories,
 content published on the organization's profile, and local context that governs
 the defaults repository itself. Treating those surfaces as one distributable
 file set would copy repository-specific configuration into places where it does
@@ -97,7 +99,7 @@ the same structure:
 | `.github/CODE_OF_CONDUCT.md` | Required | Inherited by a repository that has no local code of conduct. |
 | `.github/SECURITY.md` | Required | Inherited by a repository that has no local security policy. |
 | `.github/SUPPORT.md` | Required | Inherited by a repository that has no local support policy. |
-| `.github/CONTRIBUTING.md` | Optional | Provides an organization-wide fallback where local contribution guidance is absent. |
+| `.github/CONTRIBUTING.md` | Required | Owns the initiative's shared contribution guidance. The source file must exist but may be blank; consumer-local guides remain conditional. |
 | `.github/ISSUE_TEMPLATE/` | Optional | Provides the organization's issue forms and template configuration where a repository defines no local issue-template set. |
 | `profile/README.md` | Optional | Publishes the public organization profile; it is not inherited by repositories. |
 | `media/` | Optional | Holds assets used by the profile or community files; it is not inherited by repositories. |
@@ -108,6 +110,7 @@ so their scope is visible from their path. Validate required defaults in that
 source repository, not by requiring consumer copies. A target retains a local
 community file only for genuine repository-specific content or a documented
 exception under [Organization Standard](../../Ways-of-Working/Organization-Standard.md#community-files-are-organization-defaults).
+For the required contribution source, verify file presence, not a nonempty body.
 If a target defines any local issue-template set, it owns that complete set
 rather than combining local and central forms.
 

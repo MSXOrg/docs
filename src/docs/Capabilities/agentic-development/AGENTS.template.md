@@ -42,9 +42,11 @@ clone, and update it before reading it.
 
 Tailor the entries to real destinations. Keep the local contribution entry only
 [when a local guide is needed](../../Ways-of-Working/Repository-Standard.md#contribution-guidance);
-otherwise replace it with a link to the organization default at its source. If
-the organization supplies no contribution default, link to the shared
+otherwise replace it with a link to the initiative's required contribution
+source in its public `.github` repository. If the source guide is blank, also
+link to the shared
 [Contribution Workflow](../../Ways-of-Working/Contribution-Workflow.md).
+Report a missing required source file in the initiative's community repository.
 Inherited community files are not included in clones, so a router uses a source
 link rather than a nonexistent local path. Do not create a local contribution
 file solely to fill the template.

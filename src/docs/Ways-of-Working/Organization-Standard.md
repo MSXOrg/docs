@@ -32,7 +32,7 @@ Every initiative organization must define standards for these shared file famili
 
 | File family | Standard owns |
 | --- | --- |
-| Community health files | Central code of conduct, support policy, and security policy defaults, plus contribution guidance where provided. |
+| Community health files | Central code of conduct, support policy, security policy, and initiative contribution guidance. |
 | Issue intake | Central issue forms and issue-template configuration defaults, where the organization wants a shared intake model. |
 | Organization profile | The public organization introduction and any assets it uses. |
 | Repository context | README defaults, documentation ownership, and repository metadata expectations. |
@@ -48,8 +48,8 @@ These standards must be written down before broad alignment work starts. File al
 
 Community policies are organization-wide commitments, not repository-specific
 configuration. Each initiative organization MUST provide its code of conduct,
-security policy, and support policy as defaults in its
-special `.github` repository. Ordinary repositories inherit these defaults
+security policy, support policy, and shared contribution guide as defaults in
+its public `.github` repository. Ordinary repositories inherit these defaults
 unless genuine repository-specific content or a documented exception requires
 a local community file.
 
@@ -61,6 +61,11 @@ the special `.github` repository:
 | `.github/CODE_OF_CONDUCT.md` | Defines expected community behavior. |
 | `.github/SECURITY.md` | Defines supported versions and private vulnerability reporting. |
 | `.github/SUPPORT.md` | Defines where users ask for help. |
+| `.github/CONTRIBUTING.md` | Owns the initiative's common contribution instructions. The file is required even when blank. |
+
+The contribution source file MAY be blank. Its absence is a missing required
+organization default, not a reason to create placeholder copies in consumer
+repositories.
 
 A repository MAY retain a local community file only for genuine
 repository-specific content or a documented policy exception. The local file
@@ -72,16 +77,16 @@ PR authoring follows the [Repository Standard's no-PR-template-file
 policy](Repository-Standard.md#no-pr-template-files) and canonical [PR Format](PR-Format.md).
 PR templates are not organization defaults or eligible local exceptions.
 
-An organization MAY also provide optional defaults in the same repository:
+An organization MAY also provide shared issue-intake defaults in the same
+repository:
 
 | File or directory | Purpose |
 | --- | --- |
-| `.github/CONTRIBUTING.md` | Provides organization-wide contribution guidance inherited where no local contribution guide is needed. |
 | `.github/ISSUE_TEMPLATE/` | Provides shared issue forms and template configuration for consistent issue intake. |
 
-These defaults are optional for the organization to supply, not additional
-files for consumers to copy or subscribe to. When supplied, they apply through
-GitHub's fallback. Local contribution guidance follows
+When supplied, these defaults apply through GitHub's fallback. They are not
+additional files for consumers to copy or subscribe to. Local contribution
+guidance follows
 [Repository Standard](Repository-Standard.md#contribution-guidance). A repository
 MAY provide local issue templates for genuine repository-specific intake or a
 documented exception.

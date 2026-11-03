@@ -33,10 +33,11 @@ repository follows the explicit discoverability minimum defined below instead.
 | `.gitattributes` | Normalizes line endings and declares text/binary handling so the repository can be developed and built consistently on Linux, macOS, and Windows. |
 | `.gitignore` | Ignores files that must never be committed, tailored to the repository's ecosystem: operating-system files, editor and developer-tooling files, language and test-harness artifacts, and all local build outputs and files created during build and test. |
 
-The organization provides `CODE_OF_CONDUCT.md`, `SECURITY.md`, and `SUPPORT.md`
-as GitHub community defaults. It MAY
-also provide `.github/CONTRIBUTING.md` and `.github/ISSUE_TEMPLATE/` as
-optional defaults. Retain local community files only for genuine
+The organization provides `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`, and
+`.github/CONTRIBUTING.md` as GitHub community defaults. Contribution guidance follows the
+[initiative-level source below](#contribution-guidance). The organization MAY also
+provide `.github/ISSUE_TEMPLATE/` as an optional default. Retain local community
+files only for genuine
 repository-specific content or a documented exception; do not copy shared
 defaults solely to make them appear in the checkout. See
 [Organization Standard](Organization-Standard.md#community-files-are-organization-defaults).
@@ -80,9 +81,11 @@ The agent-file row is the one entry this table does not spell out in full. [Agen
 
 ### Contribution guidance
 
-Every repository MUST make its contribution process discoverable. Use the organization contribution default when supplied; otherwise link to the shared [Contribution Workflow](Contribution-Workflow.md).
+Every repository MUST make its contribution process discoverable. The shared source is `.github/CONTRIBUTING.md` in its initiative organization's public `.github` repository. [Organization Standard](Organization-Standard.md#community-files-are-organization-defaults) requires that source file even when it is blank.
 
-A local `.github/CONTRIBUTING.md` is required only for genuine repository-specific build, test, or contribution instructions, or a documented exception. The local guide describes those instructions and links to shared policy. Do not create a local file solely to repeat shared policy or point to it.
+When the source guide is blank, the shared [Contribution Workflow](Contribution-Workflow.md) still defines the process. A missing required guide is corrected in the initiative's community repository, not by creating consumer-local copies.
+
+A local `.github/CONTRIBUTING.md` is required only for genuine repository-specific build, test, or contribution instructions, or a documented exception. The local guide describes those instructions and links back to the shared contribution guidance and policy. Do not create a local file solely to repeat shared policy or point to it.
 
 Repository-specific instructions that follow shared policy are not a policy exception. A local policy exception follows the reason and owner requirements in [Organization Standard](Organization-Standard.md#community-files-are-organization-defaults).
 

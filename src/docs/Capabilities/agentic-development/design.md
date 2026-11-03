@@ -62,7 +62,7 @@ Product repositories carry local context and thin pointers:
 
 The repository owns only repository-specific nuance, and each kind has a file that owns it: `README.md` for what the repository is and how it builds, `.github/CONTRIBUTING.md` for contribution mechanics [when a local guide is needed](../../Ways-of-Working/Repository-Standard.md#contribution-guidance), `docs/` for architecture and domain context, and path-scoped rule files for local caveats. `AGENTS.md` points at them and holds none of it. Cross-cutting standards remain in `docs`. Thin means "no duplicated reusable process," not "discard the local operating contract" — the contract lives, it just lives in the file a human would read.
 
-Inherited community files are not included in clones. When no local contribution guide is needed, the router links to the organization's contribution default at its source. If the organization supplies no contribution default, link to the shared [Contribution Workflow](../../Ways-of-Working/Contribution-Workflow.md). Do not create a local guide merely to fill a router entry.
+Inherited community files are not included in clones. When no local contribution guide is needed, the router links to the initiative's required contribution source in its public `.github` repository. If the source guide is blank, also link to the shared [Contribution Workflow](../../Ways-of-Working/Contribution-Workflow.md). Report a missing required source file in the initiative's community repository; do not create a local guide merely to fill a router entry.
 
 ## OKF page model
 
