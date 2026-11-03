@@ -159,7 +159,8 @@ required. Creation alone does not authorize pickup: keep the issue outside
 agent-triggering assignment or dispatch until the notifier selects delegation.
 Qualification establishes whether delivery is needed and refines independently
 verifiable acceptance criteria and an executable local plan before Build.
-For a needed upgrade, the agent opens a pull request closing exactly that issue.
+For a needed upgrade, the same pickup execution opens a pull request closing
+exactly that issue; it does not create an Agent Task.
 The issue is the durable **identity**, not proof that qualification, pickup,
 or delivery finished. Repeated notifications follow
 [Retry and handoff recovery](#retry-and-handoff-recovery).
@@ -216,7 +217,7 @@ state and associated PR on retry rather than copying status into another store.
 | A correlated task is `queued` or `in_progress`, or Issue-first pickup execution is active | Reuse it and report in-progress work; do not create another execution. |
 | Task state `idle` | Retain it as the only execution, report a paused handoff, and request designated-owner re-engagement through the configured task mechanism. Do not start a replacement while it is idle; if resumption cannot be established, block and reconcile. |
 | Task state `waiting_for_user` | Block the delivery issue, record the requested decision and designated authorized responder, and wait for that responder to continue the same task. Never synthesize a response from release evidence or start a replacement task. |
-| Completed qualification establishes a needed upgrade, but no PR-delivery task or matching PR exists | Verify that qualification still matches the fixed inputs, then create or reuse one correlated PR-delivery task with `create_pull_request: true`; do not replay qualification or create another delivery issue. |
+| Completed Task-first qualification establishes a needed upgrade, but no PR-delivery task or matching PR exists | Verify that qualification still matches the fixed inputs, then create or reuse one correlated PR-delivery task with `create_pull_request: true`; do not replay qualification or create another delivery issue. |
 | Execution failed, timed out, or was canceled without a PR/no-upgrade result | Report the failure; resume missing work only after its blockers are resolved and active execution is ruled out. Preserve partial consumer work. |
 | PR-delivery task says completed but supplies no PR or verified no-upgrade result | Report incomplete handoff, not success, and reconcile the missing outcome. |
 | A matching PR handoff or verified no-upgrade outcome exists | Return that existing outcome and its actual state; do not create a duplicate PR or replay completed work. |
@@ -278,7 +279,8 @@ user-to-server credential accepted by the Agent Tasks API. So the job:
 | Delegation not created (missing permission / capability off) | Step **fails** with the error; re-run via `workflow_dispatch`. |
 | Matching PR handoff or verified no-upgrade outcome exists | Report the existing outcome and its actual state; no duplicate is created and consumer completion is not inferred. |
 | Delivery issue exists without a terminal handoff | Resume missing work or report active/blocked execution through [Retry and handoff recovery](#retry-and-handoff-recovery); issue existence is not success. |
-| Qualification establishes a needed upgrade | Create or reuse its one correlated PR-delivery task with `create_pull_request: true`; it creates the draft closing PR. |
+| Task-first qualification establishes a needed upgrade | Create or reuse its one correlated PR-delivery task with `create_pull_request: true`; it creates the draft closing PR. |
+| Issue-first qualification establishes a needed upgrade | Continue delivery in the existing pickup execution under the same issue; do not create an Agent Task. |
 | Qualification proves no upgrade | Record the no-upgrade disposition; do not create a PR-delivery task or PR. |
 | Task is `idle` | Retain the paused task and request designated-owner re-engagement through the configured task mechanism; do not create a replacement. |
 | Task is `waiting_for_user` | Block pending an authorized response in the same task; record the decision owner and never answer from producer evidence. |
