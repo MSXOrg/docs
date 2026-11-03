@@ -5,13 +5,13 @@ description: Why the README is the front door and the source of truth.
 
 # README-Driven Context
 
-The README is the **evergreen context document** for every repository in the MSX ecosystem. It is the single source of truth for what a repository is, what it does, and how it works. Both humans and agents read the README before starting work — and update it whenever functionality changes.
+The README is the **evergreen context document** for every repository in the MSX ecosystem. It is the single source of truth for what a repository is, what it does, and how it works. Both humans and agents read the README before starting work and keep it current when the delivered result affects its content.
 
 ## Core principles
 
 - **The README is the front door.** Anyone — human or agent — encountering the repository for the first time should understand the purpose, scope, and current capabilities from the README without reading source code.
-- **The README is evergreen.** It is a living document that always reflects the current state of the repository. When functionality is added, changed, or removed, the README is updated in the same unit of work.
-- **Documentation is not optional.** A feature that is not documented in the README is effectively invisible. Updating the README is part of completing the work, not a follow-up task.
+- **The README is evergreen.** It is a living document that reflects the current state of the repository. Update affected content in the same unit of work.
+- **Documentation is not optional.** A feature missing from the relevant README content is effectively invisible. Verification and any needed update are part of completing the work, not a follow-up task.
 - **The README is authoritative, but not automatically right.** It is the intended source of truth, yet a README can be wrong just as code can. When the README and the code disagree, [diagnose which is wrong](Principles/Engineering-Practices.md#intent-is-the-source-of-truth) — correct the README if the intent drifted, or fix the code if it diverged — so the two converge.
 
 ## What belongs in the README
@@ -42,9 +42,11 @@ Detailed users and jobs belong in the [capability specification](Spec-Driven-Dev
 
 ## When to update the README
 
-The README is updated **in the same pull request** that introduces the change. Documentation is part of the work — not a separate follow-up.
+Verify the README **in the same pull request** that introduces the change and update affected content that would be missing or incorrect. The shared [documentation and design evidence](Definition-of-Ready-and-Done.md#documentation-and-design-evidence) gate owns verification, including evidence when the README already matches the delivered result.
 
 ### Update when
+
+Review the relevant README content for these changes and update it where needed:
 
 - A new feature, command, function, or capability is added.
 - An existing feature changes in behavior, parameters, or output.
@@ -67,7 +69,7 @@ When a human or agent works on a repository, the README sequence is:
 
 1. **Read the README first** — before reading source code, understand the project context.
 2. **Use the README as a guide** — let documented scope and architecture inform where and how to make changes.
-3. **Update the README as part of implementation** — same PR, not a follow-up.
+3. **Verify the README as part of implementation** — update affected content and record completion evidence in the same PR, not a follow-up.
 4. **Match the existing tone and structure** — heading levels, conventions, and style already present.
 5. **Don't delete without reason** — if something is outdated, update it rather than removing it, unless the feature no longer exists.
 

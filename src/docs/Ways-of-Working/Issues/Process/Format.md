@@ -21,11 +21,11 @@ The body is the current source of truth. It:
 
 - Explains the issue's local purpose and desired outcome without requiring prior context.
 - States observable acceptance criteria.
-- Records the decisions and plan needed at the issue's [planning altitude](Planning.md).
+- Uses the issue's [planning altitude](Planning.md): consumer scenarios for aggregates, technical decisions and executable plans for delivery leaves.
 - Links to durable specifications, designs, prior decisions, pull requests, or external references instead of duplicating them.
 - Changes as understanding, readiness, and scope change through the [issue lifecycle](Lifecycle.md).
 
-Keep information at its owning altitude. User-visible intent precedes technical detail, and implementation choices do not leak into outcome-level acceptance criteria. The type pages define which sections and evidence are required at each altitude.
+Keep information at its owning altitude. The canonical [consumer-expectation rule](Planning.md#consumer-expectations) governs Epic and PBI bodies; the type pages define the sections and evidence required at each altitude. Link the relevant documentation whose current behavior will be verified at completion.
 
 ## Native metadata and relationships
 
