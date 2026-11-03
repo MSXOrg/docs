@@ -44,7 +44,7 @@ version-specific migration instructions.
 
 ## Workflow stages
 
-### Stage 1 - Establish the actual baseline
+### Stage 1: Establish the actual baseline
 
 1. Inventory every consumed reference in scope and where it is used: manifests,
    lockfiles, caller workflows, deployment configuration, and resolved execution
@@ -70,7 +70,7 @@ version-specific migration instructions.
 **Exit criteria.** Every in-scope reference has a recorded consumer location,
 exact upstream baseline, immutable identity, and supporting provenance.
 
-### Stage 2 - Fix the target and release path
+### Stage 2: Fix the target and release path
 
 1. Resolve the requested target once through the producer's authoritative
    release source: latest stable by default, or the explicit stable/prerelease
@@ -117,7 +117,7 @@ set and lineage are evidenced. An unexplained gap, missing page, unavailable
 required source or artifact evidence, or ambiguous release relationship blocks
 traversal.
 
-### Stage 3 - Compose the action ledger
+### Stage 3: Compose the action ledger
 
 Read each applicable record in full, including adoption instructions,
 consumer-change evidence, prerequisites, no-action outcomes, and template
@@ -162,7 +162,7 @@ because it appears in an authoritative release record.
 **Exit criteria.** Every crossed release is accounted for, actions compose to
 the target contract, and no required action or prerequisite remains ambiguous.
 
-### Stage 4 - Reconcile the template and apply the change
+### Stage 4: Reconcile the template and apply the change
 
 1. Resolve the template from the **target's recorded compatible baseline**, not
    the template's default branch or latest commit. Read that immutable commit
@@ -187,7 +187,7 @@ the target contract, and no required action or prerequisite remains ambiguous.
 and intermediate operation is applied, and the template comparison explains
 what changed, what stayed local, and what does not apply.
 
-### Stage 5 - Validate and reconcile
+### Stage 5: Validate and reconcile
 
 1. Run the consumer's existing relevant tests, builds, linting, and integration
    checks for the affected surfaces. Verify the upstream immutable identity
@@ -207,7 +207,7 @@ what changed, what stayed local, and what does not apply.
 every ledger disposition is supported, and no required action or validation
 remains blocked.
 
-### Stage 6 - Hand off and complete
+### Stage 6: Hand off and complete
 
 Carry the [outputs and evidence](#outputs-and-evidence) into the upgrade PR,
 using the existing [PR Format](PR-Format.md#write-the-description). Keep the
