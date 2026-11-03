@@ -6,7 +6,7 @@ description: How one change is rolled out across many repositories through Task 
 # Fleet Orchestration
 
 How a single change is applied across many repositories at once — a *campaign*.
-Each repository gets its own Task or Bug delivery leaf, branch, pull request,
+Each repository needing a change gets its own Task or Bug delivery leaf, branch, pull request,
 and review loop; the campaign is the coordination layer that keeps them moving
 and visible.
 
@@ -15,6 +15,11 @@ ordinary [Contribution Workflow](Contribution-Workflow.md) — draft first, the
 Copilot review loop, then people — on a branch created per
 [Git Worktrees](Git-Worktrees.md). Fleet orchestration adds nothing to that loop;
 it repeats it across a fleet and tracks the whole set.
+
+For an upstream upgrade, each delivery follows
+[Consumer Upgrades](Consumer-Upgrades.md). A campaign can share a fixed target;
+it cannot assume that consumers share the same actual baseline, release range,
+template differences, or required actions.
 
 The defining rule: **the state of a campaign lives on GitHub**, on the issues and
 pull requests themselves — never in a local file or database. Anyone, or any
@@ -27,14 +32,17 @@ tool, can read and drive a campaign with the GitHub CLI alone.
   fleet-wide, or a mechanical migration.
 - Use it when consumers of an organization- or initiative-owned Action or
   reusable workflow must move to a new breaking major. Compatible releases stay
-  on the existing controlled major tag and do not need a consumer campaign.
+  on the existing controlled major tag; advancing that alias alone needs no
+  reference-change campaign. Explicit pinned upgrades still follow the common
+  consumer procedure.
 - For a change in a single repository, there is no campaign — just follow the
   [Contribution Workflow](Contribution-Workflow.md).
 
 ## The campaign
 
 A campaign is one change rolled out across a set of repositories. Each
-repository's slice is one Task or Bug delivery leaf and its pull request. A
+repository's slice starts with one Task or Bug delivery leaf; it gets a branch
+and PR only when qualification establishes a needed repository change. A
 campaign has a short, stable **slug** (for example `process-psmodule-v6`) that
 prefixes every delivery issue. A campaign pull request carries that identity
 through its native Development link to the prefixed issue, leaving the pull
@@ -67,12 +75,15 @@ copied into another state-bearing field, because duplicated state drifts.
 | CI health | the status-check rollup |
 | Review outcome | `reviewDecision` and unresolved review threads |
 | Mergeability | `mergeable` / merge-state status |
-| Done | pull request **merged**; Task or Bug **closed** |
+| Integration complete | pull request **merged** |
+| No upgrade needed | Unneeded leaf **closed as not planned**, with the [no-upgrade outcome](Consumer-Upgrades.md#stage-2-fix-the-target-and-release-path) evidenced |
+| Delivery complete | The [completion-owning issue](Definition-of-Ready-and-Done.md#post-merge-completion-ownership) **closed as completed** with its gate evidenced |
 | Issue ↔ PR link | the native Development link; a supported default-branch closing reference or an explicit manual link |
 
-"Ready for review" is the draft flag flipping off; "Merged" is the pull request's
-merge state. Delivery completion also requires the Task or Bug to close after
-its recorded Done gate. These are native signals, not copied stage fields.
+"Ready for review" is the draft flag flipping off; "merged" records integration.
+Both are native signals. Merge or automatic issue closure alone does not prove
+required publication, deployment, or producer/template completion; linked
+delivery evidence records those obligations separately.
 
 ### Campaign identity lives on the delivery issue
 
@@ -126,15 +137,16 @@ the two layers above — no guessing. The first matching rule wins.
 | # | Effective status | Condition |
 | --- | --- | --- |
 | 1 | Merged | pull request is merged |
-| 2 | Blocked | `stage:blocked`, or the merge state is dirty/conflicting |
-| 3 | Changes requested | review decision is changes-requested, or unresolved review threads remain |
-| 4 | Ready for review | pull request is not a draft and not merged |
-| 5 | CI failing | checks are failing on a draft |
-| 6 | In review | draft with at least one review and CI not failing |
-| 7 | In progress | draft with no review yet, or `stage:in-progress` |
-| 8 | Queued | Task or Bug open, no pull request yet |
+| 2 | Not needed | unneeded delivery leaf is closed as not planned with an evidenced no-upgrade outcome and no remaining PR work |
+| 3 | Blocked | `stage:blocked`, or the merge state is dirty/conflicting |
+| 4 | Changes requested | review decision is changes-requested, or unresolved review threads remain |
+| 5 | Ready for review | pull request is not a draft and not merged |
+| 6 | CI failing | checks are failing on a draft |
+| 7 | In review | draft with at least one review and CI not failing |
+| 8 | In progress | draft with no review yet, or `stage:in-progress` |
+| 9 | Queued | Task or Bug open, no pull request yet |
 
-Terminal and attention states (merged, blocked, changes requested, ready) rank
+Terminal and attention states (merged, not needed, blocked, changes requested, ready) rank
 above transient progress states, because an explicit act — marking ready, or
 flagging blocked — is a stronger signal than in-flight checks.
 
@@ -145,21 +157,33 @@ GitHub action, so the resulting state is always re-derivable.
 
 ```mermaid
 flowchart TD
-    Q[Queued: Task or Bug] --> P[Open PR as draft]
-    A[Adopt existing PR: return to draft] --> R
+    Q[Queued: Task or Bug] --> S[Confirm scope and qualify upgrades]
+    S --> N{Repository change needed?}
+    N -->|no upgrade and no other work| X[Record Not needed: no PR]
+    N -->|unknown| B[Blocked]
+    N -->|yes| E{Matching PR exists?}
+    E -->|no| P[Create branch and draft PR]
+    E -->|yes| A[Adopt existing PR: return to draft]
+    A --> R
     P --> R[Contribution Workflow: Copilot review loop]
-    R -->|needs a human decision| B[Blocked]
-    B -->|unblocked| R
+    R -->|needs a human decision| B
+    B -->|unblocked| S
     R -->|loop clean| Y[Mark ready for review]
     Y --> M[Human review and merge]
     M --> D[Close Task or Bug]
 ```
 
-1. **Queue the work.** Create one Task or Bug delivery issue per repository, with
+1. **Queue and qualify the work.** Create one Task or Bug delivery issue per repository, with
    the campaign prefix in the title and `stage:queued`. Route it through the
    [Issue Hierarchy](Issues/Types/Hierarchy.md) and follow its canonical type
-   page. The whole fleet starts as *Queued*.
-2. **Branch and open a draft.** Create a worktree and branch
+   page. For an upgrade, establish the actual baseline and fixed target through
+   [Consumer Upgrades](Consumer-Upgrades.md#stage-1-establish-the-actual-baseline)
+   before creating or adopting a branch/PR. A proven no-upgrade outcome with no
+   other local work becomes *Not needed*; unknown provenance becomes *Blocked*.
+   When considering an existing PR, qualify against the actual pre-upgrade
+   consumer state, not its proposed new references, and preserve any remaining
+   local acceptance work.
+2. **For a needed change, branch and open a draft.** Create a worktree and branch
    ([Git Worktrees](Git-Worktrees.md)), then open a **draft** pull request natively
    linked to exactly that prefixed delivery issue, per [PR Format](PR-Format.md)
    and the target-specific linking rules above.
@@ -176,7 +200,9 @@ flowchart TD
    request through the [Contribution Workflow](Contribution-Workflow.md) —
    the Copilot review loop — exactly as any single-repository change. The
    [Implement](Workflow-Stages/Implement.md) and [Review](Workflow-Stages/Review.md)
-   workflow stages apply unchanged.
+   workflow stages apply unchanged. For an upgrade, continue with the per-consumer
+   release-range ledger and immutable template comparison in
+   [Consumer Upgrades](Consumer-Upgrades.md), including no-action ranges.
 4. **Flag blockers, don't stall the fleet.** If a delivery leaf needs a human decision or
    an off-platform action, set `stage:blocked` with a note and move on to the next
    repository.
@@ -190,6 +216,10 @@ flowchart TD
    The campaign's job is to get every pull request to *Ready*;
    [Branching and Merging](Branching-and-Merging.md) governs how it merges.
 
+An evidenced [no-upgrade outcome](Consumer-Upgrades.md#stage-2-fix-the-target-and-release-path)
+ends without manufacturing a branch or PR. Apply the common procedure's issue
+disposition; the fleet reports *Not needed*, not a delivered upgrade.
+
 ## Breaking-major migrations
 
 Organization- or initiative-owned Actions and reusable workflows may publish
@@ -199,10 +229,12 @@ new major tag and leaves the previous major line in place; consumers do not move
 until a deliberate campaign changes each `uses:` reference.
 
 The campaign records the compatibility decision rather than hiding it in release
-automation. Its delivery leaves update the major reference, apply any required
-input, output, permission, or behavior migration, and verify the consumer before
-merge. The producer's controlled release automation MUST NOT repoint an existing
-major tag to perform this migration.
+automation. Its delivery leaves use [Consumer Upgrades](Consumer-Upgrades.md)
+to establish the source that actually ran, compose every applicable crossed
+release, and verify required integration changes before merge. The current
+destination of a floating major tag is not evidence of a consumer's prior
+baseline. The producer's controlled release automation MUST NOT repoint an
+existing major tag to perform this migration.
 
 ## What a rollout surfaces
 
@@ -374,22 +406,26 @@ gh pr ready <n> --repo <owner>/<repo>
 
 ## Worked example: A shared workflow upgrade
 
-A campaign aligns consumers with one fixed producer release. Its release records
-own the version-specific migration actions; this general procedure does not
-invent or duplicate them.
+A shared workflow campaign resolves one fixed producer release and discovers
+its consumers. Producer-owned guidance identifies its release and template
+sources; source-bound release records own version-specific migration actions.
+[Consumer Upgrades](Consumer-Upgrades.md) supplies the per-repository procedure
+without inventing or duplicating those instructions.
 
 - **Slug:** `shared-workflow-alignment`.
 - **Discover the fleet:** find consumers of the reusable workflow with a code
   search for its `uses:` reference, then queue a Task delivery issue in each.
-- **Per repository:** establish its actual consumed baseline and fixed target,
+- **Per repository:** establish its actual immutable baseline and fixed target,
   read every applicable source-bound release record, compose the required
-  actions and intermediate operations, preserve local intent, and verify the
-  result with its existing checks. A required instruction missing from the
-  records blocks that delivery.
+  actions and intermediate operations, reconcile immutable template compatibility
+  while preserving intentional local differences, and verify the result with its
+  existing checks. Missing required evidence blocks that delivery; do not copy
+  another repository's edits or assume every consumer needs a test migration.
 - **Track it:** every delivery issue starts with `[shared-workflow-alignment]`;
   each pull request uses a reader-facing title and a verified native issue link.
   Default-branch closing keywords and explicit non-default linking follow the
   target-specific rules above. The dashboard retains both live and merged PRs.
+  Linked evidence distinguishes integration from delivery completion.
 
 ## What this is not
 

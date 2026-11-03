@@ -28,6 +28,23 @@ only provides organization defaults.
 Each skill points to one canonical document. Its body may include runtime
 mechanics, but it MUST NOT duplicate the procedure or define a second workflow.
 
+### Consumer upgrade discovery
+
+The shared `msx-ways-of-working-consumer-upgrades` skill points only to
+[Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md). The procedure
+works without an installed plugin; the skill is a discovery shortcut.
+
+| Owner | Owns |
+| --- | --- |
+| MSX shared documentation and plugin | The version-independent upgrade method and its common evidence/completion gates. |
+| Producer or initiative documentation and plugin | Authoritative source and registry locations, version and release-lineage discovery, target-era guidance, and the mapping to a compatible immutable template commit or explicit no-template result. |
+
+An initiative entry point routes to that producer-owned discovery, then uses the
+shared procedure. It does not move initiative-specific authority into the
+shared skill or package a version-specific migration cookbook. Target template
+identity comes from source-bound release evidence, not the installed plugin
+version or today's template branch.
+
 ## Layout and names
 
 Each owning repository uses this layout:

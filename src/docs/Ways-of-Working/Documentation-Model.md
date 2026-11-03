@@ -174,12 +174,19 @@ old-to-new transitions, migration instructions, and change history in the
 [release records](../Capabilities/release-management/design.md#release-notes),
 not a parallel history file or migration-guide hierarchy.
 
+A normative contract is not proof that its implementation or CI enforcement
+exists; delivery records carry that evidence and any remaining gap.
+
 Release notes explain what changed, why, who is affected, compatibility, and
 exact applicable adoption actions or an explicit no-action result. Reading all
 applicable records after the actual consumed baseline through the target is
 sufficient to compose the required upgrade actions; PRs and diffs provide
 optional depth. General upgrade procedures may explain how to use those
 records, without becoming another source of release-specific instructions.
+
+A consumer adopting an older target reads its immutable source/documentation
+snapshot and release records through [Consumer Upgrades](Consumer-Upgrades.md),
+not today's product guidance as a claim about an older version.
 
 Decision records and research retain their distinct purposes: decisions preserve
 the choices, rationale, and supersession links, while research preserves
