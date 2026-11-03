@@ -203,10 +203,10 @@ Every external Action is pinned to a commit SHA; organization- or initiative-own
 | --- | --- |
 | Adoption (opt-in) | a short caller workflow that calls the reusable workflow |
 | Host + OS matrix, marketplace toggle, extras | `.github/vscode-extension.yml` |
-| Explicit bump / prerelease / skip | owned pull-request label |
 | Default bump and overrides | shared `DefaultBump: patch`, repository settings, and supported caller inputs |
+| Explicit bump / prerelease / skip | owned pull-request label |
 | Pre-merge decision validation | version check required by the branch ruleset or protection |
-| Release branches + path filter | `.github/release.settings.yml` ([Release Management](../release-management/design.md)) |
+| Release types + branch mapping + path filter | `.github/release.settings.yml` ([Release Management](../release-management/design.md)) |
 | Marketplace publish tokens | a GitHub environment's secrets |
 | Extension manifest (`engines.vscode`, `contributes`, activation) | `package.json` |
 
