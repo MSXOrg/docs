@@ -2,7 +2,9 @@
 
 Every change lands through a pull request — nothing goes directly to `main`. See the
 [Contribution Workflow](https://msxorg.github.io/docs/Ways-of-Working/Contribution-Workflow/)
-for the full process: draft first, the Copilot review loop, then human review.
+for the full process: draft first, the Copilot review loop, then human review. Write the
+title and description according to
+[PR Format](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/).
 
 Everything here is a work in progress and can be improved. Fix a small problem when it is
 directly in scope; register a larger or unrelated one as an issue in the repository that
@@ -50,6 +52,14 @@ owns it.
 7. Open the pull request as a draft and follow the
    [Contribution Workflow](https://msxorg.github.io/docs/Ways-of-Working/Contribution-Workflow/).
 
+## Pull request format
+
+Write the actual title and complete description using [canonical PR
+Format](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/).
+Use its [complete description example](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/#complete-description-example)
+and verify the resulting record and its release-range/source evidence against
+that guidance.
+
 ## Authoring conventions
 
 The docs are built for recursive navigation, so a reader or an agent can start at the top
@@ -75,8 +85,8 @@ index and drill down to the right page. Three conventions make that work.
 
 - **The tables are generated from front matter.** `.github/scripts/Update-DocumentationIndex.ps1`
   reads each page's `title` and `description`, orders them to match the navigation in
-  `src/zensical.toml`, and fills every index in place. CI runs the same script with `-Check`
-  and fails if an index is out of date.
+  `src/zensical.toml`, and fills every index in place. CI regenerates the indexes before
+  building the site instead of rejecting index drift.
 
 Choose a page's home by subject first, then by the artifact that answers the reader's
 question. The [Documentation Model](https://msxorg.github.io/docs/Ways-of-Working/Documentation-Model/#architecture-and-classification)
@@ -113,6 +123,6 @@ conventional-commit prefixes. See
 Push every commit, so the remote branch, CI, and the draft pull request always reflect the
 current state of the work.
 
-See the [README](README.md) for what this repository is and how it is laid out, and the
+See the [README](../README.md) for what this repository is and how it is laid out, and the
 [Ways of Working](https://msxorg.github.io/docs/Ways-of-Working/) for the conventions every
 pull request follows — issue format, PR format, branching, and review etiquette.

@@ -11,15 +11,18 @@ Every repository pins dependencies by version — Action SHAs, image digests,
 package versions, provider constraints. Those pins age: a newer version fixes a
 bug the repository still carries, and a disclosed advisory turns a safe pin into
 a vulnerability. Keeping them current MUST be automatic and driven on the GitHub
-platform, producing ordinary pull requests that are reviewed and released
-through the same gate as any change — never a side channel that bypasses review.
+platform, producing ordinary pull requests that are reviewed through the same
+gate as any change — never a side channel that bypasses review. When the target
+route invokes Release Management, its release decision and publication path are
+resolved separately from the updater; a route without that invocation carries
+no `release:*` metadata.
 
 ### Principles
 
 This capability rests on the [Principles](../../Ways-of-Working/Principles/index.md):
 
 - **[Everything as Code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).** What is checked and how often is version-controlled configuration, not a manual audit.
-- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** Every update is a pull request; its review gate approves the bump, while its release impact is decided separately.
+- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** Every update is a pull request; its review gate approves the dependency change, while any applicable release decision is resolved separately.
 - **[Least-privilege](../../Ways-of-Working/Principles/Purpose-and-Direction.md#least-privilege).** The updater and any auto-merge automation carry only the permissions they need.
 - **[Extensible by default](../../Ways-of-Working/Principles/Software-Design.md#extensible-by-default).** Adding a package ecosystem is a configuration entry, not new machinery.
 
@@ -31,9 +34,9 @@ other ecosystem the repository actually uses. Two questions are asked of every p
 **currency** (is a newer version available?) and **security** (does the pinned
 version carry a known advisory?).
 
-Out of scope: what an update *does* to the artifact. That is the release the update
-produces, and it is governed by [Release
-Management](../release-management/spec.md).
+Out of scope: what an update *does* to the artifact. Where the target route
+invokes [Release Management](../release-management/spec.md), that capability
+governs the release decision and output.
 
 ## Requirements
 
@@ -69,7 +72,7 @@ Management](../release-management/spec.md).
 ### Review and release
 
 - **FR10 — One reviewed pull request per update.** Each dependency update is a pull request that passes the full check suite before merge. Nothing is applied unreviewed, and no update takes a side channel around the gate.
-- **FR11 — Release impact is decided separately.** The dependency updater MUST NOT choose the repository's release bump. After dependency changes are collected, the repository-wide effect is decided according to [Release Management](../release-management/spec.md).
+- **FR11 — Release decisions stay independent.** The dependency updater MUST NOT choose the repository's release bump or apply `release:*` labels. After dependency changes are collected, the repository-wide effect is decided according to [Release Management](../release-management/spec.md) only when the target route invokes it.
 - **FR12 — Review and merge follow the repository gate.** An update MUST pass the repository's normal review and required-check policy before merge.
 - **FR13 — Automatic merge is never a bypass.** Where automatic merge is configured, it MUST preserve review requirements and required checks.
 
@@ -83,12 +86,12 @@ Management](../release-management/spec.md).
 
 - An outdated or vulnerable pin produces a pull request with no human trigger.
 - An ecosystem added to a repository without a corresponding updater entry is a detectable finding, not a silent gap.
-- The repository-wide release impact of dependency changes is decided separately under Release Management.
+- When the target route invokes Release Management, the repository-wide release decision for dependency changes is resolved separately under that capability.
 - No dependency pull request merges without passing the same checks as any other pull request.
 
 ## Where this connects
 
 - [Design](design.md) — the updater, review, and automatic-merge policy.
-- [Release Management](../release-management/spec.md) — the separate repository-wide release decision for merged dependency changes.
+- [Release Management](../release-management/spec.md) — the conditional, separate repository-wide release decision for merged dependency changes.
 - [Repository Governance](../repository-governance/spec.md) — the reconciliation that detects an uncovered ecosystem.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md#keep-pinned-actions-current) — keeping pinned Actions current.

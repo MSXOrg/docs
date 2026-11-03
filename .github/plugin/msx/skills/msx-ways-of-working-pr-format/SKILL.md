@@ -5,4 +5,4 @@ description: Format MSX pull request titles, descriptions, change types, and lab
 
 # Follow the MSX pull request format
 
-Read and follow [MSX PR Format](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/PR-Format.md).
+Read and follow [MSX PR Format](https://github.com/MSXOrg/docs/blob/main/src/docs/Ways-of-Working/PR-Format.md#resolve-release-coverage-first).

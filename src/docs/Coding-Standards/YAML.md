@@ -27,6 +27,8 @@ One exception exists, and only because the tool allows no alternative:
 `.pre-commit-config.yaml`. Where a tool hard-codes the long form, follow the tool and note
 it; otherwise, `.yml`.
 
+Solution-owned settings filenames follow the [Naming standard](Naming.md#solution-settings-files).
+
 ## Lint every file
 
 `yamllint` MUST run against every YAML file in the repository — locally through
