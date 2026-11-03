@@ -180,6 +180,13 @@ Scenario: Accumulated decisions establish a minimum increment
 ### FR3 — One stable authority produces one discoverable current version {#fr3}
 
 Exactly one source line MUST be authorized to produce stable releases.
+Release branches MUST map to exactly one of `ReleaseType.Stable`,
+`ReleaseType.Prerelease`, or `ReleaseType.ReleaseCandidate`; unknown keys MUST
+fail. Omitted stable routing MUST inherit the repository default branch.
+Branch-assignment validation MUST run after resolving inherited defaults and
+MUST reject duplicate assignments, including a non-stable route assigned to the
+inherited stable branch.
+
 Current-version discovery MUST select the greatest eligible completed stable
 version by SemVer precedence, independently of tag listing order or optional
 aliases.
@@ -198,6 +205,14 @@ Scenario: Partial publication is not current
   When current-version discovery runs
   Then it returns version 2.3.2
   And version 2.4.0 remains incomplete
+
+Scenario: Inherited stable routing cannot also be a candidate route
+  Given the repository default branch is main
+  And ReleaseType.Stable is omitted
+  And ReleaseType.ReleaseCandidate.Branch is main
+  When effective release routing is validated
+  Then validation fails because main is assigned to two routing types
+  And no release is published
 ```
 
 ### FR4 — Prereleases and release candidates identify the next stable candidate {#fr4}
@@ -207,6 +222,12 @@ resolved aggregate increment to the stable baseline and permanent reservations.
 It MUST sort before the normal version with the same core and MUST NOT consume
 that stable version. Successive versions in one prerelease series MUST increase
 by SemVer precedence.
+
+Configured prerelease and release-candidate routes MUST publish only their
+assigned prerelease series, never stable releases. An ordinary prerelease MUST
+also be obtainable from an open pull request carrying `release:prerelease`,
+using one explicit owned bump label when present and the valid effective
+`DefaultBump` otherwise.
 
 An ordinary prerelease MUST identify its source series. A dedicated release
 candidate MUST use the constant `rc` identifier and an unpadded increasing

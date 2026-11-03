@@ -37,10 +37,15 @@ every `release:*` label; a Pages deployment alone is not a versioned release.
 ## Release authority and interfaces {#branching-model}
 
 Release branches are keyed by `ReleaseType.Stable`, `ReleaseType.Prerelease`,
-and `ReleaseType.ReleaseCandidate`, each with its own `Branch`. The stable
-branch defaults to the repository default branch; the other keys are optional.
-A branch cannot belong to two types, and unknown keys or duplicate assignments
-fail validation.
+and `ReleaseType.ReleaseCandidate`, each with at most one `Branch`. These are
+routing types, not additional publication modes: prerelease and release-candidate
+routes both publish prereleases.
+
+The stable branch inherits the repository default branch when `ReleaseType` or
+its `Stable` key is omitted; the other keys are optional. Validate unknown keys
+and duplicate branch assignments after resolving inherited defaults. A branch
+cannot belong to two types, so assigning the inherited stable branch to
+`Prerelease` or `ReleaseCandidate` is invalid.
 
 Exactly one configured stable line owns stable publication. A repository can
 develop on several branches, but only a merge or approved manual request whose
@@ -50,7 +55,7 @@ fixed source is on that line can create a stable release.
 | --- | --- | --- |
 | Pull-request decision check | Validates the owned release decision before merge. | None; it validates intent. |
 | Merge to the stable line | Normal request for a release of the accumulated range. | Reviewed pull request and branch policy. |
-| Direct push | Validates source and leaves the change pending. | None; it never inherits `DefaultBump`. |
+| Direct push to the stable line | Validates source and leaves the change pending. | None; it never inherits `DefaultBump`. |
 | Manual release request | Releases an explicit stable-line source and accumulated range. | Explicit bump, complete notes, and approval for that range. |
 | Retry request | Resumes one durable release intent. | The original frozen approval and intent. |
 | Retirement request | Ends recovery of one incomplete intent. | Explicit maintainer authorization. |
@@ -258,6 +263,12 @@ and one artifact.
 
 ### Resolve prereleases and release candidates
 
+Configured prerelease and release-candidate branches publish their assigned
+series on pushes. An open pull request carrying `release:prerelease` can publish
+an ordinary prerelease using one explicit owned bump label, or the valid
+effective `DefaultBump` when that label is absent. Neither route publishes a
+stable version or advances stable discovery or aliases.
+
 A prerelease applies its aggregate increment to the stable baseline and permanent
 stable reservations, then appends a native identifier that sorts before the
 normal version:
@@ -266,8 +277,9 @@ normal version:
 <next-stable-core>-<series>.<counter>
 ```
 
-An ordinary prerelease uses the shared workflow's validated series identifier.
-A dedicated release candidate always uses `rc`:
+A prerelease branch uses its validated branch-name series identifier; an
+open-pull-request prerelease uses its normalized source-branch name. A dedicated
+release candidate always uses `rc`:
 
 ```text
 2.5.0-rc.1
@@ -279,6 +291,9 @@ The counter is the next unreserved numeric value for that core and series. It is
 stored unpadded so SemVer numeric ordering remains correct. The normal core
 `2.5.0` is not consumed by any prerelease, but every published prerelease
 identifier remains bound to its original content even after cleanup.
+
+Promotion to stable uses the [stable version resolver](#version-computation);
+neither prerelease nor release-candidate counters carry over.
 
 Each publishing target validates its native prerelease flag against the
 canonical version. A stable canonical version cannot be sent through a native
@@ -630,7 +645,8 @@ release-paths:
 
 - `ReleaseType` owns the keyed branch mapping. `Stable.Branch` defaults to the
   repository default branch; `Prerelease` and `ReleaseCandidate` are optional.
-  Unknown keys and duplicate branch assignments fail.
+  Unknown keys and duplicate branch assignments fail after resolving inherited
+  defaults, as defined by [release authority](#branching-model).
 - `DefaultBump` has the shared default `patch` and accepts only `patch`, `minor`,
   or `major`. Repository settings and supported caller inputs override it, then
   a single owned bump label overrides the valid effective default for the
