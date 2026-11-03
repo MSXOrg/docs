@@ -60,7 +60,7 @@ This set applies only when the pull request's target route invokes Release
 Management, including through a native producer pipeline. An unmanaged route
 does not apply or report any
 `release:*` label, including `release:skip`. The optional
-`.github/release.config.yml` file refines an invocation; its absence alone does
+`.github/release.settings.yml` file refines an invocation; its absence alone does
 not determine whether the route invokes the capability.
 
 These labels are read by

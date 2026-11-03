@@ -17,26 +17,29 @@ Which natural language each repository artifact is written in follows [Natural L
 
 ## Required files
 
-Every governed repository must carry the files that make it understandable and
-governable on its own. An Unmanaged repository carries the explicit
-discoverability minimum defined below instead.
+Every governed repository must provide the local files and discoverable
+contribution guidance below. Supported organization community defaults meet
+their guidance requirements without repository-local copies. An Unmanaged
+repository follows the explicit discoverability minimum defined below instead.
 
 | File | Requirement |
 | --- | --- |
 | `README.md` | Acts as the repository start page: purpose, target audience, value, access, first mental model, and where to go next. |
 | `LICENSE` | States the legal terms for reuse and redistribution. |
-| `.github/CONTRIBUTING.md` | Explains repository-specific contribution steps and links to applicable organization defaults and canonical PR Format. |
+| `.github/CONTRIBUTING.md` | Required locally only for repository-specific instructions or a documented exception; otherwise use shared guidance. See [Contribution guidance](#contribution-guidance) and [PR Format](PR-Format.md). |
 | `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation. [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior) names the files and the path each one sits at. |
 | `.github/dependabot.yml` | Configures platform-native dependency-update pull requests for supported ecosystems. The `github-actions` ecosystem is expected in virtually every repository; an unsupported ecosystem follows the centrally managed exception path rather than a repository-local updater. |
 | `.github/CODEOWNERS` | Routes reviews to responsible owners. |
 | `.gitattributes` | Normalizes line endings and declares text/binary handling so the repository can be developed and built consistently on Linux, macOS, and Windows. |
 | `.gitignore` | Ignores files that must never be committed, tailored to the repository's ecosystem: operating-system files, editor and developer-tooling files, language and test-harness artifacts, and all local build outputs and files created during build and test. |
 
-The organization provides `CODE_OF_CONDUCT.md`, `SECURITY.md`, and `SUPPORT.md`
-as GitHub community defaults. It MAY
-also provide `.github/CONTRIBUTING.md` and `.github/ISSUE_TEMPLATE/` as
-optional defaults. Do not copy any of these organization defaults into a
-repository unless it needs a documented local exception; see
+The organization provides `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`, and
+`.github/CONTRIBUTING.md` as GitHub community defaults. Contribution guidance follows the
+[initiative-level source below](#contribution-guidance). The organization MAY also
+provide `.github/ISSUE_TEMPLATE/` as an optional default. Retain local community
+files only for genuine
+repository-specific content or a documented exception; do not copy shared
+defaults solely to make them appear in the checkout. See
 [Organization Standard](Organization-Standard.md#community-files-are-organization-defaults).
 
 The special organization `.github` repository uses the purpose-specific file
@@ -46,11 +49,14 @@ instead of carrying repository-specific baseline files that have no function
 there. Its own README, agent routes, text handling, and ignore rules remain
 local; only supported community defaults are inherited by other repositories.
 
-Repository types may require additional files. For example, a PowerShell module may require `.github/PSModule.yml`, while a GitHub Action may require `action.yml`.
+Repository types may require additional files. For example, a PowerShell module may require [`.github/PSModule.yml`](../Initiatives/PSModule.md#module-settings), while a GitHub Action may require `action.yml`.
+
+Solution-owned settings filenames follow the [Naming standard](../Coding-Standards/Naming.md#solution-settings-files).
 
 ### Required files by type
 
-The table above is the mandatory set for every governed repository. A
+The table above is the baseline for every governed repository, including the
+conditional contribution-guide requirement. A
 [repository type](../Capabilities/repository-governance/design-types.md) adds to
 that set; no governed type subtracts from it. `Unmanaged` is the explicit
 full-governance exemption: it is audited only for the discoverability minimum
@@ -62,15 +68,26 @@ stated below, not for the governed baseline.
 | **Artifact** | The artifact's own manifest or metadata file — whatever declares its identity to the ecosystem it publishes into — and a changelog where the ecosystem expects one rather than reading [GitHub Releases](../Capabilities/release-management/design-publishing-targets.md). |
 | **Infrastructure** | Documentation of each environment the repository deploys to and how a change reaches it, plus the promotion automation the [promotion flow](../Capabilities/repository-governance/design-types.md#infrastructure) requires. |
 | **Docs** | The documentation source root and the build configuration the documentation-build check runs. |
-| **Unmanaged** | Nothing — but the exemption does not extend to discoverability: `README.md`, `.github/CONTRIBUTING.md`, and the agent router remain required, because a repository nobody governs is still a repository someone will open. |
+| **Unmanaged** | Nothing — but the exemption does not extend to discoverability: `README.md`, discoverable [contribution guidance](#contribution-guidance), and the agent router remain required. A local contribution file follows the same conditional rule. |
 
 The set a governed repository is audited against is the mandatory set plus the
 additions of every type it declares; an Unmanaged repository is audited only
-against its discoverability minimum. Presence is verified by
+against its discoverability minimum. Required local files and effective
+contribution guidance are verified by
 [reconciliation](../Capabilities/repository-governance/design.md#required-files-by-type),
 not by review.
 
 The agent-file row is the one entry this table does not spell out in full. [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior) owns that set — one router at the repository root, plus a route for every client that reads a different filename — and the [agentic development spec](../Capabilities/agentic-development/spec.md) limits what a route may contain: a pointer to the router and, at most, genuinely runtime-specific configuration such as permission scopes, never a reading order, a workflow, or a standard. A repository is audited against that one list, so a second copy here would be a second list to keep in step.
+
+### Contribution guidance
+
+Every repository MUST make its contribution process discoverable. The shared source is `.github/CONTRIBUTING.md` in its initiative organization's public `.github` repository. [Organization Standard](Organization-Standard.md#community-files-are-organization-defaults) requires that source file even when it is blank.
+
+When the source guide is blank, the shared [Contribution Workflow](Contribution-Workflow.md) still defines the process. A missing required guide is corrected in the initiative's community repository, not by creating consumer-local copies.
+
+A local `.github/CONTRIBUTING.md` is required only for genuine repository-specific build, test, or contribution instructions, or a documented exception. The local guide describes those instructions and links back to the shared contribution guidance and policy. Do not create a local file solely to repeat shared policy or point to it.
+
+Repository-specific instructions that follow shared policy are not a policy exception. A local policy exception follows the reason and owner requirements in [Organization Standard](Organization-Standard.md#community-files-are-organization-defaults).
 
 ## README defaults
 
@@ -88,10 +105,10 @@ A README answers these questions, in this order:
 | How do I get more info? | Point to the documentation surface that owns the details. |
 
 Do not use the README as a community-file index. Assume readers can find the
-organization's standard community defaults and repository-local files such as
-`LICENSE` and `.github/CONTRIBUTING.md` through GitHub's UI and repository
-conventions. The README should mention them only when the repository has an
-unusual rule that readers must know before using the product.
+organization's standard community defaults, including inherited contribution
+guidance, and repository-local files such as `LICENSE` through GitHub's UI and
+repository conventions. The README should mention them only when the repository
+has an unusual rule that readers must know before using the product.
 
 Do not repeat repository-sidebar information in prose. If GitHub already exposes the repository description, deployments, releases, or site URL, the README may rely on those surfaces unless the information is necessary to answer the start-page questions.
 
@@ -109,7 +126,7 @@ Default expectations by repository type:
 | Libraries, services, CLIs, and applications | Product docs live under `docs/` and are published when the product needs more than a small README. |
 | GitHub Actions | The README is the main documentation surface because GitHub Actions users expect inputs, outputs, permissions, and examples next to `action.yml`. |
 | Reusable workflows | The README is the main documentation surface because callers need workflow interface, permissions, secrets, and examples in the repository. |
-| Documentation repositories | The published site is the product. The repository README explains what the source repository is and how it is laid out, and points to `.github/CONTRIBUTING.md` for the authoring conventions and the local build. |
+| Documentation repositories | The published site is the product. The repository README explains what the source repository is and how it is laid out, and points to repository-specific authoring and build guidance in a local contribution guide when needed. |
 
 Documentation content lives in one folder, never spread across the repository root. A repository whose product is content — a documentation site, a reference collection, an archive of external material — keeps that content under a single documentation root: `docs/` by default, or a generator's source root such as `src/docs/` when the site tooling needs one. The repository root stays reserved for the README, the tooling, and the governance files, so a reader can tell content from machinery without opening a folder.
 

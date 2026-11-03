@@ -34,6 +34,18 @@ Follow the **idiom of the language**, and be consistent within a codebase:
 - Never fight the language's conventions to impose a personal preference. The least-surprising name is the right name.
 - Files and folders follow the repository's established pattern. When starting fresh, prefer `kebab-case` for cross-platform safety (no case-sensitivity surprises between Windows, macOS, and Linux).
 
+## Solution settings files
+
+Solution-owned settings MUST use `<name>.settings.yml` as their conventional filename, where `<name>` identifies the owning solution. One naming shape makes both the owner and the file's purpose discoverable.
+
+Each solution documents its settings location. This standard does not impose a shared directory or change settings schemas, defaults, or precedence.
+
+Tool-mandated manifests, lockfiles, workflow filenames, and YAML files that are not solution-owned settings follow their tool's contract, not this settings-filename convention.
+
+A reader MAY expose a documented explicit path override. This convention does not remove that input or restrict otherwise supported custom paths.
+
+A supported naming exception MUST be documented by the owning solution. Verify the reader before changing a released conventional filename, and keep exact migration actions in its [release record](../Capabilities/release-management/design.md#release-notes). Review verifies adoption against the reader contract.
+
 ## Scope and length
 
 Name length should track scope. A loop index living for three lines can be `i`. A module-level export read across the codebase earns a full, descriptive name. The wider the reach, the more the name has to carry on its own.

@@ -127,6 +127,11 @@ leave a repository unclassified, and an unclassified repository is
 indistinguishable from a forgotten one. With it, the exemptions are a list that
 can be reviewed, questioned, and shortened.
 
+Contribution guidance follows the same
+[conditional local-file rule](../../Ways-of-Working/Repository-Standard.md#contribution-guidance)
+as governed repositories. Supported community guidance may be inherited; its
+availability does not require a repository-local copy.
+
 An archive, a scratch mirror, or a repository whose content is generated wholesale
 by another system are the shapes this fits. A repository people actively develop
 in is not.

@@ -197,14 +197,16 @@ Every external Action is pinned to a commit SHA; organization- or initiative-own
 
 ## Configuration surface
 
+`.github/vscode-extension.yml` is the documented template settings interface and a [supported naming exception](../../Coding-Standards/Naming.md#solution-settings-files). The naming convention does not change this interface or its settings keys; a filename change requires a verified reader and a separate template/caller migration.
+
 | Surface | Where |
 | --- | --- |
 | Adoption (opt-in) | a short caller workflow that calls the reusable workflow |
 | Host + OS matrix, marketplace toggle, extras | `.github/vscode-extension.yml` |
-| Explicit bump / prerelease / skip | owned pull-request label |
 | Default bump and overrides | shared `DefaultBump: patch`, repository settings, and supported caller inputs |
+| Explicit bump / prerelease / skip | owned pull-request label |
 | Pre-merge decision validation | version check required by the branch ruleset or protection |
-| Release branches + path filter | `.github/release.config.yml` ([Release Management](../release-management/design.md)) |
+| Release types + branch mapping + path filter | `.github/release.settings.yml` ([Release Management](../release-management/design.md)) |
 | Marketplace publish tokens | a GitHub environment's secrets |
 | Extension manifest (`engines.vscode`, `contributes`, activation) | `package.json` |
 
@@ -218,7 +220,7 @@ The template repository lays down the whole shape, mirroring
   `contributes`, `activationEvents`, and `main` pointing at the bundle.
 - the bundler config, `tsconfig.json`, and `.vscodeignore`.
 - `install/` — the hosted one-liner install scripts.
-- `.github/` — the caller workflow, `vscode-extension.yml`, `release.config.yml`,
+- `.github/` — the caller workflow, `vscode-extension.yml`, `release.settings.yml`,
   and `dependabot.yml`.
 
 ## Where this connects

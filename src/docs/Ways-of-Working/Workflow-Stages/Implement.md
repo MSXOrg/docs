@@ -35,12 +35,14 @@ Use [git worktrees](../Git-Worktrees.md) for every repository-delivery Task or B
 
 For each step in the delivery plan:
 
-1. Implement the change and self-review the staged diff.
+1. Define the failing test or repeatable verification before implementing the behavior, following the leaf's technical plan, then self-review the staged diff.
 2. Commit per [Commit Conventions](../Commit-Conventions.md) — one logical change per commit.
 3. Update the issue as each plan step completes — do not batch.
 4. Push regularly so CI runs against current work.
 
 When the plan is wrong, stop and document the conflict in a comment, then update the plan before resuming. Out-of-scope problems go to [Define](Define.md).
+
+Verify the leaf's relevant design and documentation against the delivered consumer behavior through the shared [completion evidence gate](../Definition-of-Ready-and-Done.md#documentation-and-design-evidence). Record the updated artifacts or justified already-correct links in the PR's supporting evidence; do not turn the parent Epic or PBI into a technical plan.
 
 ### 4. Self-review and respond
 
