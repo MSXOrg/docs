@@ -1,5 +1,6 @@
 #!/usr/bin/env pwsh
 #Requires -Version 7.0
+
 <#
 .SYNOPSIS
     Update each section index.md with a table generated from page front matter.
