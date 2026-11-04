@@ -46,8 +46,8 @@ whose deployed effect equals their approved effect (target 100%).
 
 ## Scope
 
-- Changes to the resources Platform manages, expressed as code, from proposal
-  through to deployment across every environment in the promotion path (for
+- Changes to resources that Platform manages, expressed as code, from proposal
+  through deployment across every environment in the promotion path (for
   example `dev` → `test` → `preprod` → `prod`).
 - The review, approval, testing, and record-keeping around those changes.
 
@@ -61,12 +61,11 @@ Out of scope:
 
 ## Non-goals
 
-- A separate approval gate per environment. One approval of the change together
-  with the effect it has on **every** environment in its path covers the whole
-  promotion; the capability does not add per-environment sign-offs on top of the
-  agreed change set.
-- A bespoke deployment portal or user interface.
-- Deploying more than one independent change against the same resources at once.
+- A separate approval gate per environment. One approval of the code change and
+  its effect on **every** environment covers the full promotion path. The
+  capability adds no per-environment sign-offs to the approved change set.
+- A custom deployment portal or user interface.
+- Concurrent deployment of independent changes against the same resources.
 
 ## Requirements
 
@@ -75,75 +74,81 @@ Requirements use [BCP 14](https://www.rfc-editor.org/info/bcp14) keywords.
 ### FR1 — A change is expressed as code and proposed for review {#fr1}
 
 Every change to managed resources MUST be expressed as code and proposed for
-review before it is deployed. A change that reaches resources without review MUST
-be possible only through the emergency path ([FR8](#fr8)).
+review before deployment. A change that reaches resources without review MUST
+use the emergency path ([FR8](#fr8)).
 
 ### FR2 — The effect of a change is computed and shown for review {#fr2}
 
-For each environment the change will pass through, the process MUST compute the
-change's **effect on the managed resources** — what it creates, updates, and
-destroys — and make every one of these effects available during review.
-Computing the effect successfully MUST be a condition of acceptance.
+For each environment in the promotion path, the process MUST compute the change's
+**effect on the managed resources** and show it during review. This effect
+identifies what the change creates, updates, and destroys. The process MUST
+compute each effect successfully before acceptance.
 
 ### FR3 — Approval covers the code change together with its effect {#fr3}
 
 Acceptance MUST approve the code change **and** its computed effect on every
-environment in the promotion path, as one decision. Approving the code alone,
+environment in the promotion path, as one decision. Approval of the code alone,
 without its effect, MUST NOT satisfy this requirement.
 
 ### FR4 — The approved effect is exactly what is deployed {#fr4}
 
-The deployment to each environment MUST carry out the exact effect that was
-approved for that environment. The process MUST NOT re-derive the effect between
-approval and deployment in a way that could act on resources no one approved.
+Deployment to each environment MUST carry out exactly the effect approved for
+that environment. The process MUST NOT recompute the effect between approval and
+deployment in a way that could change resources without approval.
 
 ### FR5 — Deployment fails closed when the approved effect is no longer valid {#fr5}
 
-If the approved effect for an environment is no longer valid for that
-environment's current state at deployment time, the deployment MUST stop without
-carrying out a divergent effect. Resolution MUST be to recompute the effect and
-have it approved again — never to force the invalid one.
+If the approved effect is invalid for an environment's current state at
+deployment time, deployment MUST stop without applying a different effect. The
+process MUST recompute the effect and obtain approval again, and never force the
+invalid effect.
 
-### FR6 — Changes against the same resources are serialised {#fr6}
+### FR6 — Changes against the same resources are serialized {#fr6}
 
-At most one change MUST be deployed against a given set of resources at a time.
-Concurrent deployments against the same resources MUST be prevented, and a
-deployment in progress MUST NOT be interrupted partway.
+The process MUST deploy at most one change against a given set of resources at a
+time. It MUST prevent concurrent deployments against the same resources. It MUST NOT
+interrupt a deployment in progress.
 
 ### FR7 — The process runs its automated tests {#fr7}
 
-The process MUST run its defined automated tests as part of carrying out a
-change, and a failing required test MUST stop the promotion before it reaches the
-next environment.
+The process MUST run its defined automated tests as part of each change. A
+failing required test MUST stop promotion before the next environment.
 
 ### FR8 — An audited emergency path exists {#fr8}
 
-An emergency path MUST be able to deploy a change without the standard review.
-It MUST require a recorded reason and an incident reference, MUST be restricted
-to authorised people, MUST still compute and show the effect before it deploys,
-and MUST open a follow-up that brings the change back through the standard path.
+An emergency path MUST support deployment without the standard review. It MUST
+require a recorded reason and an incident reference. It MUST restrict access to
+authorized people. It MUST compute and show the effect before deployment. It MUST
+open a follow-up that brings the change back through the standard path.
 
 ### FR9 — Every deployment documents the actions it took {#fr9}
 
-Every deployment, standard or emergency, MUST record the actions it performed —
-who approved, who deployed, when, against which environment, the effect applied,
-and the outcome of its tests — retained as an immutable record.
+Every deployment, standard or emergency, MUST record its actions in a retained,
+immutable record with the following information:
+
+- Who approved
+- Who deployed
+- When the deployment ran
+- The target environment
+- The effect applied
+- The test outcomes
 
 ### FR10 — Drift is detected and surfaced {#fr10}
 
-Divergence between the real resources and the recorded state SHOULD be detected
-on an ongoing basis and surfaced for action.
+The process SHOULD detect divergence between real resources and recorded state
+on an ongoing basis and report it for action.
 
 ### NFR1 — No standing secrets {#nfr1}
 
-Access to managed resources MUST use short-lived, federated identity. Zero
-long-lived credentials or static secrets exist in the repository or its
-automation.
+Access to managed resources MUST use short-lived, federated identity. The
+repository and its automation contain no long-lived credentials or static
+secrets.
 
 ### NFR2 — Least privilege separated by phase {#nfr2}
 
-Computing a change's effect MUST use read-only access; deploying it MUST use
-write access scoped to the target environment; the two MUST be distinct.
+The process MUST use read-only access to compute an effect. It MUST use write
+access scoped to the target environment to deploy it. These access identities
+MUST be distinct.
 
 ### NFR3 — Per-environment identity boundary {#nfr3}
 
@@ -207,15 +212,14 @@ Feature: Deployment approves and applies the effect, not just the code
 
 ## Constraints, assumptions, and dependencies
 
-- The change is expressed as **code** and its effect can be computed and captured
-  as an artifact before it is carried out.
-- A **review and approval** mechanism records who approved a change and its
+- The change is expressed as **code**. Its effect can be computed and captured as
+  an artifact before deployment.
+- The **review and approval** mechanism records who approved a change and its
   effect.
-- A **record of state** for each environment exists, against which an effect is
-  computed and whose change can invalidate a previously approved effect.
-- The specifics of **how** — the CI/CD platform, the service provider, the
-  change engine, and the identity mechanism — are supplied by a
-  [design](index.md), not this spec.
+- Each environment has a **record of state** that the process uses to compute an
+  effect. A state change can invalidate an approved effect.
+- A [design](index.md) supplies **how** the contract is delivered: the CI/CD
+  platform, service provider, change engine, and identity mechanism.
 
 ## Where this connects
 

@@ -5,19 +5,21 @@ description: How a change to managed resources is approved together with its eff
 
 # Deployment
 
-How a change to the resources Platform manages moves from a proposal to live: its
-**effect on the resources** is computed and shown, the team approves the code
-change together with that effect across every environment it will pass through,
-and the approved effect is exactly what is deployed — with every action recorded.
+The deployment capability governs changes to resources that Platform manages.
+Before deployment, the process computes and shows the **effect on the resources**
+for every environment in the promotion path. The team approves the code change
+and all these effects as one decision. Deployment applies exactly the approved
+effect and records every action.
 
-The **spec** is the durable contract and is deliberately free of any technology.
-Each **design** delivers that contract for one combination, named **"deploying
-&lt;service provider&gt; from &lt;CI/CD platform&gt;"** so the two parts are
-clear: the **service provider** is where the resources live (Azure, AWS,
-GitHub), and the **CI/CD platform** is what runs the deployment (GitHub, Azure
-DevOps) — for example deploying Azure from GitHub, deploying Azure from Azure
-DevOps, deploying AWS from GitHub, or deploying GitHub from GitHub. Adding a
-combination adds a design; it never changes the spec.
+The **spec** defines a technology-independent contract. Each **design** delivers
+this contract for one service-provider and CI/CD-platform combination. Designs use
+the name **"deploying &lt;service provider&gt; from &lt;CI/CD platform&gt;"**.
+
+The **service provider** hosts the resources (Azure, AWS, GitHub). The **CI/CD
+platform** runs the deployment (GitHub, Azure DevOps). Examples include deploying
+Azure from GitHub, deploying Azure from Azure DevOps, deploying AWS from GitHub,
+and deploying GitHub from GitHub. Each additional combination needs a separate
+design, not a change to the spec.
 
 ## Spec
 
