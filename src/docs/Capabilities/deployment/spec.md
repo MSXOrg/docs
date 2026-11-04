@@ -147,7 +147,7 @@ secrets.
 ### NFR2 — Least privilege separated by phase {#nfr2}
 
 The process MUST use read-only access to compute an effect. It MUST use write
-access scoped to the target environment to deploy it. These access identities
+access scoped to the target environment to deploy it. The two forms of access
 MUST be distinct.
 
 ### NFR3 — Per-environment identity boundary {#nfr3}
