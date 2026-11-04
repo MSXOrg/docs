@@ -5,9 +5,9 @@ description: ES modules, strict-mode typing, pinned dependencies, and the Pretti
 
 # TypeScript
 
-How TypeScript is written across the ecosystem. TypeScript is the language for Node-based tooling, GitHub Actions written in JavaScript, and **VS Code extensions**. The target is the **latest stable TypeScript** on the **Node.js Active LTS**, shipping **ES modules**, treating the compiler's strict mode as non-negotiable.
+TypeScript is the language for Node-based tooling, GitHub Actions written in JavaScript, and **VS Code extensions**. Target the **latest stable TypeScript** on **Node.js Active LTS**. Use **ES modules** and require the compiler's strict mode.
 
-This standard builds on the [language-agnostic baseline](index.md); where the two overlap, the baseline rules apply and the conventions below add the TypeScript specifics.
+This standard builds on the [language-agnostic baseline](index.md). Where the two overlap, the baseline rules apply and this standard adds TypeScript-specific conventions.
 
 ## Project shape
 
@@ -23,19 +23,19 @@ This standard builds on the [language-agnostic baseline](index.md); where the tw
 
 ## Compiler strictness
 
-- **`"strict": true`** in `tsconfig.json`, and keep it on — strict mode is the main reason to use TypeScript at all.
+- Set **`"strict": true`** in `tsconfig.json` and keep it enabled for type safety.
 - **Typecheck in CI** with `tsc --noEmit` as a dedicated step, separate from the build.
-- Avoid `any`; reach for `unknown` and narrow, or define the type. An `// @ts-expect-error` or `any` escape hatch must carry a comment justifying it.
-- Model absence explicitly (`T | null` / `T | undefined`) and handle it; do not lean on implicit `undefined`.
+- Avoid `any`; use `unknown` and narrow the type, or define the type. Each `// @ts-expect-error` or `any` exception must have a comment that justifies it.
+- Model absence explicitly (`T | null` / `T | undefined`) and handle it. Do not rely on implicit `undefined`.
 
 ## Naming and declarations
 
 - **`camelCase`** for variables and functions, **`PascalCase`** for types and classes, **`UPPER_SNAKE_CASE`** for constants.
-- Prefer `const`; use `let` only when reassignment is real; never `var`.
+- Prefer `const`; use `let` only when the value is reassigned; never `var`.
 
 ## Style and tooling
 
-The toolchain is the enforcement mechanism — formatting and linting are not matters of taste, and both run in CI.
+The toolchain checks formatting and linting in CI.
 
 - **[Prettier](https://prettier.io/)** owns formatting (`prettier --check` in CI); do not hand-format.
 - **[ESLint](https://eslint.org/)** with the TypeScript plugin is the linter; code must pass `eslint` cleanly.
@@ -47,19 +47,21 @@ The toolchain is the enforcement mechanism — formatting and linting are not ma
 
 ## VS Code extensions
 
-A VS Code extension's `package.json` carries two version fields that must be kept in step — `engines.vscode` and the `@types/vscode` dev dependency. Getting them wrong is the most common way an extension build breaks or an extension quietly drops users.
+A VS Code extension's `package.json` has two version fields that must stay consistent: `engines.vscode` and the `@types/vscode` dev dependency. An incorrect value can cause a build failure or unnecessarily raise the minimum supported VS Code version.
 
-`engines.vscode` is the **minimum** VS Code version the extension supports — a compatibility floor, not a dependency pin. A user on an older VS Code cannot install the extension, so keep the floor **as low as the extension's APIs allow**, to reach the widest audience. Express it as a caret range on that floor (`^1.118.0`) — the platform convention for engine fields, and the one place a range is correct rather than the exact pin used for [dependencies](#dependencies-are-pinned).
+`engines.vscode` is the **minimum** VS Code version the extension supports: a compatibility floor, not a dependency pin. A user on an older VS Code cannot install the extension. Keep the floor **as low as the extension's APIs allow** to support the widest audience. Express it as a caret range on that floor (`^1.118.0`). This is the platform convention for engine fields, rather than the exact pin used for [dependencies](#dependencies-are-pinned).
 
-**Raise `engines.vscode` only when the extension actually calls an API introduced in a newer release** — bump for functionality you need, never because a newer version exists. Raising the floor for its own sake drops everyone on an older VS Code for no functional gain.
+**Raise `engines.vscode` only when the extension calls an API introduced in a newer release**. Do not raise it solely because a newer version exists. An unnecessary increase excludes users on older VS Code versions without a functional benefit.
 
-**`@types/vscode` must never exceed `engines.vscode`.** The type definitions describe the API surface of one VS Code version, so typing against a version newer than the declared floor lets the code call APIs that will not exist for some users. `@vscode/vsce` enforces this at package time and fails the build otherwise:
+**`@types/vscode` must never exceed `engines.vscode`.** The type definitions describe the API of one VS Code version. Newer definitions can permit calls to APIs that are absent at the declared compatibility floor. `@vscode/vsce` enforces this constraint during packaging and fails the build if it is violated:
 
 ```text
 @types/vscode ^1.125.0 greater than engines.vscode ^1.118.0.
 Either upgrade engines.vscode or use an older @types/vscode version
 ```
 
-So the two move **together**: pin `@types/vscode` to the same version as the `engines.vscode` floor, and change both in a single commit — and only when you adopt an API that requires it.
+**Update the two together.** Pin `@types/vscode` to the same version as the `engines.vscode` floor. Change both in one commit, and only when a required API needs a higher floor.
 
-**Do not let automated updates float `@types/vscode`.** A bot bump of `@types/vscode` is neither a fix nor a feature: because the two are tied, it forces a matching `engines.vscode` bump (or the build breaks), silently raising the minimum supported VS Code. Treat `@types/vscode` as pinned to the engine floor — hold it back in the updater (for example, ignore `@types/vscode` in `dependabot.yml`) and raise it deliberately, alongside `engines.vscode`, when a needed API lands. This is the [dependency locking](Dependencies.md) rule applied to a compatibility floor: move it only when the functionality you need requires it.
+**Do not let automated updates change `@types/vscode` independently.** An automated update of `@types/vscode` is neither a fix nor a feature. It requires a corresponding `engines.vscode` increase or the build fails. That increase also raises the minimum supported VS Code version.
+
+Treat `@types/vscode` as pinned to the engine floor. Exclude it from automated updates (for example, ignore `@types/vscode` in `dependabot.yml`). Raise it deliberately alongside `engines.vscode` only when a required API needs a higher floor. This applies the [dependency locking](Dependencies.md) rule to a compatibility floor: change it only when the required functionality needs it.
