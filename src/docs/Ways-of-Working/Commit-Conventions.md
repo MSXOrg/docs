@@ -53,7 +53,7 @@ mechanism.
 
 ## Why no conventional commits
 
-MSX classifies changes at the PR level via labels and the change-type field.
+MSX classifies changes in the PR according to [PR Format](PR-Format.md).
 For a release-bound PR, its description supplies the release note; commit messages do not.
 Conventional-commit prefixes inside the repo:
 
