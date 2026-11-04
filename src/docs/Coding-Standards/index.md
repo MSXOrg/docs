@@ -39,7 +39,7 @@ The baseline pages apply to all code and come first; the per-language standards 
 | [Error Handling](Error-Handling.md) | Fail fast, never swallow, and write messages that help the next person. |
 | [Documentation](Documentation.md) | Help that lives next to the code and explains the why. |
 | [Natural Language](Natural-Language.md) | Language choice and en-US writing for user and developer interactions, documentation, comments, issues, pull requests, help, messages, and agent-facing text. |
-| [Technical Writing Guide](Writing-Guide.md) | Draft and review clear reader-facing text for user and developer interactions, documentation, code, issues, pull requests, help, and messages without changing its meaning. |
+| [Technical Writing Guide](Writing-Guide.md) | Write clear reader-facing English for interactions, documentation, code, issues, pull requests, help, messages, and instructions. |
 | [Testing](Testing.md) | Prove supported behavior through real entry points and APIs, with justified test doubles and honest coverage. |
 | [Performance](Performance.md) | Scale with the input, measure before optimizing, clarity first. |
 | [Security](Security.md) | Least privilege, secret hygiene, and the OWASP baseline. |

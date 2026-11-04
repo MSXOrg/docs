@@ -9,7 +9,7 @@ Natural language is source code for humans and agents. It drives user and develo
 
 This standard defines which language each artifact is written in, and how English prose is written in the MSX ecosystem. The project dialect is **American English (`en-US`)**.
 
-Authored reader-facing technical and collaboration text MUST follow the [Technical Writing Guide](Writing-Guide.md). The same writing method applies to conversations, review comments, documentation, issues, pull requests, and prose embedded in code. Each artifact still uses its required format; shared prose guidance does not replace workflow or interface contracts.
+Authors MUST use the [Technical Writing Guide](Writing-Guide.md) for technical text and collaboration text. The same method applies to conversations, review comments, documentation, issues, pull requests, and prose embedded in code. Each artifact keeps its required format. Writing guidance does not replace workflow or interface contracts.
 
 ## Write artifacts in English
 
