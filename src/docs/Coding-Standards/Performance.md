@@ -16,7 +16,7 @@ Write code that scales with its input. Measure before you optimize. Preserve cla
 
 - Be aware of algorithmic complexity. An O(n²) pattern, such as copying a collection on every loop iteration, has a cost that grows faster than its input. Code acceptable for ten items can be too slow for ten thousand.
 - Choose a data structure that matches the access pattern: a set for membership, a map for lookup, a list for ordered iteration.
-- Append to a growable structure; don't rebuild an immutable one on each pass.
+- Append to a growable structure. Do not rebuild an immutable one on each pass.
 
 ## Push work down and out
 
