@@ -19,7 +19,7 @@ When standards do not resolve a decision, engineering judgment applies. These de
 
 ## Don't build what you don't need
 
-- Do not add speculative generality or an abstraction with a single caller. Build for the established requirement.
+- Do not add speculative generality or an abstraction with a single caller. Build only what the current deliverable needs.
 - Prefer a proven, general-purpose tool before building a custom tool.
 
 ## Understand before you change

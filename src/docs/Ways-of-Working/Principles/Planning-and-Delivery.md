@@ -22,7 +22,7 @@ The detail increases as work moves from Later toward Now.
 
 ## Lean Software Development
 
-Start with a small deliverable. Invite the team to contribute ideas. Enable more people to contribute. Do not build for requirements that are not established (**YAGNI**).
+Start with a small deliverable. Invite the team to contribute ideas. Enable more people to contribute. Do not implement a requirement before the current deliverable needs it (**YAGNI**).
 
 Iterations move through these phases quickly, sometimes in parallel:
 
