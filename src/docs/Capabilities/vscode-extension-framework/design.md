@@ -78,11 +78,11 @@ which makes the installation reproducible. esbuild bundles the TypeScript source
 into one self-contained file. It marks `vscode` external because the host
 provides it.
 
-The output format is **CommonJS by default**. esbuild includes pure-ESM
-dependencies in that output. An extension's own entry point can require
-ECMAScript-module semantics for top-level `await` or an explicit ESM-first choice.
-That extension overrides the bundler format to `esm`. The selected host must
-support ESM extension bundles.
+The output format is **CommonJS by default**. esbuild can bundle pure-ESM
+dependencies into that output. For a bundle that requires top-level `await`, the
+bundler format is `esm`. That requirement can come from the extension entry point
+or a bundled dependency. An explicit ESM-first choice also uses this format.
+The selected host must support ESM extension bundles.
 
 The pipeline produces **one** minified release bundle, not a separate development
 build. It emits a source map as a separate artifact for debugging.
@@ -176,9 +176,9 @@ Releases API keeps the required permissions within this limit.
   Cursor, or VSCodium. This install path is always available.
 - **Marketplace publication (optional).** When configured, the pipeline publishes
   the same VSIX to the VS Code Marketplace (`@vscode/vsce publish`) and/or Open VSX
-  (`ovsx publish`). Neither registry supports OIDC. Each publish token is a
-  long-lived, publish-scoped personal access token held in a protected GitHub
-  environment. Marketplace publication is opt-in. Installation from a GitHub
+  (`ovsx publish`). The framework uses a long-lived, publish-scoped personal access
+  token for each registry. Each token is held in a protected GitHub environment.
+  Marketplace publication is opt-in. Installation from a GitHub
   Release does not require either registry.
 
 When the pull request closes, the cleanup job deletes prerelease tags, releases,
