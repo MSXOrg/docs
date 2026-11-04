@@ -5,18 +5,16 @@
     Update each section index.md with a table generated from page front matter.
 
 .DESCRIPTION
-    Every documentation page declares 'title' and 'description' in YAML front
-    matter. Each index.md that contains the INDEX markers gets an auto-generated
-    table of the documents at its level - subsections for the root, pages for a
-    section - ordered to match the navigation in zensical.toml.
+    Each documentation page declares 'title' and 'description' in YAML front matter.
+    The script generates a table of child sections and pages in each index.md with
+    INDEX markers. The table follows the navigation order in zensical.toml.
 
-    Run with no arguments to update the index files in place. Run with -Check to
-    verify they are up to date, changing nothing and exiting non-zero on drift.
+    Run without arguments to update the index files in place.
+    Use -Check to compare the tables without writing files.
+    In this mode, the script exits 1 if any table differs. Otherwise, it exits 0.
 
-    Glue across the ecosystem is PowerShell. PowerShell has no built-in TOML
-    parser, so the navigation order is derived by reading the ordered "*.md"
-    path strings from the nav array in zensical.toml - the only place .md paths
-    appear in that file.
+    The script reads double-quoted '.md' paths within the nav array in zensical.toml
+    to determine the navigation order.
 
 .EXAMPLE
     ./Update-DocumentationIndex.ps1
@@ -30,7 +28,7 @@
 #>
 [CmdletBinding()]
 param(
-    # Verify the indexes are up to date without writing; exit non-zero on drift.
+    # Compare the index tables without writing files. Exit 1 if any table differs.
     [Parameter()]
     [switch] $Check
 )
