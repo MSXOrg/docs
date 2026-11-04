@@ -36,9 +36,10 @@ and developer interactions, comments, documentation, issues, pull requests,
 help, messages, release notes, and agent instructions.
 
 The skill points to the [Technical Writing Guide](../../Coding-Standards/Writing-Guide.md),
-which owns the drafting and review method and routes each artifact to its format.
+which links the official ASD-STE100 sources and routes each artifact to its format.
 [Natural Language](../../Coding-Standards/Natural-Language.md) owns language and
-dialect policy. Neither definition is copied into the skill.
+dialect policy, including adoption of the standard's writing practices.
+The standard's rules are not restated in the guide or skill.
 
 Specifications, designs, guides, standards, and the other documentation artifacts
 remain distinct formats selected through the documentation model and templates.
