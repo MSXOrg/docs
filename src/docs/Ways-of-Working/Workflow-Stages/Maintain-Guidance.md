@@ -9,7 +9,7 @@ Maintain the canonical [Workflow](../Workflow.md), the stage procedures in this 
 
 ## Enter this maintenance path when
 
-Create a new workflow stage, update an existing stage, review workflow discoverability, or refactor a bloated agent file back into a thin pointer to the documentation root.
+Create a workflow stage, update a stage, review workflow discoverability, or replace duplicate process instructions in an agent file. The replacement is a thin pointer to the documentation root.
 
 ## Flow
 
@@ -21,21 +21,21 @@ Create a new workflow stage, update an existing stage, review workflow discovera
 
 ### 2. Author the description
 
-Write the stage as a page in this section, following the shape of its siblings: front matter (`title`, `description`), a one-paragraph purpose and boundary, entry condition, input, numbered flow, operating rules, and a "Where this connects" list.
+Write the stage as a page in this section with the same structure as the other stages. Include front matter (`title`, `description`), a one-paragraph purpose and boundary, entry condition, input, numbered flow, operating rules, and a "Where this connects" list.
 
-- **Link, don't inline.** If a standard exists in the docs, link to it — never paste it in.
+- **Link to the source.** If a standard exists, link to it. Do not copy its content into the procedure.
 - **Procedural, not conversational.** Numbered imperatives, no filler.
 - **Keyword-rich description.** The front-matter `description` is the discovery surface.
 
 ### 3. Keep pointers thin
 
-A repository never carries a copy of the workflow. Its `AGENTS.md` — with the client routes that reach it — lists these pages as a destination and nothing more. Repository-specific nuance lives in `README.md`, a local contribution guide [when needed](../Repository-Standard.md#contribution-guidance), and the repository's own `docs/`; the router points at those destinations or inherited contribution guidance rather than restating them. When a new runtime is adopted, add a route under the filename it reads; do not move process knowledge into it. See [Agentic Development](../../Capabilities/agentic-development/design.md#client-behavior).
+A repository never carries a copy of the workflow. Its `AGENTS.md` and client routes identify documentation destinations; they do not copy the workflow. Repository-specific instructions belong in `README.md`, a local contribution guide [when needed](../Repository-Standard.md#contribution-guidance), and the repository's own `docs/`. The router points to those sources or to inherited contribution guidance; it does not repeat their content. When the repository adopts another runtime, add a route under the filename that runtime reads. Keep process definitions out of the route. See [Agentic Development](../../Capabilities/agentic-development/design.md#client-behavior).
 
 ### 4. Validate
 
-1. Front-matter YAML parses cleanly.
-2. Every link resolves, and the body duplicates no doc content.
-3. The stage is added to the navigation so its index row generates.
+1. Verify that front-matter YAML parses.
+2. Verify that every link resolves and that the body duplicates no documentation.
+3. Add the stage to navigation so its index row generates.
 
 ## Operating rules
 

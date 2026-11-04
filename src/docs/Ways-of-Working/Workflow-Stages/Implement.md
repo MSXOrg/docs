@@ -5,7 +5,7 @@ description: Procedure for the Workflow stage that delivers one ready Task or Bu
 
 # Implement
 
-Implement is the delivery stage of the canonical [Workflow](../Workflow.md). It takes one ready, unblocked Task or Bug and produces working software in a review-ready pull request. The stage owns branching, coding, committing, opening the pull request, tracking progress, running the automated review loop, responding to feedback, and finalizing the pull request description and any applicable release metadata. Implement builds delivery leaves; it does not implement an Epic or PBI aggregate, plan from scratch, or supply the independent review.
+Implement is the delivery stage of the canonical [Workflow](../Workflow.md). It delivers one ready, unblocked Task or Bug as a verified repository change in a review-ready pull request. The stage owns branches, code, commits, pull request creation, progress records, automated review, feedback responses, and final metadata. Metadata includes the pull request description and applicable release decisions. Implement does not build an Epic or PBI, start without a delivery plan, or supply independent review.
 
 ## Enter this stage when
 
@@ -35,7 +35,7 @@ Use [git worktrees](../Git-Worktrees.md) for every repository-delivery Task or B
 
 For each step in the delivery plan:
 
-1. Define the failing test or repeatable verification before implementing the behavior, following the leaf's technical plan, then self-review the staged diff.
+1. Define the failing test or repeatable verification before you implement the behavior. Follow the leaf's technical plan, then self-review the staged diff.
 2. Commit per [Commit Conventions](../Commit-Conventions.md) — one logical change per commit.
 3. Update the issue as each plan step completes — do not batch.
 4. Push regularly so CI runs against current work.
@@ -51,13 +51,13 @@ Verify the leaf's relevant design and documentation against the delivered consum
 
 ### 5. Standards and framework alignment pass
 
-Run this once per implementation session, when the change is otherwise complete and before the pull request is marked ready — not on every commit. Re-read the applicable guidance in precedence order and reconcile the whole diff against it:
+Run this pass once per implementation session, when the change is otherwise complete and before the pull request is marked ready. Do not run it on every commit. Read the applicable guidance in precedence order and reconcile the whole diff against it:
 
 1. **Process** — the [Ways of Working](../index.md) pages that govern this stage, including [Commit Conventions](../Commit-Conventions.md), [PR Format](../PR-Format.md), and [Branching and Merging](../Branching-and-Merging.md).
 2. **Standards** — the [Coding Standards](../../Coding-Standards/index.md) chapters that apply to the languages and file types actually changed.
 3. **Framework and domain documentation** — the documentation the repository's framework or product owns, published under [Capabilities](../../Capabilities/index.md) or in the repository itself; for example the module-pipeline documentation for a module repository, or the action contract for an action repository.
 
-Process defines the method; standards and framework documentation define correctness details. Where the layers overlap, the narrower layer supplies the detail and the broader layer supplies the method — a framework page never overrides a process rule it does not own. Read the canonical pages instead of recalling them; that is what keeps guidance written once and referenced everywhere.
+Process defines the method. Standards and framework documentation define correctness details. Where the layers overlap, the narrower layer supplies the detail and the broader layer supplies the method. A framework page never overrides a process rule it does not own. Read the canonical pages instead of relying on memory.
 
 Reconcile the [consumer-evidence readiness gate](../Definition-of-Ready-and-Done.md#definition-of-ready-for-review)
 in this same pass. Consumer upgrades use [Consumer Upgrades](../Consumer-Upgrades.md);
@@ -75,7 +75,7 @@ Record the outcome as one row per changed surface:
 
 A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link that justifies it. Where a changed surface has no framework or domain documentation of its own, write `None (no framework-specific docs)` rather than inventing a pseudo-link. Put each row in the `Technical details` block for the pull request section whose result it supports. For internal-only work without a classified section, put the table in the supporting block after the summary marker. This keeps the evidence scoped per [PR Format](../PR-Format.md) so [Review](Review.md) can verify the pass instead of guessing whether it happened.
 
-**Stop rule.** Fix what is in scope for the closing Task or Bug and small enough to keep the pull request reviewable. When a finding is out of scope, systemic across the repository, or would change the shape of the pull request, file a follow-up issue through [Define](Define.md), link it in the table as an exception, and leave the change as it is. The pass improves alignment; it does not turn into a second delivery.
+**Stop rule.** Fix only work in scope for the closing Task or Bug, and keep the pull request small enough to review. For out-of-scope or systemic findings, file a follow-up issue through [Define](Define.md). Do the same when a finding would change the pull request's scope. Link the follow-up in the table as an exception and leave that work out of the change. The pass verifies alignment; it does not add another deliverable.
 
 ### 6. Issue convergence sweep
 
