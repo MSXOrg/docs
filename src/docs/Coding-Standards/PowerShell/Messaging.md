@@ -5,18 +5,18 @@ description: "Write-Verbose for user-facing operational progress and normal trou
 
 # Messaging
 
-Choose between `Write-Verbose` and `Write-Debug` based on the audience and purpose of the message. This distinction clarifies intent for maintainers, improves discoverability for operators, and keeps diagnostic output focused.
+Choose between `Write-Verbose` and `Write-Debug` based on the audience and purpose of the message. The distinction helps operators and maintainers find the diagnostic information they need.
 
 ## The rule
 
-- **Use `Write-Verbose`** for **user-facing** operational progress, decision summaries, and normal troubleshooting context — information that helps operators understand execution flow and diagnose issues at the normal operational level.
-- **Use `Write-Debug`** for **developer-focused** internals, deep diagnostics, low-level payload and transport details, internal state, and instrumentation — information for the author and maintainers of the code, not operators.
+- **Use `Write-Verbose`** for **user-facing** operational progress, decision summaries, and normal troubleshooting context. These messages help operators understand execution and diagnose operational issues.
+- **Use `Write-Debug`** for **developer-focused** internals, deep diagnostics, low-level payload and transport details, internal state, and instrumentation. These messages serve code authors and maintainers, not operators.
 
 ## Examples
 
 ### Write-Verbose: operational progress and troubleshooting
 
-These messages help an operator understand *what is happening* and *why*, without needing to know the implementation details.
+These messages explain operational steps and their purpose without requiring knowledge of the implementation.
 
 ```powershell
 # Progress narration — what step is running
@@ -32,11 +32,11 @@ Write-Verbose "Successfully cloned repository to $DestinationPath"
 Write-Verbose "Using authentication method: Personal Access Token"
 ```
 
-Verbose messages stay at a **business level**: they talk about repositories, deployments, workflows, API calls — things an operator cares about.
+Verbose messages describe **operations**: repositories, deployments, workflows, and API calls.
 
 ### Write-Debug: internals and deep diagnostics
 
-These messages are for the code author and maintainers. They expose the implementation details that help diagnose why something went wrong *internally*.
+These messages serve code authors and maintainers. They expose implementation details that help diagnose internal failures.
 
 ```powershell
 # Payload details — the raw data moving through the code
@@ -54,30 +54,30 @@ Write-Debug "Processed $ProcessedCount of $TotalCount items (elapsed: $ElapsedMs
 Write-Debug "Taking fallback branch: condition was $Condition"
 ```
 
-Debug messages expose **plumbing**: they talk about payloads, headers, cache state, internal variables — details that only make sense in the context of reading the code.
+Debug messages expose **implementation details**: payloads, headers, cache state, and internal variables. These details support diagnosis at the source-code level.
 
 ## Review checklist
 
-When writing messages, ask:
+Use these criteria to choose the stream:
 
-1. **Is this message useful at normal troubleshooting level?** ✓ Use `Write-Verbose`
+1. **Use `Write-Verbose` for normal operational troubleshooting.**
    - Operators should understand it without reading source code.
-   - It describes *what* is happening at the business level (workflow, deployment, repository, API call).
-   - It helps answer "what did my operation do?" or "where did it fail?".
+   - It describes operational activity (workflow, deployment, repository, API call).
+   - It describes an operation's result or the step that failed.
 
-2. **Is this an internal/deep diagnostic detail?** ✓ Use `Write-Debug`
+2. **Use `Write-Debug` for internal details and deep diagnostics.**
    - Only a code author or maintainer needs this information.
    - It exposes implementation details (payload, headers, internal variables, timing).
-   - It helps answer "why did the code take this path?" or "what is the state inside this function?".
+   - It explains execution paths and internal function state.
 
-3. **Still unsure?** Prefer `Write-Verbose` — it's safer to be slightly more verbose at the normal level than to hide troubleshooting context that operators need.
+3. **If the audience remains unclear, prefer `Write-Verbose`.** This keeps troubleshooting context available at the normal operational level.
 
 ## Enabling messages at runtime
 
-PowerShell controls visibility with built-in preference variables — no code change needed to see messages:
+PowerShell controls visibility with built-in preference variables and common parameters. No code change is needed to show existing messages:
 
 - **Show verbose messages:** run the command with the `-Verbose` switch, or set `$VerbosePreference = 'Continue'` before calling.
-- **Show debug messages:** set `$DebugPreference = 'Continue'` before calling the command (no `-Debug` switch exists; use the preference).
+- **Show debug messages:** set `$DebugPreference = 'Continue'` before calling, or use the `-Debug` common parameter with cmdlets and advanced functions.
 
 Example:
 
@@ -98,9 +98,11 @@ Invoke-RepositoryOperation
 
 This standard covers the two main diagnostic channels. For context:
 
-- **`Write-Information`** — user-facing but outside the troubleshooting spectrum. Use it for important operational summaries that should always be visible (not gated by `-Verbose`), e.g., "Migration complete: 42 items processed."
+- **`Write-Information`** — user-facing information outside troubleshooting. Use it for important operational summaries that should always be visible without `-Verbose`. The default `$InformationPreference` is `SilentlyContinue`, which hides these messages. `-InformationAction Continue` displays them without changing the preference. For example, "Migration complete: 42 items processed."
 - **`Write-Warning`** — a condition the operator should know about but that did not stop the operation; reserved for genuine warnings, not verbose narration.
-- **`Write-Error`** (terminating) — a failure that stops execution; emit structured errors with `[PSCustomObject]` or `-ErrorRecord` for discoverability.
+- **`Write-Error`** — reports a non-terminating error by default. `-ErrorAction Stop` makes the error terminating. `$ErrorActionPreference = 'Stop'` does the same unless a command-level error action overrides it. Use `[PSCustomObject]` with `-TargetObject` for structured context, or supply an error record with `-ErrorRecord`.
 - **Logging (event logs, files)** — persistent audit; separate from these streams and outside the scope of this standard.
 
-Reserve the verbose and debug streams for their intended audiences, and keep messages at the right level so operators and maintainers can both find what they need.
+Use each stream for its intended audience so operators and maintainers can find the messages they need.
+
+The runtime behavior is defined in [PowerShell common parameters](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_commonparameters), [Write-Information](https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/write-information), and [Write-Error](https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/write-error).
