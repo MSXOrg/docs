@@ -98,6 +98,7 @@ nav = [
     {"Error Handling" = "Coding-Standards/Error-Handling.md"},
     {"Documentation" = "Coding-Standards/Documentation.md"},
     {"Natural Language" = "Coding-Standards/Natural-Language.md"},
+    {"Technical Writing Guide" = "Coding-Standards/Writing-Guide.md"},
     {"Testing" = "Coding-Standards/Testing.md"},
     {"Performance" = "Coding-Standards/Performance.md"},
     {"Security" = "Coding-Standards/Security.md"},

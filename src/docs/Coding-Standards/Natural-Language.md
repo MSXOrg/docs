@@ -9,6 +9,8 @@ Natural language is source code for humans and agents. It drives issues, pull re
 
 This standard defines which language each artifact is written in, and how English prose is written in the MSX ecosystem. The project dialect is **American English (`en-US`)**.
 
+For a drafting and review procedure, use the [Technical Writing Guide](Writing-Guide.md).
+
 ## Write artifacts in English
 
 Repository artifacts are written in English. A repository artifact is anything read to build, review, operate, or maintain the repository:
