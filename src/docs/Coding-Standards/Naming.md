@@ -5,22 +5,22 @@ description: Names that reveal intent, consistently, in every language.
 
 # Naming
 
-Names are the primary interface to code. A good name removes the need for a comment; a bad name survives every refactor and misleads for years. Naming is the cheapest documentation available — spend on it.
+Names identify the purpose of code. Clear names reduce the need for comments and prevent confusion during maintenance.
 
 ## Principles
 
-- **Reveal intent.** A name should answer *what is this and why does it exist* without a comment. `daysUntilExpiry` beats `d`.
-- **Pronounceable and searchable.** If you cannot say it in a conversation or grep for it reliably, rename it. Avoid single letters except for trivial loop indices.
+- **Reveal intent.** A name should show what an element represents and why it exists, without a comment. Prefer `daysUntilExpiry` over `d`.
+- **Pronounceable and searchable.** Rename a symbol if readers cannot pronounce it or find it reliably in a text search. Avoid single letters except for trivial loop indices.
 - **No noise words.** `data`, `info`, `manager`, `helper`, `do`, `handle`, `process` carry no information. `userRecord` is not better than `user`; pick the one that is true.
-- **Consistency over cleverness.** One concept, one word, everywhere. Don't mix `fetch`, `get`, `retrieve`, and `load` for the same operation.
+- **Consistency over cleverness.** Use one word for one concept throughout the codebase. Do not mix `fetch`, `get`, `retrieve`, and `load` for the same operation.
 - **Avoid abbreviations.** Spell it out. `configuration` over `cfg`, `repository` over `repo` — unless the abbreviation is more standard than the full form (`URL`, `ID`, `HTTP`).
 
 ## By kind
 
 | Kind                 | Convention                                                                 |
 | -------------------- | ------------------------------------------------------------------------- |
-| **Functions / methods** | A verb or verb phrase — they *do* something. `validateInput`, `Get-User`. |
-| **Variables / fields**  | A noun or noun phrase — they *hold* something. `activeUsers`, `retryCount`. |
+| **Functions / methods** | A verb or verb phrase that states the action. `validateInput`, `Get-User`. |
+| **Variables / fields**  | A noun or noun phrase that identifies the value. `activeUsers`, `retryCount`. |
 | **Booleans**            | A predicate that reads as true/false. `isReady`, `hasAccess`, `canRetry`.  |
 | **Collections**         | Plural. `users`, not `userList`. The type already says it is a list.       |
 | **Constants**           | Describe the value, not the magic number. `MAX_RETRIES`, not `FIVE`.       |
@@ -28,11 +28,11 @@ Names are the primary interface to code. A good name removes the need for a comm
 
 ## Casing
 
-Follow the **idiom of the language**, and be consistent within a codebase:
+Follow the **language's conventions**, and apply them consistently within a codebase:
 
 - Use the casing the language community expects — `PascalCase` for PowerShell functions and .NET types, `snake_case` for Python and Terraform, `camelCase` for JavaScript variables, `kebab-case` for CLI flags and filenames where idiomatic.
-- Never fight the language's conventions to impose a personal preference. The least-surprising name is the right name.
-- Files and folders follow the repository's established pattern. When starting fresh, prefer `kebab-case` for cross-platform safety (no case-sensitivity surprises between Windows, macOS, and Linux).
+- Follow the language's conventions rather than personal preferences. Prefer names readers expect.
+- Files and folders follow the repository's established pattern. For new layouts, prefer `kebab-case` to avoid case-sensitivity differences between Windows, macOS, and Linux.
 
 ## Solution settings files
 
@@ -48,11 +48,11 @@ A supported naming exception MUST be documented by the owning solution. Verify t
 
 ## Scope and length
 
-Name length should track scope. A loop index living for three lines can be `i`. A module-level export read across the codebase earns a full, descriptive name. The wider the reach, the more the name has to carry on its own.
+Name length should reflect scope. A loop index used for three lines can be `i`. A module-level export needs a full, descriptive name that readers understand without local context.
 
 ## Anti-patterns
 
 - Encoding type into the name (`strName`, `arrUsers`) — the type system already knows.
 - Numbered suffixes (`user1`, `user2`, `dataNew`) — they signal a missing concept.
-- Negated booleans (`isNotReady`, `notReady`) — a negative name forces a double negative at every use, and a value turns it into a riddle: does `notReady = false` mean it *is* ready? Name the positive (`isReady`) and negate at the point of use.
-- Names that lie — a `getUser` that also writes to a cache is a name that lies. Rename or split.
+- Negated booleans (`isNotReady`, `notReady`) require readers to interpret double negatives. For example, `notReady = false` means ready. Use the positive name (`isReady`) and negate at the point of use.
+- Names that hide side effects. A `getUser` that also writes to a cache has a misleading name. Rename or split it.
