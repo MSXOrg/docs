@@ -152,16 +152,23 @@ stops the run with an explicit error. A partial audit must not appear successful
 ## Grant least-privilege permissions
 
 - **Set `permissions:` explicitly.** Never rely on the default token scope.
-- **Start from a default-deny floor.** In any workflow with more than one job,
-  declare `permissions: {}` at the workflow (top) level so the baseline is *no*
-  access, then grant each job only the scopes its steps need. A job that omits
-  its own `permissions:` block — including one added later — then inherits
-  nothing rather than the broad default token, so forgetting to scope a new job
-  fails *closed*, not open. (A single-job workflow may scope at the workflow
-  level, since the workflow and its one job are equivalent.)
+- **Start with no default permissions.** In a workflow with more than one job,
+  declare `permissions: {}` at the workflow (top) level.
+  Grant each job only the scopes its steps need.
+  A job without its own `permissions:` block inherits no access, including a job
+  added later. A missing scope then denies access instead of granting broad
+  default access.
+  A single-job workflow may declare its scope at the workflow level because it
+  has only one job.
 - **Declare permissions per job**, not only at workflow level, and grant only
   the scopes that job needs. Most jobs need no more than `contents: read`.
-- **Disable checkout's persisted credentials unless the job intentionally pushes.** `actions/checkout` writes the token into the local Git configuration by default; set `persist-credentials: false` for read-only jobs so later steps cannot accidentally push with it. When a job must push, isolate that work in the smallest possible job, grant the write scope there, and make the persisted credential an explicit review point.
+- **Disable checkout's persisted credentials unless the job intentionally pushes.**
+  `actions/checkout` writes the token into the local Git configuration by default.
+  For read-only jobs, set `persist-credentials: false` so later steps cannot
+  accidentally push with it.
+  If a job must push, isolate that work in the smallest possible job.
+  Grant the write scope there. Make the persisted credential an explicit review
+  point.
 
 ```yaml
 # Default-deny floor at the top; each job opts into exactly what it needs.
@@ -182,9 +189,10 @@ jobs:
 
 ## Use GitHub App installation tokens as the default write identity
 
-When a workflow needs to write — creating commits, releases, comments, statuses,
-or pull requests — default to a **GitHub App installation token**, not a PAT and
-not `github.token`, unless a documented exception requires otherwise.
+When a workflow needs write access, default to a **GitHub App installation token**.
+This includes commits, releases, comments, statuses, and pull requests.
+Do not default to a PAT or `github.token` unless a documented exception requires
+it.
 
 Use the right token type for the job:
 
@@ -213,8 +221,8 @@ Treat these as separate controls:
 - `repositories:` + `permission-*` inputs limit what the minted app token can do.
 
 If a minted app token omits `repositories:` and `permission-*`, it inherits the
-full installation scope — every installed repository and every granted
-permission. That shape is forbidden.
+full installation scope. This includes every installed repository and every
+granted permission. Do not mint a token with that scope.
 
 ### Mint app tokens with minimum scope every time
 
@@ -243,7 +251,7 @@ Rules:
 
 ### Inject app tokens at step scope, not job scope
 
-A token should exist only where it is consumed.
+A token should exist only in the step that consumes it.
 
 - **Prefer step-level `env:`** so one step sees the token.
 - **Avoid job-level `env:`** for tokens; it exposes the token to every step in
@@ -266,14 +274,14 @@ jobs:
       GH_TOKEN: ${{ steps.app-token.outputs.token }}
 ```
 
-Use `GH_TOKEN` for the GitHub CLI. `gh` checks `GH_TOKEN` first, then
-`GITHUB_TOKEN`; setting `GH_TOKEN` avoids accidentally replacing the default
-token other actions may rely on.
+Use `GH_TOKEN` for the GitHub CLI. `gh` reads `GH_TOKEN` before `GITHUB_TOKEN`.
+Setting `GH_TOKEN` avoids accidentally replacing the default token that other
+actions may need.
 
 ### Prefer environment-based token passing for actions and composite actions
 
-When an action supports both a named token input (for example `with: token:`) and
-environment-based auth, prefer the environment variable (`GH_TOKEN`) path.
+If an action supports both a named token input (for example `with: token:`) and
+environment-based authentication, prefer the environment variable (`GH_TOKEN`).
 
 ```yaml
 # Preferred — token passed through environment.
@@ -308,15 +316,17 @@ an action requires a named token input, verify the action masks it at startup
 - **`secrets`** — anything whose disclosure is a security event (private keys,
   API tokens). Never echo a secret to logs; never put one in `vars`.
 - **`vars`** — non-sensitive configuration (client IDs, account numbers,
-  gateway URLs). Using `vars` for config keeps secrets to the minimum that
-  truly needs protecting.
+  gateway URLs). Use `vars` for this configuration.
+  Reserve secrets for values that need protection.
 - When calling a reusable workflow, **always pass secrets explicitly by name**
-  (`secrets: { TOKEN: ${{ secrets.TOKEN }} }`) so the dependency is visible at
-  the call site. **Never use `secrets: inherit`** — it silently forwards every
-  secret the caller holds and makes it impossible to tell from the call site
-  which secrets a workflow actually needs, defeating traceability and least
-  privilege. (Org variables are forwarded to reusable workflows automatically
-  and cannot be named — this rule is about `secrets`, not `vars`.)
+  (`secrets: { TOKEN: ${{ secrets.TOKEN }} }`) to show the dependency at the call
+  site. **Never use `secrets: inherit`**.
+  It forwards every secret the caller holds without listing them.
+  The call site then does not show which secrets the workflow needs.
+  This defeats traceability and least privilege.
+
+  Organization variables reach reusable workflows automatically and cannot be
+  named at the call site. This rule controls `secrets`, not `vars`.
 
 ```yaml
 # Correct — only the needed secret is forwarded; the dependency is auditable
@@ -337,18 +347,21 @@ jobs:
 
 ## Never expand untrusted input inline
 
-Interpolating `${{ github.event.* }}` (PR titles, branch names, issue bodies)
-directly into a `run:` script allows shell injection. **Pass untrusted values
-through an `env:` variable** and reference the variable, which is not re-parsed
-as script.
+Expanding `${{ github.event.* }}` (PR titles, branch names, issue bodies) directly
+in a `run:` script allows shell injection.
+**Pass untrusted values through an `env:` variable** and reference that variable.
+The shell does not parse the variable's contents as script.
 
-Avoid `pull_request_target` and `workflow_run` unless the workflow genuinely
+Avoid `pull_request_target` and `workflow_run` unless the workflow
 needs the elevated context. Both can connect untrusted contributions to tokens,
-secrets, or artifacts from a more privileged run. If one is required, split the
-workflow so untrusted code is never executed with a writable token: validate or
-build the contributor's code in the unprivileged workflow, then let the
-privileged workflow consume only trusted, explicitly produced artifacts or
-metadata.
+secrets, or artifacts from a more privileged run.
+If either is required, use separate workflows:
+
+- Validate or build the contributor's code in the unprivileged workflow.
+- Consume only trusted, explicitly produced artifacts or metadata in the
+  privileged workflow.
+
+Never execute untrusted code with a writable token.
 
 ```yaml
 # Correct — value arrives as an environment variable, not inlined into the shell
@@ -366,30 +379,31 @@ metadata.
 
 ## Structure work into jobs and steps
 
-A workflow is a set of **jobs**, and each job is a sequence of **steps**. The two
-are not interchangeable: steps in a job share one runner — the same filesystem
-and environment, running in order by default — while every job gets a **fresh
-runner** and runs in parallel with its siblings unless told to wait. Reach for a
-step by default; add a job only when a step cannot give you what you need.
+A workflow contains **jobs**. Each job contains **steps**.
+Steps in a job share one runner, filesystem, and environment.
+They run in sequence by default.
+Each job gets a **fresh runner** and runs in parallel with other jobs unless a
+dependency requires it to wait.
+Use a step by default. Add a job only when a step cannot meet the requirement.
 
 - **Default to steps within one job.** Work that is sequential and shares state —
-  check out, build, then test what you just built — belongs in a single job as
-  ordered steps. They share the workspace, so each step sees the files the last
-  one produced without copying anything, and the job reads top to bottom as one
-  story.
+  check out, build, then test the build — belongs in a single job as ordered
+  steps. They share the workspace.
+  Each step can use the files from the preceding step without copying them.
 - **Add a job to run independent work on its own runner.** Two pieces of
   work with no data dependency between them — a lint pass and a security scan —
-  finish sooner as two jobs on two runners than as serial steps on one, each
-  isolated with its own environment and permissions. Steps within a single job
-  can now run concurrently too, but that is newer and shares one runner (see
+  can finish sooner on separate runners than as sequential steps on one.
+  Each job has its own environment and permissions.
+  Steps within a single job can also run concurrently, but they share one runner
+  (see
   [Parallel steps are new and not yet a default](#parallel-steps-are-new-and-not-yet-a-default)).
   Add ordering with `needs:` only where a real dependency exists.
-- **Add a job to draw a permission boundary.** The job is the unit that
+- **Add a job to isolate permissions.** The job is the unit that
   `permissions:` scopes (see
-  [Grant least-privilege permissions](#grant-least-privilege-permissions)). When
-  one slice of the work needs a wider scope — a step that comments on the pull
-  request needs `pull-requests: write` — isolate it in its own job so the rest of
-  the workflow stays read-only instead of raising the floor for everything.
+  [Grant least-privilege permissions](#grant-least-privilege-permissions)).
+  If part of the work needs a wider scope, isolate it in its own job.
+  For example, a step that comments on a pull request needs
+  `pull-requests: write`. A separate job keeps the rest of the workflow read-only.
 - **Add a job for a different runner or a deployment environment.** A job pins
   its own `runs-on:` and can target an `environment:` with its own protection
   rules, approvals, and secrets. Work that must run on a different image, or
@@ -402,12 +416,14 @@ step by default; add a job only when a step cannot give you what you need.
   job-level `uses:`, never as a step (see
   [Choose an action or a reusable workflow](#choose-an-action-or-a-reusable-workflow)).
 
-Weigh these against what a job costs. A new job is a fresh runner: it checks out
-again, warms its own caches, and shares no filesystem with its siblings — data
-crosses a job boundary only through `outputs` or an uploaded artifact. So
-splitting sequential, state-sharing work across jobs buys nothing and adds
-handoff overhead; parallelism across separate runners, an isolated permission
-scope, a distinct environment, and merge gating are what earn a new job.
+Consider the cost of each job. Each new job gets a fresh runner, repeats
+checkout, and prepares its own caches.
+Jobs do not share a filesystem.
+Data crosses a job boundary only through `outputs` or an uploaded artifact.
+Splitting sequential, state-sharing work across jobs adds data-transfer overhead
+without a benefit.
+Separate runners, isolated permissions, distinct environments, and merge checks
+justify a separate job.
 
 ```yaml
 permissions: {}
@@ -451,20 +467,20 @@ jobs:
 
 ### A skipped job in `needs:` skips everything downstream
 
-A job whose `needs:` list contains a **skipped** job is skipped too. This is not
-about failure: `if:` on a job is implicitly wrapped in `success()`, and
-`success()` is false when a dependency was *skipped*, exactly as it is when one
-failed. So adding `needs:` to a job that may not run silently makes every
-dependent job conditional on it as well.
+A job whose `needs:` list contains a **skipped** job is skipped too.
+GitHub implicitly wraps a job's `if:` in `success()`.
+`success()` is false when a dependency was *skipped* or failed.
+Adding `needs:` to a job that may not run also makes every dependent job
+conditional on it.
 
-What makes this expensive is the reporting. A skipped job is not a failed job,
-so the run still concludes **success**: a green check on the commit, a green
-pull request, and a satisfied branch protection gate. The only evidence is a job
-that quietly did not appear, and nobody reads a successful run.
+A skipped job is not a failed job, so the run still concludes **success**.
+The commit and pull request show successful checks, and branch protection
+accepts the result.
+Only the skipped job shows that the work did not run.
 
-The trap is a conditional job *upstream* of an unconditional one — the reverse
-of the `build` / `report` pairing above, where the condition sits on the
-dependent job and the dependency always runs.
+This occurs when a conditional job is *upstream* of an unconditional job.
+In the `build` / `report` pairing above, the condition is on the dependent job
+instead. The dependency always runs.
 
 ```yaml
 # Avoid — the two conditions are mutually exclusive, so publish never runs
@@ -480,14 +496,16 @@ jobs:
     # weeks while every run was green.
 ```
 
-Two corrections, and which one applies depends on whether the dependency is real.
+Choose the correction according to whether the dependency is real.
 
-**When the edge can never carry a signal, delete it.** Above, `lint` runs only
+**When a dependency can never provide a result, remove it.** Above, `lint` runs only
 on a pull request and `publish` runs only when the event is not a pull request:
-they are mutually exclusive by construction, so no result can ever cross that
-edge in either direction. Neutralizing it with a status function leaves a
-`needs:` list that reads as a lint gate while gating nothing. Remove it, and say
-in a comment why it is absent so it is not reinstated.
+the two jobs cannot run on the same event.
+No result can pass between them.
+A status function leaves a `needs:` list that appears to require lint but does
+not.
+Remove the dependency. Explain its absence in a comment so a later edit does
+not restore it.
 
 ```yaml
 # Correct — the dead edge is gone; the implicit success() over build still gates
@@ -498,13 +516,13 @@ publish:
   if: github.event_name != 'pull_request'
 ```
 
-**When the dependency is real but optional, use a status function — and restore
-the failure gate by hand.** If a job should wait for a dependency that sometimes
-does not run, `if:` has to opt out of the implicit `success()`. That opt-out is
-the whole point, and also the danger: `always()` runs the job even when a
-dependency failed or the run was cancelled, and `!cancelled()` still runs it
-when a dependency failed. Neither is safe on its own, so pair it with an
-explicit result check.
+**When the dependency is real but optional, use a status function and test
+failure results explicitly.**
+If a job should wait for a dependency that sometimes does not run, its `if:`
+must override the implicit `success()`.
+`always()` runs the job even when a dependency failed or the run was canceled.
+`!cancelled()` still runs the job when a dependency failed.
+Neither is safe on its own. Pair the function with an explicit result check.
 
 ```yaml
 # Correct — tolerates a skipped optional dependency, still refuses a failed one
@@ -514,56 +532,57 @@ deploy:
   if: ${{ !cancelled() && needs.build.result == 'success' && needs.integration-tests.result != 'failure' }}
 ```
 
-Prefer `!cancelled()` over `always()`: a cancelled run should stop, not deploy.
+Prefer `!cancelled()` over `always()`: a canceled run should stop, not deploy.
 Check the result of every dependency whose failure should block, not just the
-first — an unchecked dependency in `needs:` no longer gates anything once the
-implicit `success()` is gone.
+first. After the override removes implicit `success()`, an unchecked dependency
+in `needs:` no longer blocks the job.
 
-No linter in the [toolchain](#toolchain) catches this. A complete workflow built
-around the avoid example's shape passes `actionlint` with no findings, and
-`zizmor` audits supply-chain and privilege problems rather than reachability, so
-both report clean on the exact diff that introduces it. Catching it would mean
-deciding whether two `if:` expressions can ever be true together, which is beyond
-what either tool does. Reading `needs:` and `if:` together is the only check
-there is.
+No linter in the [toolchain](#toolchain) detects this error.
+A complete workflow built around the avoid example passes `actionlint` with no
+findings.
+`zizmor` audits supply-chain and privilege problems rather than reachability.
+Both report no findings on the diff that introduces the error.
+
+Detection requires analysis of whether two `if:` expressions can ever be true
+together. Neither tool does this analysis.
+Read `needs:` and `if:` together during review.
 
 ### Parallel steps are new and not yet a default
 
-Every step in a job historically ran in sequence — each starting only once the
-last finished — and that sequential model is what the rest of this section
-assumes. GitHub has since added **concurrent steps** within a single job, through
-new workflow keywords:
+Steps in a job run in sequence by default.
+Each step starts after the preceding step finishes.
+The rest of this section uses that sequential model.
+**Concurrent steps** run within a single job through these workflow keywords:
 
-- `background: true` starts a step asynchronously and continues straight to the
+- `background: true` starts a step asynchronously and continues to the
   next step.
 - `wait` / `wait-all` block until one, several, or all prior background steps
   finish.
 - `cancel` stops a background step once it is no longer needed — for instance a
   service started only for the steps that run alongside it.
-- `parallel` runs a group of steps concurrently and then waits for them: the
-  convenience form of "start these together, then carry on".
+- `parallel` runs a group of steps concurrently and waits for them to finish.
 
-This covers patterns that used to force a second job or a shell backgrounding
-hack (`&`): independent work run at once on one runner, a background service that
-later steps use and then shut down, or non-blocking work — uploading telemetry
-while packaging continues — overlapping the steps after it. Because the steps
-share the runner, they also share its filesystem, which a separate job does not.
+Concurrent steps support independent work on one runner, temporary background
+services, and tasks that overlap later steps.
+For example, telemetry upload can continue while packaging runs.
+These patterns avoid a second job or shell-level background execution (`&`).
+The steps share the runner and its filesystem, unlike separate jobs.
 
 Adopt it deliberately:
 
 - **Prefer a separate job for ordinary parallelism.** When independent work does
-  not need a shared workspace, two jobs stay the clearer, better-isolated choice —
-  separate runners, permissions, and logs. Reach for concurrent steps only when
-  the work genuinely benefits from one shared runner.
-- **Confirm the toolchain supports the keywords first.** The feature is recent,
-  so the pinned [`actionlint` / `zizmor`](#toolchain) versions and the runner
-  image in use may not yet validate or run the new keywords; verify before
-  relying on it. Expect interleaved concurrent steps to be harder
-  to follow, so keep the [grouped-logging discipline](#build-in-logging-and-diagnostics).
+  does not need a shared workspace, two jobs provide separate runners,
+  permissions, and logs.
+  Use concurrent steps only when the work benefits from one shared runner.
+- **Confirm the toolchain supports the keywords first.** Verify that the pinned
+  [`actionlint` / `zizmor`](#toolchain) versions and runner image can validate and
+  run the keywords before use.
+  Concurrent-step logs can interleave and become harder to follow.
+  Keep the [grouped-logging discipline](#build-in-logging-and-diagnostics).
 
-Until it has settled in the ecosystem, treat concurrent steps as a tool for the
-few cases that need a shared runner, and let a separate job remain the default
-answer to "these should run in parallel". See the
+Use concurrent steps for work that needs a shared runner.
+Use separate jobs by default for parallel work.
+See the
 [workflow syntax reference](https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions)
 for exact usage.
 
