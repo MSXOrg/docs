@@ -15,8 +15,8 @@ owner.
 
 ## One owner per label set
 
-Every label an automation reads MUST belong to exactly one owning function, and
-that function MUST provision the labels it reads.
+Every label an automation reads MUST belong to exactly one owning function.
+That function MUST provision the labels it reads.
 
 Ownership prevents two functions from assigning different meanings to the same
 label. Only the owning function can read it. A shared, unqualified vocabulary

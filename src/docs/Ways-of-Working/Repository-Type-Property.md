@@ -56,14 +56,14 @@ enforces these rules because the property schema cannot express them.
 The platform does not convert a property between selection modes in place, so the migration
 uses a temporary, uniquely named property and recreates the canonical name:
 
-1. Choose a name such as `Type_Migration`, after verifying that no organization
-   property already uses it, and create it as `multi_select`.
-2. Populate it for every repository from the current single-select `Type`, so
-   each new value set is a one-element set carrying the same meaning.
+1. Choose a unique name, such as `Type_Migration`.
+   After you verify that no organization property uses the name, create it as `multi_select`.
+2. Populate it for every repository from the current single-select `Type`.
+   Each value set has one element with the same meaning.
 3. Create or update every replacement ruleset to read `Type_Migration`.
    Verify its computed coverage against the existing ruleset as described below.
    Both controls remain active until the coverage sets match.
-4. After no rule reads the old single-select `Type`, delete that schema.
+4. When no rule reads the old single-select `Type`, delete that schema.
    Create the canonical `Type` schema as `multi_select`. Copy each temporary
    value set into it.
 5. Update every ruleset from `Type_Migration` to the new canonical `Type`.
@@ -102,8 +102,7 @@ this pattern that preserves coverage as types are added.
 A change from name-based or single-purpose-property conditions to `Type` changes
 live branch protection. Verify coverage before replacing the condition:
 
-1. Enumerate every repository in the organization and the `Type` (or prior property) value
-   it currently has, via `GET /orgs/{org}/properties/values`.
+1. Use `GET /orgs/{org}/properties/values` to list every organization repository and its `Type` or prior property value.
 2. Compute, for the **current** ruleset condition, which repositories are covered.
 3. Create the replacement ruleset under a temporary name so both rulesets can remain active.
    For each repository, use `GET /repos/{owner}/{repo}/rules/branches/{branch}` to
@@ -111,9 +110,8 @@ live branch protection. Verify coverage before replacing the condition:
    rather than a manual interpretation of condition JSON.
 4. Diff the two coverage sets. The only differences should be the `Type` values the
    migration intentionally excludes. Any other difference means the new condition is wrong.
-5. Only after the diff matches expectations, update the real ruleset with its
-   complete replacement representation and repeat the coverage check. Delete the
-   temporary replacement only after the real ruleset is confirmed active.
+5. After the diff matches expectations, update the real ruleset with its complete replacement representation.
+   Repeat the coverage check. Delete the temporary replacement only after you confirm that the real ruleset is active.
 
 ## Ruleset updates use `PUT`, not `PATCH`
 
