@@ -99,9 +99,10 @@ repository against that repository — file and anchor both. Both run in CI on e
 request and on every push to `main`, the second also weekly, since a target repository
 moves on its own schedule.
 
-Write to the [Markdown standard](https://msxorg.github.io/docs/Coding-Standards/Markdown/)
-and the [Documentation Model](https://msxorg.github.io/docs/Ways-of-Working/Documentation-Model/);
-both are enforced by the shared linter configuration under `.github/linters/`.
+Follow the [Markdown standard](https://msxorg.github.io/docs/Coding-Standards/Markdown/)
+and the [Documentation Model](https://msxorg.github.io/docs/Ways-of-Working/Documentation-Model/).
+The shared linter configuration under `.github/linters/` enforces Markdown formatting rules.
+Review page purpose and structure against the Documentation Model.
 
 ## Building and previewing locally
 
