@@ -1,6 +1,6 @@
 ---
 title: Initiatives
-description: Products that apply the vision: PSModule, AzActions, TFActions, and related tools.
+description: "Products that apply the vision: PSModule, AzActions, TFActions, and related tools."
 ---
 
 # Initiatives
