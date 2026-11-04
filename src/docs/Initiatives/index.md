@@ -1,15 +1,17 @@
 ---
 title: Initiatives
-description: The products that make the vision real — PSModule, AzActions, TFActions, and the tools built along the way.
+description: "Products that apply the vision: PSModule, AzActions, TFActions, and related tools."
 ---
 
 # Initiatives
 
-The **initiatives** are where the vision becomes something you can use. Each one is a product — a framework, a set of reusable actions, an editor extension — that answers a single question:
+Each **initiative** is a product that applies the vision through a framework, reusable actions, or an editor extension. Each product answers the same design question:
 
 > What would this look like if it were *easy*, to move *fast*, in a *safe* way?
 
-The vision, principles, ways of working, and coding standards are written once, here, and **inherited** by every initiative. Products grow, change, and occasionally retire; the principles they express stay put.
+Initiatives inherit the vision, principles, ways of working, and coding standards from this site. Products can change or retire without changing these shared principles.
+
+These pages describe the target roles and contracts of the initiatives. They do not establish which products or controls are deployed.
 
 <!-- INDEX:START -->
 
@@ -33,8 +35,8 @@ flowchart TD
     V --> EXT["VS Code Extensions<br/>the way of working, in the editor"]
 ```
 
-Each initiative inherits the principles on this site rather than restating them — read the vision once, see it applied many times. New ideas are incubated in **[MSXOrg](https://github.com/MSXOrg)** — tooling, infrastructure, and experiments — before they earn a place of their own.
+Each initiative references these principles instead of restating them. Ideas begin in **[MSXOrg](https://github.com/MSXOrg)** as tooling, infrastructure, or experiments before they become separate initiatives.
 
 ## A living map
 
-This list grows and changes as the work does. What stays constant is the relationship: every initiative points back to the [Vision](../Vision/index.md). When you want to know *why* something is built the way it is, the answer is here; when you want to see *what* that looks like in practice, open an initiative.
+Each initiative links to the [Vision](../Vision/index.md) for its purpose and shared principles. Initiative pages describe the corresponding products and link to their canonical documentation.

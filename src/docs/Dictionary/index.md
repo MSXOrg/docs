@@ -1,11 +1,11 @@
 ---
 title: Dictionary
-description: Shared vocabulary for the MSX ecosystem — the terms a reader or agent meets across these docs.
+description: Shared terms and definitions for the MSX ecosystem.
 ---
 
 # Dictionary
 
-Shared vocabulary for the MSX ecosystem: the terms that appear across this site, defined once so every reader — human or agent — reads them the same way. Ecosystem-specific terms link to the page that covers them in full.
+This dictionary defines shared terms for readers and agents across the MSX ecosystem. Ecosystem-specific terms link to their detailed documentation.
 
 ## Terms
 
@@ -47,7 +47,9 @@ The family of always-on practices — continuous integration, delivery, document
 
 ### Conventional Commits
 
-A commit-message convention that puts a machine-readable type and optional scope in the subject line — `feat(api): add pagination` — so tooling can derive version bumps and changelogs from history. This ecosystem derives the bump from a pull-request label instead; see [Commit Conventions](../Ways-of-Working/Commit-Conventions.md).
+A commit-message convention that puts a machine-readable type and optional scope in the subject line — `feat(api): add pagination` — so tooling can derive version bumps and changelogs from history.
+
+For a reviewed pull request, an explicit bump label overrides a valid effective `DefaultBump`. Without an explicit bump label, that valid default supplies the bump. Commit messages do not select the bump. See [PR Format](../Ways-of-Working/PR-Format.md#resolve-release-decisions) for the release decision and [Commit Conventions](../Ways-of-Working/Commit-Conventions.md) for message rules.
 
 ### Conway's Law
 

@@ -30,7 +30,7 @@
 *[JSON]: JavaScript Object Notation
 *[KPI]: Key Performance Indicator
 *[Kubernetes]: Open-source system for automating deployment, scaling, and management of containerized applications
-*[LTS]: Long-Term Servicing
+*[LTS]: Long-Term Support
 *[MCP]: Model Context Protocol
 *[OKF]: Open Knowledge Format
 *[OKR]: Objectives and Key Results
@@ -41,7 +41,7 @@
 *[ps1xml]: PowerShell XML File
 *[psd1]: PowerShell Data File
 *[psm1]: PowerShell Module File
-*[pwsh]: PowerShell Core (also known as PowerShell 7)
+*[pwsh]: PowerShell command-line interface
 *[REST]: Representational State Transfer
 *[SaaS]: Software as a Service
 *[SBOM]: Software Bill of Materials

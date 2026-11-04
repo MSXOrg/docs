@@ -1,30 +1,32 @@
 ---
 title: Evolutionary Development
-description: Grow software as bets under selection — variation, feedback, and survival of the fittest, run as one tight loop.
+description: Develop software through small experiments, explicit criteria, and feedback.
 ---
 
 # Evolutionary Development
 
-Software is grown, not specified into existence. No one designs the right system up front; the hardest part of any change is deciding precisely what to build. So every change is treated as a **bet**: frame it, build the smallest thing that can be judged, expose it to real selection pressure, and keep what survives.
+Software develops through small experiments with explicit acceptance criteria. Each change is a **bet**: a hypothesis tested against user needs, tests, load, and constraints.
 
-This is Darwin's theory of evolution applied to engineering: variation, selection, and survival of the fittest. A design is not right because it was planned well; it survives because it fits the environment it has to live in — the tests, the users, the load, and the constraints. The outcome is non-deterministic: the variation is directed — the mutations are deliberate — but real conditions, not intentions, decide which design survives. It is neither blind natural selection nor a breeder's artificial selection: the engineer chooses what to try, the environment chooses what lives.
+The method uses Darwin's theory of evolution as an analogy: variation, selection, and survival of the fittest. Engineers direct the variation; real operating conditions supply the selection criteria. This differs from both blind natural selection and selection based only on an engineer's preference. The outcome is non-deterministic: intentions alone do not establish which design meets its criteria.
 
-Nature ran this algorithm first. This standard copies what it does well and sets it on hyper-speed: cheap variation, ruthless feedback, and generations measured in minutes, not millennia.
+The method uses small experiments and frequent feedback to compare alternatives.
 
-This standard is the *loop*, and it marries the practices already kept here. [Spec-Driven Development](Spec-Driven-Development.md) gives a bet its *shape* — the spec and its design, the *what* and *why*. Behavior-driven discovery turns that intent into Given / When / Then acceptance criteria — the definition of *fit*. Test-driven development grows the implementation against those criteria and the unit tests beneath them — the *how*, evolved in small steps. The three run as one loop. What drives it is not a particular hand but context in, criteria as the target, and feedback as the verdict — so the same loop turns whether a person runs it, an agent runs it, or agents run it end-to-end (see [How the loop is driven](#how-the-loop-is-driven)). It builds on [engineering practices](Principles/Engineering-Practices.md) (test-first where it pays, small batches, reversible decisions) and [AI-first development](Principles/AI-First-Development.md).
+This standard connects three practices in one feedback cycle. [Spec-Driven Development](Spec-Driven-Development.md) records intent in a spec for the why and what, and a design for the how. Behavior-driven discovery expresses that intent as Given / When / Then acceptance criteria. Test-driven development implements the criteria and unit tests in small steps.
+
+Context, criteria, and feedback guide the cycle, whether a person, an agent, or a group of agents drives it (see [How the loop is driven](#how-the-loop-is-driven)). It builds on [engineering practices](Principles/Engineering-Practices.md) (test-first where it pays, small batches, reversible decisions) and [AI-first development](Principles/AI-First-Development.md).
 
 ## Why evolve instead of plan
 
-Intent is stated first, and the plan is treated as a living thing. Two habits carry it:
+Intent is stated first. The plan evolves as evidence changes. Two habits guide the work:
 
 - **Build shared understanding from concrete examples**, in rapid iterations, with documentation that is continuously checked against the system.
-- **Front-load the *why* and *what*** so both people and agents have the context they need, then refine continuously as understanding grows.
+- **State the *why* and *what* first** so people and agents have the context they need, then refine as understanding grows.
 
-Neither habit assumes the first design is correct. Both optimise the *loop*, not the plan: a big up-front design is a large, hard-to-reverse bet made at the point of least knowledge; a small slice under real feedback is a cheap bet made while the decision is still open. Prefer the cheap bet.
+Neither habit assumes the first design is correct. Both optimize the feedback cycle. A large initial design commits costly decisions when little is known. A small testable slice provides evidence while decisions remain reversible. Prefer the small bet.
 
 ## The loop
 
-A change moves through one turn of selection. Each turn is small, and it repeats until the design survives.
+Each change moves through a small cycle of experimentation and selection. The cycle repeats until the design survives.
 
 ```mermaid
 flowchart LR
@@ -39,26 +41,26 @@ flowchart LR
   retain -.-> decide
 ```
 
-- **Decide.** State the bet as a hypothesis with an explicit kill condition — the result that would make the bet worth abandoning. Size the bet to its reversibility: local, reversible moves are cheap, so make them freely; one-way doors are expensive, so slow down and write them down ([decision before change](Principles/AI-First-Development.md#decision-before-change), [engineering taste](Engineering-Taste.md)).
-- **Build.** Make the smallest thing that can be judged — a walking skeleton or a throwaway spike — as a thin vertical slice, not a layer ([engineering practices](Principles/Engineering-Practices.md)).
-- **Explore.** Put it in front of reality: run it, demo it, probe its edges. Exploration is where surprises surface while they are still cheap.
-- **Test.** The [acceptance criteria](Spec-Driven-Development.md#acceptance-criteria) — Given / When / Then — are the coarse fitness function; the unit tests beneath them check the internals. They pass, or the bet has not survived. These automated tests become the guard-rails that stop later turns breaking earlier ones.
-- **Feedback.** Gather signal from the tests, from reviewers, and from production — the [delivery-performance signals](DevOps-Reference.md#dora-four-key-metrics) plus the one domain metric the change was meant to move.
-- **Select.** Keep what survives; kill what does not, fast. Deleting a slice that failed its test is a *result*, not a failure — the learning updates the spec. Retain a survivor by merging it through a decision point and recording any one-way-door choice as an ADR beside the spec.
+- **Decide.** State the bet as a hypothesis with an explicit kill condition. This is the result that would make the bet worth abandoning. Size the bet to its reversibility. Local, reversible decisions can be quick. Irreversible decisions require more care and a written record ([decision before change](Principles/AI-First-Development.md#decision-before-change), [engineering taste](Engineering-Taste.md)).
+- **Build.** Build the smallest deliverable that can be assessed, such as a walking skeleton or throwaway spike. Use a thin vertical slice, not a layer ([engineering practices](Principles/Engineering-Practices.md)).
+- **Explore.** Run the deliverable, demonstrate it, and test its boundaries. Exploration identifies surprises before further work depends on the design.
+- **Test.** The [acceptance criteria](Spec-Driven-Development.md#acceptance-criteria) — Given / When / Then — are the coarse fitness function. Unit tests check the internals. The bet survives only if these tests pass. Retain the automated tests to prevent later changes from breaking verified behavior.
+- **Feedback.** Collect evidence from tests, reviewers, and production. Include the [delivery-performance signals](DevOps-Reference.md#dora-four-key-metrics) and the one domain metric that the change is intended to affect.
+- **Select.** Retain a design that passes its tests and promptly discard one that does not. A rejected slice produces evidence that updates the spec. Merge a retained slice through a decision point and record any one-way-door choice as an ADR beside the spec.
 
 The loop turns until the design stops changing under feedback. Then the bet is settled (see [When a design survives](#when-a-design-survives)).
 
 ## How the loop is driven
 
-Nothing in the loop is owned by a particular hand. What drives each turn is the same three things, whoever is turning it: **context** in, the **acceptance criteria** as the target, and **feedback** as the verdict. Give a turn those three and it can be run by a person, by an agent, or by agents end-to-end — increasingly the last, as context and criteria get sharp enough that a whole turn runs with no human in it.
+Each cycle uses **context**, **acceptance criteria**, and **feedback**. A person, an agent, or a group of agents can drive it. End-to-end automation depends on context and criteria that are precise enough to guide a complete cycle.
 
-The unit of work is therefore a **well-scoped task** carrying exactly those three: the [context bundle](#context-first), the acceptance criteria that define done, and the fitness test to verify against. Output is judged against the criteria — the test is the oracle, not anyone's confidence — so the driver need not be trusted, only the test. Variation is cheap, so run **several bets in parallel** and let selection choose; keeping every branch alive is the anti-pattern.
+The unit of work is a **well-scoped task** with a [context bundle](#context-first), acceptance criteria, and a fitness test. The test is the oracle, not the driver's confidence. The driver need not be trusted; the test does. Run **several bets in parallel** and retain the designs that meet their criteria instead of keeping every branch.
 
-What does not move is the gate. Every change passes a [decision point](Principles/AI-First-Development.md#decision-before-change) before it reaches an environment, whether a person or an agent ran the loop — automation moves the work, never the accountability.
+The decision gate does not change with the driver. Every change passes a [decision point](Principles/AI-First-Development.md#decision-before-change) before it reaches an environment. Automation performs the work without removing accountability.
 
 ## The two loops
 
-The loop above runs at two tempos at once, and the method keeps them distinct.
+The method distinguishes two feedback cycles: a slower design cycle and a faster implementation cycle.
 
 ```mermaid
 flowchart TB
@@ -78,80 +80,80 @@ flowchart TB
   build -.-> inner
 ```
 
-- **The outer loop evolves the design.** It is deliberate and coarse-grained: state the intent, agree the acceptance criteria, decide quickly, and let a slice meet reality. When feedback contradicts the intent, the spec changes first and the approach evolves — [spec-driven development](Spec-Driven-Development.md) turning. This is where early alignment, the acceptance criteria, and the one-way doors are settled. Deciding fast and failing fast belong here, because the spec makes the cost of being wrong cheap to see and cheap to revise.
-- **The inner loop evolves the implementation.** It nests inside the **Build** stage and runs fast and fine-grained: write a failing test, make it pass, refactor, repeat — [test-driven development](Principles/Engineering-Practices.md#test-driven-development). The tests come at two grains — fine-grained **unit tests** for the internals and the **Given / When / Then acceptance tests** that encode the behavior from discovery. Many inner turns fit inside one outer turn, fast enough that variations are generated and discarded far quicker than by hand.
+- **The outer loop evolves the design.** It evaluates intent, acceptance criteria, and a small slice against real conditions. When feedback contradicts the intent, the spec changes first and the approach evolves through [spec-driven development](Spec-Driven-Development.md). This cycle settles the acceptance criteria and irreversible decisions. Small slices make incorrect assumptions easier to identify and revise.
+- **The inner loop evolves the implementation.** It runs inside the **Build** stage through [test-driven development](Principles/Engineering-Practices.md#test-driven-development). Write a failing test. Make it pass. Refactor and repeat. Two test levels apply: **unit tests** for internals and **Given / When / Then acceptance tests** for discovered behavior. Many implementation cycles fit inside one design cycle, allowing rapid comparison of variations.
 
-The **acceptance criteria** couple the two loops. Written once as Given / When / Then, they are the outer loop's definition of *fit* and the inner loop's target — one behavioral statement serving discovery, the spec, and the test. Whoever turns each loop, the criteria keep both honest to the same intent.
+The **acceptance criteria** connect the two cycles. Written once as Given / When / Then, they define success for the design and the target for implementation. The same behavioral statement serves discovery, the spec, and the test, regardless of who drives the work.
 
 ## Signals: the shapes of intent
 
-A turn does not only begin when someone asks for a feature. It begins with a **signal** — a pressure from the environment that the current design no longer fits — and every signal is **intent in a particular shape**. Naming the shapes keeps it honest that a bugfix, a performance guard, and a new capability are the same kind of work: a bet, framed from a signal, judged by selection.
+A cycle starts with a **signal**: evidence of a need, defect, operational problem, or risk. Each signal expresses intent in a different form. The same method applies to a bugfix, a performance safeguard, or a new capability.
 
 - **Need.** A request for functionality or capability the product does not have yet — a user, a stakeholder, or a dependent system pulling it forward. Intent stated outright: *make it do this.*
 - **Defect.** Proof that behavior and intent already disagree — a fault found in test or reported from production. An acceptance criterion that should hold does not, so the bet is to make it hold again.
 - **Operational signal.** Logs, traces, metrics, and incidents — the SRE evidence that the system is straining under real load. A rising error rate or a slow path is intent the users never had to type; the environment is speaking.
 - **Preventive analysis.** A proactive read that a design will not survive where it is heading — a performance cliff, a stability risk, a scaling limit seen before it bites. Intent inferred from the trajectory, not the pain.
 
-Wrapping them as **intents of different types** is the point: each enters the same loop, carries the same three drivers — context, acceptance criteria, feedback — and passes the same [decision point](Principles/AI-First-Development.md#decision-before-change). A defect is not a lesser feature and a preventive fix is not a luxury; each is a bet framed from a different signal, and each earns its keep only by surviving.
+Each signal enters the same cycle with context, acceptance criteria, and feedback. Each passes the same [decision point](Principles/AI-First-Development.md#decision-before-change). A defect and a preventive fix use the same evaluation method as a new capability.
 
 ## Discovery: finding and framing the bet
 
-Bets do not start from a solution; they start from a signal — need, defect, operational symptom, or risk — explored together. Discovery, formulation, and automation are how a [specification](Spec-Driven-Development.md) and its acceptance criteria are produced rather than guessed.
+Discovery starts from a need, defect, operational symptom, or risk rather than a solution. Discovery, formulation, and automation produce an evidence-based [specification](Spec-Driven-Development.md) and its acceptance criteria.
 
-- **Discovery.** Before pulling work in, hold a short, structured conversation about concrete examples. Map the story to its **rules** (the acceptance criteria), the **examples** that illustrate each rule, and the **questions** — the unknowns to resolve or defer. Time-box it; if the examples will not fit, the story is too big, so slice it. Three viewpoints must be present — the problem, the build, and the edge cases — covered by whoever is in the room, people or agents, drafting the rules and examples and surfacing the questions that need answering.
-- **Formulation.** Turn the agreed examples into Given / When / Then, in the shared language of the domain. This is the executable form of the acceptance criteria and the vocabulary that runs all the way into the code.
-- **Automation.** Connect each example to the system as a failing test, then build until it passes. The examples are living documentation: they describe what the system does today, and the build breaks the moment code and intent disagree.
+- **Discovery.** Before starting work, hold a short, structured conversation about concrete examples. Map the story to **rules** (acceptance criteria), **examples** for each rule, and **questions** to resolve or defer. Time-box the conversation. If the examples do not fit, split the story. The conversation must cover three viewpoints: the problem, implementation, and edge cases. People or agents can supply these perspectives.
+- **Formulation.** Turn the agreed examples into Given / When / Then, in the shared language of the domain. Use the same domain vocabulary in the criteria and the implementation.
+- **Automation.** Connect each example to the system as a failing test, then build until it passes. The examples are living documentation. The build fails when code does not satisfy the behavior they describe.
 
-Discovery is the variation stage — where candidate behaviors are generated cheaply. Mark unknowns as `[NEEDS CLARIFICATION]` rather than guessing; a guess is an untested bet smuggled past selection.
+Discovery creates candidate behaviors before implementation. Mark unknowns as `[NEEDS CLARIFICATION]` rather than guessing. A guess has no evidence to support acceptance.
 
 ## Context first
 
-A turn is only as good as the context it runs on — output quality tracks input quality. The **context bundle** is the opening move of any turn, not an afterthought:
+Each cycle requires correct, complete context. The **context bundle** contains:
 
 - The [spec](Spec-Driven-Development.md) (why, what, acceptance criteria) and its design (how), or the marked unknowns where they do not exist yet.
 - The constraints, non-goals, and dependencies that bound the solution.
 - Pointers to the code, standards, and prior decisions that already apply — read in layers, local context before central standards ([Agentic Development](../Capabilities/agentic-development/index.md)).
 
-This is [context-first development](Principles/AI-First-Development.md#context-first-development) made operational: the context is created up front — in specs, issues, and ADRs — and the loop runs on it. Context loss is the most common cause of wasted effort; a bet made without context is a bet made blind. Context is not read-only, though: when a turn shows a standard or instruction is wrong — or teaches a better one — updating it is part of the turn (see [The instructions evolve too](#the-instructions-evolve-too)).
+This makes [context-first development](Principles/AI-First-Development.md#context-first-development) operational. Create context in specs, issues, and ADRs before the cycle. Incomplete context can lead to incorrect results and wasted work. Update a standard or instruction when evidence shows it is wrong or reveals a better approach (see [The instructions evolve too](#the-instructions-evolve-too)).
 
 ## The instructions evolve too
 
 > [!IMPORTANT]
-> Self-directed update is a standing directive, not an optional courtesy. Whoever turns the loop — a person or an agent — and learns something or hits a wrong instruction is expected to improve that instruction then and there, rather than leave it for someone else, so the next turn starts sharper than this one did. A loop that cannot improve its own instructions cannot evolve.
+> Self-directed update is a standing directive, not an optional courtesy. A person or agent that learns something or finds an incorrect instruction is expected to improve that instruction immediately. Do not leave the correction for someone else. The next cycle uses that correction. A cycle that cannot improve its instructions cannot evolve.
 
-The standards, guides, and agent instructions that inform how the work is done are part of the environment the loop runs in. They are context, and context drives every turn (see [How the loop is driven](#how-the-loop-is-driven)) — so a weak instruction misdirects every turn that reads it, quietly and at scale, and a sharper one improves every turn just as widely. The instructions are under selection too: correct them when they are wrong, and refine them when a turn teaches something better. Either way, updating them is part of the work, not a separate chore. This is [self-improving agents](Principles/AI-First-Development.md#self-improving-agents) applied to the instructions themselves.
+Standards, guides, and agent instructions provide context for each cycle (see [How the loop is driven](#how-the-loop-is-driven)). A weak instruction can misdirect every reader. Correct instructions when they are wrong and refine them when evidence identifies a better approach. This maintenance is part of the work. It applies [self-improving agents](Principles/AI-First-Development.md#self-improving-agents) to the instructions themselves.
 
-When a turn exposes a defect or discovers a better way of working — whether a person hits the friction or an agent does — raise the change as its own small bet and run it through the same loop: a change to the doc, reviewed and merged through a [decision point](Principles/AI-First-Development.md#decision-before-change). Signals worth acting on:
+When a cycle exposes an incorrect instruction or a better way of working, propose the correction as its own small change. Review and merge it through the same [decision point](Principles/AI-First-Development.md#decision-before-change). Relevant signals include:
 
 - An agent needs the same clarification twice, or a `[NEEDS CLARIFICATION]` marker keeps recurring.
 - A review comment teaches a rule that is not written down yet.
 - An instruction contradicts how the work is actually done, or points at something that has moved.
 - A turn goes wrong in a way a clearer instruction would have prevented.
-- A turn finds a better way — a sharper prompt, a cleaner sequence, a rule worth making the default — worth keeping for the next one.
+- A cycle finds a better prompt, sequence, or rule that should be reused.
 
-Because a standard is defined once and pointed to everywhere ([Agentic Development](../Capabilities/agentic-development/index.md)), one change propagates to every repo and every agent that reads it — improve it in one place and the whole fleet's behavior evolves. This is the method turned on itself: the same living-documentation discipline that keeps a spec true keeps the instructions true and refines them as understanding grows, so the way of working gets better every time a turn teaches something worth keeping.
+A standard is defined once and referenced by its consumers ([Agentic Development](../Capabilities/agentic-development/index.md)). Readers receive corrections through that shared source. The same verification that keeps a spec aligned with intent also keeps instructions accurate as understanding grows.
 
 ## Working a v1
 
-A first version is where the least is known, so it is where evolution matters most. Start deliberately small and let the design earn its complexity.
+A first version starts with limited evidence. Keep it small and add complexity only as test results and feedback justify it.
 
-- **Minimal viable spec.** Write just enough intent and acceptance criteria to make the first bet falsifiable. Mark everything else as an open question rather than inventing an answer. The spec grows as reality teaches, not before.
-- **Walking skeleton.** Build the thinnest end-to-end slice that exercises the whole path — real inputs to real outputs — before thickening any single part. It proves the shape of the system while every decision is still cheap to undo.
-- **Explore a set, then converge.** For a decision that matters, try two or three approaches cheaply — parallel spikes — instead of committing to the first that occurs to you. Keep the survivor; delete the rest. Do not marry a design before it has beaten an alternative.
-- **Promote or kill.** A spike is disposable by default. It earns promotion only by passing its fitness test; otherwise it is deleted and what it taught updates the spec. A spike that quietly becomes production is a bet that skipped selection.
+- **Minimal viable spec.** Write only the intent and acceptance criteria needed to test the first bet. Mark unresolved points as open questions instead of inventing answers. Expand the spec as evidence becomes available.
+- **Walking skeleton.** Build the thinnest end-to-end slice with real inputs and outputs before expanding any single part. This tests the complete path while decisions remain reversible.
+- **Explore a set, then converge.** For a consequential decision, compare two or three approaches through inexpensive parallel spikes. Retain the approach that meets its criteria and discard the others. Compare alternatives before committing to one design.
+- **Promote or kill.** A spike is disposable by default. Promote it only if it passes its fitness test. Otherwise, delete it and use the findings to update the spec. A spike does not become production code without this evaluation.
 - **Evolve the spec first.** When feedback contradicts the spec, the spec changes before the code — it is the source of truth, written in the present tense as the [intended state](Principles/Engineering-Practices.md#evergreen-documentation).
 
 ## Bind to the practice, not the tool
 
-The toolchain is an adapter and it churns — runners get abandoned and replaced. Executable specifications outlive the tool that runs them: a feature written as Given / When / Then survives a change of runner untouched. Depend on the durable practice, not the tool — intent stated first, examples as Given / When / Then, living documentation checked in CI, and this loop. Tools slot in as thin adapters and can be swapped without rewriting the method ([extensible by default](Principles/Software-Design.md#extensible-by-default)).
+The toolchain can change without changing the method. Given / When / Then examples state behavior independently of the runner. Depend on documented intent, concrete examples, living documentation verified in CI, and the feedback cycle. Tools act as replaceable adapters to this method ([extensible by default](Principles/Software-Design.md#extensible-by-default)).
 
 ## When a design survives
 
-A bet is settled — it stops being an experiment and becomes the baseline — when:
+A bet becomes the baseline when:
 
 - its acceptance criteria pass and keep passing as guard-rails,
 - the domain signal moved the way the spec predicted,
 - no clarification markers remain, and
-- it is boring to operate — observable, and quiet under normal load.
+- it is observable and quiet under normal load.
 
-At that point the change meets the [Definition of Done](Definition-of-Ready-and-Done.md#definition-of-done) and the slice is retained. Further change to a settled design starts a new bet, and the loop begins again. Nothing is permanent: environments shift, and a design that no longer fits its environment is selected out — deprecated and deleted ([engineering practices](Principles/Engineering-Practices.md)).
+At that point, the change meets the [Definition of Done](Definition-of-Ready-and-Done.md#definition-of-done) and the slice is retained. A further change starts another bet. If requirements or operating conditions change, reconsider the design and deprecate or delete it when it no longer fits ([engineering practices](Principles/Engineering-Practices.md)).
