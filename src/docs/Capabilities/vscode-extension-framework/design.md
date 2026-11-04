@@ -5,20 +5,24 @@ description: How the VS Code extension framework is built — a shared reusable 
 
 # VS Code Extension Framework — Design
 
-The behaviour in the [spec](spec.md) is delivered by a **shared reusable
-workflow** and a **template repository**, following the org's `Process-*` /
-`Template-*` convention (as [Process-PSModule](https://github.com/PSModule/Process-PSModule)
-does for PowerShell modules). A repository opts in with a short caller workflow
-and a single `.github/vscode-extension.yml` extension settings file. Build and
-test settings have secure, working defaults; release decisions follow
+The [spec](spec.md) defines the framework's behavior. The design combines a
+**shared reusable workflow** with a **template repository**. It follows the
+organization's `Process-*` / `Template-*` convention, which
+[Process-PSModule](https://github.com/PSModule/Process-PSModule) uses for PowerShell
+modules.
+
+A repository opts in with a short caller workflow and a single
+`.github/vscode-extension.yml` extension settings file. Build and test settings
+have secure, working defaults. Release decisions follow
 [Release Management](../release-management/design.md#version-computation).
-Step logic
-lives in versioned scripts the workflow calls, never inline shell.
+
+Versioned scripts contain the step logic. The workflow calls those scripts
+instead of inline shell.
 
 ## The pipeline
 
-The pipeline is a DAG of single-purpose stages, so each stage does one thing and
-every downstream stage reuses the exact output of the stages before it:
+The pipeline stages form a directed acyclic graph (DAG). Each stage has one
+purpose. Downstream stages use the exact outputs of the preceding stages:
 
 ```mermaid
 flowchart LR
@@ -28,42 +32,44 @@ flowchart LR
   test --> release["Release\npublish the built VSIX"]
 ```
 
-- **Find version** — validate the release decision and compute the version once,
-  through the shared release resolver's authoritative version base and valid
-  effective bump, not a separate latest-tag algorithm. Resolve
-  the canonical release identity and any declared native numeric mapping before
-  Build; retain both with their source evidence.
-  Independent of the other stages and required by the merge ruleset; a missing
-  decision is a failed check, not a post-merge surprise.
-- **Lint & type-check** — static analysis and the type checker. Independent, so
-  it fails fast in parallel with the build.
-- **Build** — stamp the resolved native extension version into the manifest, compile the
-  production bundle, and package **one** VSIX. Uploads the bundle, the VSIX, and
-  the stamped manifest as artifacts.
-- **Test** — download a real editor host and run the extension test suite
-  against the exact bundle and manifest that were built.
-- **Release** — publish the exact VSIX that was built and tested. Depends on
-  both `test` and `lint`.
+- **Find version** — validates the release decision and computes the version
+  once. It uses the shared release resolver's authoritative version base and
+  valid effective bump, not a separate latest-tag algorithm. It resolves the
+  canonical release identity and any declared native numeric mapping before
+  Build. It retains both with their source evidence. The stage has no upstream
+  dependency. The merge ruleset requires this check; a missing decision fails it.
+- **Lint & type-check** — runs static analysis and the type checker. This
+  independent stage runs in parallel with the build and reports errors early.
+- **Build** — stamps the resolved native extension version into the manifest,
+  compiles the production bundle, and packages **one** VSIX. It uploads the
+  bundle, the VSIX, and the stamped manifest as artifacts.
+- **Test** — downloads a real editor host and runs the extension test suite
+  against the exact bundle and manifest from Build.
+- **Release** — publishes the exact VSIX that was built and tested. It depends
+  on both `test` and `lint`.
 
 ## The built-once contract
 
-The version is computed once and flows through the pipeline as artifacts, so the
-thing that ships is the thing that was tested:
+The pipeline computes the version once and passes the build artifacts between
+stages. Release publishes the same VSIX that Build packages:
 
 1. **Find version** decides the canonical release version and validated native
    extension version together, before Build.
 2. **Build** stamps the resolved native version into `package.json` (and
    `package-lock.json`), compiles
-   the bundle, and runs the packaging CLI to produce a single VSIX. The stamped
-   manifest is uploaded alongside the VSIX so the manifest under test — including
-   the version the running extension reports — matches the packaged artifact.
-3. **Test** restores that bundle and manifest and tests them.
-4. **Release** restores and publishes that same VSIX. Its GitHub Release uses
-   the canonical identity and records the native mapping; enabled marketplaces
-   receive the unchanged VSIX and the corresponding native version/channel.
+   the bundle, and runs the packaging CLI to produce a single VSIX. Build uploads
+   the stamped manifest with the VSIX. The test job uses that manifest, including
+   the version that the running extension reports. The manifest under test
+   matches the packaged artifact.
+3. **Test** restores and tests the exact bundle and stamped manifest from Build.
+4. **Release** restores and publishes the same VSIX from Build. The GitHub
+   Release uses the canonical identity and records the native mapping. Enabled
+   marketplaces receive the unchanged VSIX and the corresponding native
+   version/channel.
 
-Build, test, and release never re-compile or re-package; they pass the built
-artifact forward.
+After Build compiles and packages the artifact, Test and Release do not compile
+or package it again. Each stage passes the same build artifacts to the next
+stage.
 
 ## Build
 
