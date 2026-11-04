@@ -6,8 +6,8 @@ Describe 'Test-CrossRepositoryLink' {
         $script:pwsh = (Get-Process -Id $PID).Path
         $script:utf8 = [System.Text.UTF8Encoding]::new($false)
 
-        # The stub API runs in-process, in its own runspace, so a test never touches
-        # github.com. It answers the two endpoints the script calls and nothing else.
+        # A local API makes missing targets and rate-limit failures safe and repeatable.
+        # It proves checker behavior, not GitHub authentication or live API compatibility.
         $script:serve = {
             param($Listener, $Store)
 
@@ -401,6 +401,79 @@ See the [second](https://github.com/PSModule/Demo/blob/main/docs/Guide.md#duplic
 
             $result.ExitCode | Should -Be 0
         }
+
+        # Expected anchors are independent of the checker: github-slugger 2.0.0 fixtures
+        # and heading text verified with GitHub's Markdown API. See MSXOrg/docs#241.
+        It "resolves the recorded GitHub anchor '<Slug>' for '<Heading>'" -ForEach @(
+            @{ Heading = 'Hello, world!'; Slug = 'hello-world' }
+            @{ Heading = 'Prefer .NET for the actual work'; Slug = 'prefer-net-for-the-actual-work' }
+            @{ Heading = "Don't mock what you don't own"; Slug = 'dont-mock-what-you-dont-own' }
+            @{ Heading = "Hello $([char]0x2014) world"; Slug = 'hello--world' }
+            @{ Heading = "Gr$([char]0x00FC)nanlage"; Slug = "gr$([char]0x00FC)nanlage" }
+            @{ Heading = 'CI/CD pipeline'; Slug = 'cicd-pipeline' }
+            @{ Heading = "Bruksordning for veg - $([char]0x00A7) 3-8"; Slug = 'bruksordning-for-veg----3-8' }
+            @{ Heading = 'A heading with  double  spaces'; Slug = 'a-heading-with--double--spaces' }
+            @{ Heading = 'snake_case and kebab-case'; Slug = 'snake_case-and-kebab-case' }
+            @{ Heading = '100% coverage?'; Slug = '100-coverage' }
+            @{ Heading = "$([char]0x041F)$([char]0x0440)$([char]0x0438)$([char]0x0432)$([char]0x0435)$([char]0x0442) non-latin $([char]0x4F60)$([char]0x597D)"; Slug = "$([char]0x043F)$([char]0x0440)$([char]0x0438)$([char]0x0432)$([char]0x0435)$([char]0x0442)-non-latin-$([char]0x4F60)$([char]0x597D)" }
+            @{ Heading = 'env vars & secrets'; Slug = 'env-vars--secrets' }
+            @{ Heading = 'parens (like this)'; Slug = 'parens-like-this' }
+            @{ Heading = "emoji $([char]::ConvertFromUtf32(0x1F680)) heading"; Slug = 'emoji--heading' }
+            @{ Heading = '__strong__ and _emphasized_ identifiers `snake_case`'; Slug = 'strong-and-emphasized-identifiers-snake_case' }
+            @{ Heading = 'foo__bar and _foo_bar_'; Slug = 'foo__bar-and-foo_bar' }
+            @{ Heading = '*Use* **snake_case** with ~~old_value~~'; Slug = 'use-snake_case-with-old_value' }
+            @{ Heading = 'heading with an _ underscore'; Slug = 'heading-with-an-_-underscore' }
+            @{ Heading = '_outer __inner__ end_'; Slug = 'outer-inner-end' }
+            @{ Heading = '`__init__` and `name_`'; Slug = '__init__-and-name_' }
+            @{ Heading = '_Call `__init__` now_'; Slug = 'call-__init__-now' }
+            @{ Heading = '`_literal_` and _emphasis_'; Slug = '_literal_-and-emphasis' }
+            @{ Heading = '**foo**_bar_'; Slug = 'foobar' }
+            @{ Heading = '_one_**two**'; Slug = 'onetwo' }
+            @{ Heading = '[one](https://example.test)_two_'; Slug = 'onetwo' }
+            @{ Heading = '<strong>one</strong>_two_'; Slug = 'onetwo' }
+            @{ Heading = '__a_ _b__'; Slug = 'a-b' }
+            @{ Heading = '``a ``` b`` _emphasis_ `c`'; Slug = 'a--b-emphasis-c' }
+            @{ Heading = '_Use ` as a delimiter_'; Slug = 'use--as-a-delimiter' }
+            @{ Heading = 'Heading {#custom}'; Slug = 'heading-custom' }
+            @{ Heading = 'http://example.test/a/_b_/c'; Slug = 'httpexampletesta_b_c' }
+        ) {
+            $fixture = New-CrossLinkFixture -Content @"
+# Page
+
+See [the heading](https://github.com/PSModule/Demo/blob/main/docs/Guide.md#$Slug).
+"@ -Target @{ 'PSModule/Demo/main/docs/Guide.md' = "# Guide`n`n## $Heading`n" }
+
+            $result = Invoke-CrossLinkFixture -Fixture $fixture
+
+            $result.ExitCode | Should -Be 0 -Because $result.Output
+            $result.Output | Should -Match '1 cross-repository link\(s\) checked'
+        }
+
+        It 'rejects an anchor that removes a literal underscore' {
+            $fixture = New-CrossLinkFixture -Content @'
+# Page
+
+See [the heading](https://github.com/PSModule/Demo/blob/main/docs/Guide.md#snakecase-and-kebab-case).
+'@ -Target @{ 'PSModule/Demo/main/docs/Guide.md' = "# Guide`n`n## snake_case and kebab-case`n" }
+
+            $result = Invoke-CrossLinkFixture -Fixture $fixture
+
+            $result.ExitCode | Should -Be 1
+            $result.Output | Should -Match 'no heading'
+        }
+
+        It 'rejects an anchor that omits literal generic-attribute text' {
+            $fixture = New-CrossLinkFixture -Content @'
+# Page
+
+See [the heading](https://github.com/PSModule/Demo/blob/main/docs/Guide.md#heading).
+'@ -Target @{ 'PSModule/Demo/main/docs/Guide.md' = "# Guide`n`n## Heading {#custom}`n" }
+
+            $result = Invoke-CrossLinkFixture -Fixture $fixture
+
+            $result.ExitCode | Should -Be 1
+            $result.Output | Should -Match 'no heading'
+        }
     }
 
     Context 'A run that resolved nothing' {
@@ -504,45 +577,5 @@ See the [guide](https://github.com/PSModule/Private/blob/main/docs/Guide.md).
             $result.Output | Should -Match 'not publicly readable'
             $result.Output | Should -Not -Match 'Broken cross-repository links'
         }
-    }
-}
-
-Describe 'ConvertTo-GitHubSlug' {
-    BeforeAll {
-        # Load the function without running the script: a script that did work merely by
-        # being dot-sourced would violate the Scripts standard, and parsing keeps the test
-        # honest about that.
-        $scriptPath = (Resolve-Path (Join-Path $PSScriptRoot '../.github/scripts/Test-CrossRepositoryLink.ps1')).ProviderPath
-        $ast = [System.Management.Automation.Language.Parser]::ParseFile($scriptPath, [ref] $null, [ref] $null)
-        $definition = $ast.Find({
-                param($node)
-                $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'ConvertTo-GitHubSlug'
-            }, $true)
-        . ([scriptblock]::Create($definition.Extent.Text))
-    }
-
-    # The expected values are a recorded fixture, not a second derivation: each one was
-    # produced by running github-slugger 2.0.0 - the library GitHub's own anchors come
-    # from - over the heading on the left. The cases are written inline because '-ForEach'
-    # is expanded at discovery, before any 'BeforeAll' has run. Regenerate with:
-    #   npm install github-slugger
-    #   node -e "import('github-slugger').then(m=>{const s=new m.default();console.log(s.slug('Hello, world!'))})"
-    It "slugs '<Heading>' as '<Slug>'" -ForEach @(
-        @{ Heading = 'Hello, world!'; Slug = 'hello-world' }
-        @{ Heading = 'Prefer .NET for the actual work'; Slug = 'prefer-net-for-the-actual-work' }
-        @{ Heading = "Don't mock what you don't own"; Slug = 'dont-mock-what-you-dont-own' }
-        @{ Heading = "Hello $([char]0x2014) world"; Slug = 'hello--world' }
-        @{ Heading = "Gr$([char]0x00FC)nanlage"; Slug = "gr$([char]0x00FC)nanlage" }
-        @{ Heading = 'CI/CD pipeline'; Slug = 'cicd-pipeline' }
-        @{ Heading = "Bruksordning for veg - $([char]0x00A7) 3-8"; Slug = 'bruksordning-for-veg----3-8' }
-        @{ Heading = 'A heading with  double  spaces'; Slug = 'a-heading-with--double--spaces' }
-        @{ Heading = 'snake_case and kebab-case'; Slug = 'snake_case-and-kebab-case' }
-        @{ Heading = '100% coverage?'; Slug = '100-coverage' }
-        @{ Heading = "$([char]0x041F)$([char]0x0440)$([char]0x0438)$([char]0x0432)$([char]0x0435)$([char]0x0442) non-latin $([char]0x4F60)$([char]0x597D)"; Slug = "$([char]0x043F)$([char]0x0440)$([char]0x0438)$([char]0x0432)$([char]0x0435)$([char]0x0442)-non-latin-$([char]0x4F60)$([char]0x597D)" }
-        @{ Heading = 'env vars & secrets'; Slug = 'env-vars--secrets' }
-        @{ Heading = 'parens (like this)'; Slug = 'parens-like-this' }
-        @{ Heading = "emoji $([char]::ConvertFromUtf32(0x1F680)) heading"; Slug = 'emoji--heading' }
-    ) {
-        ConvertTo-GitHubSlug -Text $Heading | Should -BeExactly $Slug
     }
 }
