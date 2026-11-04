@@ -5,13 +5,11 @@ description: How humans and agents coordinate through issues, labels, and pull r
 
 # Agent Interaction
 
-Once more than one participant works a repository — several people, several agents, or a mix
-— they need somewhere to coordinate. The tempting answer is a conversation: a chat, a thread,
-a prompt history. The problem with a conversation is that it is not part of the repository.
-It cannot be reviewed, it cannot be queried, and it disappears when the session does.
+Human and agent participants need durable coordination when they work in the same repository.
+A conversation outside the platform artifacts does not provide the repository's reviewed
+work record. It can become unavailable when the session ends.
 
-The platform already provides durable coordination artifacts. This page states how the
-framework uses them.
+The framework uses the platform's issues, labels, and pull requests as that record.
 
 ## Coordination happens on artifacts
 
@@ -20,18 +18,16 @@ labels, and pull requests — rather than through any channel that leaves no tra
 repository.
 
 The rule follows from
-[everything as code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code):
-if the decision is not in the repository, the repository does not record why it looks the way
-it does. It also follows from practical asymmetry — an agent's session ends and takes its
-context with it, while an issue persists and can be picked up by a different agent, a
-different runtime, or a person, weeks later.
+[everything as code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).
+Repository artifacts preserve decisions and their reasons. Unlike session context, an issue
+remains available to another agent, runtime, or person after the original session ends.
 
 | Artifact | What it carries | Why it, specifically |
 | --- | --- | --- |
 | **Issue** | The intent: what is wanted, why, and what "done" means | Durable, addressable, and independent of who acts on it |
 | **Label** | A discrete decision or state transition | Machine-readable, so automation can react without parsing prose |
-| **Pull request** | The proposed implementation, and the negotiation over it | Reviewable line by line, and revertible as one unit |
-| **Comment** | Reasoning, questions, and advice attached to its subject | Stays with the artifact it concerns rather than in a separate stream |
+| **Pull request** | The proposed implementation and its review | Reviewable line by line, and revertible as one unit |
+| **Comment** | Reasoning, questions, and advice attached to its subject | Keeps reasoning with the relevant artifact |
 
 ## Two artifacts, two questions
 
@@ -43,15 +39,14 @@ governs the issue body. Task and Bug leaves retain technical decisions and test-
 the pull request contains the proposed implementation. Consumer-only aggregate guidance does
 not remove those delivery plans.
 
-The separation earns its keep at rejection. When a single artifact holds both, discarding a
-bad implementation discards the reasoning that motivated it, and the next attempt starts from
-nothing. When they are separate, the pull request closes and the issue stands — still stating
-what is needed, now with a documented approach that did not work.
+The issue preserves the request when reviewers reject a proposed implementation.
+The pull request can close while the issue remains open. The rejected pull request records
+the attempted approach. A later proposal can use that evidence without reconstructing the
+original intent.
 
-It also puts each question in front of the right reviewer. Whether something *should* be done
-is a question about priorities and fit; whether an implementation is *correct* is a question
-about the code. These are different judgements, often made by different people, and merging
-them into one thread means the cheaper question crowds out the harder one.
+This separation also supports different review questions. Priority and fit determine whether
+work is needed. Implementation review determines whether the proposed change is correct.
+The reviewers for these questions can differ.
 
 ```mermaid
 flowchart LR
@@ -60,22 +55,20 @@ flowchart LR
     impl -->|"accepted"| merged["Merged"]
 ```
 
-The consequence is a rule about creation order: an issue exists before the work that resolves
-it. Where a change is genuinely trivial, the pull request MAY stand alone, but it then carries
-its own statement of intent, because something has to.
+An issue exists before work starts to resolve it. For a genuinely trivial change, the pull
+request MAY stand alone, but it contains its own statement of intent.
 
 ## Labels are the control channel
 
 Where automation must be told something, it MUST be told with a label rather than with prose.
 
-Prose is where humans express nuance, which is exactly what makes it a poor instruction to a
-machine: parsing it means guessing, and a guess about whether a maintainer approved something
-is a guess with consequences. A label is unambiguous, appears in the artifact's timeline with
-who applied it and when, and can be required or forbidden by a rule.
+Prose records reasoning and nuance. A label records an explicit machine-readable signal,
+including who applied it and when. Rules can require or prohibit that signal without
+inferring approval from a sentence.
 
 Labels used for coordination MUST follow the organization's
-[label vocabulary](../../Ways-of-Working/Automation-Labels.md), so that a label's owner and
-meaning are knowable without reading the workflow that consumes it. Automation MUST ignore
+[label vocabulary](../../Ways-of-Working/Automation-Labels.md). Its owner and meaning can
+then be determined without reading the workflow that consumes it. Automation MUST ignore
 labels it does not own.
 
 ## An agent is a participant, not an authority
@@ -83,33 +76,30 @@ labels it does not own.
 An agent operating on these artifacts MUST do so under the same rules as any other
 participant.
 
-That means it opens issues and pull requests rather than pushing to protected branches, its
-changes are reviewed, and its conclusions are advice until someone acts on them. The
+Agents open issues and pull requests instead of pushing to protected branches. Their changes
+receive review, and their conclusions remain advice until someone acts on them. The
 [four-eyes principle](../../Ways-of-Working/Principles/AI-First-Development.md#4-eyes-or-n-eyes-principle)
-does not weaken because one pair of eyes is automated; an agent reviewing an agent is
-[advisory](advisory-agents.md), and human authority over the merge remains.
+applies to automated participants too. A review by an agent is [advisory](advisory-agents.md),
+and humans retain merge authority.
 
-The symmetry is deliberate. A process that gave agents a privileged path would have two sets
-of rules, and the agent path would be the one nobody audits.
+The same rules keep agent work subject to the same review controls as human work.
 
 ## Handover is a state, not a message
 
-Work passed from one participant to another MUST be handed over through the artifact's own
-state — its labels, its assignment, its review status — and MUST NOT depend on a message
-having been delivered.
+Participants MUST hand over work through the artifact's state: labels, assignment, or review
+status. Handover MUST NOT depend on delivery of a message.
 
-An agent that finishes its part and describes the next step in a comment has produced
-something a human must read and act on. An agent that finishes its part and moves the
-artifact into the state the next stage reacts to has produced something the process picks up.
-The first is a notification; the second is a handover.
+A comment that names the next step requires a reader to act on it. A state change supplies
+the signal that the next stage uses. The comment is a notification; the state change is the
+handover.
 
-This is what allows a chain of work to survive interruption. Any participant can determine
-what happens next by looking at the artifact, without reconstructing a conversation.
+Artifact state preserves the handover across session interruptions. A participant can
+determine the next step from that state without reconstructing a conversation.
 
 ## Where this connects
 
 - [Spec](spec.md#requirements) — the requirement that coordination happens on durable artifacts and that intent is separable from implementation.
-- [Advisory Agents](advisory-agents.md) — how an agent publishes judgement onto these artifacts without taking authority.
+- [Advisory Agents](advisory-agents.md) — how an agent publishes judgment onto these artifacts without taking authority.
 - [Automation Labels](../../Ways-of-Working/Automation-Labels.md) — the label vocabulary and ownership rules.
 - [Workflow](../../Ways-of-Working/Workflow.md) — the stages these artifacts move through.
 - [Issues](../../Ways-of-Working/Issues/index.md) and [Issue Planning](../../Ways-of-Working/Issues/Process/Planning.md) — issue discovery and type-specific intent and delivery planning.
