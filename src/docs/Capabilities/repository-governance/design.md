@@ -5,10 +5,13 @@ description: How repository governance is built — a multi-select type property
 
 # Repository Governance — Design
 
-Three moving parts deliver the [spec](spec.md): a **property** that carries the
-declaration, **organization rulesets** whose conditions read it, and
-**reconciliation** that compares the live world against what the declaration
-implies.
+Three components deliver the [spec](spec.md): a **property**, **organization
+rulesets**, and **reconciliation**. The property carries the declaration.
+Organization rulesets read it, and reconciliation compares live configuration
+with the declared requirements.
+
+This design defines the reconciliation contract. Delivery records provide
+evidence that an implementation and its enforcement satisfy this contract.
 
 ```mermaid
 flowchart LR
@@ -21,16 +24,16 @@ flowchart LR
     rec --> findings["Graded findings"]
 ```
 
-The declaration is the only per-repository input. Everything downstream of it is
-organization-level configuration, which is what makes the number of things that
-can drift equal to the number of types rather than the number of repositories
+The declaration is the only per-repository input that selects controls. The
+organization maintains shared control definitions rather than duplicating them
+per repository
 ([NFR1](spec.md#non-functional)).
 
 ## The declaration
 
 The type is a **multi-select** organization custom property, required on every
-repository, defaulting to the Standard value. Multi-select rather than
-single-select because branch model and layering are separate concerns
+repository, defaulting to the Standard value. A multi-select property separates
+branch-model and layering obligations
 ([FR2](spec.md#classification), [repository types](design-types.md)).
 
 The property mechanism — how conditions target it, why conditions are written as
@@ -50,9 +53,8 @@ rather than by reasoning about condition JSON.
 
 ## Rulesets by type
 
-One ruleset per governed concern, each selecting repositories by type. Rulesets
-are organization-level: a repository-level branch protection would be a second
-definition of the same control, and two definitions are two truths
+Each governed concern has one organization-level ruleset selected by type.
+A repository-level copy would duplicate the control
 ([NFR1](spec.md#non-functional)).
 
 | Ruleset | Selects | Branches | Enforces |
@@ -81,18 +83,17 @@ exception ([FR16](spec.md#bypass)).
 
 ## Organization defaults repository
 
-Each organization carries one public repository named `.github`. This is the
+Each organization has one public repository named `.github`. It is the
 initiative's community repository and the normal source for shared contribution
-guidance. It has three distinct surfaces: community files that GitHub inherits
-into repositories,
-content published on the organization's profile, and local context that governs
-the defaults repository itself. Treating those surfaces as one distributable
-file set would copy repository-specific configuration into places where it does
-not belong.
+guidance. It has three distinct purposes: inherited community files, published
+organization-profile content, and local context for the defaults repository.
+These are not one distributable file set. Repository-specific configuration
+stays local to the defaults repository.
 
-The [MSXOrg defaults repository](https://github.com/MSXOrg/.github) and the
-[PSModule defaults repository](https://github.com/PSModule/.github) implement
-the same structure:
+The defaults-repository contract for the
+[MSXOrg defaults repository](https://github.com/MSXOrg/.github) and the
+[PSModule defaults repository](https://github.com/PSModule/.github) uses this
+structure:
 
 | Surface | Status | Behavior |
 | --- | --- | --- |
@@ -120,7 +121,7 @@ or downloads. Consumer checks resolve the effective contribution guidance from
 the local guide when needed or the shared source; absence of an unnecessary
 local copy is not drift.
 
-There is no PR-template-file surface to inherit or distribute. Ordinary and
+The contract provides no PR-template-file surface to inherit or distribute. Ordinary and
 defaults repositories follow the [Repository Standard's file
 policy](../../Ways-of-Working/Repository-Standard.md#no-pr-template-files).
 PR authoring evidence verifies the actual title, complete body, and source
@@ -160,17 +161,15 @@ the [contribution rule](../../Ways-of-Working/Repository-Standard.md#contributio
 
 ## Drift detection and reconciliation
 
-Rulesets prevent unwanted changes to branches. They do not prevent a repository
-from being *configured* into a state its declaration does not describe — a
-required check renamed, a merge method re-enabled, a required file deleted, a type
-value that no longer validates. Reconciliation is the loop that closes that gap:
-**compare the declared intent against the live world, continuously, and grade
-every difference.**
+Rulesets constrain branch changes. They do not prevent all configuration drift.
+Configuration changes can rename a required check, re-enable a merge method,
+remove a required file, or invalidate a type combination.
+**Reconciliation continuously compares declared requirements with live
+configuration and grades every difference.**
 
-The loop is generic. It is a scheduled comparison plus a graded response, and it
-is implementable as a workflow in an administrative repository, as an application
-holding the organization's configuration, or as a policy engine. What matters is
-the contract below, not the implementation that satisfies it.
+The loop combines scheduled comparison with a graded response. An administrative
+workflow, an application that holds the organization's configuration, or a policy
+engine can implement it. Each implementation must satisfy the contract below.
 
 ### What is compared
 
@@ -194,38 +193,34 @@ the contract below, not the implementation that satisfies it.
 | **Warn** | Live configuration diverges from the declaration but the repository still functions | A comment on the affected pull request |
 | **Report** | A standing condition that needs review rather than an immediate fix | A tracking issue, opened once and updated thereafter |
 
-Grading is what keeps the loop usable. A single severity forces a choice between
-blocking on things that do not warrant it and merely reporting things that do; the
-result of either is that findings stop being read.
+Separate responses distinguish blocking conditions from findings that need only
+review. A single severity would either block those review-only conditions or
+merely report conditions that require a block.
 
 ### When it runs
 
-On repository creation, on a change to the type property, on a push to a default
-branch (for the file comparisons), and on a schedule that catches configuration
-changed out of band. The schedule is the one that matters most, because
-out-of-band configuration change is the drift the event triggers cannot see.
+Reconciliation runs on repository creation, type-property changes, default-branch
+pushes, and a schedule. Default-branch pushes trigger file comparisons. The
+schedule detects configuration changes outside these event paths.
 
 ### Idempotence
 
 Reconciliation reports the same finding at most once. A finding is identified by
-the repository, the comparison, and the specific difference; a run that
-re-discovers an existing finding **updates** it rather than creating a second one,
-and a finding whose condition has been resolved is closed
-([FR20](spec.md#reconciliation)). Without this, the loop's output degrades into a
-stream nobody can distinguish new findings in.
+its repository, comparison, and specific difference. A later run **updates** an
+existing finding rather than creating a second one. Reconciliation closes the
+finding when its condition is resolved ([FR20](spec.md#reconciliation)).
+This keeps recurring findings distinct from new ones.
 
 ### A finding names its remedy
 
 Every finding states what is wrong, what the declared type requires instead, and
-where the rule is written down. A finding that reports only a mismatch transfers
-the work of interpretation to the reader; a finding that names the remedy is
-actionable by whoever receives it, human or agent
-([FR21](spec.md#reconciliation)).
+where the rule is documented. Human and agent recipients can use that information
+to act on the finding ([FR21](spec.md#reconciliation)).
 
-Reconciliation **reports** by default. Whether it also *applies* a remedy is a
-separate decision per comparison, and one that MUST be made deliberately: an
-automated fix to a protection is itself a change to a control, and it belongs
-under the same review as any other ([decision before
+Reconciliation **reports** by default. Applying a remedy is a separate
+per-comparison decision and MUST be deliberate. An automated protection change
+changes a control and requires the same review as any other control change
+([decision before
 change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change)).
 
 ## Configuration surface
@@ -245,7 +240,7 @@ change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before
 ## Where this connects
 
 - [Spec](spec.md) — the requirements this design delivers.
-- [Repository Types](design-types.md) — the catalogue the rulesets select on.
+- [Repository Types](design-types.md) — the catalog the rulesets select on.
 - [Repository Type Property](../../Ways-of-Working/Repository-Type-Property.md) — the property mechanism and condition migration.
 - [Repository Standard](../../Ways-of-Working/Repository-Standard.md) — the required-file sets reconciliation checks.
 - [Branching and Merging](../../Ways-of-Working/Branching-and-Merging.md) — the merge gate and who may approve.
