@@ -121,9 +121,9 @@ traversal.
 
 Read each applicable record in full, including adoption instructions,
 consumer-change evidence, prerequisites, no-action outcomes, and template
-compatibility. [PR Format](PR-Format.md#complete-description-example) owns the MSX
-authoring structure. Use that structure for the ledger. Do not define another
-release schema.
+compatibility. [PR Format](PR-Format.md#complete-description-example) defines the MSX
+release-record authoring structure. The ledger uses those records; it does not
+define another release schema.
 
 1. Associate each release/change identifier with the consumer surfaces it
    affects. Record applicability against the actual baseline and intended use,
