@@ -86,10 +86,10 @@
     The script reports through the console log, a workflow annotation, and its exit code.
 
 .NOTES
-    'ConvertTo-GitHubSlug' and 'Get-RenderedHeadingText' are taken from
-    'scripts/Test-MarkdownLink.ps1' in Storhaug-ting/Kilden, where the character class
-    was compared against github-slugger across every code point. Keeping one
-    implementation of GitHub's slug rules, rather than writing a third, is deliberate.
+    'ConvertTo-GitHubSlug' originated in 'scripts/Test-MarkdownLink.ps1' in
+    Storhaug-ting/Kilden, where the character class was compared against github-slugger
+    across every code point. Heading text uses PowerShell's built-in Markdown renderer.
+    GitHub anchors are generated separately; the renderer's anchor IDs are not used.
 
 .LINK
     https://msxorg.github.io/docs/Coding-Standards/Markdown/
@@ -173,11 +173,9 @@ function Get-RenderedHeadingText {
         Get the text a heading renders to, before it is turned into an anchor.
 
         .DESCRIPTION
-        GitHub builds the anchor from the rendered heading, so the Markdown that only
-        affects presentation is resolved first: a link keeps its text and loses its
-        target, inline code keeps its content and loses its backticks, HTML tags and
-        emphasis markers are dropped, and a trailing closing '#' run is removed.
-        Literal underscores remain; only paired underscore emphasis is removed.
+        PowerShell's built-in Markdown renderer resolves emphasis, code spans, links,
+        and HTML. Return the decoded heading text for GitHub slug generation. Do not
+        use the renderer's anchor IDs, which follow different slug rules.
 
         .EXAMPLE
         Get-RenderedHeadingText -Heading 'See the [guide](x.md) for `npm ci`'
@@ -194,25 +192,9 @@ function Get-RenderedHeadingText {
         [AllowEmptyString()]
         [string] $Heading
     )
-    $text = $Heading -replace '!?\[([^\]]*)\]\([^)]*\)', '$1'
-    $text = $text -replace '<[^>]*>', ''
-    $text = $text -replace '[*~]', ''
-    # Keep code spans intact until emphasis is removed, so code underscores stay literal.
-    $codeSpanPattern = '(?<code>`+).*?\k<code>'
-    $underscoreEmphasisPattern = '(?<!\w)(?<marker>_+)(?=\S)(?<text>(?:(?<inlineCode>`+).*?\k<inlineCode>|[^`])+?)(?<=\S)\k<marker>(?!\w)'
-    $formattingPattern = "$codeSpanPattern|$underscoreEmphasisPattern"
-    do {
-        $previousText = $text
-        $text = [regex]::Replace($text, $formattingPattern, {
-                param([System.Text.RegularExpressions.Match] $Match)
-                if ($Match.Groups['code'].Success) {
-                    return $Match.Value
-                }
-                return $Match.Groups['text'].Value
-            })
-    } while ($text -cne $previousText)
-    $text = $text -replace '`', ''
-    return ($text -replace '\s+#+\s*$', '').Trim()
+    $html = (ConvertFrom-Markdown -InputObject "# $Heading").Html
+    $text = $html -replace '<[^>]*>', ''
+    return [System.Net.WebUtility]::HtmlDecode($text).Trim()
 }
 
 function Get-MarkdownAnchor {

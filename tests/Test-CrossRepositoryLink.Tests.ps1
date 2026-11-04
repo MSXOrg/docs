@@ -427,6 +427,13 @@ See the [second](https://github.com/PSModule/Demo/blob/main/docs/Guide.md#duplic
             @{ Heading = '`__init__` and `name_`'; Slug = '__init__-and-name_' }
             @{ Heading = '_Call `__init__` now_'; Slug = 'call-__init__-now' }
             @{ Heading = '`_literal_` and _emphasis_'; Slug = '_literal_-and-emphasis' }
+            @{ Heading = '**foo**_bar_'; Slug = 'foobar' }
+            @{ Heading = '_one_**two**'; Slug = 'onetwo' }
+            @{ Heading = '[one](https://example.test)_two_'; Slug = 'onetwo' }
+            @{ Heading = '<strong>one</strong>_two_'; Slug = 'onetwo' }
+            @{ Heading = '__a_ _b__'; Slug = 'a-b' }
+            @{ Heading = '``a ``` b`` _emphasis_ `c`'; Slug = 'a--b-emphasis-c' }
+            @{ Heading = '_Use ` as a delimiter_'; Slug = 'use--as-a-delimiter' }
         ) {
             $fixture = New-CrossLinkFixture -Content @"
 # Page
