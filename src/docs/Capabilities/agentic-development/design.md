@@ -5,7 +5,7 @@ description: How the agentic development framework is built — OKF documentatio
 
 # Agentic Development — Design
 
-The behavior in the [spec](spec.md) is delivered by an organization-level documentation repository, adopted by each product repository through thin pointer files. The design keeps project knowledge in one reviewed place and lets each agent runtime adapt without copying process knowledge. The repository name is not fixed; the organization identifies the source that owns its documentation.
+The [spec](spec.md) defines the framework's behavior. An organization-level documentation repository owns reviewed project knowledge. Each product repository adopts that guidance through thin pointer files. Each runtime uses the same process knowledge without copying it. The organization selects its documentation repository; the repository name is not fixed.
 
 ## Organization anatomy
 
@@ -18,7 +18,7 @@ The GitHub organization is the project boundary. The host distinguishes work fro
   <repo-b>/
 ```
 
-Current project scopes follow the same shape:
+The project scopes use these documentation sources:
 
 | Host | Organization | Canonical documentation repository |
 | --- | --- | --- |
@@ -26,7 +26,7 @@ Current project scopes follow the same shape:
 | `github.com` | `PSModule` | `PSModule/Process-PSModule` |
 | `<host>` | `<org>` | Designated `<org>/<documentation-repository>` |
 
-The last row is the general case: any adopting organization on any GitHub host — public or an enterprise instance — plugs into the same shape without changing the framework.
+An adopting organization uses the same model on a public or enterprise GitHub host. It selects the canonical documentation repository without changing the framework.
 
 ## Repository roles
 
@@ -60,13 +60,15 @@ Product repositories carry local context and thin pointers:
   docs/                            # architecture and domain context
 ```
 
-The repository owns only repository-specific nuance, and each kind has a file that owns it: `README.md` for what the repository is and how it builds, `.github/CONTRIBUTING.md` for contribution mechanics [when a local guide is needed](../../Ways-of-Working/Repository-Standard.md#contribution-guidance), `docs/` for architecture and domain context, and path-scoped rule files for local caveats. `AGENTS.md` points at them and holds none of it. Cross-cutting standards remain in `docs`. Thin means "no duplicated reusable process," not "discard the local operating contract" — the contract lives, it just lives in the file a human would read.
+`README.md` describes the repository and its build. `.github/CONTRIBUTING.md` defines contribution mechanics [when a local guide is needed](../../Ways-of-Working/Repository-Standard.md#contribution-guidance). `docs/` describes architecture and domain context. Path-scoped rule files hold local caveats.
+
+`AGENTS.md` points to those sources; it does not contain their content. Cross-cutting standards remain in the canonical organization documentation. A thin router does not duplicate reusable process. Each repository-specific contract remains in the file that owns it.
 
 Inherited community files are not included in clones. When no local contribution guide is needed, the router links to the initiative's required contribution source in its public `.github` repository. If the source guide is blank, also link to the shared [Contribution Workflow](../../Ways-of-Working/Contribution-Workflow.md). Report a missing required source file in the initiative's community repository; do not create a local guide merely to fill a router entry.
 
 ## OKF page model
 
-The `docs` repository uses the [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) style: Markdown with YAML frontmatter, one concept per page, paths as stable identity, and indexes as navigation maps.
+The `docs` repository uses the [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) style: Markdown with YAML frontmatter, one concept per page, paths as stable identity, and indexes for navigation.
 
 Minimum page frontmatter:
 
@@ -81,7 +83,7 @@ The body stays concise. If a page grows into multiple concepts, split it and lin
 
 ## Indexes as the mindmap
 
-Indexes are the navigation layer. An agent starts at the root index, reads descriptions, then drills inward until it reaches the relevant page.
+Indexes provide documentation navigation. The agent starts at the root index and reads the page descriptions. The agent follows index links until it reaches the relevant page.
 
 ```text
 docs/
@@ -95,7 +97,7 @@ docs/
 
 ```
 
-Every index describes what sits below it. Generated indexes are preferred where tooling exists.
+Every index describes the pages and sections below it. Generated indexes are preferred where tooling exists.
 
 ## Context resolution flow
 
