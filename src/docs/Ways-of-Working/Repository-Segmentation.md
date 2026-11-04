@@ -5,41 +5,41 @@ description: What belongs in a repository, and when to split or combine.
 
 # Repository Segmentation
 
-What belongs in a repository, and when to split or combine. The boundary of a repository is the boundary of ownership, versioning, and deployment — and therefore of a single responsibility, a single development lifecycle, and a single branch strategy. When those three align, the parts belong together; when any of them diverges, that divergence is the seam to split on.
+A repository's boundary follows its ownership, versioning, and deployment. These boundaries define one responsibility, one development lifecycle, and one branch strategy. Parts belong together when they share that responsibility, lifecycle, and branch strategy. When any of them differ, the parts belong in separate repositories.
 
 ## One repository per independently-versioned thing
 
-- A repository holds one thing that is owned, versioned, and released as a unit. If two parts ship on different schedules or to different places, they are two repositories.
+- A repository contains one unit of ownership, versioning, and release. If two parts have different release schedules or destinations, they belong in separate repositories.
 - The test: can it be described in one sentence, owned by one team, and released on its own? If not, it is more than one repository.
 
 ## Single responsibility — the S in SOLID, at repository scale
 
 - The [Single Responsibility Principle](Principles/Software-Design.md#solid-in-plain-language) is not only for classes. A repository, like a class, should have **one reason to change**: one responsibility, one deployable, one audience.
-- A module, an action, a service, an infrastructure stack — each is a single responsibility, so each is its own repository. When you cannot name a repository's responsibility in a sentence, it is holding more than one.
-- Resist both extremes: the monorepo of convenience that fuses unrelated responsibilities, and the micro-repo of habit that scatters one responsibility across many. Segment at the boundary of a thing that is built, versioned, and deployed as a unit.
+- A module, an action, a service, and an infrastructure stack each have one responsibility and belong in separate repositories. A repository whose responsibility cannot be stated in one sentence contains more than one responsibility.
+- Avoid a monorepo that combines unrelated responsibilities. Do not divide one responsibility across multiple repositories. Use the boundary of the unit built, versioned, and deployed together.
 
 ## Share a repository only when the development lifecycle is shared
 
-- Things that are **built, tested, released, and versioned together** belong in one repository; things whose lifecycles differ belong apart, even when they serve the same product.
-- The signal is the release: if changing one part forces the other to be re-released, they share a lifecycle; if it does not, they do not, and the boundary is real. Application code that compiles into an artifact has a different lifecycle from the infrastructure that provisions its environment, so they are separate repositories.
-- A shared lifecycle keeps the blast radius small: a change lands, is validated, and ships as one unit, without lockstep coordination across repositories.
+- Parts that are **built, tested, released, and versioned together** belong in one repository. Different lifecycles require separate repositories, even when the parts serve the same product.
+- If a change to one part requires the other to be released again, the parts share a lifecycle. Otherwise, they have separate lifecycles. Compiled application code and the infrastructure that provisions its environment have different lifecycles, so they belong in separate repositories.
+- A shared lifecycle limits the scope of each change. The unit is validated and released together, without coordinated releases across repositories.
 
 ## Share a repository only when the branch strategy is shared
 
-- A repository's deployment model dictates its **branch strategy** — how changes flow, which branches are protected, and what approvals gate a release. Parts that share a branch strategy can share a repository; parts that need different ones cannot.
-- Code that promotes through environments needs a different flow from code that ships continuously from a single `main`. Forcing both models into one repository weakens both — one branch ends up over-gated, the other under-gated. See [Branching and Merging](Branching-and-Merging.md) for the models and how changes flow within a repository.
+- A repository's deployment model determines its **branch strategy**: change flow, protected branches, and required release approvals. Parts can share a repository only when they share a branch strategy.
+- Code promoted through environments needs a different flow from code released continuously from a single `main`. Combining both models can require unnecessary approvals for one part and insufficient approvals for the other. See [Branching and Merging](Branching-and-Merging.md) for the models and change flow.
 
 ## The boundary is self-describing
 
-- Every repository states, at its root, what it is, what it owns, and how it ships — in a README kept current with the code. See [README-Driven Context](Readme-Driven-Context.md).
-- Documentation and decisions live with the code they describe, so the repository boundary also bounds its own context instead of scattering it into a central store.
+- Every repository has a root README that states its purpose, ownership, and release process. The README stays current with the code. See [README-Driven Context](Readme-Driven-Context.md).
+- Documentation and decisions stay with the code they describe. The repository boundary includes that context instead of separating it into a central store.
 - The boundary is also declared in machine-readable form, so automation can determine what a repository is without inferring it from file layout. See [Repository Type Property](Repository-Type-Property.md).
 
 ## The boundary determines the governance that applies
 
-- Segmentation and governance are the same decision seen twice. The lifecycle and branch-strategy seams that decide where a repository ends are the seams that decide which branch model, which required files, and which protection rules it carries.
-- A repository is therefore classified at creation, and its classification follows from the same questions used to draw its boundary: what it ships, how it is versioned, and how changes reach its default branch. See [Repository Governance](../Capabilities/repository-governance/spec.md).
-- A repository that cannot be classified is usually mis-segmented. When one repository needs two branch models or two release cadences, the classification is not ambiguous — the boundary is wrong, and the resolution is to split rather than to hold both models in one place.
+- Segmentation determines which branch model, required files, and protection rules apply. The selected lifecycle and branch strategy define both the repository boundary and its governance.
+- A repository is classified at creation. Its classification follows from its release unit, versioning, and change flow to the default branch. See [Repository Governance](../Capabilities/repository-governance/spec.md).
+- A repository that cannot be classified usually has the wrong boundary. If it needs two branch models or release schedules, split it rather than combine both models in one repository.
 
 ## Where this connects
 
