@@ -1,15 +1,13 @@
 ---
 title: Documentation Model
-description: How every capability is documented — a spec for the why and a design for the how, colocated, concise, and kept evergreen for humans and agents alike.
+description: Specs, designs, and supporting artifacts describe each capability for humans and agents.
 ---
 
 # Documentation Model
 
-Documentation is a product, not a byproduct — and it is written once for two
-audiences, **humans and agents**. This page describes how the documentation on
-this site is organised so both find what they need fast: every capability is
-described by a **spec** and a **design**, kept side by side, kept short, and
-kept current as the system evolves.
+The documentation on this site serves **humans and agents**. Documentation is
+a product, not a byproduct. Each capability has a **spec** and a **design**.
+The two documents share a folder, remain concise, and change with the system.
 
 ## A spec and a design for every capability
 
@@ -20,27 +18,27 @@ Each capability the ecosystem builds is documented by two evergreen documents:
 | **Spec** | Requirements, expectations, needs | **Why** it exists and **what** it must do | Whoever decides *whether* and *what* to build |
 | **Design** | Implementation approach | **How** and **what** is built to deliver the spec | Whoever *builds* and maintains it |
 
-The **spec** is the contract — the behaviour, guarantees, and success criteria a
-user (human or agent) can rely on. It never prescribes implementation. The
-**design** is the current answer to *how that contract is delivered*: the
-mechanism, the moving parts, the configuration. Both are durable, and both
-evolve — neither is a one-time plan.
+The **spec** defines the contract: behavior, guarantees, and success criteria
+for users and agents. It does not specify the implementation. The **design**
+describes how the system delivers that contract: mechanisms, components, and
+configuration. Both documents change as intent or implementation changes.
+Neither is a one-time plan.
 
-Everything the ecosystem builds is documented this one way — there is no second
-shape. A capability whose **design composes other capabilities** is simply called
-a *framework*: "framework" is an adjective for that kind of capability, not a
-separate section or a different pair of documents. It carries the same spec and
-design as any other capability, and lives beside them under
+Every capability uses the same spec-and-design model. A capability whose
+**design composes other capabilities** is a *framework*. The term describes a
+kind of capability, not a separate section or a different pair of documents.
+It has the same spec and design as any other capability and lives beside them under
 [Capabilities](../Capabilities/index.md).
 
-Only the detail of a *single change* — the paths touched, the trade-off taken
-this once — stays out of both, living at the delivery leaf's canonical
+Details of a *single change*, such as affected paths and local trade-offs, belong
+at the delivery leaf's canonical
 [issue planning altitude](Issues/Process/Planning.md) and in its pull request.
+They do not belong in the spec or design.
 
 ## Capabilities live in folders
 
-Related docs sit together, and close to the thing they describe. Each capability
-is a folder holding its spec and design side by side:
+Related docs share a folder near the subject they describe. Each capability
+folder contains its spec and design:
 
 ```text
 Capabilities/
@@ -50,15 +48,14 @@ Capabilities/
     design.md     # the how + what is built
 ```
 
-A reader opens one folder and has the whole picture — the requirement and the
-implementation, one click apart. This is [Documentation lives close to the thing
+A reader finds the requirements and implementation approach in the same folder.
+This follows [Documentation lives close to the thing
 it documents](Principles/Engineering-Practices.md#documentation-lives-close-to-the-thing-it-documents)
-applied to the spec–design pair; where a design maps to a repository, the same
-two documents live with the code.
+for the spec and design. Where a design maps to a repository, the same two
+documents live with the code.
 
 Every capability folder requires an `index.md` for navigation. The spec and the
-design are the two required **content artifacts**. A capability that outgrows
-them grows downward into the optional
+design are the two required **content artifacts**. Additional content uses the optional
 [artifact tiers](Spec-Driven-Development.md#the-artifact-tiers), each of which has
 a fixed home in the same folder:
 
@@ -84,11 +81,10 @@ Capabilities/
       <exploration>.md
 ```
 
-A file that grows past a single page becomes a folder with an `index.md` and one
-page per member — `design.md` may become `design/`, and `references.md` may
-become `references/`, without changing what the tier means. The reverse also
-holds: a tier that never fills up is never created. Empty scaffolding is a cost
-with no reader, so a folder appears the first time it has something to hold
+A tier that needs several pages uses a folder with an `index.md` and one page
+per member. For example, `design.md` may become `design/`, and `references.md`
+may become `references/`. The tier keeps the same meaning. A tier with no content
+is not created. A folder appears only when it has content
 ([concise by default](#concise-by-default)).
 
 ## Why, what, how — a home for everything
@@ -108,24 +104,23 @@ with no reader, so a folder appears the first time it has something to hold
 | **How this one change is implemented** — paths, trade-offs | the Task or Bug delivery leaf and its PR; see [Issue Planning](Issues/Process/Planning.md) |
 | **What a release changes, why, and how consumers align** | its source-bound release record, authored in the release-bound PR; see [PR Format](PR-Format.md) |
 
-Keeping implementation out of the spec is what makes the spec durable:
-implementation detail rots fastest, so the spec leaves it to the design, the
-design leaves exact values to the implementation docs, and all of them leave
-per-change detail to the issue and the PR. Each tier absorbs the churn of the one
-below it, so the tier above stays still.
+Implementation details change more often than requirements. The spec leaves
+implementation choices to the design. The design leaves exact values to the
+implementation docs. All tiers leave per-change detail to the issue and the PR.
+This separation limits changes to the appropriate tier.
 
 ## It starts with a need
 
-Every capability begins with a need and moves through a spec, then a design,
-then code — and loops:
+Every capability starts with a need. Work proceeds through a spec, a design,
+code, and operation. Feedback from operation supplies further needs:
 
 1. **Need** — a request, a bug, a review observation, a platform change.
 2. **Spec** — agree the next version's requirements: why it matters and what it
-   must do. Nothing is committed to building yet.
-3. **Design** — once committed to deliver, describe how and what will be built.
+   must do. This stage does not commit to delivery.
+3. **Design** — after the commitment to deliver, describe the implementation approach.
 4. **Build** — ready Task and Bug leaves implement the gap, evolving the design
    *and* the spec as development reveals more.
-5. **Operate** — running the system surfaces new needs, and the loop returns.
+5. **Operate** — operation identifies further needs, which restart the cycle.
 
 ```mermaid
 flowchart LR
@@ -136,87 +131,85 @@ flowchart LR
     Ops -->|new needs| Need
 ```
 
-Both the spec and the design are **evolutionary**: development almost always
-changes your understanding, so you amend them in place rather than treating the
-first draft as fixed. The gap between the spec and what the system actually does
-is the work.
+Both the spec and the design are **evolutionary**. Development changes the
+understanding of the capability, so authors update both documents in place.
+The first draft is not fixed. The gap between the intended contract and actual
+system behavior defines the work.
 
-Completion follows the shared [documentation and design evidence](Definition-of-Ready-and-Done.md#documentation-and-design-evidence) gate. Update the owning artifact when the delivered result changes it; keep verification and justified no-change evidence in the delivery record instead of copying design or documentation into an aggregate issue.
+Completion follows the shared [documentation and design evidence](Definition-of-Ready-and-Done.md#documentation-and-design-evidence) gate.
+Update the owning artifact when the delivered result changes it.
+Keep verification and justified no-change evidence in the delivery record.
+Do not copy design or documentation into an aggregate issue.
 
 ## Evergreen and evolutionary
 
-Specs and designs are **evergreen**: written in the present tense as if the
-system already behaves as described, and amended in place as intent changes. Git
-history records what changed; the document records only what is true now.
+Specs and designs are **evergreen**: they describe the supported target-state
+contract in the present tense. Authors update them in place as intent changes.
+Git history records changes. The document states the current contract.
 
-- **Declarative and present-tense.** It reads like a good README — a reader
-  trusts any line as the current contract.
+- **Declarative and present-tense.** Each statement describes the current contract.
 - **Normative.** Requirements use MUST / SHOULD / MAY so obligations are
   unambiguous.
 - **No status, deltas, phasing, or open questions.** Delivery plans belong in
-  issues and PRs; release-specific changes and adoption instructions belong in
-  release records.
+  issues and PRs. Release-specific changes and adoption instructions belong in release records.
 - **Measurable success criteria.** A spec states outcomes a reader can verify —
   *"a repository list returns every repository by default, with no silent
   truncation"* — never *"the sync is fast."*
 
-Before a spec or design change is accepted it passes a quick rubric — is every
-requirement testable, are criteria measurable and implementation-free, is it
-present-tense and free of status? — applied in the reviewer's head and the PR
-([4-eyes](Principles/AI-First-Development.md#4-eyes-or-n-eyes-principle)), leaving no artifact behind.
+Reviewers apply a short rubric before they accept a spec or design change.
+Every requirement is testable. Success criteria are measurable and
+implementation-free. The prose uses present tense and contains no delivery
+status. Reviewers apply the rubric during review and in the PR
+([4-eyes](Principles/AI-First-Development.md#4-eyes-or-n-eyes-principle)).
+The rubric creates no separate artifact.
 
 ### Current product guidance and release history
 
-Resource docs, including READMEs, specs, designs, implementation docs, guides,
-and references, describe supported target-state behavior and usage for their
-readers. Update them in place as that contract changes. Keep release-specific
+Resource docs describe supported target-state behavior and usage. They include
+READMEs, specs, designs, implementation docs, guides, and references.
+Update them in place as that contract changes. Keep release-specific
 old-to-new transitions, migration instructions, and change history in the
 [release records](../Capabilities/release-management/design.md#release-notes),
 not a parallel history file or migration-guide hierarchy.
 
 A normative contract is not proof that its implementation or CI enforcement
-exists; delivery records carry that evidence and any remaining gap.
+exists. Delivery records contain that evidence and any remaining gap.
 
 Release notes explain what changed, why, who is affected, compatibility, and
-exact applicable adoption actions or an explicit no-action result. Reading all
-applicable records after the actual consumed baseline through the target is
-sufficient to compose the required upgrade actions; PRs and diffs provide
-optional depth. General upgrade procedures may explain how to use those
-records, without becoming another source of release-specific instructions.
+exact applicable adoption actions or an explicit no-action result. All applicable
+records after the actual consumed baseline through the target supply the required
+upgrade actions. PRs and diffs provide optional detail. General upgrade procedures
+may explain how to use those records. They do not become another source of
+release-specific instructions.
 
-A consumer adopting an older target reads its immutable source/documentation
-snapshot and release records through [Consumer Upgrades](Consumer-Upgrades.md),
-not today's product guidance as a claim about an older version.
+For an older target, a consumer reads that target's immutable source/documentation
+snapshot and release records through [Consumer Upgrades](Consumer-Upgrades.md).
+Current product guidance does not establish older-version behavior.
 
-Decision records and research retain their distinct purposes: decisions preserve
-the choices, rationale, and supersession links, while research preserves
-point-in-time findings. Keeping resource docs evergreen does not erase these
-records.
+Decision records preserve choices, rationale, and supersession links. Research
+preserves point-in-time findings. Evergreen resource docs do not replace these records.
 
 ## Concise by default
 
-Respect the reader's attention — human or agent. A document earns nothing by
-being long.
+Concise documentation reduces the effort needed to find an answer, for humans
+and agents.
 
 - **Short and scannable.** Lead with the point. Prefer a table or a list to a
   paragraph. If a reader must scroll to find the rule, it is too long.
-- **One fact, one place.** State a thing once and link to it; never duplicate
-  ([DRY](Principles/Software-Design.md#dry-with-judgment)). Duplication is how docs begin to
-  disagree with themselves.
-- **Delete, don't stub.** A section that does not apply is removed, not marked
-  "N/A". Empty scaffolding hides the real content.
-- **Close together.** Related docs share a folder; docs sit near the code they
-  describe. Laziness is a design constraint — the less a reader must travel, the
-  more they actually read.
+- **One fact, one place.** State a fact once and link to it. Never duplicate it
+  ([DRY](Principles/Software-Design.md#dry-with-judgment)). Duplicate statements can disagree as the documentation changes.
+- **Delete, don't stub.** Remove a section that does not apply rather than mark it
+  "N/A". Empty sections make relevant content harder to find.
+- **Close together.** Related docs share a folder near the code they describe.
+  Short navigation paths reduce the effort needed to read the docs.
 
 ## Architecture and classification
 
 The documentation tree is organized **by scope and subject**, then by the
 artifact that answers the reader's question. A reader starts at the root
 `index.md`, chooses the relevant topic, and follows that topic's index inward.
-This keeps related material together without requiring a reader to decide
-whether they need a tutorial, guide, reference, or explanation before they can
-find the subject.
+Related material stays together. Readers find the subject before they choose a
+tutorial, guide, reference, or explanation.
 
 The artifact tiers provide the second classification:
 
@@ -229,17 +222,15 @@ The artifact tiers provide the second classification:
 | Understand a one-way-door choice | Decision record |
 | Revisit point-in-time findings | Research |
 
-This maps the useful reader needs behind Diataxis without imposing a second,
-parallel taxonomy in paths or front matter. A page has one home under its
-subject and links to adjacent artifacts rather than being duplicated across
-quadrants.
+This classification covers the reader needs described by Diataxis without a
+second taxonomy in paths or front matter. Each page has one home under its
+subject and links to adjacent artifacts. Pages are not duplicated across quadrants.
 
 ## For humans and agents
 
-The same pages serve both. A contributor reads the index, follows the
-description inward, and drills from section to page until they reach the answer;
-an agent does exactly the same before it acts. Because the docs are the single
-source, there is no separate "agent manual" to drift —
+Contributors read the index and follow its descriptions from section to page.
+Agents follow the same path before they act. The docs are the single source, so
+there is no separate "agent manual" that can disagree with them.
 [Agentic Development](../Capabilities/agentic-development/index.md) explains how agent configuration
 points at these pages rather than copying them.
 
