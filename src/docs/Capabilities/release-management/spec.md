@@ -8,10 +8,10 @@ description: Requirements for durable, recoverable, policy-driven releases and t
 ## Premise
 
 Release management turns approved source into a **versioned, immutable release**
-that consumers can trust. A release is normally the result of merging reviewed
-change, while a controlled manual request can release already-reviewed
-accumulated change. Both paths use the same decision, build, verification,
-publication, and evidence controls.
+that consumers can trust. A release normally follows a reviewed merge.
+A controlled manual request can release already-reviewed accumulated change.
+Both paths use the same decision, build, verification, publication, and evidence
+controls.
 
 The capability preserves enough durable state to finish an interrupted release
 without rebuilding or assigning its version to different content. Consumers can
@@ -21,17 +21,17 @@ update policy that matches their trust boundary.
 ## Problem and importance
 
 A tag or successful workflow run is not enough to prove that a release completed.
-Publication can expose one destination before another fails, mutable pull-request
-metadata can change before a retry, and a later commit can reach the stable branch
-while an earlier artifact is still incomplete. Recomputing from current state can
-then publish different bytes under a reserved version, omit accumulated changes
-from the notes, or advertise an incomplete release as current.
+Publication can expose one destination before another fails.
+Mutable pull-request metadata can change before a retry.
+A later commit can reach the stable branch while an earlier artifact is still incomplete.
+Recomputing from current state can then publish different bytes under a reserved version.
+It can also omit accumulated changes from the notes or advertise an incomplete release as current.
 
 Release management makes the release intent durable. It fixes the approved source,
 decision, version, notes, artifact identity, required destinations, and stage
-progress, then advances that intent safely through publication. This gives
-contributors a predictable release path, operators a recoverable process, and
-consumers an accurate version and update contract.
+progress. It then advances that intent safely through publication.
+This gives contributors a predictable release path, operators a recoverable process,
+and consumers an accurate version and update contract.
 
 ## Users and jobs
 
