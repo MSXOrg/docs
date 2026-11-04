@@ -2,27 +2,29 @@
 
 <#
     .SYNOPSIS
-    Request a Copilot review if needed, wait for it, and report whether Copilot left new comments.
+    Request a Copilot review when needed and report its result.
 
     .DESCRIPTION
-    Drives one round of the Copilot review loop from the
+    The script runs one Copilot review cycle from the
     [Contribution Workflow](../../src/docs/Ways-of-Working/Contribution-Workflow.md).
-    It:
 
-    1. Ensures a Copilot review is requested. It checks whether Copilot is
-       already processing a request (from the timeline - the org ruleset is not
-       relied upon, and reviewRequests empties almost immediately) and requests
-       one only if not (unless -SkipRequest).
-    2. Polls until Copilot submits a review newer than the request, or the
-       timeout elapses.
-    3. Reports the review state and any inline comments Copilot added this round,
-       and sets an exit code so a caller can branch on the result:
+    1. Unless -SkipRequest is set, the script identifies any pending Copilot request.
+       It uses request timeline events and submitted reviews, not reviewRequests.
+       If no request is pending, it requests a review when ShouldProcess permits it.
+    2. The script polls for a review after the selected start time until the timeout expires.
+       A pending request sets this time to one second before its timeline event.
+       A new request sets it to the time after the request completes.
+       With -SkipRequest, the start time precedes the run by the timeout window.
+       If -WhatIf prevents a new request, the script uses the same lookback window.
+    3. The script reports the review state and inline comments after the selected start time.
+       It sets an exit code for the caller:
 
-         0  clean round - Copilot requested no changes and left no new inline comments
-         2  Copilot has feedback - a new inline comment or a changes-requested review
+         0  Copilot left no new inline comments and did not request changes
+         2  Copilot left a new inline comment or requested changes
          1  no review arrived before the timeout
 
-    Requires the GitHub CLI (gh) authenticated for the target host.
+    The script requires the GitHub CLI (gh) authenticated for the target host.
+    GitHub CLI errors stop the script.
 
     .EXAMPLE
     ./.github/scripts/Wait-CopilotReview.ps1 -Repository MSXOrg/docs -PullRequest 1
@@ -41,16 +43,17 @@
     [pscustomobject] with Repository, PullRequest, ReviewState, SubmittedAt,
     NewCommentCount, NewComments, and Blessed.
 
+    Blessed is true when Copilot leaves no new inline comments and does not request changes.
+
     .NOTES
-    Note the login asymmetry: the submitted review's author login is
-    'copilot-pull-request-reviewer', while inline comments are attributed to
-    'Copilot'.
+    The script identifies submitted reviews by the login 'copilot-pull-request-reviewer'.
+    It accepts inline comments from 'Copilot' and 'copilot-pull-request-reviewer'.
 #>
 
 [OutputType([pscustomobject])]
 [CmdletBinding(SupportsShouldProcess)]
 param(
-    # Target repository in 'owner/name' form, e.g. 'MSXOrg/docs'.
+    # Target repository in 'owner/name' form, such as 'MSXOrg/docs'.
     [Parameter(Mandatory)]
     [ValidatePattern('^[^/]+/[^/]+$')]
     [string] $Repository,
@@ -60,21 +63,21 @@ param(
     [ValidateRange(1, [int]::MaxValue)]
     [int] $PullRequest,
 
-    # GitHub host for gh; sets GH_HOST for the duration of the run.
+    # GitHub host for gh. The script sets GH_HOST for the run and restores it afterward.
     [Parameter()]
     [string] $GitHubHost = 'github.com',
 
-    # How long to wait for Copilot's review before giving up, in minutes.
+    # Review timeout, in minutes.
     [Parameter()]
     [ValidateRange(1, 120)]
     [int] $TimeoutMinutes = 10,
 
-    # Seconds between polls while waiting for the review.
+    # Delay between review polls, in seconds.
     [Parameter()]
     [ValidateRange(5, 300)]
     [int] $PollIntervalSeconds = 20,
 
-    # Poll for an already-requested review without requesting a new one.
+    # Wait for an existing review without a new request.
     [Parameter()]
     [switch] $SkipRequest
 )
