@@ -5,7 +5,7 @@ description: How dependencies are pinned and kept current — the locking spectr
 
 # Dependencies
 
-Every consumed dependency — a PowerShell module, a GitHub Action, a container base image, a .NET package, a Terraform provider — is both a convenience and part of the [attack surface](Security.md#supply-chain). Depending on one is a single decision made twice: **how tightly to pin it** (how much version drift is acceptable) and **how it moves forward** (how new versions arrive). Getting the balance wrong in either direction has a cost.
+Every consumed dependency adds useful functionality and becomes part of the [attack surface](Security.md#supply-chain). Examples include PowerShell modules, GitHub Actions, container base images, .NET packages, and Terraform providers. Decide **how tightly to pin it** and **how to update it**. Pinning determines acceptable version drift. The update policy determines how new versions arrive.
 
 This is the ecosystem-agnostic standard; the per-tool standards apply it. [PowerShell → Version Constraints](PowerShell/Version-Constraints.md) expresses it for modules and packages, and [GitHub Actions → Pin actions according to ownership](GitHub-Actions.md#pin-actions-according-to-ownership) expresses it for Actions and reusable workflows. The [Dependency Updates](../Capabilities/dependency-updates/index.md) capability is the automation that keeps pins current.
 
@@ -16,9 +16,9 @@ A pin has two independent parts; keep them separate.
 - **Identity** — *which* artifact, proven. A name alone can be squatted, re-tagged, or repointed at new code, so an **identity pin** binds to immutable bytes: a module `GUID`, an Action or commit **SHA**, an image **digest**. It answers "is this the exact thing that was vetted?" and is orthogonal to the version.
 - **Version tightness** — *which versions* of that artifact are acceptable, from an exact pin to floating latest.
 
-The strongest posture combines both: a verified identity **and** a deliberate version. Identity is the integrity control; tightness is the velocity-versus-risk control below.
+The strongest control combines a verified identity **and** a deliberate version. Identity controls integrity. Version tightness controls the update velocity and risk described below.
 
-Before choosing a pin, decide whether the dependency belongs at all. For modules and libraries built here, the default is to **avoid introducing a new third-party dependency when the capability can reasonably be implemented with PowerShell, the .NET base class library, or owned code**. Every external DLL, package, or module adds another update stream, trust boundary, and failure mode to carry for the lifetime of the module. Spend a bit more effort up front if that keeps the shipped surface smaller and the ownership clearer.
+Before you choose a pin, decide whether the dependency is needed. For modules and libraries built here, the default is to **avoid introducing a new third-party dependency when the capability can reasonably be implemented with PowerShell, the .NET base class library, or owned code**. Each external DLL, package, or module adds an update stream, trust boundary, and failure mode for the module's lifetime. Accept more implementation work when it reduces shipped dependencies and clarifies ownership.
 
 ## The locking spectrum
 
@@ -26,31 +26,31 @@ From tightest to loosest, each step trades safety for speed:
 
 | Lock | What can change | Update velocity | Supply-chain exposure | Reproducible |
 | --- | --- | --- | --- | --- |
-| **Identity + exact** (`GUID` / SHA / digest, exact version) | Nothing until you re-pin | Only via a reviewed re-pin PR | **Lowest** — nothing lands unvetted | Yes |
+| **Identity + exact** (`GUID` / SHA / digest, exact version) | Nothing until you re-pin | Only via a reviewed re-pin PR | **Lowest** — each change is reviewed | Yes |
 | **Controlled owned major** (`@v8`) | Compatible stable releases from organization- or initiative-owned automation | Patch and minor releases roll out centrally | Low when only controlled release automation can move the tag | No |
-| **Patch** (`x.y.*`) | Fix-level releases | Fixes flow in | Low | With a lockfile |
-| **Minor** (`x.*`) | Additive features and fixes | Features and fixes flow in | Moderate | With a lockfile |
-| **Major** (floor only, `>= x`) | Anything from the floor up, including breaking releases | Everything flows in | Higher | With a lockfile |
+| **Patch** (`x.y.*`) | Fix-level releases | Fixes arrive | Low | With a lockfile |
+| **Minor** (`x.*`) | Additive features and fixes | Features and fixes arrive | Moderate | With a lockfile |
+| **Major** (floor only, `>= x`) | Any version at or above the floor, including breaking releases | All eligible releases arrive | Higher | With a lockfile |
 | **Latest / floating** (unpinned, `*`, a moving tag) | Anything, immediately | Immediate | **Highest** — newest code runs before anyone sees it | No |
 
 ## The balance
 
-Both ends are a risk; the standard is to avoid living at either extreme.
+Both very loose pins and exact pins without updates create risk.
 
-- **Too loose** (toward latest) maximizes velocity but hands control to the upstream. A newly published version — including a **compromised** one — runs before anyone reviews it, and the build stops being reproducible because two runs resolve different code. This is the classic supply-chain attack path: a malicious release, or a taken-over package, that lands automatically because nothing gated it.
-- **Too tight** (a bare exact pin, never moved) maximizes control but rots. The dependency keeps shipping bug and **security** fixes you never take; a disclosed advisory turns yesterday's safe pin into today's vulnerability, and now the exact pin is the very thing stopping you from patching fast enough.
+- **Too loose** (toward latest) maximizes update velocity but lets upstream releases change consumed code without review. A published version, including a **compromised** one, can run before consumer review. Builds stop being reproducible when two runs resolve different code. A malicious release or compromised package can therefore enter the build automatically.
+- **Too tight** (an exact pin that never updates) maximizes version control but excludes later bug and **security** fixes. A disclosed advisory can identify a vulnerability in the pinned version. The old pin then delays adoption of the fix.
 
-The resolution is not to pick a point and freeze — it is to **control integrity and automate the movement**:
+The required approach is to **control integrity and automate updates**, rather than select a pin and never change it:
 
 1. **Pin tightly by default** — an identity pin plus a deliberate version, or a lockfile — so every build is reproducible and nothing changes unvetted. A controlled owned-major tag is the narrow exception for automation whose release path the organization or initiative operates.
-2. **Automate updates** so currency never depends on a human watching upstream: the [Dependency Updates](../Capabilities/dependency-updates/index.md) bot opens one reviewed pull request per bump.
-3. **Gate every update through CI and review** — every update passes the repository's normal merge policy; security advisories are raised out of band and prioritized. After related changes are collected, resolve the repository release decision under [Release Management](../Capabilities/release-management/design.md) when the target route invokes it.
+2. **Automate updates** rather than depend on manual monitoring of upstream releases. The [Dependency Updates](../Capabilities/dependency-updates/index.md) bot opens one reviewed pull request per bump.
+3. **Gate every update through CI and review.** Every update passes the repository's normal merge policy. Raise security advisories separately and prioritize them. After related changes are collected, resolve the repository release decision under [Release Management](../Capabilities/release-management/design.md) when the target route invokes it.
 
-Tight pinning is safe *because* the updates are automated: the bot closes the currency gap and CI plus review close the vetting gap. A controlled owned-major tag applies the same principle at the producer: compatible releases pass the controlled release gate once, then the major pointer rolls them out centrally. It trades consumer-level reproducibility for coordinated rollout and is never valid for an external dependency.
+Automated updates keep tightly pinned dependencies current. CI and review verify each update. A controlled owned-major tag applies the same principle at the producer. Compatible releases pass the controlled release gate, then the major pointer distributes them centrally. This trades consumer-level reproducibility for coordinated rollout and is never valid for an external dependency.
 
 ## Update tracks — who each is for, and whether you need it
 
-A "track" is how a given dependency is allowed to move. You do **not** need every track in every repository; choose one per dependency from what the source is, what it can break, and where you sit.
+A "track" defines the updates a dependency can accept. You do **not** need every track in every repository. Choose one per dependency based on its source, compatibility risk, and consumer role.
 
 | Track | Fits a dependency that… | Typical handling |
 | --- | --- | --- |
@@ -59,14 +59,14 @@ A "track" is how a given dependency is allowed to move. You do **not** need ever
 | **Patch** | is trusted and whose patches are fixes you always want (most dependencies) | merge through the normal repository gate |
 | **Minor** | is trusted and whose additive releases are safe to absorb | merge through the normal repository gate |
 | **Major** | you actively co-evolve with and can absorb breaking changes for | human review before merge |
-| **Latest / floating** | is throwaway — an ephemeral local experiment, never shipped or run in CI | not for shipped or CI-run code |
+| **Latest / floating** | is used only for an ephemeral local experiment, never shipped or run in CI | not for shipped or CI-run code |
 
-Two questions decide the mix:
+The consumer role and control of the source determine the mix:
 
-- **Are you a library or an application?** A **library** — a module or Action others consume — declares the *widest range it is compatible with* (a floor, rarely a ceiling) so it does not over-constrain its consumers. An **application or end artifact** — a workflow, a deployable, a CI pipeline — pins external dependencies to *exact resolved versions* for reproducibility and relies on the updater to move them. The controlled owned-major exception trades that consumer-level reproducibility for central rollout only where the producer and release path are owned.
-- **How much control do you have over the source and release path, and how large is the blast radius?** External sources stay toward identity + exact regardless of reputation. Owned automation may use a controlled major only when the organization or initiative operates the release gate and accepts the central rollout blast radius.
+- **Library or application.** A **library**, such as a module or Action others consume, declares the *widest range it is compatible with*. It usually declares a floor, rarely a ceiling, so consumers can select supported versions. An **application or end artifact**, such as a workflow, deployable, or CI pipeline, pins external dependencies to *exact resolved versions*. This provides reproducibility, while the updater supplies later versions. The controlled owned-major exception trades consumer-level reproducibility for central rollout only where the producer and release path are owned.
+- **Source control and impact.** External sources stay toward identity + exact regardless of reputation. Owned automation may use a controlled major only when the organization or initiative operates the release gate and accepts the central rollout's impact.
 
-The healthy default across the ecosystem: **identity-pin external code that runs (SHAs, digests), use controlled major tags only for owned automation, floor-declare what you are a library for, lockfile-pin what you ship, and let the [updater](../Capabilities/dependency-updates/index.md) open reviewed pull requests.** Floating latest remains unsuitable for shipped or CI-run code.
+The ecosystem default is to **identity-pin external code that runs (SHAs, digests)**. **Use controlled major tags only for owned automation. Libraries declare compatible version floors, and shipped artifacts use lockfiles. The [updater](../Capabilities/dependency-updates/index.md) opens reviewed pull requests.** Floating latest is unsuitable for shipped or CI-run code.
 
 ## Where this is implemented
 
