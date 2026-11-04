@@ -826,59 +826,62 @@ Use the next option only if the preceding option cannot meet the requirement:
 
 ## Extract non-trivial `run:` scripts into an action
 
-A short `run:` step — a handful of commands wiring tools together — belongs
-inline. But once a step carries a **multi-line script embedded as a YAML
-string** (a block of Bash, Python, or PowerShell), that script is invisible to
-every linter, formatter, and editor: `shellcheck`, `ruff`, and the type
-checkers all see an opaque string, not code. Pull it out.
+A short `run:` step with a few commands that connect tools belongs inline.
+If a step contains a **multi-line script embedded as a YAML string** (Bash,
+Python, or PowerShell), extract the script.
+Linters, formatters, and editors cannot process that script as code:
+`shellcheck`, `ruff`, and type checkers see a YAML string.
 
 - **A step whose logic is a non-trivial inline script must become its own
-  action.** The workflow then `uses:` that action instead of carrying the
-  script in its body. This keeps workflows declarative — what runs, in what
-  order, with what permissions — and moves the *how* into linted, testable
-  files.
+  action.** The workflow then `uses:` that action instead of containing the
+  script. The workflow states what runs, in what order, and with what
+  permissions. Separate files contain the logic and support linting and tests.
 
-Extracting a script out of a workflow string is an instance of the
+Moving a script out of a workflow string applies the
 [Code in code files](../Ways-of-Working/Principles/Engineering-Practices.md#code-in-code-files)
-principle: code earns linters, security scanning, and IDE support only once it
-lives in a file of its own language.
+principle.
+Linters, security scanners, and IDEs can process the code only when it is in a
+file of its own language.
 
 ### Generalize the action; drive behaviour through inputs and outputs
 
-An action that is lifted out of one workflow is tempting to write for exactly
-that workflow — hard-coding the repository, the branch, the message it posts.
-Resist this. An extracted action is a reusable unit, and it should be designed
-like one. The [SOLID](https://en.wikipedia.org/wiki/SOLID) principles map
-directly onto action design:
+When extracting an action from one workflow, do not hard-code that workflow's
+repository, branch, or posted message.
+An extracted action is a reusable unit and should be designed for reuse.
+The [SOLID](https://en.wikipedia.org/wiki/SOLID) principles apply to action design:
 
 - **Generalize to the work the action does, not the caller that needs it.**
   Name and scope the action by its *capability* (`start-cloud-agent`,
   `publish-docs`), not by the one situation that prompted it
-  (`bump-one-repo-pin`). The action does one well-defined job — a single
-  responsibility — and does it for any caller. This is what makes it reusable
-  rather than a copy of one workflow's internals.
-- **Adjust behaviour through the input interface, never by editing the action.**
+  (`bump-one-repo-pin`). The action has one well-defined responsibility and
+  performs it for any caller.
+  It is reusable rather than a copy of one workflow's implementation.
+- **Adjust behavior through the input interface, never by editing the action.**
   Every value that varies between callers — the target repository, a model
-  name, a prompt, a flag — is an `input`, with a sensible `default` where one
-  exists. A new use case should be served by passing different inputs, not by
-  forking the script or adding a caller-specific branch inside it. The action is
-  *open for extension* (new inputs, new callers) but *closed for modification*
-  (its logic does not change to accommodate each new consumer).
+  name, a prompt, a flag — is an `input`, with a suitable `default` where one
+  exists. Serve a new use case through different inputs.
+  Do not fork the script or add a caller-specific branch.
+  The action is *open for extension* (new inputs, new callers) but *closed for
+  modification* (its logic does not change for each consumer).
 - **Keep defaults at the interface layer (`action.yml`) only.** Define optional
   input defaults under `inputs.<name>.default` in `action.yml`, and treat that
   as the single source of truth for caller-visible defaults. Do **not** duplicate
-  those defaults in runtime code (`main.js`, shell, Python, PowerShell). This
-  keeps the UI contract and auto-generated interface docs correct by construction,
-  and makes default changes one-line updates without drift.
-- **Keep the input interface focused.** Expose the inputs a caller genuinely
-  needs and no more; a narrow, well-named interface is easier to use correctly
-  than a broad one full of rarely-set knobs. Group related inputs rather than
-  leaking internal implementation details as parameters.
+  those defaults in runtime code (`main.js`, shell, Python, PowerShell).
+  This keeps the UI contract and generated interface docs consistent.
+  A default change then requires one interface update instead of synchronized
+  copies.
+- **Keep the input interface focused.** Expose only the inputs a caller needs.
+  A small, well-named interface is easier to use correctly than a broad one with
+  rarely used options.
+  Group related inputs. Do not expose internal implementation details as
+  parameters.
 - **Output anything a caller might reasonably act on.** Declare `outputs:` for
   the results the action produces — an identifier it created, a URL, a computed
-  version, a pass/fail decision — so downstream steps consume a value instead of
-  re-deriving it or scraping logs. An action that does meaningful work and
-  returns nothing forces every caller to reconstruct what it already knew.
+  version, a pass/fail decision.
+  Downstream steps then consume an output instead of calculating it again or
+  parsing logs.
+  An action that produces results but returns none forces every caller to
+  reconstruct those results.
 
 ```yaml
 # Correct — capability-named, behaviour driven by inputs, results surfaced
@@ -904,10 +907,9 @@ outputs:
 #   no outputs: callers must scrape the log to find the task URL
 ```
 
-Designing the action this way is the difference between *reuse* and
-*copy-paste*: a generalized action is consumed by SHA from many workflows; a
-caller-specific one gets duplicated and diverges the moment a second consumer
-appears.
+Many workflows consume a generalized action by SHA.
+A caller-specific action requires copies for other consumers.
+Those copies can diverge.
 
 ### Start local; promote when it is reused
 
@@ -918,20 +920,21 @@ appears.
   consumed according to ownership: a controlled major tag while its release path
   remains organization- or initiative-owned, or a full SHA when external (see
   [Pin actions according to ownership](#pin-actions-according-to-ownership)).
-  Do not reach for a separate repo preemptively — the cost of a shared release
-  surface is only worth paying once there is a second consumer.
+  Do not create a separate repository before a second consumer needs it.
+  A shared release interface adds maintenance cost.
 - **A reusable workflow's actions are the exception** — a shared reusable
-  workflow cannot reach a local action, and a cohesive set is better kept in one
-  action library than a repository each. See [Separate a reusable workflow from
+  workflow cannot use a local action.
+  Keep a cohesive set in one action library rather than one repository per action.
+  See [Separate a reusable workflow from
   the actions it consumes](#separate-a-reusable-workflow-from-the-actions-it-consumes).
 
 ### Move the script into its own file
 
-- **Lift the script out of `action.yml` into a separate file** so tooling can
-  see it. The action's `run:` step then invokes that file rather than inlining
-  its contents. A script file is subject to its language's coding standard and
-  linter — for example the [PowerShell](PowerShell/index.md) standard — exactly as if
-  it lived in application code.
+- **Move the script out of `action.yml` into a separate file** so tooling can
+  process it. The action's `run:` step then invokes that file instead of
+  containing the script.
+  Apply its language's coding standard and linter, such as the
+  [PowerShell](PowerShell/index.md) standard, just as for application code.
 - **One script file lives at the root of the action folder.** When the action
   grows to several source files, **collect them under a `src/` folder** so the
   action root stays readable.
@@ -946,28 +949,31 @@ appears.
   given a generic name. For a `publish-docs` action the module is
   `publish-docs.Helpers` in `publish-docs.Helpers.psm1`, imported by path from
   the entry script.
-- **Why it matters:** every module imported during a job shares one session on
-  the runner. A generic name — `Helpers`, `Utils`, `Common` — collides with a
-  shared module of the same name (an ecosystem often installs a shared helper
-  module that actions import by name) or with another action's helper loaded in
-  the same job. Once two loaded modules share a name they can no longer be told
-  apart: module resolution is ambiguous, and unit tests that target a module by
-  name — mocking a command *inside* the module, say — fail because the framework
-  cannot choose which copy to patch.
-- **An action-scoped name is unambiguous, mockable, and traceable.** It never
-  clashes, tests can address it by name, and it identifies the owning action in
-  loaded-module listings, errors, and stack traces.
+- **Why it matters:** modules imported during a job share one session on the
+  runner.
+  A generic name — `Helpers`, `Utils`, `Common` — collides with a shared module of
+  the same name or another action's helper in that job.
+  For example, an ecosystem can install a shared helper module that actions
+  import by name.
+  If two loaded modules share a name, module resolution is ambiguous.
+  Unit tests that target a module by name, such as tests that mock an internal
+  command, fail because the framework cannot select a copy.
+- **An action-scoped name is unambiguous, mockable, and traceable.** It does not
+  clash with other module names.
+  Tests can address it by name.
+  It identifies the owning action in loaded-module listings, errors, and stack
+  traces.
 - **The exception is a module published for sharing.** A helper whose whole
   purpose is to be installed and imported by many actions keeps its shared,
   stable name; only an action's *private* helper module is action-scoped.
 
 ## Toolchain
 
-Two linters enforce this standard in CI, and their configuration is derived from
-it — the rules above are the source of truth:
+Two linters enforce this standard in CI.
+Their configuration derives from the rules above, which are the source of truth:
 
 - **[actionlint](https://github.com/rhysd/actionlint)** checks workflow
-  correctness: expression syntax, job and step wiring, runner labels, and the
+  correctness: expression syntax, job and step connections, runner labels, and the
   shell of every `run:` step through shellcheck.
 - **[zizmor](https://docs.zizmor.sh/)** audits workflow security, flagging the
   failures this standard exists to prevent: unpinned actions, excessive
@@ -975,16 +981,21 @@ it — the rules above are the source of truth:
   and persisted credentials.
 
 Both run through [super-linter](https://github.com/super-linter/super-linter) on
-every push and pull request, so a workflow that breaks this standard fails the
-build.
+every push and pull request.
+A workflow that breaks this standard fails the build.
 
 Treat `actionlint` errors and high-severity `zizmor` findings as blockers.
-Medium-severity `zizmor` findings are fixed unless the workflow documents why
-the risk is accepted; low-severity findings are fixed when the simpler, safer
-shape is available. In practice, an audit starts by checking for unpinned
-actions, broad or inherited secrets, missing `permissions`, persisted checkout
-credentials, untrusted context interpolation, and elevated triggers such as
-`pull_request_target` or `workflow_run`.
+Fix medium-severity `zizmor` findings unless the workflow documents why the risk
+is accepted.
+Fix low-severity findings when a simpler, safer form is available.
+Start an audit with these checks:
+
+- Unpinned actions.
+- Broad or inherited secrets.
+- Missing `permissions`.
+- Persisted checkout credentials.
+- Untrusted context expansion.
+- Elevated triggers such as `pull_request_target` or `workflow_run`.
 
 ```text
 # Single-file action — main.<ext> at the action root
@@ -1006,42 +1017,45 @@ credentials, untrusted context interpolation, and elevated triggers such as
 ### Keep a README with the action
 
 - **Every action carries a `README.md`** describing what it does, its inputs and
-  outputs, and an example `uses:` snippet. This is the starting point a reader
-  hits first.
-- As an action grows — especially once it earns its own repository — fuller
-  reference material moves into a `docs/` folder there, and the README narrows
-  to an overview and a pointer into those docs. The README is always present;
-  it is the entry point, not the whole manual.
+  outputs, and an example `uses:` snippet.
+  This is the reader's starting point.
+- As an action grows, especially into its own repository, move fuller reference
+  material into a `docs/` folder there.
+  Keep an overview and a link to those docs in the README.
+  The README is always present as the entry point, not the whole manual.
 
 ## Reusable workflows with colocated composite actions
 
-When a reusable workflow (`on: workflow_call`) has its own composite actions
-(stored in `.github/actions/` alongside it), those actions are initially local
-to a single workflow — the workflow itself. If a reusable workflow is the only
-caller of such an action, it should stay colocated and not be promoted to a
-standalone repository.
+When a reusable workflow (`on: workflow_call`) has its own composite actions,
+they are local to that workflow.
+They are stored alongside it in `.github/actions/`.
+If the reusable workflow is an action's only caller, the action should stay
+colocated and not be promoted to a standalone repository.
 
-**The problem:** A reusable workflow runs in the *caller's* checked-out workspace,
-not in its own repository. When the workflow tries to `uses:` a relative action
-path (e.g., `./.github/actions/my-action/`), that path resolves to the *caller's*
-repository, not the reusable workflow's repo — so it fails or runs the wrong
-version of the action.
+**The problem:** a reusable workflow runs in the *caller's* checked-out
+workspace, not in its own repository.
+A relative action path in `uses:` (e.g., `./.github/actions/my-action/`) resolves
+to the *caller's* repository.
+The workflow then fails or runs the wrong action version.
 
-**The solution:** The reusable workflow must check itself out first, using the
-`job.workflow_repository` and `job.workflow_sha` contexts provided by GitHub
-Actions. These contexts give the exact repository and commit SHA of the reusable
-workflow being executed, not the caller.
+**The solution:** the reusable workflow must check itself out first.
+Use the `job.workflow_repository` and `job.workflow_sha` contexts from GitHub
+Actions.
+These contexts identify the reusable workflow's exact repository and commit SHA,
+not the caller's.
 
 - **Check out the reusable workflow's own repository** at the start of the job,
   using `job.workflow_repository` and `job.workflow_sha`, before calling any
   local composite actions. This ensures the actions resolve in the reusable
   workflow's own workspace.
 - **Use a `path:` argument** in the checkout step to place the reusable workflow
-  in a separate subdirectory, so you can distinguish it from the caller's
-  checkout and reference actions under that path.
-- The same reusable workflow will then work correctly whether invoked at a
-  tagged release (e.g., `v1.2.3`) or on a development branch, and the caller
-  automatically gets the right version of both the workflow and its actions.
+  in a separate subdirectory.
+  This distinguishes it from the caller's checkout and gives its actions a
+  separate path.
+- The same reusable workflow works at a tagged release (e.g., `v1.2.3`) or on a
+  development branch.
+  The caller automatically gets matching versions of the workflow and its
+  actions.
 
 ```yaml
 jobs:
