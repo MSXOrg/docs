@@ -1,11 +1,11 @@
 ---
 title: Dictionary
-description: Shared vocabulary for the MSX ecosystem — the terms a reader or agent meets across these docs.
+description: Shared terms and definitions for the MSX ecosystem.
 ---
 
 # Dictionary
 
-Shared vocabulary for the MSX ecosystem: the terms that appear across this site, defined once so every reader — human or agent — reads them the same way. Ecosystem-specific terms link to the page that covers them in full.
+This dictionary defines shared terms for readers and agents across the MSX ecosystem. Ecosystem-specific terms link to their detailed documentation.
 
 ## Terms
 

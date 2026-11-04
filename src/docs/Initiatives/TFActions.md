@@ -5,6 +5,6 @@ description: Reusable building blocks for automating Terraform and infrastructur
 
 # TFActions
 
-**[TFActions](https://github.com/TFActions)** brings the vision to infrastructure as code: reusable GitHub Actions and workflows that make automating **Terraform** consistent, observable, and safe.
+**[TFActions](https://github.com/TFActions)** is an initiative for reusable GitHub Actions and workflows that automate **Terraform** and infrastructure as code. The automation targets consistency, observability, and safety.
 
-Infrastructure changes flow through the same review and approval gates as application code — see [Decision before change](../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change) — and follow the same [Coding Standards](../Coding-Standards/index.md) and [Ways of Working](../Ways-of-Working/index.md).
+Infrastructure changes follow the same review and approval gates as application code. [Decision before change](../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change) explains this requirement. The shared [Coding Standards](../Coding-Standards/index.md) and [Ways of Working](../Ways-of-Working/index.md) also apply.
