@@ -74,10 +74,13 @@ Automation never merges a change that human review would hold.
 ## Prefer native auto-merge
 
 Where possible, the app **enables GitHub's own auto-merge** instead of calling the
-merge API. GitHub merges when the required checks pass and holds when any fails.
-The platform enforces the same gate. The app needs only `pull-requests: write` to
-enable auto-merge and approve. It does not need `contents: write` to push a merge.
-This limits its repository-write permissions.
+merge API. GitHub performs the merge after all required reviews and status checks
+pass. Native auto-merge does not establish that `contents: write` is unnecessary.
+GitHub's [documented auto-merge workflow](https://docs.github.com/en/code-security/tutorials/secure-your-dependencies/automate-dependabot-with-actions#enabling-automerge-on-a-pull-request)
+grants that permission together with `pull-requests: write`.
+Verify the app's selected operations against
+[GitHub's permission guidance](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/choosing-permissions-for-a-github-app#choosing-permissions-for-graphql-api-access).
+The app requests only the permissions those operations require.
 
 ## Least-privilege permissions
 
@@ -86,12 +89,14 @@ The automation has only the permissions it uses:
 | Scope | Why |
 | --- | --- |
 | `checks: read`, `statuses: read` | Read the required-check results. |
-| `pull-requests: write` | Submit the approving review, enable auto-merge, apply labels. |
-| `contents: write` | **Only** if the app performs the merge itself instead of native auto-merge — avoid when native auto-merge suffices. |
+| `pull-requests: write` | Submit approving reviews and apply labels. The auto-merge operation can require additional permissions. |
+| `contents: write` | **Only** when the selected merge or auto-merge operation requires it. |
 
-A GitHub App's approving review counts toward required approvals in the same way
-as a person's review. If the ruleset requires code-owner review, the app must be a
-listed code owner for its approval to satisfy that rule.
+GitHub defines [code owners](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners#codeowners-syntax)
+as users or teams with explicit repository write access.
+App installation permissions do not establish that ownership.
+An app's review does not itself prove that required code-owner approval is satisfied.
+Automation waits for the ruleset's required review result.
 Scope the app's approval to the eligible set the ruleset permits it to satisfy.
 
 ## Configuration surface
