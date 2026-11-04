@@ -177,6 +177,7 @@ function Get-RenderedHeadingText {
         affects presentation is resolved first: a link keeps its text and loses its
         target, inline code keeps its content and loses its backticks, HTML tags and
         emphasis markers are dropped, and a trailing closing '#' run is removed.
+        Literal underscores remain; only paired underscore emphasis is removed.
 
         .EXAMPLE
         Get-RenderedHeadingText -Heading 'See the [guide](x.md) for `npm ci`'
@@ -195,7 +196,22 @@ function Get-RenderedHeadingText {
     )
     $text = $Heading -replace '!?\[([^\]]*)\]\([^)]*\)', '$1'
     $text = $text -replace '<[^>]*>', ''
-    $text = $text -replace '[`*_~]', ''
+    $text = $text -replace '[*~]', ''
+    # Keep code spans intact until emphasis is removed, so code underscores stay literal.
+    $codeSpanPattern = '(?<code>`+).*?\k<code>'
+    $underscoreEmphasisPattern = '(?<!\w)(?<marker>_+)(?=\S)(?<text>(?:(?<inlineCode>`+).*?\k<inlineCode>|[^`])+?)(?<=\S)\k<marker>(?!\w)'
+    $formattingPattern = "$codeSpanPattern|$underscoreEmphasisPattern"
+    do {
+        $previousText = $text
+        $text = [regex]::Replace($text, $formattingPattern, {
+                param([System.Text.RegularExpressions.Match] $Match)
+                if ($Match.Groups['code'].Success) {
+                    return $Match.Value
+                }
+                return $Match.Groups['text'].Value
+            })
+    } while ($text -cne $previousText)
+    $text = $text -replace '`', ''
     return ($text -replace '\s+#+\s*$', '').Trim()
 }
 
