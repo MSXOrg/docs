@@ -10,8 +10,7 @@ Every per-language standard names a linter and a formatter. `pre-commit` is the
 surfaces on the contributor's machine rather than in CI minutes later.
 
 This is [Shift Left](../Ways-of-Working/Principles/Engineering-Practices.md#shift-left)
-applied to code: the same checks that gate a merge run first, at the cheapest possible
-moment. Pre-commit and CI are the same gate at two distances, not two different gates.
+applied to code. Pre-commit runs the merge-gate checks locally, before CI.
 
 `pre-commit` MUST be configured in every repository that holds code, and running it
 before committing is part of contributor setup rather than an optional refinement.
@@ -19,8 +18,8 @@ before committing is part of contributor setup rather than an optional refinemen
 ## The source of truth
 
 The `.pre-commit-config.yaml` at the repository root is the source of truth for which
-hooks run and at which versions. CI runs the **same** hooks, so a commit that passes
-locally passes the gate.
+hooks run and at which versions. CI uses the **same** hooks to apply the same rules.
+A local pass covers only the checks and inputs that local run examined.
 
 Where a repository consumes a shared, centrally maintained configuration, the shared
 config is authoritative and the repository pins it rather than copying it.
@@ -34,17 +33,17 @@ config is authoritative and the repository pins it rather than copying it.
 | Rule | Requirement |
 | --- | --- |
 | Config committed | A `.pre-commit-config.yaml` lives at the repository root and is committed |
-| Hooks enabled | Contributors run `pre-commit install` in every local checkout, so the Git hook is wired in |
+| Hooks enabled | Contributors run `pre-commit install` in every local checkout to enable the Git hook |
 | Runs the standard's tooling | Every language present in the repository has a hook that runs that standard's linter and formatter |
 | Pinned by immutable ref | Every `repo` is pinned by `rev` to a commit SHA, with the release tag as a trailing comment |
 | Kept current | A `pre-commit` entry in `.github/dependabot.yml` keeps hook revisions up to date |
 | Green before a PR | `pre-commit run --all-files` passes before a pull request is opened |
-| Mirrored in CI | The same hooks run in CI as a required check — local pre-commit is the fast path, not the only gate |
+| Mirrored in CI | The same hooks run in CI as a required check; the local run does not replace CI |
 
 ## The hook runs the standard's own tooling
 
 `pre-commit` MUST NOT define new rules. It runs the tool the relevant coding standard
-already names, so there is exactly one place a rule is decided.
+already names. That standard remains the only owner of the rules.
 
 | Standard | Tooling the hook runs |
 | --- | --- |
@@ -106,9 +105,8 @@ page is authoritative for them.
 
 ## Keeping revisions current
 
-Pinned revisions go stale, and a stale pin is how a repository ends up enforcing a
-two-year-old rule set. Add a `pre-commit` ecosystem entry to `.github/dependabot.yml`
-so hook updates arrive as reviewable pull requests:
+Pinned hooks need updates as standards and tools change. Add a `pre-commit` ecosystem
+entry to `.github/dependabot.yml` so hook updates arrive as reviewable pull requests:
 
 ```yaml
 - package-ecosystem: pre-commit
@@ -119,13 +117,13 @@ The default cadence is sufficient; no schedule override is needed.
 
 ## Enforcement and exceptions
 
-CI runs the same hooks as a required check, so a push that skipped the local run still
-fails the pipeline. `--no-verify` bypasses the local hook and nothing else.
+CI runs the same hooks as a required check. Skipping the local run does not bypass CI.
+`--no-verify` bypasses only the local hook.
 
 Two deviations are allowed:
 
 - A hook MAY be scoped with an `exclude` pattern to skip generated files or vendored
-  trees. Generated output is not authored, so linting it enforces a rule against nobody.
+  trees. These files are not authored source, so authored-source formatting checks do not apply.
 - `--no-verify` on a single commit is for genuine emergencies. It does not skip the gate,
   and the same checks run on the pull request.
 
@@ -135,7 +133,7 @@ repository.
 ## Where this connects
 
 - [Shift Left](../Ways-of-Working/Principles/Engineering-Practices.md#shift-left) — the principle this mechanism implements.
-- [Continuous Delivery and Release](../Ways-of-Working/Continuous-Delivery-And-Release.md) — where the local gate sits on the delivery spine.
+- [Continuous Delivery and Release](../Ways-of-Working/Continuous-Delivery-And-Release.md) — how local checks relate to integration, delivery, deployment, and release.
 - [Code Layout](Code-Layout.md) — why formatting is automated rather than argued about in review.
 - [Dependencies](Dependencies.md) — the pinning rule the `rev` pins follow.
 - [Security](Security.md) — secret scanning as one of the hooks that runs here first.

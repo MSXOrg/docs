@@ -5,22 +5,22 @@ description: One responsibility, contracts in the signature, and validation at t
 
 # Functions
 
-Functions are the unit of intent. A good function does one thing, says what it does through its name and signature, and can be understood without reading its body.
+A function has one responsibility. Its name and signature state its purpose and contract, so callers can use it without reading the implementation.
 
 ## One responsibility
 
 - A function does one thing. If describing it needs the word "and", split it.
-- Keep it small enough to hold in your head. Whether it fits on a screen is a better test than a line count.
-- One level of abstraction per function — don't mix high-level orchestration with low-level detail in the same body.
+- Keep each function small enough to understand. Use screen fit as a guide rather than a fixed line count.
+- Use one level of abstraction per function. Do not mix high-level orchestration with low-level detail in the same body.
 
 ## Reuse before you build
 
-Before writing new logic, use what already exists — and build only what does not. This is DRY and one responsibility applied across the whole codebase, not just within one function.
+Before you write logic, look for an existing implementation. Add logic only when none meets the need. This applies DRY and one responsibility across the codebase, not only within one function.
 
-- Prefer a built-in. If the language or runtime already does the job, use it instead of a hand-rolled version.
-- Reuse an existing function instead of re-implementing it. If it is the weak link — too slow or imprecise on a hot path — fix it there so every caller benefits, rather than working around it.
-- Prefer shared code you own before introducing a third-party dependency, especially in a shipped library or module. An external package is a lasting trust and maintenance commitment, so only take it when the capability is large or specialized enough that owning it would be the worse trade.
-- Build it only when nothing fits — no built-in, no existing function, no shared code you own, and no justified trusted dependency. Size the build to the need: small logic lives inline where it is used; a larger, cohesive capability becomes its own module.
+- Prefer a built-in. If the language or runtime provides the required behavior, use it instead of a custom implementation.
+- Reuse an existing function instead of re-implementing it. If it is too slow or imprecise on a hot path, improve that function for all callers. Do not add a separate workaround.
+- Prefer shared code you own before introducing a third-party dependency, especially in a shipped library or module. An external package adds a long-term trust and maintenance obligation. Use one only when a large or specialized capability makes an owned implementation less suitable.
+- Build new logic only when no suitable built-in, existing function, owned shared code, or justified trusted dependency meets the need. Keep small logic inline where it is used. Put a larger, cohesive capability in its own module.
 
 ## Signatures are contracts
 
@@ -31,20 +31,20 @@ Before writing new logic, use what already exists — and build only what does n
 
 ## Validate at the boundary
 
-- Reject bad input where it enters, before it travels deep into the call stack. A clear failure at the edge beats a baffling one three layers down. This is [shift left](../Ways-of-Working/Principles/Engineering-Practices.md#shift-left) applied to a single function.
-- Inside a validated boundary, trust the data. At the edge, trust nothing.
+- Reject invalid input at the boundary, before it reaches other call layers. A failure at the boundary is easier to diagnose than one in a later call. This is [shift left](../Ways-of-Working/Principles/Engineering-Practices.md#shift-left) applied to a single function.
+- Trust data only inside a validated boundary. Validate all data at the boundary.
 
 ## Flow reads top to bottom
 
 - Return early. Put guard clauses for edge cases and exits at the top, then let the main path read straight down — no deep nesting.
-- Prefer high-level constructs (iterate a collection directly) over manual, error-prone ones (index into it) when the index isn't needed.
+- Prefer high-level constructs (iterate a collection directly) over manual, error-prone ones (index into it) when the index is not needed.
 - Handle every case. A branch over a closed set of values covers every member or carries an explicit default — an unhandled value is a silent failure.
 
 ## Side effects at the edges
 
-- Prefer pure functions: the output depends only on the input, with no hidden state and no side effects. Pure functions are trivial to test and to reason about.
-- Push side effects — I/O, mutation, network, time — to the edges of the system, and keep the core logic pure.
+- Prefer pure functions: the output depends only on the input, with no hidden state and no side effects. Pure functions are easier to test and understand.
+- Keep side effects — I/O, mutation, network, time — at system boundaries. Keep the core logic pure.
 
 ## Gate destructive operations
 
-- Operations that create, change, or delete state offer a preview-or-confirm path before they act. Irreversible actions earn a deliberate gate. See [Security](Security.md).
+- Operations that create, change, or delete state offer a preview or confirmation before they act. Irreversible actions require a deliberate check. See [Security](Security.md).
