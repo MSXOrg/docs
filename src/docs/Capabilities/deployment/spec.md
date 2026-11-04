@@ -7,49 +7,42 @@ description: Requirements for the deployment capability — a change to managed 
 
 ## Premise
 
-Platform manages infrastructure through code. A change to that code changes real
-resources, and it is only safe when the people approving it approve the
-**effect** the change has on those resources — not just the words in the diff.
-The deployment capability makes the effect a first-class, reviewable thing:
-before a change deploys, its effect on every environment it will pass through is
-computed and shown; the team approves the code change **and** that effect
-together; and the approved effect is exactly what the deployment carries out.
+Platform manages infrastructure through code. Approval covers both a code change
+and its **effect** on managed resources. Before deployment, the process computes
+and shows the effect on every environment in the promotion path. The team
+approves the code change and all these effects as one decision. Deployment applies
+exactly the approved effect to each environment.
 
-This rests on **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change)** —
-the review is the decision point, and it decides on the real consequence of the
-change, not only its source.
+Under **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change)**,
+review is the decision point for the source change and its resource effects.
 
-## Problem and why now
+## Problem {#problem-and-why-now}
 
-Reviewing a code change is not the same as reviewing what it does. Two changes
-that read identically can have very different effects on live resources
-depending on the current state of those resources, and a deployment that
-re-derives its own actions can carry out something no one approved. Platform is
-the foundation for MSXOrg infrastructure and needs a deployment contract where
-the approved effect is the deployed effect, across the full promotion path, with
-every action recorded.
+A source diff alone does not show the effect on live resources. The same source
+change can have different effects as resource state changes. A deployment that
+computes a different effect after approval can make changes that no one approved.
+Platform needs a deployment contract that binds approval to the deployed effect
+across the full promotion path and records every action.
 
 ## Users and jobs
 
-- **A contributor** proposes a change to managed resources and needs to see, and
-  have others see, exactly what it will do before it is accepted.
-- **The reviewing team** decides whether the change and its effect are acceptable
-  for every environment it will reach.
-- **An operator** needs the accepted change to deploy predictably, with a record
-  of everything that happened, and a controlled way to act in an emergency.
+- **A contributor** proposes a change to managed resources. The contributor and
+  reviewers need to see its exact effect before acceptance.
+- **The reviewing team** decides whether the code change and its effect are
+  acceptable for every environment in the promotion path.
+- **An operator** needs predictable deployment, a complete action record, and a
+  controlled emergency path.
 
 ## Outcomes and impact
 
-- What is deployed to each environment equals what was approved for that
-  environment.
-- The team approves the effect on resources, not only the code, so surprises at
-  deploy time are eliminated.
-- Every deployment leaves a complete, attributable record of what it did.
+- Deployment applies exactly the effect approved for each environment.
+- The team reviews resource effects as well as code before deployment.
+- Every deployment produces a complete, attributable record of its actions.
 
-**Impact.** Change-failure rate and time-to-restore improve because approval is
-bound to the real effect and every action is recorded; lead time for changes
-stays low because the whole approved path is automated. Domain signal: the share
-of deployments whose deployed effect equals their approved effect (target 100%).
+**Impact.** Approval of resource effects and complete action records support a
+lower change-failure rate and shorter time to restore. Automated promotion of the
+approved path supports low lead time. Domain signal: the share of deployments
+whose deployed effect equals their approved effect (target 100%).
 
 ## Scope
 
