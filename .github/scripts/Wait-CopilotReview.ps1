@@ -40,7 +40,9 @@
     None. This script does not accept pipeline input.
 
     .OUTPUTS
-    [pscustomobject] with Repository, PullRequest, ReviewState, SubmittedAt,
+    System.Management.Automation.PSCustomObject
+
+    An object with Repository, PullRequest, ReviewState, SubmittedAt,
     NewCommentCount, NewComments, and Blessed.
 
     Blessed is true when Copilot leaves no new inline comments and does not request changes.

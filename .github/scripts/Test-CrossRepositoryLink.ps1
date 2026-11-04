@@ -215,7 +215,7 @@ function Get-MarkdownAnchor {
         Returns the anchors README.md exposes.
 
         .OUTPUTS
-        [string]
+        System.String
 
         Heading and explicit HTML-anchor strings, one item per anchor.
     #>
@@ -687,7 +687,7 @@ function Write-WorkflowAnnotation {
         Renders a notice on the run summary and in the Checks view.
 
         .OUTPUTS
-        [string]
+        System.String
 
         An annotation string when GITHUB_ACTIONS has a value.
         No item when GITHUB_ACTIONS has no value.

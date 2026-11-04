@@ -38,7 +38,9 @@
     None. This script does not accept pipeline input.
 
 .OUTPUTS
-    [pscustomobject] with Path, Updates, and Updated properties for each YAML file that needs changes.
+    System.Management.Automation.PSCustomObject
+
+    An object with Path, Updates, and Updated properties for each YAML file that needs changes.
 
     Updated is false when ShouldProcess does not approve the write.
 #>

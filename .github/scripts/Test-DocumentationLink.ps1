@@ -90,7 +90,7 @@ function Get-HeadingSlug {
         Returns the anchor slugs and explicit ids defined in index.md.
 
         .OUTPUTS
-        [string]
+        System.String
 
         Heading-anchor strings, one item per anchor.
     #>
@@ -138,7 +138,7 @@ function Get-CachedSlug {
         Returns index.md's anchor slugs, reading the file only on the first call.
 
         .OUTPUTS
-        [string]
+        System.String
 
         Cached heading-anchor strings, one item per anchor.
     #>
