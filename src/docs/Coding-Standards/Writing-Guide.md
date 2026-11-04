@@ -1,19 +1,29 @@
 ---
 title: Technical Writing Guide
-description: Draft and review clear technical text in documentation, code, help, messages, and agent instructions without changing its meaning.
+description: Draft and review clear reader-facing text for user and developer interactions, documentation, code, issues, pull requests, help, and messages without changing its meaning.
 ---
 
 # Technical writing guide
 
 Write text that lets the next reader understand a fact, perform an action, or verify a result without guessing.
 
-Use this guide when drafting or reviewing documentation and prose in code. It applies the [Natural Language standard](Natural-Language.md); it does not replace that standard's language policy or the contracts owned by other standards.
+Use this guide for all authored reader-facing technical and collaboration text: user and developer interactions, comments, documentation, issues, pull requests, help, messages, and agent instructions.
+
+Apply the [Natural Language policy](Natural-Language.md), including en-US for English prose. Preserve audience-specific localized content and exact quotations or identifiers. The writing method does not replace the contracts owned by other standards.
 
 ## Before starting
 
 - Identify the reader, their task, and the knowledge they already have.
-- Choose the owning artifact through the [Documentation Model](../Ways-of-Working/Documentation-Model.md) and its [template](../Ways-of-Working/Spec-Driven-Development-Templates.md). Keep each fact in its canonical home.
+- Select the format for the artifact using the owners below. Do not force a conversation, issue, or code comment into a documentation template. Keep each fact in its canonical home.
 - Gather the verified behavior, terminology, commands, limits, and examples. Separate known facts from assumptions. Resolve missing facts rather than inventing a plausible explanation.
+
+| Artifact | Format owner |
+| --- | --- |
+| Documentation | [Documentation Model](../Ways-of-Working/Documentation-Model.md) and the applicable [artifact template](../Ways-of-Working/Spec-Driven-Development-Templates.md) |
+| Issues | [Issue Format](../Ways-of-Working/Issues/Process/Format.md) and the [native issue type](../Ways-of-Working/Issues/Types/index.md) |
+| Pull requests and release notes | [PR Format](../Ways-of-Working/PR-Format.md) |
+| Comments, docstrings, and help | [Documentation](Documentation.md) and the language's native conventions |
+| User and developer interactions | The reader's question or requested action; no fixed document template |
 
 ## Steps
 
@@ -24,8 +34,18 @@ Start with the answer or outcome. Give the context needed to understand it, then
 - In a procedure, establish prerequisites before the first action. Put sequential actions in separate numbered steps. Keep actions in one step when they must occur at the same time. Put the expected result beside the action.
 - In an explanation, introduce a concept before describing its relationships. Give each paragraph one topic and start with its main point. Connect related ideas with words such as "because", "if", and "therefore".
 - In a contract, separate requirements from rationale and examples. Keep each obligation independently testable under the [specification conventions](../Ways-of-Working/Spec-Driven-Development.md#requirements).
+- In a direct interaction, lead with the answer or required action. State the known result, relevant limitation, and next step only when needed. Match detail to the reader's task rather than turning every reply into a report.
 
 Use headings that name the reader's task or question. Use a table for comparable facts and a list for alternatives. Do not make readers infer execution order from a list of unrelated items.
+
+The same writing method works across formats. These illustrative examples assume the stated facts are verified:
+
+| Surface | Example |
+| --- | --- |
+| User reply | The export failed. The log does not identify the cause. Check the error record before you retry. |
+| Developer review comment | This branch omits the cancellation check. Keep the check so a canceled request does not retry. |
+| Issue request | Identify the failed file when an export stops. |
+| Pull request summary | Export errors identify the failed file so users can find the rejected input. |
 
 ### 2. Make terms stable and recognizable
 
@@ -96,6 +116,7 @@ Review the prose at the boundary where its reader encounters it. Keep native syn
 Review meaning before polishing wording. A human or an agent reviewing the draft checks that:
 
 - The intended reader can find the answer or next action without reconstructing missing context.
+- English prose uses en-US, and the artifact follows its own format without changing localized content, quoted sources, or exact identifiers.
 - Each actor, referent, condition, sequence, and result has one intended interpretation.
 - Requirements retain their strength, scope, exceptions, negation, quantities, and units.
 - Technical names and examples match the actual supported interface.

@@ -1,15 +1,15 @@
 ---
 title: Natural Language
-description: Which language each artifact is written in, and the plain-language writing rules for docs, issues, pull requests, comments, prompts, and agent-facing text — with American English as the project dialect.
+description: Language choice and en-US writing for user and developer interactions, documentation, comments, issues, pull requests, help, messages, and agent-facing text.
 ---
 
 # Natural Language
 
-Natural language is source code for humans and agents. It drives issues, pull requests, documentation, prompts, comments, error messages, and release notes. Write it with the same care as code: clear, testable, consistent, and easy to change.
+Natural language is source code for humans and agents. It drives user and developer interactions, issues, pull requests, documentation, prompts, comments, help, error messages, and release notes. Write it with the same care as code: clear, testable, consistent, and easy to change.
 
 This standard defines which language each artifact is written in, and how English prose is written in the MSX ecosystem. The project dialect is **American English (`en-US`)**.
 
-For a drafting and review procedure, use the [Technical Writing Guide](Writing-Guide.md).
+Authored reader-facing technical and collaboration text MUST follow the [Technical Writing Guide](Writing-Guide.md). The same writing method applies to conversations, review comments, documentation, issues, pull requests, and prose embedded in code. Each artifact still uses its required format; shared prose guidance does not replace workflow or interface contracts.
 
 ## Write artifacts in English
 
@@ -23,6 +23,8 @@ Repository artifacts are written in English. A repository artifact is anything r
 - workflow, job, and step names;
 - log and error output;
 - agent-facing instructions.
+
+Technical and collaboration interactions with users, developers, reviewers, and agents use the same English writing policy. This includes conversational replies and support explanations, not only text saved in a repository.
 
 Delivered content is written in the language of its audience. Content an organization publishes for readers outside the repository — member letters, meeting minutes, public notices — reaches people who are not maintaining the repository, so it is written in the language those people read.
 
@@ -41,7 +43,7 @@ Repository artifacts are read by contributors, reviewers, and agents who do not 
 
 ## Use American English
 
-Use American spelling and vocabulary in all new and changed prose.
+Use American spelling and vocabulary in all new and changed English prose, including direct user and developer interactions.
 
 | Use | Avoid |
 | --- | --- |
