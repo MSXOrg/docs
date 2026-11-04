@@ -1,27 +1,26 @@
 ---
 title: Design
-description: Architecture and implementation model for making GitHub PowerShell-native through modules, actions, and gap-closing workflows.
+description: Reusable modules, actions, and the Process-PSModule framework implement PowerShell capability requirements on GitHub.
 ---
 
 # Design
 
+This design implements the [capability requirements](spec.md) through reusable
+modules, actions, and the `Process-PSModule` framework.
+
 ## Capability model
 
-The model combines two tracks:
+The model has two paths:
 
-- Build it: implement missing behavior using available GitHub and ecosystem APIs.
-- Advocate it: document and escalate platform-native features that require vendor support.
+- The build path implements missing behavior with available GitHub and ecosystem APIs.
+- The advocacy path records and escalates platform-native feature requests that require vendor support.
 
 ## Architecture components
 
-1. Module collection
-   - reusable PowerShell modules grouped by domain (language helpers, data formats, networking, security, API clients)
-2. Automation collection
-   - reusable GitHub Actions for prepare, build, test, lint, document, publish, and release stages
-3. Orchestration framework
-   - Process-PSModule pipeline to drive module lifecycle and release behavior
-4. Parity gap backlog
-   - capability gaps mapped to either implementation or advocacy tracks
+1. **Module collection:** groups reusable PowerShell modules by domain, including language helpers, data formats, networking, security, and API clients.
+2. **Automation collection:** provides reusable GitHub Actions for prepare, build, test, lint, document, publish, and release stages.
+3. **Orchestration framework:** uses the `Process-PSModule` pipeline to manage the module lifecycle and release behavior.
+4. **Parity gap backlog:** classifies capability gaps as implementation or advocacy work.
 
 ## Operating pattern
 
@@ -31,12 +30,14 @@ The model combines two tracks:
 
 ## Current canonical references
 
-- PSModule initiative overview: ../../Initiatives/PSModule.md
+- [PSModule initiative overview](../../Initiatives/PSModule.md)
 - [Process-PSModule documentation](https://psmodule.io/docs/Modules/Process-PSModule/)
-- Coding standards baseline: ../../Coding-Standards/index.md
+- [Coding standards baseline](../../Coding-Standards/index.md)
 
-## Planned evolution
+<a id="planned-evolution"></a>
 
-- Add a capability-level parity matrix with status per gap.
-- Track implementation maturity for each build-it stream.
-- Add explicit ownership and review cadence for advocacy items.
+## Parity-gap records
+
+A capability-level parity matrix records each gap's status and build or advocacy
+path. Build-path entries record implementation maturity.
+Advocacy entries identify the responsible owner and review cadence.
