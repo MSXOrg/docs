@@ -8,10 +8,10 @@ description: Requirements for durable, recoverable, policy-driven releases and t
 ## Premise
 
 Release management turns approved source into a **versioned, immutable release**
-that consumers can trust. A release is normally the result of merging reviewed
-change, while a controlled manual request can release already-reviewed
-accumulated change. Both paths use the same decision, build, verification,
-publication, and evidence controls.
+that consumers can trust. A release normally follows a reviewed merge.
+A controlled manual request can release already-reviewed accumulated change.
+Both paths use the same decision, build, verification, publication, and evidence
+controls.
 
 The capability preserves enough durable state to finish an interrupted release
 without rebuilding or assigning its version to different content. Consumers can
