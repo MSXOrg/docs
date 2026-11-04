@@ -36,18 +36,18 @@ A square bracket `[ ]` includes the endpoint; a parenthesis `( )` excludes it. F
 
 ## The locking spectrum in PowerShell
 
-PowerShell can express every point of the [locking spectrum](../Dependencies.md#the-locking-spectrum). The module `GUID` is the **identity pin**, independently of the version. It identifies the module and combines with any row below. The remaining rows set version constraints, from strictest to least strict:
+PowerShell can express every point of the [locking spectrum](../Dependencies.md#the-locking-spectrum). The module `GUID` is the **identity pin**, independently of the version. It checks declared module identity, not package contents or publisher authenticity, and combines with any row below. The remaining rows set version constraints, from strictest to least strict:
 
 | Lock | NuGet range (PSResourceGet, `PackageReference`) | `#Requires` / `RequiredModules` |
 | --- | --- | --- |
-| **Identity** | not a version — pins *which* module | add `GUID = '<module-guid>'` to any row |
+| **Identity** | not a version; matches declared module identity | add `GUID = '<module-guid>'` to any row |
 | **Exact** | `[6.1.2]` | `RequiredVersion = '6.1.2'` |
 | **Patch** (any `6.1.x`) | `[6.1.0, 6.2.0)` | `ModuleVersion = '6.1.0'; MaximumVersion = '6.1.*'` |
 | **Minor** (any `6.x`) | `[6.0.0, 7.0.0)` | `ModuleVersion = '6.0.0'; MaximumVersion = '6.*'` |
 | **Major** (floor, `≥ 6.0.0`) | `[6.0.0, )` | `ModuleVersion = '6.0.0'` |
 | **Latest** | omit `-Version`; `*` in `PackageReference` | a bare name, `@{ ModuleName = 'Pester' }` |
 
-- **Identity + exact** is the strictest constraint. The pin does not change until the bot proposes an update and a human reviews it. Pair the `GUID` with `RequiredVersion`, or with a lockfile-resolved install, for the strongest supply-chain control.
+- **Identity + exact** is the strictest constraint. The pin does not change until the bot proposes an update and a human reviews it. Pair the `GUID` with `RequiredVersion`, or with a lockfile-resolved install, for the strictest identity and version constraint.
 - **Patch** and **minor** are the normal update choices. They accept fixes and, for minor, additive features, but exclude new major versions.
 - **Major**, a minimum with no maximum, accepts breaking releases. Use it when the consumer changes with the dependency. Expect the [updater](../../Capabilities/dependency-updates/index.md) to route those pull requests through the normal review gate.
 - **Latest** accepts the newest version without prior validation or reproducibility. Avoid it for anything shipped or run in CI (see [Dependencies → the balance](../Dependencies.md#the-balance)).

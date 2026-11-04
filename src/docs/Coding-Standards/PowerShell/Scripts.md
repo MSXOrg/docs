@@ -15,7 +15,7 @@ A script file has these sections in this order:
 
    Avoid exact `RequiredVersion` pins. They exclude later patches and need maintenance.
 
-   A module `GUID` pins identity as a separate, stricter supply-chain control. Use it only when identity assurance is required, not as part of the default version lock.
+   A module `GUID` constrains declared identity as a separate, stricter supply-chain control. Use it only when identity assurance is required, not as part of the default version lock. See [Module Requirements](Requires-Modules.md) for the distinction from a content hash.
 2. **Comment-based help** — the same sections and order as a [function's](Functions.md#comment-based-help-required), only without the enclosing `function` block: `.SYNOPSIS`, `.DESCRIPTION`, at least one `.EXAMPLE`, then `.INPUTS`, `.OUTPUTS`, `.NOTES`, and `.LINK` as they apply. Document each parameter with an inline comment above it, just as a function does.
 3. **`[CmdletBinding()]` + `param()`** — typed and validated, mandatory first; add `SupportsShouldProcess` when the script changes state.
 4. **`$ErrorActionPreference = 'Stop'`**.

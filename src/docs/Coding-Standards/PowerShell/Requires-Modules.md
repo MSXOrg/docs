@@ -16,7 +16,7 @@ Scripts and test files declare module dependencies with [`#Requires -Modules`](h
 | **Major lock** (floor + wildcard ceiling) | `@{ ModuleName = 'Pester'; ModuleVersion = '6.0.0'; MaximumVersion = '6.*' }` | highest installed **6.x** (≥ 6.0.0, < 7.0.0) | the next major is incompatible; test frameworks are a typical case |
 | Ceiling only | `@{ ModuleName = 'Pester'; MaximumVersion = '6.*' }` | highest installed **≤ 6.x** (also accepts 5.x, 4.x …) | avoid; older majors also satisfy it because there is no minimum |
 | **Exact** | `@{ ModuleName = 'Pester'; RequiredVersion = '6.0.0' }` | exactly **6.0.0** | avoid unless strict reproducibility requires it; fails if that exact build is not installed |
-| + Identity | add `GUID = 'a699dea5-2c73-4616-a270-1f7abb777e71'` to any of the above | additionally requires that module **GUID** | optional, stricter identity assurance against name squatting; independent of the version |
+| + Identity | add `GUID = 'a699dea5-2c73-4616-a270-1f7abb777e71'` to any of the above | additionally requires that module **GUID** | optional, stricter declared-identity match for same-name modules; independent of the version |
 
 ## Why `MaximumVersion = '6.*'` is valid (and the sentinel `6.999.999` is not needed)
 
@@ -29,7 +29,7 @@ Other rules:
 
 - `RequiredVersion` **cannot** be combined with `ModuleVersion` or `MaximumVersion`. To express a range, use `ModuleVersion` (floor) **and** `MaximumVersion` (ceiling) together.
 - A **major lock** needs both bounds: `MaximumVersion = '6.*'` alone still accepts 5.x and below, so pair it with `ModuleVersion = '6.0.0'`.
-- `GUID` pins module *identity*, independently of the version. An incorrect GUID blocks even a matching version; omission is allowed. It is a supply-chain control, not part of the version lock (see [Security → Supply chain](../Security.md#supply-chain)).
+- `GUID` pins module *identity*, independently of the version. The [module manifest](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_module_manifests#guid) declares this identity; it is not a content hash or proof of publisher authenticity. An incorrect GUID blocks even a matching version; omission is allowed. It is a supply-chain control, not part of the version lock (see [Security → Supply chain](../Security.md#supply-chain)).
 - Requirements are enforced by the engine at **parse/discovery time**: if no installed module satisfies the specification, the script is not run at all.
 
 ## An entry script that reports a verdict imports its modules itself
