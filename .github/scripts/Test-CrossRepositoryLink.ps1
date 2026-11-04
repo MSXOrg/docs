@@ -6,18 +6,15 @@
     Validate that every cross-repository Markdown link into an MSX organization resolves.
 
 .DESCRIPTION
-    The Markdown standard tells authors to use a canonical published URL for a
-    cross-repository reference, and 'Test-DocumentationLink.ps1' ignores external
-    links on purpose. This is the other half: the links that point at a repository
-    somewhere else, which moves on its own schedule without anyone here being told.
+    The Markdown standard specifies canonical published URLs for cross-repository references.
+    'Test-DocumentationLink.ps1' ignores external links.
+    This script validates links to repositories whose files can change independently.
 
-    Scope is decided by ownership rather than by scheme. Checking every external URL
-    on the internet is slow, flaky, and hostage to other people's outages; links into
-    the organizations MSX controls are a bounded set and are where the breakage comes
-    from - the target moved because we moved it. Only 'github.com' and
-    'raw.githubusercontent.com' links owned by '-Owner' are resolved.
+    The configured owners define the validation scope.
+    The script resolves only 'github.com' and 'raw.githubusercontent.com' links owned by '-Owner'.
+    This scope avoids failures from unrelated websites.
 
-    These URL shapes are resolved:
+    The script resolves these URL shapes:
 
     - 'https://github.com/OWNER/REPO'                            the repository exists
     - 'https://github.com/OWNER/REPO#anchor'                     an anchor in its README
@@ -26,35 +23,29 @@
     - 'https://github.com/OWNER/REPO/tree/REF/PATH'              a directory
     - 'https://raw.githubusercontent.com/OWNER/REPO/REF/PATH'    a file
 
-    Everything else under an in-scope repository - '/issues/', '/pull/',
-    '/discussions/', '/releases/', '/actions/', '/wiki/', '/compare/', '/commit/' - is
-    ignored. Those are API objects rather than paths, and they do not move when a
-    repository is restructured.
+    The script ignores other routes under an in-scope repository, such as '/issues/',
+    '/pull/', '/discussions/', '/releases/', '/actions/', '/wiki/', '/compare/', and '/commit/'.
+    These routes identify API objects, not repository file paths.
 
-    An anchor cannot be checked with a HEAD request: the fragment is never sent to the
-    server, so '.../file.md#heading' answers 200 whether or not that heading exists.
-    The content is fetched and its headings are slugged with GitHub's rules - not with
-    the 'ConvertTo-Slug' in 'Test-DocumentationLink.ps1', which mirrors python-markdown
-    for the published site. A cross-repository link resolves against GitHub's rendering,
-    so reusing the site slugger here would check the wrong algorithm and quietly agree
-    with itself.
+    A HEAD request cannot validate an anchor because the request does not include the URL fragment.
+    A response of 200 for '.../file.md#heading' does not prove that the heading exists.
+    The script reads the content and derives anchors with GitHub's slug rules.
+    'ConvertTo-Slug' in 'Test-DocumentationLink.ps1' uses python-markdown's rules for the published site.
+    Those rules differ from GitHub's rules.
 
-    A link into the repository the script runs in is resolved against the checkout
-    rather than over the network. Resolved against the default branch it would confirm
-    the state a pull request is about to invalidate: a change that moves the file would
-    pass here and break the moment it merged.
+    The script resolves links into its own repository against the checkout, not the remote default branch.
+    This verifies file moves and link changes in the pull request.
 
-    Three outcomes, not two. A link is *broken* when the target repository is readable
-    and the path or the anchor is not there. A link is *unresolvable* when the check
-    could not answer at all - a network failure, an exhausted API rate limit, or a
-    target no anonymous reader can reach. Both are reported, under separate headings,
-    so a red run says which of the two happened.
+    The script distinguishes resolved, *broken*, and *unresolvable* links.
+    A link is *broken* when the repository is readable but the path or anchor does not exist.
+    A link is *unresolvable* after a network failure or an exhausted API rate limit.
+    A target that is not publicly readable is also *unresolvable*.
+    The console log lists broken and unresolvable links under separate headings.
 
-    The oracle is deliberately what an anonymous reader sees. GITHUB_TOKEN, when
-    present, is used only to lift the rate limit from 60 to 1000 requests an hour; it
-    grants no access to a private repository elsewhere. That is the right bar for a
-    public documentation site: a page here linking into a repository a reader cannot
-    open is broken for that reader.
+    The check uses anonymous-reader access as its reference.
+    In CI, GITHUB_TOKEN increases the rate limit from 60 to 1000 requests an hour.
+    That token grants no access to private repositories elsewhere.
+    Public documentation needs links that its readers can open.
 
     It also exits 1 when it resolved no cross-repository link at all. Every link
     resolving is trivially true when none were found, so an empty run is reported as a
