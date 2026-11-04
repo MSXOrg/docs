@@ -26,11 +26,17 @@ corresponding directory. Every plugin directory must contain `plugin.json`; its
 ## Skill granularity
 
 Each skill is a single pointer to one canonical document. The shared `msx`
-plugin uses `msx-coding-*` skills for testing and each coding language or tool,
-`msx-documentation-*` skills for each documentation artifact type, and
-`msx-ways-of-working-*` skills for each child listed by the Ways of Working
-index. Skill bodies do not copy the documentation; they identify the one page
-to read.
+plugin uses `msx-writing` for reader-facing technical and collaboration text,
+`msx-coding-*` for testing and each coding language or tool, and
+`msx-ways-of-working-*` for process and format guidance. Skill bodies do not
+copy the documentation; they identify the one page to read.
+
+The shared writing entry point reaches the
+[Technical Writing Guide](../../src/docs/Coding-Standards/Writing-Guide.md).
+Documentation templates and issue/PR formats remain separate contracts selected
+through that guide, not separate copies of the writing method. The
+[writing-discovery boundary](../../src/docs/Capabilities/agentic-development/design-plugin-marketplaces.md#writing-discovery)
+defines this grouping.
 
 ## Consumer upgrades
 
@@ -50,6 +56,19 @@ Keep the plugin version in `plugin.json` synchronized with the version of its
 entry in `marketplace.json`. Increment both together when the plugin changes.
 The marketplace metadata version describes the marketplace itself and is
 managed independently.
+
+A changed skill catalog requires refreshing a GitHub-backed installed copy.
+Refresh the marketplace, then update the MSX plugin:
+
+```shell
+copilot plugin marketplace update msxorg
+copilot plugin update msx
+```
+
+The [CLI plugin reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference#cli-commands)
+owns these commands. Other clients use their plugin-update action. A local
+directory-sourced plugin loads changes in a new session instead. Updating
+canonical prose alone does not require reinstalling a pointer skill.
 
 ## Ownership
 
