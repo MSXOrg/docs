@@ -5,32 +5,30 @@ description: The distinction between integration, delivery, deployment, and rele
 
 # Continuous Delivery and Release
 
-Four terms are routinely used as if they were one: continuous integration, continuous
-delivery, continuous deployment, and continuous release. They are not
-interchangeable, and the difference between them is not academic — it decides where a
-human still makes a call, what a pipeline is allowed to do without being asked, and
-what "done" means for a change.
+Continuous integration, continuous delivery, continuous deployment, and continuous
+release describe different automation boundaries. These boundaries determine when
+human approval is required, what the pipeline can do automatically, and when a
+change is complete.
 
-This page draws the distinction and records the decisions that follow from it. The
-wider family of always-on practices, and where each term originates, is covered in
-[Continuous Practices](Continuous-Practices.md); this page is about the delivery end of
-that family in operational detail.
+This page defines those boundaries and their design decisions.
+[Continuous Practices](Continuous-Practices.md) describes the wider family of
+always-on practices and the origin of each term.
 
 ## The distinction
 
-Each practice extends the one before it. The pipeline is the same spine every time;
-what changes is how far along it a change travels without a human.
+Each practice extends the preceding practice. The automation boundary determines
+how far a change proceeds without a human decision.
 
 | Practice | What it means | Where it stops |
 | --- | --- | --- |
-| **Continuous integration** | Every change is merged into the mainline frequently and verified there | A verified mainline. Nothing is packaged for release. |
-| **Continuous delivery** | Every verified change is packaged and proven deployable, so the mainline is releasable **at all times** | A releasable artifact. Shipping is a business decision a human makes. |
-| **Continuous deployment** | The manual gate is removed — a verified change deploys itself | Deployed. Whether users see it is a separate question. |
-| **Continuous release** | Users can now see the change | Released to users. |
+| **Continuous integration** | Contributors merge every change into the mainline frequently and verify it there | A verified mainline. Nothing is packaged for release. |
+| **Continuous delivery** | The pipeline packages every verified change and verifies that it is deployable. The mainline is releasable **at all times** | A releasable artifact. A human makes the business decision to deploy it. |
+| **Continuous deployment** | The pipeline deploys a verified change automatically, without a manual gate | Deployed. Whether users see it is a separate question. |
+| **Continuous release** | Users can see the change | Released to users. |
 
-The one-line version: **delivery means ready to ship the moment a human decides;
-deployment means it ships itself; release means users can see it.** Deploying is not
-releasing.
+**Continuous delivery keeps an artifact ready for deployment; continuous
+deployment automates deployment; continuous release makes the change available
+to users.** Deployment does not by itself give users access.
 
 ```mermaid
 flowchart LR
@@ -39,50 +37,47 @@ flowchart LR
 
 Continuous integration covers `Commit → Test`. Continuous delivery extends to
 `Package`, and stops. Continuous deployment extends to `Deploy` automatically.
-Continuous release extends to `Release to users` — which, once deployment and release
-are decoupled by a flag or a progressive rollout, is a decision about exposure rather
-than about a pipeline.
+Continuous release extends to `Release to users`. A feature flag or progressive
+rollout can separate deployment from release. The release decision then controls
+user exposure, not deployment.
 
-The final step is the one most often skipped in discussion, and it is the only one the
-user experiences. A change sitting deployed behind a disabled flag has shipped nothing.
+A deployed change behind a disabled flag is not available to users.
 
 ## Shift left: pre-commit is CI running locally
 
-The first box on that spine is not decoration. A pre-commit hook runs the fast slice of
-CI on the contributor's machine — the same linters and formatters the pipeline will run,
-executed before the commit exists.
+A pre-commit hook runs the fast subset of CI checks on the contributor's machine.
+It uses the same linters and formatters as the pipeline, before the commit exists.
 
-That makes pre-commit and CI the same gate at two distances, not two different gates.
-The pipeline remains authoritative, because a local run can be skipped and a required
-check cannot; the local run exists so that the overwhelming majority of failures are
-found in seconds rather than minutes. See
+Pre-commit applies these CI checks earlier. The pipeline remains authoritative.
+A local run can be skipped and does not replace a required CI check.
+Local checks give contributors feedback before a commit, rather than after a
+pipeline run. See
 [Pre-Commit](../Coding-Standards/Pre-Commit.md).
 
 ## Design decisions
 
-Four decisions turn the distinction above into something a pipeline can implement.
+Four design decisions apply these boundaries to a pipeline.
 
 ### D1 — Build once, decided per artifact type
 
-The classic rule is *build once, promote the same artifact*. It holds across the
+The rule is *build once, promote the same artifact*. It applies across the
 pull-request-to-main boundary only for artifacts that have an **external addressable
-identity** independent of their version. Where the version is embedded in the artifact,
+identity** independent of their version. If the version is embedded in the artifact,
 promotion is impossible and the artifact MUST be rebuilt.
 
 | Artifact | Across the PR → main boundary | Why |
 | --- | --- | --- |
-| Container image | **Promote** | Addressed by digest; a tag is metadata attached afterwards |
+| Container image | **Promote** | Addressed by digest; a tag is metadata attached afterward |
 | Stored infrastructure plan | **Promote** | The plan is the reviewed artifact; rebuilding it invalidates the review |
 | Composite action referenced by tag | **Promote** | Identity is the git ref, not a built file |
 | Compiled binary | **Rebuild** | Version is compiled in |
 | Module manifest | **Rebuild** | Version is a field inside the manifest |
 | Package manifest for a language registry | **Rebuild** | Version is a field inside the manifest |
 
-The rule of thumb: **external identity means promote, embedded version means rebuild.**
-A promoted artifact behaves like continuous delivery — the thing that was reviewed is
-the thing that ships. A rebuilt artifact behaves like continuous deployment — the
-pipeline reproduces it from a verified source, and reproducibility is what carries the
-guarantee instead.
+**Promote artifacts with external identity; rebuild artifacts with an embedded
+version.** Promotion preserves the artifact that reviewers verified.
+A rebuild reproduces the artifact from verified source. Reproducibility provides
+the guarantee for the rebuilt artifact.
 
 ### D2 — Version signals feed in, the decision is reviewed at the PR gate {#d2-version-signals-feed-in-the-label-decides-at-the-pr-gate}
 
@@ -91,15 +86,14 @@ including native producer pipelines. An unmanaged route has no release-decision
 block, `release:*` labels, or missing-decision check; continuous delivery alone
 does not opt it into a versioned release process.
 
-Several signals suggest what kind of change a pull request contains: the shape of the
-diff, whether tests were added or changed, the commit messages, and an AI-assisted
-reading of the change. Those signals MUST be treated as input. The
+Signals include the diff, test changes, commit messages, and an AI-assisted
+analysis of the change. The release process MUST treat these signals as input. The
 [resolved release decision](../Capabilities/release-management/design.md#version-computation)
 comes from an explicit owned bump label or the valid effective `DefaultBump`, and
 its suitability for the audience is reviewed at the pull-request gate.
 
-A documented default is a prior policy decision, not an omission to interpret
-later. Repository settings and supported caller inputs can override it; an
+A documented default records an existing policy decision.
+Repository settings and supported caller inputs can override it; an
 explicit owned bump label overrides the valid effective default. Invalid
 supplied settings and conflicting owned labels fail rather than use a fallback.
 The pull request records the effective level and its source, and review
@@ -110,32 +104,31 @@ does not discover the missing decision only after integration.
 ### D3 — Prerelease by default, stabilized on merge
 
 A topic-branch build authorized for release MUST be published as a prerelease.
-The stable version is cut on merge, from the resolved release decision.
+The pipeline creates the stable version on merge from the resolved release decision.
 
-A prerelease version (`1.3.0-add-widgets.1`) sorts below every stable version, which
-is the entire mechanism: a consumer who has not opted in cannot resolve it, so
-publishing early is free. Contributors and reviewers get a real, installable artifact
-to test against for the whole life of the pull request, and nobody has to build it
-by hand.
+A prerelease version (`1.3.0-add-widgets.1`) has lower precedence than the stable
+version with the same major, minor, and patch numbers. A consumer selects a
+prerelease only through an explicit opt-in. Contributors and reviewers use the
+published artifact to test throughout the pull request. They do not need to
+build it manually.
 
-The stable release is then not a separate act of packaging — it is the same content
-with the prerelease suffix removed, at the moment the change becomes part of the
-mainline.
+The stable release contains the verified change without the prerelease suffix
+in its version. D1 determines whether the pipeline promotes the artifact or
+rebuilds it with the stable version.
 
 ### D4 — Recovery is roll-forward only
 
 A published version MUST NOT be altered or replaced. Recovery from a bad release is a
 new, higher version.
 
-This is [SemVer](../Dictionary/index.md#semver) §3: release contents are immutable once
-published. The practical argument is stronger than the formal one. A consumer who has
-already resolved `2.4.1` will not re-resolve it, so replacing its contents produces two
-different artifacts answering to one name — and the consumer who was fast enough to
-install the first one now has a build nobody can reproduce. Yanking has the same
-problem in reverse: it breaks every lockfile that pinned it.
+[SemVer](../Dictionary/index.md#semver) §3 requires immutable release contents.
+A consumer can keep the artifact it already resolved as `2.4.1`. If its published
+contents change, the same version identifies two different artifacts. Builds that
+use those artifacts are not reproducible from the version alone.
+Removing the version can break lockfiles that pin it.
 
-So a broken release stays published and a fix ships as `2.4.2`. The bad version is
-recorded as bad in its release notes rather than erased.
+The defective version remains published. Its release notes identify it as
+defective, and the fix ships as `2.4.2`.
 
 ## References
 
