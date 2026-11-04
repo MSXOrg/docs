@@ -72,9 +72,11 @@
     You can't pipe objects to Test-CrossRepositoryLink.ps1.
 
 .OUTPUTS
-    None
+    System.String
 
-    The script reports through the console log, a workflow annotation, and its exit code.
+    Status and diagnostic log text, not structured link results.
+    If GITHUB_ACTIONS has a value, the script also emits workflow annotation strings.
+    The exit code reports whether validation succeeds.
 
 .NOTES
     'ConvertTo-GitHubSlug' and 'Get-RenderedHeadingText' are taken from
@@ -213,7 +215,9 @@ function Get-MarkdownAnchor {
         Returns the anchors README.md exposes.
 
         .OUTPUTS
-        [System.Collections.Generic.HashSet[string]]
+        [string]
+
+        Heading and explicit HTML-anchor strings, one item per anchor.
     #>
     [CmdletBinding()]
     [OutputType([System.Collections.Generic.HashSet[string]])]
@@ -677,14 +681,16 @@ function Write-WorkflowAnnotation {
         The function writes a '::notice::' or '::error::' workflow command.
         It percent-encodes '%' and line breaks in the title and message.
         It also encodes ':' and ',' in the title to preserve the command properties.
-        Outside GitHub Actions, the function produces no output.
 
         .EXAMPLE
         Write-WorkflowAnnotation -Type notice -Title 'Cross-repository links' -Message '21 link(s) resolve'
         Renders a notice on the run summary and in the Checks view.
 
         .OUTPUTS
-        None
+        [string]
+
+        An annotation string when GITHUB_ACTIONS has a value.
+        No item when GITHUB_ACTIONS has no value.
     #>
     [CmdletBinding()]
     param(

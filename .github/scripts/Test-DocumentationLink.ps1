@@ -30,6 +30,10 @@
 .EXAMPLE
     ./Test-DocumentationLink.ps1
     Validates all documentation links; exits non-zero and lists any that are broken.
+.OUTPUTS
+    System.String
+
+    Link-validation status and diagnostic text, not structured link results.
 #>
 [CmdletBinding()]
 param()
@@ -86,7 +90,9 @@ function Get-HeadingSlug {
         Returns the anchor slugs and explicit ids defined in index.md.
 
         .OUTPUTS
-        [System.Collections.Generic.List[string]]
+        [string]
+
+        Heading-anchor strings, one item per anchor.
     #>
     [CmdletBinding()]
     param(
@@ -132,7 +138,9 @@ function Get-CachedSlug {
         Returns index.md's anchor slugs, reading the file only on the first call.
 
         .OUTPUTS
-        [System.Collections.Generic.List[string]]
+        [string]
+
+        Cached heading-anchor strings, one item per anchor.
     #>
     [CmdletBinding()]
     param(

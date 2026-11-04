@@ -26,6 +26,11 @@
     ./Update-DocumentationIndex.ps1 -Check
     Verifies the indexes are current without writing; exits non-zero on drift.
     This is an optional local diagnostic, not a CI gate.
+.OUTPUTS
+    System.String
+
+    Status text for updated or stale index tables, not structured index data.
+    The script produces no output when all tables are current.
 #>
 [CmdletBinding()]
 param(

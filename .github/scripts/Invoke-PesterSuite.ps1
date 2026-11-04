@@ -34,10 +34,10 @@
     You can't pipe objects to Invoke-PesterSuite.ps1.
 
 .OUTPUTS
-    None
+    System.String
 
-    The script reports through the console log, annotations, the job summary, and its
-    exit code.
+    Log text and GitHub Actions workflow commands, not structured test results.
+    The job summary is a file write, and the exit code reports the run result.
 
 .LINK
     https://msxorg.github.io/docs/Coding-Standards/GitHub-Actions/
