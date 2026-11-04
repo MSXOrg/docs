@@ -1,13 +1,12 @@
 ---
 title: Design
-description: How dependency updates are handled — automated update pull requests, coverage, cooldown, security updates, and review.
+description: Automated update pull requests use manifest coverage, cooldown, security updates, and repository review controls.
 ---
 
 # Dependency Updates — Design
 
-The behaviour in the [spec](spec.md) is delivered by an automated updater
-configured in `.github/dependabot.yml`, plus the review and merge controls that
-handle its pull requests.
+An automated updater implements the [spec](spec.md) through
+`.github/dependabot.yml`. Review and merge controls govern its pull requests.
 
 ## What gets checked
 
@@ -18,35 +17,35 @@ handle its pull requests.
 
 ## Coverage from manifests
 
-Which ecosystems are covered is not a judgement call — it is a function of the
-files the repository contains. Each ecosystem announces itself with a manifest:
+The repository's manifests and definitions determine ecosystem coverage:
 
-| Ecosystem | Announced by | Coverage path |
+| Ecosystem | Identified by | Coverage path |
 | --- | --- | --- |
 | GitHub Actions | Workflow and composite-action definitions under `.github/` | Native updater |
 | Containers | A container definition or a base-image reference | Native updater |
 | Language packages | The ecosystem's manifest and lockfile at the directory root it governs | Native updater when supported |
 | Infrastructure definitions | The module or provider constraint file for the tool in use | Native updater when supported |
 
-The organization owns a **native-support catalogue** and an **exception register**.
-The catalogue names the ecosystems the platform-native updater supports; generation
-emits one updater entry per supported ecosystem and directory. An unsupported
-manifest is not forced into an invalid native entry. Instead, it must have an
-exception-register entry naming the manifest and directory, why native support is
-absent, the responsible owner, and the shared centrally managed mechanism that
-checks and proposes updates.
+The organization owns a **native-support catalog** and an **exception register**.
+The catalog lists the ecosystems the platform-native updater supports.
+Generation emits one updater entry per supported ecosystem and directory.
+An unsupported manifest requires a central exception instead of an invalid native
+entry. The exception records the manifest, directory, reason, and responsible owner.
+It also identifies the shared, centrally managed mechanism that checks and proposes
+updates.
 
 Reconciliation compares every manifest with the generated native configuration and
-the exception register. Adding an ecosystem is therefore either the manifest plus
-regenerated native configuration, or the manifest plus a central exception request.
-A repository never introduces a bespoke updater: the exception consumes a mechanism
-operated once for the organization, and remains visible until native support exists.
+the exception register. An additional ecosystem requires its manifest plus
+regenerated native configuration or a central exception request.
+A repository uses the organization's shared exception mechanism, not a
+repository-specific updater. The exception remains visible until native support
+exists.
 
 ## Cadence and cooldown
 
-Frequency and the timezone the schedule is expressed in are **organization
-configuration**, not constants. A schedule expressed in a timezone nobody works in
-lands pull requests outside the hours anyone triages them.
+Schedule frequency and timezone are **organization configuration**, not constants.
+The timezone determines when update proposals arrive relative to maintainer
+working hours.
 
 ```yaml
 schedule:
@@ -55,23 +54,22 @@ schedule:
   timezone: <the organization's working timezone>
 ```
 
-The **cooldown** is a deliberate delay between a version's publication and its
-proposal. It costs a few days of currency and buys the chance for an upstream project
-to withdraw or supersede a bad release before every consumer has a pull request open
-against it. Currency is the goal; being first is not.
+The **cooldown** delays a version update proposal after upstream publication.
+During this delay, the upstream project can withdraw or replace a defective release
+before update proposals reach consumers.
 
 The organization standard is an implicit **three-day** cooldown for version updates. Repositories omit `cooldown` when they use that standard; an explicit mapping records a deliberate non-default duration.
 
-Security updates ignore both settings. An advisory means the pinned version is known
-bad now, and waiting for a schedule window or a cooldown would be waiting on purpose.
+Security updates bypass the schedule and cooldown. A published advisory identifies
+a known vulnerability in the pinned version, so version-update delays do not apply.
 
 ## The updater
 
-The updater opens **one PR per outdated or vulnerable dependency**, carrying the
-proposed reference change and upstream release context. SHA-pinned dependencies get the new
-commit SHA with the version as a trailing comment. Ecosystems, directories, and
-schedule live in `.github/dependabot.yml`; a non-default
-cooldown belongs there too, while the standard three-day cooldown remains
+The updater opens **one PR per outdated or vulnerable dependency** with the
+proposed reference change and upstream release context. SHA-pinned updates use the
+target commit SHA with the version as a trailing comment.
+Ecosystems, directories, and schedule use `.github/dependabot.yml`.
+A non-default cooldown uses that file too. The standard three-day cooldown remains
 implicit.
 
 ```mermaid
@@ -86,19 +84,19 @@ flowchart TD
 
 ### Complete the adoption
 
-The updater's proposal is an input, not proof that the consumer is upgraded.
+The updater's proposal does not prove complete consumer adoption.
 The author or delegated agent completes
-[Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) in that same
-delivery: establish the actual consumed source, fix the proposed target, and
-inspect the entire applicable range with full pagination and semantic/lineage
-ordering. An embedded newest note does not replace earlier crossed releases.
+[Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) in the same delivery.
+Establish the actual consumed source and fixed target. Inspect the entire
+applicable range with full pagination and semantic/lineage ordering.
+The newest embedded release note does not replace earlier releases in that range.
 
-The procedure owns action composition, target-era template comparison,
+The procedure defines action composition, target-era template comparison,
 preservation of consumer intent, and existing validation, including no-action
-ranges. Its reconciled evidence belongs in the update PR. If the updater
-omits required context, retrieve equivalent authoritative producer evidence;
-otherwise register the gap and keep affected work blocked. This adds an
-adoption obligation to the existing review path, not another updater.
+ranges. The update PR contains the reconciled evidence. If the updater omits
+required context, retrieve equivalent authoritative producer evidence.
+If that evidence is unavailable, register the gap and keep affected work blocked.
+This adoption obligation uses the existing review path, not another updater.
 
 ### Release decision
 
@@ -112,33 +110,33 @@ block and all `release:*` labels.
 
 Every automated update passes the repository's normal review and required-check
 gates, including [complete consumer evidence](../../Ways-of-Working/Definition-of-Ready-and-Done.md#definition-of-ready-for-review).
-Required migration work cannot be deferred while merging an incompatible
-reference bump. Automatic merge, where configured, never bypasses those gates.
+Required migration work cannot be deferred while an incompatible reference change
+merges. Automatic merge, where configured, never bypasses those gates.
 
 Bind adoption verification to the
 [required-check signal](../merge-automation/design.md#the-gate-a-ruleset-requires-the-checks)
 before enabling automatic readiness, approval, or merge for update PRs.
-An existing required PR validation check can carry this condition; a separate
-check is needed only when no existing check owns it. Missing or stale
+An existing required PR validation check can own this condition.
+A separate check is needed only when no existing check owns it. Missing or stale
 range/ledger/template evidence keeps the result pending or failed, even when
-build and test checks are green. Re-evaluate the result when the candidate or
-its required evidence changes.
+build and test checks pass. Re-evaluate the result when the candidate or its
+required evidence changes.
 
-Create update PRs as drafts. If the native updater cannot do that, the receiving
-workflow immediately converts each opened proposal to draft, before requesting
-human review. Keep it draft until the normal review-readiness gate, including
-adoption verification, holds. The draft flag is the review-handoff signal; it
-does not replace the binding required check or protect the creation-to-conversion
-window by itself.
+Create update PRs as drafts. If the native updater cannot create drafts, the
+receiving workflow immediately converts each opened proposal to draft before it
+requests human review. Keep each PR draft until the normal review-readiness gate,
+including adoption verification, holds. The draft flag signals a review handoff.
+It does not replace the binding required check or protect the
+creation-to-conversion window by itself.
 
-Until evidence verification is enforced through the required check, update PRs
-remain outside automated readiness, approval, and merge. The platform updater
-supplies a proposal; it does not assert that the gate has passed.
+Update PRs remain outside automated readiness, approval, and merge unless the
+required check enforces evidence verification. The platform updater supplies a
+proposal, not proof that the gate has passed.
 
 ## Security updates
 
-Raised on advisory disclosure, independently of the schedule, and
-**prioritised**. They otherwise follow the same review policy and any applicable
+An advisory disclosure triggers a **prioritized** security update independently
+of the schedule. The update follows the same review policy and any applicable
 release path as another update.
 
 ## Configuration surface
@@ -153,10 +151,9 @@ release path as another update.
 | Merge policy | Branch protection and merge automation | Organization configuration |
 | Security updates | Repository security settings | On by default |
 
-Everything marked *generated* is reproducible from the repository, so a difference
-between the committed file and a fresh generation is drift. Everything marked
-*organization configuration* is a deliberate choice that generation MUST preserve
-rather than overwrite.
+For a *generated* surface, a difference between the committed configuration and
+fresh output is drift. Generation MUST preserve surfaces marked
+*organization configuration*, because those values record deliberate choices.
 
 ## Where this connects
 
