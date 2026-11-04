@@ -1,18 +1,16 @@
 ---
 title: Repository Governance
-description: How every repository in an organization is classified, protected, and continuously reconciled against the controls its classification declares.
+description: Repository classification, shared controls, and continuous comparison of declared and live configuration.
 ---
 
 # Repository Governance
 
-Making "every repository is protected" true of every repository without anyone
-checking: a repository declares **what kind of thing it is**, and that
-declaration is the only input that decides which branch protections, required
-checks, review gates, and required files apply to it.
+A repository declares its **type**. That declaration is the only input that
+selects its branch protections, required checks, review gates, and required files.
 
-Classification is data on the repository. Controls are organization-level
-configuration that reads that data. Nothing is configured per repository, so
-there is nothing per repository to drift.
+Classification is repository data. Controls are shared organization-level
+configuration that reads that data. Reconciliation compares each repository with
+the controls its type requires.
 
 <!-- INDEX:START -->
 

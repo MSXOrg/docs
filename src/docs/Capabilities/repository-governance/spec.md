@@ -7,18 +7,16 @@ description: Requirements for repository governance — classification-driven pr
 
 ## Premise
 
-An organization's repositories are not uniform. A published package needs a
-bisectable history; an infrastructure stack needs changes to reach a lower
-environment before production; a documentation site needs its build to pass
-before it lands. Configuring each repository to match its own shape produces as
-many configurations as there are repositories, all of them drifting, none of them
-reviewable together.
+An organization's repositories have different lifecycle requirements. A published
+package needs a bisectable history. An infrastructure stack needs changes to reach
+a lower environment before production. A documentation site needs its build to
+pass before a change merges. Separate configuration for each repository
+duplicates these controls and makes organization-wide review harder.
 
-Governance MUST therefore be inverted: a repository **declares its kind**, and
-the organization holds one configuration per kind. The declaration is the only
-per-repository decision, and it is a value, not a configuration. Every control
-follows from it, so the number of things that can drift is the number of kinds,
-not the number of repositories.
+A repository MUST declare its kind. The organization defines one configuration
+per kind. The declaration is the only per-repository input that selects controls:
+a value rather than a separate control configuration. Each control has one
+shared definition instead of one definition per repository.
 
 ### Principles
 
@@ -98,19 +96,19 @@ subject to the same baseline, regardless of type:
 
 ## Success criteria
 
-- A newly created repository is governed by the baseline before anyone configures it.
+- A newly created repository receives the baseline through its default type, without per-repository control configuration.
 - A repository's protections can be predicted from its type alone, without opening its settings.
 - A contradictory type combination is rejected at declaration rather than producing undefined protection.
 - The complete list of exempted repositories, each with its reason, is produced by a query.
-- A repository whose live configuration no longer matches its declared type is reported without anyone noticing it first.
+- Reconciliation reports live configuration that differs from a repository's declared type without manual detection.
 - Introducing a new repository shape adds one type value and one control, and changes no existing control's condition.
 
 ## Where this connects
 
 - [Design](design.md) — how classification, controls, and reconciliation are built.
-- [Repository Types](design-types.md) — the type catalogue, what each implies, and how types compose.
+- [Repository Types](design-types.md) — the type catalog, what each implies, and how types compose.
 - [Repository Type Property](../../Ways-of-Working/Repository-Type-Property.md) — the property mechanism and safe migration of its conditions.
 - [Repository Standard](../../Ways-of-Working/Repository-Standard.md) — the files a governed repository carries.
 - [Organization Standard](../../Ways-of-Working/Organization-Standard.md) — what an organization must define centrally for this to be enforceable.
 - [Branching and Merging](../../Ways-of-Working/Branching-and-Merging.md) — the merge models the types select between.
-- [Repository Segmentation](../../Ways-of-Working/Repository-Segmentation.md) — why a repository has one shape to declare in the first place.
+- [Repository Segmentation](../../Ways-of-Working/Repository-Segmentation.md) — why a repository has one release unit and branch strategy.
