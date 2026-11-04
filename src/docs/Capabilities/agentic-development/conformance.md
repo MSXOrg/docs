@@ -5,13 +5,12 @@ description: What a repository must provide to be conformant with the agentic de
 
 # Conformance
 
-A framework that cannot be checked is a preference. This page states what conformance to
-agentic development means for a single repository: the baseline it MUST provide, what it MAY
-add, and the conditions that indicate it has drifted.
+Conformance defines the required files, context resolution, and duplication limits for a
+repository. This page states the baseline it MUST provide, what it MAY add, and how to
+identify a deviation.
 
-The checks are deliberately structural. Whether a repository's documentation is *good* is a
-review question; whether its agent context resolves correctly is a property that can be
-determined by looking.
+These checks assess structure and content. Documentation quality requires review; file and
+content inspection establishes whether agent context resolves correctly.
 
 ## The mandatory baseline
 
@@ -26,18 +25,15 @@ A conformant repository MUST provide all of the following.
 | **Freshness** | Canonical context is synchronized at the start of every session, in every runtime ([context freshness](design.md#context-freshness)) |
 | **Precedence** | The router states that local files never override a standard |
 
-The baseline is small on purpose. Every item is something an agent needs before it can find
-anything else; nothing on the list is a judgement about how the repository should be
-documented.
+Each baseline item supports context discovery. The baseline does not assess the quality of
+the repository's documentation.
 
 ## The router stays thin
 
 The router MUST NOT restate a standard.
 
-This is the check that decays fastest, because adding one useful line to the router is always
-easier than finding where that line belongs. A router that has grown into a summary is the
-worst of both outcomes: it is not authoritative, so it may be wrong, and it is convenient, so
-it is what gets read.
+A router can accumulate copied rules when contributors add summaries instead of links.
+Readers can then use a convenient summary that differs from its authoritative source.
 
 A repository is non-conformant where any of these hold:
 
@@ -49,12 +45,12 @@ A repository is non-conformant where any of these hold:
 - A named intent carries a copy of the procedure it invokes
   ([plugin distribution](plugin-distribution.md)).
 
-Each of these is the same fault: one fact in two places, which is
-[one fact one place](../../Ways-of-Working/Documentation-Model.md) violated, and which
-resolves in whichever direction the reader happens to look first.
+These cases either duplicate guidance or put guidance in a file that does not own it.
+They violate [one fact one place](../../Ways-of-Working/Documentation-Model.md).
+The order in which files are read can then affect the applied rule.
 
-The remedy is always the same, and it is not deletion of the content: move the content to the
-layer that owns it, then reduce the local file to a pointer.
+Move the affected content to the layer that owns it, then reduce the local file to a pointer.
+Do not remove required information merely to shorten the router.
 
 ## What a repository may add
 
@@ -62,11 +58,10 @@ Beyond the baseline, a repository MAY add:
 
 - **Path-scoped rules**, for a caveat that is genuinely local to a directory and cannot be
   stated as a standard.
-- **Runtime adapters**, for a client the organization has not yet standardized on, provided the
+- **Runtime adapters**, for a client outside the organization's standard set, provided the
   adapter is a route and adds no content.
 - **Named intents**, for recurring workflows, provided they remain pointers.
-- **Repository-specific documentation**, which is normal and expected — the constraint is on
-  restating standards, not on documenting the repository.
+- **Repository-specific documentation**, without copies of shared standards.
 
 An addition MUST NOT introduce a requirement. Where local practice differs from a standard,
 the resolution is to change the standard or to record an
@@ -75,8 +70,7 @@ only agents will read it.
 
 ## Levels
 
-Conformance is graded, so that a repository can be positioned honestly rather than being
-either compliant or not.
+The levels distinguish required baseline checks from stricter consistency and runtime checks.
 
 | Level | Meaning |
 | --- | --- |
@@ -84,23 +78,20 @@ either compliant or not.
 | **Consistent** | Baseline, plus no duplication findings: no local file restates a standard |
 | **Uniform** | Consistent, plus every supported runtime resolves identically, and the shared tool layer is declared in each ([MCP servers](mcp-servers.md)) |
 
-Only **Baseline** is required. The higher levels describe a repository whose agent context
-needs no per-runtime knowledge to work with, which is the state the framework is aiming at.
+Only **Baseline** is required. The higher levels describe context that does not require
+runtime-specific knowledge.
 
 ## Checking
 
 Conformance MUST be checkable without running an agent.
 
-The baseline is a set of file and content properties, and duplication is detectable by
-comparing local text against the standards it might be restating. Both are amenable to the
-same [drift detection](../repository-governance/design.md#drift-detection-and-reconciliation)
-the organization already applies to repository structure, and a conformance finding MUST name
-its remedy for the same reason every other finding does: a finding that only reports a problem
-becomes a number people learn to ignore.
+The baseline uses file and content properties. Comparing local text with canonical standards
+identifies duplication. Both kinds of finding fit the
+[drift detection](../repository-governance/design.md#drift-detection-and-reconciliation)
+model. A conformance finding MUST name its remedy so a maintainer can act on it.
 
-Determining conformance by asking an agent whether it understood the repository MUST NOT be
-treated as a check. The answer is generated from the same context whose adequacy is in
-question.
+An agent's report that it understood the repository MUST NOT count as a conformance check.
+That answer depends on the same context being assessed.
 
 ## Where this connects
 

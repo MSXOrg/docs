@@ -7,26 +7,24 @@ description: Requirements for fresh, index-first agentic development through can
 
 ## Premise
 
-An agent does useful work only when it knows which project it is serving, which standards apply, and what the team has already learned. That context MUST be project-scoped, durable, reviewable, and readable by humans and agents alike. The project boundary is the GitHub organization — `github.com/MSXOrg`, `github.com/PSModule`, and any other organization that adopts the framework, on any GitHub host.
+An agent needs the project identity, applicable standards, and recorded project knowledge before it acts. That context MUST be project-scoped, durable, reviewable, and readable by humans and agents. The GitHub organization defines the project boundary. Examples include `github.com/MSXOrg`, `github.com/PSModule`, and adopting organizations on other GitHub hosts.
 
-Each organization identifies a canonical documentation repository:
-
-- The documentation repository owns the reviewed knowledge base: vision, standards, workflows, specs, designs, glossary, onboarding, and project-wide rules. It may be named `docs`, such as `MSXOrg/docs`, or be the repository that owns an initiative's process and standards, such as `PSModule/Process-PSModule`.
+Each organization identifies a canonical documentation repository. It owns reviewed project knowledge: vision, standards, workflows, specs, designs, glossary, onboarding, and project-wide rules. The name can be `docs`, as in `MSXOrg/docs`. Another repository can own the initiative's process and standards, as `PSModule/Process-PSModule` does.
 
 Product repositories do not copy that knowledge. They carry thin pointer files that identify the organization context and direct agents to the relevant documentation repository before acting.
 
 ### Principles
 
-This framework rests on the [Principles](../../Ways-of-Working/Principles/index.md):
+The framework follows the [Principles](../../Ways-of-Working/Principles/index.md):
 
-- **[Documentation lives close to the thing it documents](../../Ways-of-Working/Principles/Engineering-Practices.md#documentation-lives-close-to-the-thing-it-documents).** Organization-wide ways of working live in the organization `docs` repository; repository-specific nuance lives in the repository.
-- **[Everything as Code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).** Standards are plain files in git. Changes are reviewed, diffed, and reverted like code.
+- **[Documentation lives close to the thing it documents](../../Ways-of-Working/Principles/Engineering-Practices.md#documentation-lives-close-to-the-thing-it-documents).** The organization documentation repository owns organization-wide ways of working. Product repositories own repository-specific details.
+- **[Everything as Code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).** Standards are plain files in Git. Changes are reviewed, diffed, and reverted like code.
 - **[Written once, referenced everywhere](../../Ways-of-Working/Principles/Software-Design.md#dry-with-judgment).** Agent instructions point to canonical docs rather than duplicating them.
-- **[AI-first development](../../Ways-of-Working/Principles/AI-First-Development.md).** Humans create durable context; agents consume that context and leave useful improvements behind.
+- **[AI-first development](../../Ways-of-Working/Principles/AI-First-Development.md).** Humans create durable context; agents use it and record improvements.
 
 ## Scope
 
-Applies to any organization that wants a shared project knowledge base for agents across multiple repositories.
+The framework applies to organizations that share agent context across repositories.
 
 **In scope**
 
@@ -34,9 +32,9 @@ Applies to any organization that wants a shared project knowledge base for agent
 - Markdown documents with YAML frontmatter, following the [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) model.
 - Thin repository pointer files: a required `AGENTS.md` router, and a route to it for every client that cannot read it.
 - Path-scoped rule files, reserved for local caveats that cannot live in repository or central documentation.
-- The shared tool layer agents call out to, and how each runtime declares it.
+- The shared tool-server set and each runtime's declaration.
 - Named intents that package recurring workflows as pointers to canonical procedure.
-- Advisory automation that publishes judgement without taking authority.
+- Advisory automation that publishes judgment without taking authority.
 - Coordination between humans and agents on platform artifacts.
 - Refresh-first, index-first discovery from canonical context repositories to the Workflow and its stage procedures.
 - Deterministic context resolution by host, organization, repository, path, and task.
@@ -61,16 +59,16 @@ Applies to any organization that wants a shared project knowledge base for agent
 - **Stage resolution from work.** Agents MUST infer the current stage from the prompt and current artifacts. Explicit task language MAY shortcut to the matching stage, but the shortcut MUST resolve to the canonical documentation.
 - **One process source.** Skills, commands, named agents, and tool-specific instruction files MUST NOT redefine Workflow stages. A client convenience MAY link to a stage procedure and add only runtime mechanics.
 - **Segmentation before loading.** An agent MUST segment work by host, organization, repository, path, and task before loading project standards. The active repository context supplies the coordinates that make this possible; a per-repository router MUST NOT restate them.
-- **Client routes.** A runtime that cannot read `AGENTS.md` under its own filename MUST be given a route file — `.claude/CLAUDE.md`, `.github/copilot-instructions.md`, or the equivalent path for that runtime. A route file MUST contain only a pointer to `AGENTS.md` plus, at most, genuinely runtime-specific configuration that cannot be expressed as documentation. It MUST NOT restate standards, describe workflow behavior, or repeat the reading order. Duplication is a property of content rather than of filenames: a route holds nothing that can drift, so the number of route files is unconstrained while their contents are strictly limited. [Client behavior](design.md#client-behavior) names the exact set an MSX repository carries; an adopting organization MAY carry a different set for the runtimes it uses.
+- **Client routes.** A runtime that cannot read `AGENTS.md` under its own filename MUST be given a route file — `.claude/CLAUDE.md`, `.github/copilot-instructions.md`, or the equivalent path for that runtime. A route file MUST contain only a pointer to `AGENTS.md` plus, at most, genuinely runtime-specific configuration that cannot be expressed as documentation. It MUST NOT restate standards, describe workflow behavior, or repeat the reading order. Duplication is a property of content rather than filenames. The number of route files is unconstrained, but their contents are strictly limited. [Client behavior](design.md#client-behavior) names the exact set an MSX repository carries; an adopting organization MAY carry a different set for the runtimes it uses.
 - **Reading order and authority order are distinct.** An agent MUST read nearest context first, in the order the repository router defines. Precedence on conflict MUST run the opposite way: repository-local files MAY add nuance and narrow exceptions but MUST NOT override an organization or inherited ecosystem standard unless that standard permits a local exception.
 - **Deterministic context resolution.** Agents MUST resolve context in layers: system and client policy, user preferences, the repository router, the context-repository Git freshness gate, repository context, path-scoped repository rules, organization docs, any inherited ecosystem docs, then current task context.
 - **Local-first availability.** The canonical documentation repository SHOULD be available locally in a predictable workspace so agents can read it without relying on search or web access.
 - **Fresh context before use.** Every canonical context repository MUST be fetched and exactly synchronized with its remote default branch before its contents are read. Agents use Git directly; dirty, locally ahead, diverged, wrong-branch, or unreachable repositories MUST stop context resolution rather than fall back to stale content.
 - **Working checkouts are not context sources.** Canonical context MUST be read from the documentation repository clone that passed the freshness gate. A working checkout cloned to change that repository rather than to be governed by it MUST NOT be used as a context source, whatever path it occupies, because it sits outside the gate.
-- **Synchronize once per session, not once per machine.** The freshness gate MUST run at the start of every agent session, in every runtime. A workspace that was synchronized at some earlier point MUST NOT be treated as current, because elapsed time is not a state the agent can observe. The agent MUST use Git to synchronize it or stop when the clone cannot be safely synchronized.
+- **Synchronize once per session, not once per machine.** The freshness gate MUST run at the start of every agent session, in every runtime. A workspace synchronized earlier MUST NOT be treated as current on that basis. Elapsed time does not establish the remote repository state. The agent MUST use Git to synchronize it or stop when the clone cannot be safely synchronized.
 - **One tool layer, declared per runtime.** Where agents use external tools, the set of tool servers MUST be defined once as a logical layer and each runtime MUST declare that same set in its own native configuration format. A runtime MUST NOT define tools of its own that other runtimes lack, because a capability available in one client and absent in another makes the documented procedure conditional on which client is running it.
-- **Named intents stay pointer-based.** A packaged shortcut for a recurring workflow — however a runtime names it — MUST resolve to the canonical documentation for that workflow and MUST contain only the runtime mechanics needed to get there. It MUST NOT restate the procedure, since a shortcut that carries a copy of the process becomes a second, silently diverging definition of it.
-- **Advice and authority are separate.** An automated agent MAY analyse work and publish its conclusion as advice on the artifact under review. It MUST NOT be the thing that decides: it MUST NOT overwrite a human's decision, MUST NOT re-apply a decision a human has changed, and MUST NOT commit to the branch it is advising on. Its output is an input to the review, not a substitute for it.
+- **Named intents stay pointer-based.** A packaged shortcut for a recurring workflow — however a runtime names it — MUST resolve to the canonical documentation for that workflow and MUST contain only the runtime mechanics needed to get there. It MUST NOT restate the procedure. A copied process can diverge from its canonical definition.
+- **Advice and authority are separate.** An automated agent MAY analyze work and publish its conclusion as advice on the artifact under review. It MUST NOT decide the artifact's outcome: it MUST NOT overwrite a human's decision, MUST NOT re-apply a decision a human has changed, and MUST NOT commit to the branch it is advising on. Its output is an input to the review, not a substitute for it.
 - **Coordination happens on durable artifacts.** Where agents and humans coordinate, they MUST do so through the platform's own artifacts — issues, labels, and pull requests — rather than through a channel that leaves no trace in the repository. Intent MUST be separable from implementation: the issue states *what* is wanted and *why*, and the pull request proposes *how*, so that a rejected implementation does not discard the intent.
 - **Reviewed knowledge changes.** Changes to the canonical documentation repository MUST happen through pull requests.
 - **No cross-project bleed.** An agent working in one organization MUST NOT apply another organization's standards unless the current task explicitly asks for cross-organization work.
