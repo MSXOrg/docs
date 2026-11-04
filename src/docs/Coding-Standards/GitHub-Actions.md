@@ -829,8 +829,9 @@ Use the next option only if the preceding option cannot meet the requirement:
 A short `run:` step with a few commands that connect tools belongs inline.
 If a step contains a **multi-line script embedded as a YAML string** (Bash,
 Python, or PowerShell), extract the script.
-Linters, formatters, and editors cannot process that script as code:
-`shellcheck`, `ruff`, and type checkers see a YAML string.
+actionlint can send inline Bash and sh scripts to `shellcheck` when the integration
+is enabled and the executable is available.
+Its ShellCheck integration does not lint PowerShell or Python.
 
 - **A step whose logic is a non-trivial inline script must become its own
   action.** The workflow then `uses:` that action instead of containing the
@@ -840,8 +841,9 @@ Linters, formatters, and editors cannot process that script as code:
 Moving a script out of a workflow string applies the
 [Code in code files](../Ways-of-Working/Principles/Engineering-Practices.md#code-in-code-files)
 principle.
-Linters, security scanners, and IDEs can process the code only when it is in a
-file of its own language.
+Standalone source files give tools the script's native language and file context.
+They support language-specific linters, such as `ruff`, formatters, type checkers,
+security scanners, and IDE features.
 
 ### Generalize the action; drive behaviour through inputs and outputs
 
@@ -969,12 +971,14 @@ Those copies can diverge.
 
 ## Toolchain
 
-Two linters enforce this standard in CI.
+Two linters check workflow correctness and security in CI.
 Their configuration derives from the rules above, which are the source of truth:
 
 - **[actionlint](https://github.com/rhysd/actionlint)** checks workflow
-  correctness: expression syntax, job and step connections, runner labels, and the
-  shell of every `run:` step through shellcheck.
+  correctness: expression syntax, job and step connections, and runner labels.
+  Its [ShellCheck integration](https://github.com/rhysd/actionlint/blob/main/docs/checks.md#check-shellcheck-integ)
+  checks inline Bash and sh `run:` scripts when enabled and ShellCheck is available.
+  It does not check PowerShell or Python through ShellCheck.
 - **[zizmor](https://docs.zizmor.sh/)** audits workflow security, flagging the
   failures this standard exists to prevent: unpinned actions, excessive
   `permissions`, template injection from untrusted input, `secrets: inherit`,
@@ -982,7 +986,11 @@ Their configuration derives from the rules above, which are the source of truth:
 
 Both run through [super-linter](https://github.com/super-linter/super-linter) on
 every push and pull request.
-A workflow that breaks this standard fails the build.
+
+The linters do not detect every violation of this standard.
+Review the authoring rules as well as the lint results.
+For conditional dependencies, follow the
+[skipped-job guidance](#a-skipped-job-in-needs-skips-everything-downstream).
 
 Treat `actionlint` errors and high-severity `zizmor` findings as blockers.
 Fix medium-severity `zizmor` findings unless the workflow documents why the risk
