@@ -8,8 +8,8 @@ description: Requirements for dependency updates — pinned dependencies kept cu
 ## Premise
 
 Repositories pin dependencies with Action SHAs, image digests, package versions,
-and provider constraints. A pinned version can lack an upstream bug fix or
-contain a known vulnerability.
+and provider constraints. A pinned version can contain a defect that a later
+upstream version corrects. It can also contain a known vulnerability.
 
 Dependency updates MUST run automatically on the GitHub platform. Each update
 produces an ordinary pull request that follows the repository's review gate.
@@ -22,7 +22,7 @@ without that invocation carries no `release:*` metadata.
 This capability rests on the [Principles](../../Ways-of-Working/Principles/index.md):
 
 - **[Everything as Code](../../Ways-of-Working/Principles/Engineering-Practices.md#everything-as-code).** Version-controlled configuration defines the dependency checks and their frequency.
-- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** Every update is a pull request; its review gate approves the dependency change, while any applicable release decision is resolved separately.
+- **[Decision before change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).** Every update is a pull request. Its review gate approves the dependency change separately from any applicable release decision.
 - **[Least-privilege](../../Ways-of-Working/Principles/Purpose-and-Direction.md#least-privilege).** The updater and any auto-merge automation have only the permissions they need.
 - **[Extensible by default](../../Ways-of-Working/Principles/Software-Design.md#extensible-by-default).** An additional package ecosystem uses a configuration entry, not a separate updater.
 
@@ -51,12 +51,12 @@ the release decision and output.
 - **FR2 — Native support is configured.** Every detected ecosystem in the
   centrally maintained native-support catalog MUST have an updater entry for
   the directory its manifest governs.
-- **FR3 — Unsupported ecosystems use a central exception.** An ecosystem the
-  native updater does not support MUST be recorded in the centrally managed
-  exception register with its manifest, scope, reason, owner, and shared update
-  mechanism. A repository MUST NOT create or maintain a repository-specific updater.
-- **FR4 — Coverage is verifiable, not asserted.** The manifest inventory MUST be
-  comparable against the configured native ecosystems and the central exception
+- **FR3 — Unsupported ecosystems use a central exception.** The centrally managed
+  exception register MUST record each unsupported ecosystem with its manifest,
+  scope, reason, owner, and shared update mechanism.
+  A repository MUST NOT create or maintain a repository-specific updater.
+- **FR4 — Coverage is verifiable, not asserted.** The manifest inventory MUST
+  support comparison with the configured native ecosystems and central exception
   register. This comparison makes coverage gaps detectable.
 - **FR5 — Native configuration is generated, not hand-maintained.** Native
   updater configuration SHOULD be produced from supported manifests rather than
@@ -82,8 +82,9 @@ the release decision and output.
   The author or delegated agent MUST reconcile required integration actions,
   applicable template differences, and relevant consumer validation before review
   readiness. Missing evidence or a required action MUST block affected work, not
-  become an optional follow-up. A required PR check MUST verify that evidence
-  before the update is eligible for automatic readiness, approval, or merge.
+  become an optional follow-up. A required PR check MUST report the
+  evidence-verification result before the update is eligible for automatic
+  readiness, approval, or merge.
   A missing, stale, pending, or failed result MUST hold the
   update even when its other checks pass.
 
@@ -106,7 +107,7 @@ the release decision and output.
 - An ecosystem added to a repository without a corresponding updater entry is a detectable finding, not a silent gap.
 - When the target route invokes Release Management, the repository-wide release decision for dependency changes is resolved separately under that capability.
 - No dependency pull request merges without passing the same checks as any other pull request.
-- An update that skips releases still accounts for every applicable increment,
+- An update that skips releases accounts for every applicable increment,
   and a no-action patch retains explicit evidence and relevant validation.
 - Missing baseline, action, or applicable template evidence leaves the affected
   update blocked with a linked owning issue.

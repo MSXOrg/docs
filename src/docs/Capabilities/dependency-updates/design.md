@@ -58,7 +58,9 @@ The **cooldown** delays a version update proposal after upstream publication.
 During this delay, the upstream project can withdraw or replace a defective release
 before update proposals reach consumers.
 
-The organization standard is an implicit **three-day** cooldown for version updates. Repositories omit `cooldown` when they use that standard; an explicit mapping records a deliberate non-default duration.
+The organization standard is an implicit **three-day** cooldown for version updates.
+Repositories omit `cooldown` when they use that standard.
+An explicit mapping records a deliberate non-default duration.
 
 Security updates bypass the schedule and cooldown. A published advisory identifies
 a known vulnerability in the pinned version, so version-update delays do not apply.
@@ -146,7 +148,7 @@ release path as another update.
 | Native ecosystems and directories | `.github/dependabot.yml` | Generated from supported manifests |
 | Unsupported ecosystems | Central exception register | Centrally managed shared mechanism |
 | Schedule (`interval`, `day` and `time`, or `cronjob`) and `timezone` | `.github/dependabot.yml` | Organization configuration |
-| Cooldown | Updater default (three days); explicit mapping only for a deliberate non-default duration | Organization configuration |
+| Cooldown | Updater default (three days). Explicit mapping only for a deliberate non-default duration | Organization configuration |
 | Release decision | Release Management, when invoked for the target route | Decided for the collected repository change |
 | Merge policy | Branch protection and merge automation | Organization configuration |
 | Security updates | Repository security settings | On by default |
@@ -161,5 +163,5 @@ fresh output is drift. Generation MUST preserve surfaces marked
 - [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) — the procedure that turns an update proposal into verified adoption.
 - [Repository Governance](../repository-governance/design.md#drift-detection-and-reconciliation) — the reconciliation that compares generated configuration against what is committed.
 - [Release Management](../release-management/design.md) — the conditional release decision and output for an update pull request.
-- [Downstream Release Propagation](../downstream-release-propagation/design.md) — the internal counterpart; propagation PRs are dependency updates too.
+- [Downstream Release Propagation](../downstream-release-propagation/design.md) — the internal counterpart. Propagation PRs are dependency updates too.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md#keep-pinned-actions-current) — the Action-pin specifics this builds on.

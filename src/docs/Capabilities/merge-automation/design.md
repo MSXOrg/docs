@@ -35,10 +35,11 @@ contract. If one name changes, update the other in the same change.
 
 ## The automation
 
-A **GitHub App** (or equivalent automation) is the actor. It subscribes to the
-`check_suite`, `check_run`, and `status` webhook events — or reads the combined
-status for the head commit — and evaluates whether every required context is
-successful. It then acts on the signal alone:
+A **GitHub App** (or equivalent automation) is the actor.
+It subscribes to the `check_suite`, `check_run`, and `status` webhook events or
+reads the combined status for the head commit.
+It evaluates whether every required context is successful, then acts on that
+signal alone:
 
 | Combined required status | Action |
 | --- | --- |

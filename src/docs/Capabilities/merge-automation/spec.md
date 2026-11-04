@@ -57,4 +57,4 @@ that configured decision into action.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md#gate-merges-with-a-named-status-check) — authoring the named checks this consumes.
 - [Dependency Updates](../dependency-updates/spec.md) — the auto-merge policy this generalizes. Dependency update PRs are the canonical eligible set.
 - [Branching and Merging](../../Ways-of-Working/Branching-and-Merging.md) — pull-request-only integration and the green-before-review rule.
-- [Review Etiquette](../../Ways-of-Working/Review-Etiquette.md) — where human judgment still applies.
+- [Review Etiquette](../../Ways-of-Working/Review-Etiquette.md) — where human judgment applies.
