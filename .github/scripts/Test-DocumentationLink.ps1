@@ -3,32 +3,29 @@
 
 <#
 .SYNOPSIS
-    Validate that every relative Markdown link and heading anchor in the docs resolves.
+    Validate relative Markdown links and heading anchors in the documentation.
 
 .DESCRIPTION
-    Walks the documentation content under src/docs and checks every inline
-    Markdown link:
+    The script reads Markdown files beneath src/docs.
+    It validates inline link targets and reference-style link definitions:
 
-    - A relative file target must exist on disk - a link to '../Foo.md' or
-      'Bar/index.md' has to resolve to a real file or directory.
+    - A relative target such as '../Foo.md' or 'Bar/index.md' must identify an
+      existing file or directory.
     - A heading anchor ('target.md#section', or a same-page '#section') must match
-      a heading in the target file. Slugs are computed the same way the site's
-      Markdown processor does, including the '_1', '_2' suffixes for duplicate
-      headings; an explicit attr_list id ('## Heading {#id}') is recognised as
-      the heading's anchor.
+      an anchor in the target Markdown file. The site processor's slug rules add
+      '_1', '_2' suffixes to duplicate headings.
+      An explicit attr_list id ('## Heading {#id}') supplies the anchor directly.
 
-    External links (http, https, mailto, tel), absolute paths, links inside fenced
-    code blocks, links inside inline code spans, and the prose body of a GFM
-    footnote definition ('[^1]: ...') are ignored on purpose.
+    The script ignores external links (http, https, mailto, tel) and absolute site paths.
+    It also ignores links inside fenced code blocks and inline code spans.
+    Footnote definitions ('[^1]: ...') do not become link targets.
+    The script still validates inline links in footnote text.
 
-    The script changes nothing. It exits 0 when every link resolves and exits 1,
-    listing each broken link, otherwise - so it can gate a pull request and a push
-    to main in CI, alongside linting.
-
-    It also exits 1 when it found no Markdown files at all. Every link resolving
-    is trivially true when there are no links, so an empty run is reported as a
-    failure rather than a pass - a wrong root or an over-broad filter cannot make
-    this check quietly green.
+    The script does not change files.
+    It exits 0 when every supported link resolves.
+    If a target is missing or an anchor does not match, it lists the link and exits 1.
+    If it finds no Markdown files, it exits 1.
+    A Markdown file with no links does not cause a failure.
 
 .EXAMPLE
     ./Test-DocumentationLink.ps1
@@ -49,10 +46,11 @@ function ConvertTo-Slug {
         Convert a heading to the anchor slug the site's Markdown processor emits.
 
         .DESCRIPTION
-        Mirror python-markdown's default TOC slugifier: drop non-ASCII characters,
-        remove punctuation except word characters, whitespace, and hyphens,
-        lowercase the result, then collapse whitespace and hyphen runs into a
-        single hyphen.
+        The function uses python-markdown's default TOC slug rules.
+        It removes non-ASCII characters, then punctuation other than word characters,
+        whitespace, and hyphens.
+        It converts the text to lowercase and replaces each whitespace or hyphen
+        sequence with one hyphen.
 
         .EXAMPLE
         ConvertTo-Slug -Heading 'Prefer .NET for the actual work'
@@ -63,7 +61,7 @@ function ConvertTo-Slug {
     #>
     [CmdletBinding()]
     param(
-        # The heading text to slugify.
+        # Heading text to convert to an anchor slug.
         [Parameter(Mandatory)]
         [string] $Heading
     )
@@ -78,12 +76,10 @@ function Get-HeadingSlug {
         Get the anchor slugs a Markdown file exposes.
 
         .DESCRIPTION
-        Return each heading's anchor, matching the duplicate-slug suffixing
-        ('_1', '_2', ...) the Markdown processor applies to repeated headings. A
-        heading may also carry an explicit attr_list id ('## Heading {#id}'),
-        which the site renderer uses as the anchor verbatim, overriding the text
-        slug; those are recognised so links to '#id' validate. Fenced code blocks
-        are skipped.
+        The function returns heading anchors and explicit attr_list ids.
+        The Markdown processor adds '_1', '_2', ... to duplicate heading slugs.
+        An explicit attr_list id ('## Heading {#id}') replaces the text slug.
+        The function ignores headings inside fenced code blocks.
 
         .EXAMPLE
         Get-HeadingSlug -Path ./src/docs/index.md
@@ -125,11 +121,11 @@ $slugCache = @{}
 function Get-CachedSlug {
     <#
         .SYNOPSIS
-        Get a file's heading slugs, parsing each file only once.
+        Get a file's heading slugs and cache the result.
 
         .DESCRIPTION
-        Memoise Get-HeadingSlug in the script-scoped $slugCache so a file that is
-        linked from many places is scanned a single time.
+        The function stores Get-HeadingSlug results in the script-scoped $slugCache.
+        It reads each file only on the first request.
 
         .EXAMPLE
         Get-CachedSlug -Path ./src/docs/index.md
@@ -140,7 +136,7 @@ function Get-CachedSlug {
     #>
     [CmdletBinding()]
     param(
-        # Path to the Markdown file whose slugs are wanted.
+        # Path to the Markdown file that contains the heading anchors.
         [Parameter(Mandatory)]
         [string] $Path
     )
@@ -151,14 +147,17 @@ function Get-CachedSlug {
 function Get-LinkTargetIssue {
     <#
         .SYNOPSIS
-        Get the problem with a single relative Markdown link target, if any.
+        Get a message for an invalid relative Markdown link target.
 
         .DESCRIPTION
-        Validate one inline or reference-style link target: external links,
-        absolute site paths, and empty targets are ignored; a relative file must
-        exist; and a '#fragment' must match a heading anchor (case-sensitively)
-        either in the target file or on the same page. Return a human-readable
-        message when the target does not resolve, or nothing when it is valid.
+        The function validates one inline or reference-style link target.
+        It ignores external links, absolute site paths, and empty targets.
+        A relative target must identify an existing file or directory.
+
+        For a Markdown target, a '#fragment' must match a heading anchor.
+        A target that contains only a fragment refers to the same page.
+        Anchor comparisons are case-sensitive.
+        The function returns a message for an invalid target, or no output for a valid target.
 
         .EXAMPLE
         Get-LinkTargetIssue -Target '../reference/bar.md#setup' -File $file -Rel 'docs/foo.md' -LineNo 12
@@ -169,11 +168,11 @@ function Get-LinkTargetIssue {
     #>
     [CmdletBinding()]
     param(
-        # The raw link target - a destination and an optional '#fragment'.
+        # Link destination with an optional '#fragment'.
         [Parameter(Mandatory)]
         [string] $Target,
 
-        # The Markdown file the link appears in, used to resolve relative paths.
+        # The Markdown file that contains the link. Relative paths start from its directory.
         [Parameter(Mandatory)]
         [System.IO.FileInfo] $File,
 
