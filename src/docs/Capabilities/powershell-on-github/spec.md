@@ -7,21 +7,24 @@ description: Requirements and boundaries for PowerShell parity on GitHub using r
 
 ## Problem
 
-GitHub offers strong language-native experiences for mainstream ecosystems, but PowerShell still has capability gaps in dependency intelligence, security signals, publishing ergonomics, and first-party tooling support.
+PowerShell development on GitHub has gaps in dependency intelligence, security
+signals, publication workflows, and first-party tooling.
 
 ## Goal
 
-Provide a PowerShell-first GitHub development experience that is easy, fast, and safe by default.
+The capability provides a PowerShell-first GitHub development experience that is
+easy, fast, and safe by default.
+The [design](design.md) describes the architecture that supports this goal.
 
 ## Requirements
 
-1. Reusable automation should be packaged as versioned, SHA-pinnable actions and modules.
-2. Module and action delivery must be orchestrated through standardized CI/CD workflows.
-3. Missing platform support should be addressed through either:
-   - build-it paths (when APIs exist)
-   - advocacy paths (when only platform vendors can close the gap)
-4. Documentation for this capability must remain canonical in MSXOrg/docs.
-5. Initiative repositories can reference this capability but not fork its canonical guidance.
+1. Repositories SHOULD package reusable automation as versioned, SHA-pinnable actions and modules.
+2. Standardized CI/CD workflows MUST orchestrate module and action delivery.
+3. The capability SHOULD address a platform-support gap through one of two paths:
+   - Build path: use available APIs.
+   - Advocacy path: request vendor support when only the platform vendor can close the gap.
+4. MSXOrg/docs MUST remain the canonical source for this capability's documentation.
+5. Initiative repositories can reference this capability but cannot fork its canonical guidance.
 
 ## Scope
 
@@ -38,6 +41,6 @@ Out of scope:
 
 ## Success criteria
 
-- Capability guidance is discoverable under MSX capabilities.
-- Initiative-local copies are replaced with pointers.
-- PowerShell parity gaps are documented with a clear build-versus-advocate classification.
+- Capability guidance is available through the MSX capabilities index.
+- Initiative repositories link to canonical guidance instead of maintaining local copies.
+- PowerShell platform gaps have an explicit build or advocacy classification.
