@@ -5,7 +5,7 @@ description: What every initiative organization must define centrally so humans 
 
 # Organization Standard
 
-An MSX initiative organization is a collection of repositories that share one way of working. The organization standard defines the shared contract: what every repository can expect from the organization, where the source of truth lives, and which files must be managed consistently.
+An MSX initiative organization contains repositories that share one way of working. This standard defines what each repository can expect from the organization. It identifies the source of truth and the files that the organization must manage consistently.
 
 This page owns the **why** and **what**. Initiative repositories own the implementation design: how they distribute files, which automation enforces the contract, and how exceptions are handled.
 
@@ -42,7 +42,7 @@ Every initiative organization must define standards for these shared file famili
 | Agent context | Organization settings plus repository-local instructions, prompts, hooks, and agent guidance. |
 | Release automation | Release notes, changelog categorization, and release workflow defaults where applicable. |
 
-These standards must be written down before broad alignment work starts. File alignment without a written standard only spreads local preference faster.
+These standards must be documented before organization-wide alignment work starts. Without a written standard, file alignment distributes local preferences rather than agreed rules.
 
 ## Community files are organization defaults
 
@@ -130,7 +130,7 @@ A managed-file system must:
 - Log which repositories changed, which were already aligned, and which failed.
 - Never silently delete previously distributed files without an explicit cleanup decision.
 
-PSModule currently explores this through `PSModule/Distributor`. That repository is an implementation example for the PSModule initiative, not the MSX-wide design. Other initiatives may build a different distributor as long as it satisfies this standard.
+The `PSModule/Distributor` example refers to the [Distributor repository](https://github.com/MSXOrg/Distributor). Its documentation describes a managed-file distribution design for the PSModule initiative, not the MSX-wide design. Other initiatives may use a different distributor if it satisfies this standard.
 
 ## Mandatory and optional file sets
 
@@ -152,15 +152,15 @@ is needed under the community-file rule above. Linter
 settings, agent instructions, and workflow defaults may be global or
 type-specific depending on the initiative.
 
-Which set applies to a repository is derived from its classification rather than decided per repository, so that adding a repository requires classifying it and nothing else. The classification mechanism, the per-type required-file matrix, and the composition rules for a repository that is more than one type are defined by [Repository Governance](../Capabilities/repository-governance/spec.md).
+Classification selects the applicable file sets instead of a separate per-repository decision. [Repository Governance](../Capabilities/repository-governance/spec.md) defines the classification mechanism, per-type required-file matrix, and composition rules for repositories with multiple types.
 
 ## Enforcement is continuous
 
-A standard is only in force where the organization can tell whether it is being met. Writing the standard down, distributing the files once, and assuming the result persists produces an organization that believes it is aligned and cannot demonstrate it — repositories are created outside the distribution path, settings are changed by hand, and files are edited locally, none of which announces itself.
+Every organization-level standard must have a way to observe compliance across repositories. A one-time file distribution does not establish continued alignment. Repository creation outside the distribution path, manual setting changes, and local file edits can each cause drift.
 
-So every organization-level standard must be paired with a way of observing its state across repositories, and every observed deviation must be either corrected or recorded as a deliberate exemption. Silent deviation is the only outcome that is not allowed, because it is indistinguishable from compliance until something depends on it.
+The organization must either correct each observed deviation or record it as a deliberate exemption. An unreported deviation must not be treated as compliance.
 
-This is the reconciliation loop described in [Repository Governance](../Capabilities/repository-governance/design.md#drift-detection-and-reconciliation): the declared state is the source of truth, the observed state is measured against it, and the difference is a finding that names its own remedy.
+The [Repository Governance reconciliation loop](../Capabilities/repository-governance/design.md#drift-detection-and-reconciliation) compares observed repository state with the declared source of truth. Each difference produces a finding with a remedy.
 
 ## Linter configuration ownership
 
@@ -178,7 +178,7 @@ Humans and agents must read the same standards. Do not create a separate hidden 
 
 Agent files are allowed when they point to, summarize, or operationalize the central standard. They must not become a second source of truth.
 
-The repository-level entry point is `AGENTS.md`, as defined by [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior). Agent runtimes do not agree on a filename, so a repository also carries a route file for each client that reads a different one. A route holds a pointer to the router and, at most, genuinely runtime-specific configuration — never a duplicated standard or workflow. The same limit applies to any organization-level instruction setting an agent vendor offers: use it for organization-wide preferences, never as a second copy of a standard.
+The repository-level entry point is `AGENTS.md`, as defined by [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior). A repository also carries a route file for each client that reads a different filename. A route contains a pointer to the router and, at most, genuinely runtime-specific configuration. It never duplicates a standard or workflow. The same limit applies to organization-level instruction settings from agent vendors. Use them for organization-wide preferences, never as a second copy of a standard.
 
 The `.github/copilot-instructions.md` route in the special `.github`
 repository applies to that repository only. Organization-wide Copilot
