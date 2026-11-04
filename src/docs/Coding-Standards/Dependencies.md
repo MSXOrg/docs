@@ -13,10 +13,10 @@ This is the ecosystem-agnostic standard; the per-tool standards apply it. [Power
 
 A pin has two independent parts; keep them separate.
 
-- **Identity** — *which* artifact, proven. A name alone can be squatted, re-tagged, or repointed at new code, so an **identity pin** binds to immutable bytes: a module `GUID`, an Action or commit **SHA**, an image **digest**. It answers "is this the exact thing that was vetted?" and is orthogonal to the version.
+- **Identity** — identifies the module or artifact. A module `GUID` is declared metadata that distinguishes modules with the same name; see the [module manifest GUID reference](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_module_manifests?view=powershell-7.5#guid). It does not verify module content. An Action or commit **SHA** and an image **digest** identify specific content. Identity is separate from the allowed versions.
 - **Version tightness** — *which versions* of that artifact are acceptable, from an exact pin to floating latest.
 
-The strongest control combines a verified identity **and** a deliberate version. Identity controls integrity. Version tightness controls the update velocity and risk described below.
+Identity checks and version limits control selection. Content hashes also bind the selection to specific bytes. Declared module metadata does not establish content integrity. Version tightness controls the update velocity and risk described below.
 
 Before you choose a pin, decide whether the dependency is needed. For modules and libraries built here, the default is to **avoid introducing a new third-party dependency when the capability can reasonably be implemented with PowerShell, the .NET base class library, or owned code**. Each external DLL, package, or module adds an update stream, trust boundary, and failure mode for the module's lifetime. Accept more implementation work when it reduces shipped dependencies and clarifies ownership.
 
@@ -26,12 +26,14 @@ From tightest to loosest, each step trades safety for speed:
 
 | Lock | What can change | Update velocity | Supply-chain exposure | Reproducible |
 | --- | --- | --- | --- | --- |
-| **Identity + exact** (`GUID` / SHA / digest, exact version) | Nothing until you re-pin | Only via a reviewed re-pin PR | **Lowest** — each change is reviewed | Yes |
+| **Identity + exact** (`GUID` / SHA / digest, exact version) | Selected version stays fixed until you re-pin | Only via a reviewed re-pin PR | **Lowest for content-hash pins**; a module GUID alone does not establish content integrity | Yes for content-hash pins; GUID + version alone is insufficient |
 | **Controlled owned major** (`@v8`) | Compatible stable releases from organization- or initiative-owned automation | Patch and minor releases roll out centrally | Low when only controlled release automation can move the tag | No |
 | **Patch** (`x.y.*`) | Fix-level releases | Fixes arrive | Low | With a lockfile |
 | **Minor** (`x.*`) | Additive features and fixes | Features and fixes arrive | Moderate | With a lockfile |
 | **Major** (floor only, `>= x`) | Any version at or above the floor, including breaking releases | All eligible releases arrive | Higher | With a lockfile |
 | **Latest / floating** (unpinned, `*`, a moving tag) | Anything, immediately | Immediate | **Highest** — newest code runs before anyone sees it | No |
+
+Reproducibility here means resolving the same dependency bytes. Matching a module's name, declared identity, and version does not establish that condition.
 
 ## The balance
 
@@ -42,7 +44,7 @@ Both very loose pins and exact pins without updates create risk.
 
 The required approach is to **control integrity and automate updates**, rather than select a pin and never change it:
 
-1. **Pin tightly by default** — an identity pin plus a deliberate version, or a lockfile — so every build is reproducible and nothing changes unvetted. A controlled owned-major tag is the narrow exception for automation whose release path the organization or initiative operates.
+1. **Pin tightly by default** — an identity pin plus a deliberate version, or a lockfile — to control version selection and reviewed updates. Reproducibility also depends on resolving the same artifact bytes. A controlled owned-major tag is the narrow exception for automation whose release path the organization or initiative operates.
 2. **Automate updates** rather than depend on manual monitoring of upstream releases. The [Dependency Updates](../Capabilities/dependency-updates/index.md) bot opens one reviewed pull request per bump.
 3. **Gate every update through CI and review.** Every update passes the repository's normal merge policy. Raise security advisories separately and prioritize them. After related changes are collected, resolve the repository release decision under [Release Management](../Capabilities/release-management/design.md) when the target route invokes it.
 
@@ -63,7 +65,7 @@ A "track" defines the updates a dependency can accept. You do **not** need every
 
 The consumer role and control of the source determine the mix:
 
-- **Library or application.** A **library**, such as a module or Action others consume, declares the *widest range it is compatible with*. It usually declares a floor, rarely a ceiling, so consumers can select supported versions. An **application or end artifact**, such as a workflow, deployable, or CI pipeline, pins external dependencies to *exact resolved versions*. This provides reproducibility, while the updater supplies later versions. The controlled owned-major exception trades consumer-level reproducibility for central rollout only where the producer and release path are owned.
+- **Library or application.** A **library**, such as a module or Action others consume, declares the *widest range it is compatible with*. It usually declares a floor, rarely a ceiling, so consumers can select supported versions. An **application or end artifact**, such as a workflow, deployable, or CI pipeline, pins external dependencies to *exact resolved versions*. Exact versions control version selection; reproducibility also depends on stable artifact bytes. The updater supplies later versions. The controlled owned-major exception trades consumer-level reproducibility for central rollout only where the producer and release path are owned.
 - **Source control and impact.** External sources stay toward identity + exact regardless of reputation. Owned automation may use a controlled major only when the organization or initiative operates the release gate and accepts the central rollout's impact.
 
 The ecosystem default is to **identity-pin external code that runs (SHAs, digests)**. **Use controlled major tags only for owned automation. Libraries declare compatible version floors, and shipped artifacts use lockfiles. The [updater](../Capabilities/dependency-updates/index.md) opens reviewed pull requests.** Floating latest is unsuitable for shipped or CI-run code.
