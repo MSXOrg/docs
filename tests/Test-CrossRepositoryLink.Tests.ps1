@@ -434,6 +434,8 @@ See the [second](https://github.com/PSModule/Demo/blob/main/docs/Guide.md#duplic
             @{ Heading = '__a_ _b__'; Slug = 'a-b' }
             @{ Heading = '``a ``` b`` _emphasis_ `c`'; Slug = 'a--b-emphasis-c' }
             @{ Heading = '_Use ` as a delimiter_'; Slug = 'use--as-a-delimiter' }
+            @{ Heading = 'Heading {#custom}'; Slug = 'heading-custom' }
+            @{ Heading = 'http://example.test/a/_b_/c'; Slug = 'httpexampletesta_b_c' }
         ) {
             $fixture = New-CrossLinkFixture -Content @"
 # Page
@@ -453,6 +455,19 @@ See [the heading](https://github.com/PSModule/Demo/blob/main/docs/Guide.md#$Slug
 
 See [the heading](https://github.com/PSModule/Demo/blob/main/docs/Guide.md#snakecase-and-kebab-case).
 '@ -Target @{ 'PSModule/Demo/main/docs/Guide.md' = "# Guide`n`n## snake_case and kebab-case`n" }
+
+            $result = Invoke-CrossLinkFixture -Fixture $fixture
+
+            $result.ExitCode | Should -Be 1
+            $result.Output | Should -Match 'no heading'
+        }
+
+        It 'rejects an anchor that omits literal generic-attribute text' {
+            $fixture = New-CrossLinkFixture -Content @'
+# Page
+
+See [the heading](https://github.com/PSModule/Demo/blob/main/docs/Guide.md#heading).
+'@ -Target @{ 'PSModule/Demo/main/docs/Guide.md' = "# Guide`n`n## Heading {#custom}`n" }
 
             $result = Invoke-CrossLinkFixture -Fixture $fixture
 

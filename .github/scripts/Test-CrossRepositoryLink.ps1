@@ -88,8 +88,8 @@
 .NOTES
     'ConvertTo-GitHubSlug' originated in 'scripts/Test-MarkdownLink.ps1' in
     Storhaug-ting/Kilden, where the character class was compared against github-slugger
-    across every code point. Heading text uses PowerShell's built-in Markdown renderer.
-    GitHub anchors are generated separately; the renderer's anchor IDs are not used.
+    across every code point. Heading text uses PowerShell's bundled Markdig renderer
+    with GitHub inline syntax. GitHub anchors are generated separately.
 
 .LINK
     https://msxorg.github.io/docs/Coding-Standards/Markdown/
@@ -173,9 +173,9 @@ function Get-RenderedHeadingText {
         Get the text a heading renders to, before it is turned into an anchor.
 
         .DESCRIPTION
-        PowerShell's built-in Markdown renderer resolves emphasis, code spans, links,
-        and HTML. Return the decoded heading text for GitHub slug generation. Do not
-        use the renderer's anchor IDs, which follow different slug rules.
+        PowerShell's bundled Markdig renderer resolves CommonMark with GitHub's
+        autolinks and strikethrough. Generic attributes remain literal. Return the
+        decoded heading text; GitHub's slug rules generate anchors separately.
 
         .EXAMPLE
         Get-RenderedHeadingText -Heading 'See the [guide](x.md) for `npm ci`'
@@ -192,7 +192,15 @@ function Get-RenderedHeadingText {
         [AllowEmptyString()]
         [string] $Heading
     )
-    $html = (ConvertFrom-Markdown -InputObject "# $Heading").Html
+    Add-Type -AssemblyName 'Markdig.Signed'
+    $pipelineBuilder = [Markdig.MarkdownPipelineBuilder]::new()
+    $null = [Markdig.MarkdownExtensions]::UseAutoLinks($pipelineBuilder, $null)
+    $null = [Markdig.MarkdownExtensions]::UseEmphasisExtras(
+        $pipelineBuilder,
+        [Markdig.Extensions.EmphasisExtras.EmphasisExtraOptions]::Strikethrough
+    )
+
+    $html = [Markdig.Markdown]::ToHtml("# $Heading", $pipelineBuilder.Build())
     $text = $html -replace '<[^>]*>', ''
     return [System.Net.WebUtility]::HtmlDecode($text).Trim()
 }
