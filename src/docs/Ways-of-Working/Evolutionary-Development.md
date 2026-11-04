@@ -87,7 +87,7 @@ The **acceptance criteria** connect the two cycles. Written once as Given / When
 
 ## Signals: the shapes of intent
 
-A cycle starts with a **signal**: evidence of a need, defect, operational problem, or risk. Each signal expresses intent in a different form. The same method applies to a bug fix, a performance safeguard, or a new capability.
+A cycle starts with a **signal**: evidence of a need, defect, operational problem, or risk. Each signal expresses intent in a different form. The same method applies to a bugfix, a performance safeguard, or a new capability.
 
 - **Need.** A request for functionality or capability the product does not have yet — a user, a stakeholder, or a dependent system pulling it forward. Intent stated outright: *make it do this.*
 - **Defect.** Proof that behavior and intent already disagree — a fault found in test or reported from production. An acceptance criterion that should hold does not, so the bet is to make it hold again.

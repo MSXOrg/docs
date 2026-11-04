@@ -116,4 +116,4 @@ The goal is to keep manual effort independent of repository count. Per-repositor
 
 > You build it, you run it.
 
-The same team owns development, integration, delivery, and operation as a continuous cycle. Build systems, practices, and teams that support this ownership.
+The same team owns development, integration, delivery, and operation as a continuous cycle. Create systems, practices, and teams that support this ownership.
