@@ -570,7 +570,7 @@ The steps share the runner and its filesystem, unlike separate jobs.
 
 Adopt it deliberately:
 
-- **Prefer a separate job for ordinary parallelism.** When independent work does
+- **Prefer a separate job for ordinary parallelism.** When independent work
   does not need a shared workspace, two jobs provide separate runners,
   permissions, and logs.
   Use concurrent steps only when the work benefits from one shared runner.
@@ -1087,10 +1087,10 @@ They are **not** available on GitHub Enterprise Server (GHES).
 
 ## Concurrency
 
-Declare `concurrency` on workflows that must not race — anything that
-publishes, deploys, or mutates shared state. Use a stable group key and choose
-`cancel-in-progress` deliberately (`false` for publish/deploy so runs queue
-rather than abort mid-write).
+Declare `concurrency` on workflows that publish, deploy, or change shared state.
+Use a stable group key. Choose `cancel-in-progress` deliberately.
+For publishing and deployment, use `false` so runs queue instead of stopping
+during a write.
 
 ```yaml
 concurrency:
@@ -1101,56 +1101,61 @@ concurrency:
 ## Pin the runner, name everything, and space it out
 
 - **Pin `runs-on` to a specific runner image** (`ubuntu-24.04`) rather than
-  `ubuntu-latest`, so a runner upgrade is a deliberate, reviewable change rather
-  than a silent one.
+  `ubuntu-latest`.
+  This makes a runner upgrade a deliberate, reviewable change instead of a
+  silent one.
 - **Give every job and every step a `name:`** — not only the non-trivial ones.
-  Left unnamed, a step is labelled by whatever GitHub derives from its `run` or
-  `uses`: the full pinned SHA for an action (`Run actions/checkout@de0fac…`), or
-  the truncated first line of a script — both hard to read, and both changing
-  whenever the command does. A written `name:` is the exact text shown in the
-  Actions UI, the logs, and the Checks view, so a step **reads the same in the
-  code as in the portal**, stays a **stable handle** for links and log searches
-  when the command underneath it changes, and names a failure by intent rather
-  than by a decoded command line. Under the
-  [external SHA-pinning rule](#pin-actions-according-to-ownership) it matters all
-  the more: an unnamed external action step wears its 40-character SHA as its
-  label.
+  Without a name, GitHub derives a step's label from its `run` or `uses`.
+  For an action, the label contains the full pinned SHA
+  (`Run actions/checkout@de0fac…`).
+  For a script, it contains the truncated first line.
+  Both labels can be hard to read and change with the command.
+
+  A written `name:` appears as the same text in the Actions UI, logs, and Checks
+  view. It gives links and log searches a stable label when the command changes.
+  It describes the intent of failed work instead of the command line.
+  This matters under the [external SHA-pinning rule](#pin-actions-according-to-ownership)
+  because an unnamed external action step uses its 40-character SHA as its label.
 - **Separate each job and each step with a single blank line.** One blank line
-  between consecutive steps, and one between consecutive jobs, makes every unit a
-  self-contained block that is easy to scan, reorder, and read in a diff. Use
-  exactly one — with none, adjacent steps blur together; with several, the file
-  turns gappy.
+  between consecutive steps and consecutive jobs makes each unit easy to scan,
+  reorder, and read in a diff.
+  Use exactly one. Without it, adjacent steps are harder to distinguish.
+  Several blank lines add unnecessary space.
 
 ## Build in logging and diagnostics
 
-An action is a black box until it fails. Make every run explain itself — what it
-read, what it decided, and what it produced — *by default*, so a failure is
-diagnosed from the log you already have rather than from a second run with extra
-logging switched on. The craft is keeping all that detail present but out of the
-way until someone wants it.
+An action reports what it reads, decides, and produces on every run.
+A failure should be diagnosable from the existing log without a second run with
+extra logging.
+Keep the details available in collapsed groups.
 
 ### Log the whole story by default, collapsed into groups
 
 - **Log the resolved inputs, the decisions taken, each external call and its
-  status, and the outputs produced — on every run.** These are the details a
-  failure is diagnosed from, so the first run to fail carries enough to diagnose
-  it. Log a secret's presence, never its value; secret inputs stay masked (see
+  status, and the outputs produced — on every run.**
+  The first failed run then contains enough diagnostic detail.
+  Log a secret's presence, never its value.
+  Keep secret inputs masked (see
   [Distinguish `vars` from `secrets`](#distinguish-vars-from-secrets)).
 - **Force an untrusted value onto a single line before logging it.** The runner
-  parses every line of stdout, so a value you do not control that carries a
-  newline followed by `::...` can smuggle in a workflow command. Strip or encode
-  `\r` / `\n` (or emit the value through a helper) so a logged input cannot break
-  out into a command — the same untrusted-input rule as
+  parses every line of stdout.
+  An untrusted value with a newline followed by `::...` can become a workflow
+  command.
+  Strip or encode `\r` / `\n`, or emit the value through a helper.
+  This prevents a logged input from becoming a command, as required by
   [Never expand untrusted input inline](#never-expand-untrusted-input-inline).
-- **Wrap each phase in a `::group::` / `::endgroup::` block.** Grouping keeps the
-  detail present but collapsed — there in plain sight, one expand away — so the
-  top level reads as a short list of phases while the depth sits a click beneath
-  each. Group by phase (`Resolve inputs`, `Publish 42 pages`), one group per
+- **Wrap each phase in a `::group::` / `::endgroup::` block.**
+  Details remain available but collapsed.
+  The top level shows a short list of phases.
+  Expand a phase to read its details.
+  Group by phase (`Resolve inputs`, `Publish 42 pages`), with one group per
   phase, not one per line.
 - **Wrap the group markers in a helper so the script stays declarative.**
-  Emitting the raw `::group::` / `::endgroup::` lines by hand is noisy; a small
-  wrapper that takes a title and a block keeps the intent visible. A PowerShell
-  action gets this from the PSModule `GitHub` module — `LogGroup 'phase' { ... }`.
+  A helper emits matching `::group::` / `::endgroup::` markers.
+  A wrapper that accepts a title and a script block keeps the phase's intent
+  visible.
+  A PowerShell action uses the PSModule `GitHub` module:
+  `LogGroup 'phase' { ... }`.
 
 ```yaml
 - name: Publish
@@ -1172,20 +1177,24 @@ way until someone wants it.
 ### Call out the result with an annotation
 
 - **Use `::notice::`, `::warning::`, or `::error::` for the few lines a reader
-  must not miss** — above all the final result: what was created, or the
-  pass/fail verdict. Annotations render on the run summary and in the Checks
-  view, above the collapsed log, so the headline is visible without expanding a
-  single group.
+  must not miss**, especially the final result: what was created or the
+  pass/fail verdict.
+  Annotations appear on the run summary and in the Checks view, above the
+  collapsed log.
+  The reader can see the result without expanding a group.
 - **Annotate the outcome, not the progress.** Step-by-step narration belongs in
-  the grouped log; if every other line is a `::notice::`, the one callout that
-  matters is lost. Aim to end a run on a single clear annotation.
+  the grouped log.
+  Too many `::notice::` annotations make the result harder to find.
+  Aim to end a run with one clear annotation.
 - **Escape dynamic data in an annotation.** A workflow command is a single line,
-  so a value carrying `%`, a carriage return, or a newline must be encoded
-  (`%25`, `%0D`, `%0A`) or it corrupts the command — the same class of risk as
-  [expanding untrusted input inline](#never-expand-untrusted-input-inline). A
-  value placed in a command *property* (such as `title=`) needs `:` and `,`
-  encoded too (`%3A`, `%2C`), since those characters delimit the property list. A
-  helper that emits the command handles this for you (PowerShell:
+  so a value with `%`, a carriage return, or a newline must be encoded
+  (`%25`, `%0D`, `%0A`).
+  Otherwise, the value corrupts the command, as with
+  [expanding untrusted input inline](#never-expand-untrusted-input-inline).
+  If a value is a command *property* (such as `title=`), also encode `:` and `,`
+  (`%3A`, `%2C`).
+  Those characters delimit the property list.
+  A helper encodes the value when it emits the command (PowerShell:
   `Write-GitHubNotice` / `Write-GitHubError`).
 
 ```powershell
@@ -1201,21 +1210,21 @@ throw "$($rejected.Count) page(s) rejected"
 
 - **When the result is more than a line — a table, per-item counts, a report —
   write it to `$GITHUB_STEP_SUMMARY` as GitHub-flavored Markdown.** The step
-  summary renders on the run's summary page, so the outcome is legible without
-  opening the log at all.
-- **Keep the summary uncluttered by default.** Show the headline — the table or
-  the verdict — in the open, and tuck long or secondary detail inside
-  `<details><summary>...</summary>` blocks that stay closed until the reader
-  opens them. A summary that spills everything inline is as hard to scan as an
-  ungrouped log.
-- **Compose the Markdown with a helper rather than building strings** where you
-  can. A PowerShell action assembles the summary with the PSModule `Markdown`
-  module — `Heading`, `Table`, `Details { ... }` — and writes it with the
-  `GitHub` module's `Set-GitHubStepSummary`.
-- **Surface the same facts as outputs.** A URL, a count, or a verdict worth
-  putting in the summary is also worth an `output` (see
-  [Generalize the action](#generalize-the-action-drive-behaviour-through-inputs-and-outputs)),
-  so a calling workflow acts on a value instead of scraping the summary.
+  summary appears on the run's summary page.
+  The reader can see the outcome without opening the log.
+- **Keep the summary uncluttered by default.** Show the main table or verdict.
+  Put long or secondary details inside `<details><summary>...</summary>` blocks.
+  These blocks stay closed until the reader opens them.
+  A fully expanded report is as hard to scan as an ungrouped log.
+- **Compose the Markdown with a helper rather than building strings** where
+  possible.
+  A PowerShell action uses the PSModule `Markdown` module:
+  `Heading`, `Table`, and `Details { ... }`.
+  Write the summary with the `GitHub` module's `Set-GitHubStepSummary`.
+- **Return the same facts as outputs.** A URL, count, or verdict in the summary
+  also belongs in an `output` (see
+  [Generalize the action](#generalize-the-action-drive-behaviour-through-inputs-and-outputs)).
+  A calling workflow then uses a value instead of parsing the summary.
 
 ```powershell
 Set-GitHubStepSummary -Summary (
@@ -1235,30 +1244,32 @@ Set-GitHubStepSummary -Summary (
 
 ### Report back on the triggering PR or issue
 
-The step summary is only seen by someone who opens the run. When the outcome
-matters to a person mid-flow — a PR author, an issue reporter — surface the
-result where they already are. **Which channel is right depends on the event
-that triggered the run**, so make reporting conditional on the trigger rather
-than assuming one exists.
+Readers see the step summary only if they open the run.
+If an outcome matters to a PR author or issue reporter, report it on that PR or
+issue.
+**Choose the reporting channel according to the event that triggered the run.**
+Make reporting conditional on the trigger instead of assuming a PR or issue
+exists.
 
 - **`pull_request` → a pull request comment.** Post the summary to the PR so the
   author sees it in the timeline.
 - **`issues` / `issue_comment` → an issue comment.** Reply on the issue that
   started the run.
 - **`push` / `schedule` / `workflow_dispatch` → the step summary, plus a tracking
-  issue for a finding worth chasing.** There is no PR or issue in context, so the
-  step summary stands on its own; a scheduled job that detects a problem can open
-  or update an issue.
-- **Upsert one comment; never post a fresh one per run.** Write a hidden marker
-  (an HTML comment such as `<!-- publish-summary -->`) into the body, find the
-  existing comment by that marker, and edit it in place — so a PR pushed ten
-  times carries one current comment, not ten stale ones.
+  issue for a finding that needs follow-up.**
+  There is no PR or issue in context, so the step summary stands on its own.
+  A scheduled job that detects a problem can open or update an issue.
+- **Upsert one comment; never post a new one per run.** Write a hidden marker
+  (an HTML comment such as `<!-- publish-summary -->`) into the body.
+  Find the existing comment by that marker. Edit it in place.
+  A PR pushed ten times then has one current comment, not ten stale copies.
 - **Grant the write scope only on the job that comments.** A PR comment needs
-  `pull-requests: write`, an issue comment needs `issues: write`; the rest of the
-  workflow stays read-only. Keep untrusted input out of the comment body (see
-  [Never expand untrusted input inline](#never-expand-untrusted-input-inline)),
-  and treat `pull_request_target` with particular care — it runs with a writable
-  token in the context of untrusted pull request code.
+  `pull-requests: write`, and an issue comment needs `issues: write`.
+  Keep the rest of the workflow read-only.
+  Keep untrusted input out of the comment body (see
+  [Never expand untrusted input inline](#never-expand-untrusted-input-inline)).
+  Use particular care with `pull_request_target`.
+  It runs with a writable token in the context of untrusted pull request code.
 
 ```yaml
 jobs:
@@ -1282,15 +1293,17 @@ jobs:
 ### Gate merges with a named status check
 
 - **If a run's result should block merge, it must surface as a named status
-  check** that branch protection can require. A run that only writes to the log
-  or a comment cannot hold a pull request; a required check can.
+  check** that branch protection can require.
+  A run that only writes to a log or comment cannot block merge.
+  A required check can.
 - **Keep the check name stable.** Branch protection matches checks by name, so
-  renaming the job or workflow silently drops the gate. Pick a clear, permanent
-  name and treat it as a contract — renaming it later removes the gate without a
-  trace, so the rename and the branch-protection update must land together.
-- **Fail the check for real problems; do not annotate and exit 0.** A gating
-  action must exit non-zero when it finds a blocking issue — the annotations and
-  the red summary are for humans, the exit code is what the merge gate reads.
+  renaming the job or workflow removes the gate.
+  Choose a clear, permanent name and treat it as a contract.
+  The rename and the branch-protection update must land together.
+- **Fail the check for real problems. Do not annotate and exit 0.** A gating
+  action must exit non-zero when it finds a blocking issue.
+  Annotations and the failed summary explain the problem to readers.
+  The merge gate reads the exit code.
   Reserve `::warning::` and `::notice::` for advisory findings that should *not*
   hold the pull request.
 
@@ -1310,19 +1323,22 @@ jobs:
         uses: ./.github/actions/validate-publishable   # exits 1 on a blocker
 ```
 
-**Two mechanisms, either requirable by name.** A named check reaches a pull
-request one of two ways, and a ruleset can require either:
+**Two mechanisms that a ruleset can require by name.**
+A pull request receives a named check in one of two forms.
+A ruleset can require either form:
 
 - **A check run — the job itself.** Every Actions job automatically becomes a
-  check run named after the job, so the `Publishable` job above *is* the check
-  and needs no extra permission. Prefer this whenever the signal is one of the
-  workflow's own jobs.
+  check run named after the job.
+  The `Publishable` job above *is* the check and needs no extra permission.
+  Prefer this form when the signal is one of the workflow's own jobs.
 - **A commit status — the Status API.** A step or an external system posts a
   status against the head commit under its own **context** name via the
   [Commit Status API](https://docs.github.com/rest/commits/statuses), for a
-  signal that is not a whole job — the linter in this repository's own `Docs`
-  workflow reports per-language statuses this way. Posting a status is the one
-  thing that needs **`statuses: write`**; a check run does not.
+  signal that is not a whole job.
+  The linter in this repository's `Docs` workflow reports per-language statuses
+  this way.
+  Posting a status needs **`statuses: write`**.
+  A check run does not.
 
 ```yaml
 jobs:
@@ -1334,11 +1350,15 @@ jobs:
       statuses: write        # post commit statuses via the Status API
 ```
 
-**A check gates nothing until a ruleset requires it.** Publishing the check is
-half the contract; a repository ruleset (or branch protection) must list it as
-**required** by its exact name or context, or it stays advisory — visible on the
-pull request but unable to hold it. A required check's pass or fail is then a
-machine-readable signal that automation can act on: approve or merge a green pull
-request, hold a red one. That end-to-end pattern is the
-[Merge Automation](../Capabilities/merge-automation/index.md) capability; this
-section is the authoring half it builds on.
+**A check blocks nothing until a ruleset requires it.**
+A repository ruleset (or branch protection) must list the check as **required**
+by its exact name or context.
+Otherwise, the check is advisory: visible on the pull request but unable to block
+merge.
+A required check provides a machine-readable pass or fail signal.
+Automation can then approve or merge a successful pull request and hold a failed
+one.
+
+The [Merge Automation](../Capabilities/merge-automation/index.md) capability
+defines that end-to-end pattern.
+This section defines its authoring requirements.
