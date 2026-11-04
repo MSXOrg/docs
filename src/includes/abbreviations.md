@@ -41,7 +41,7 @@
 *[ps1xml]: PowerShell XML File
 *[psd1]: PowerShell Data File
 *[psm1]: PowerShell Module File
-*[pwsh]: PowerShell Core (also known as PowerShell 7)
+*[pwsh]: PowerShell command-line interface
 *[REST]: Representational State Transfer
 *[SaaS]: Software as a Service
 *[SBOM]: Software Bill of Materials
