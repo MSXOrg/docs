@@ -21,17 +21,17 @@ update policy that matches their trust boundary.
 ## Problem and importance
 
 A tag or successful workflow run is not enough to prove that a release completed.
-Publication can expose one destination before another fails, mutable pull-request
-metadata can change before a retry, and a later commit can reach the stable branch
-while an earlier artifact is still incomplete. Recomputing from current state can
-then publish different bytes under a reserved version, omit accumulated changes
-from the notes, or advertise an incomplete release as current.
+Publication can expose one destination before another fails.
+Mutable pull-request metadata can change before a retry.
+A later commit can reach the stable branch while an earlier artifact is still incomplete.
+Recomputing from current state can then publish different bytes under a reserved version.
+It can also omit accumulated changes from the notes or advertise an incomplete release as current.
 
 Release management makes the release intent durable. It fixes the approved source,
 decision, version, notes, artifact identity, required destinations, and stage
-progress, then advances that intent safely through publication. This gives
-contributors a predictable release path, operators a recoverable process, and
-consumers an accurate version and update contract.
+progress. It then advances that intent safely through publication.
+This gives contributors a predictable release path, operators a recoverable process,
+and consumers an accurate version and update contract.
 
 ## Users and jobs
 
