@@ -6,20 +6,21 @@
     Synchronize SHA-pinned GitHub Actions with their latest stable releases.
 
 .DESCRIPTION
-    Recursively scans a target repository's .github directory for YAML files and updates
-    action references in the form 'uses: owner/repository[/subpath]@<40-character SHA>'.
-    Each reference is resolved to the repository's latest stable GitHub release, then to
-    the immutable commit SHA behind that release tag. Lightweight and annotated tags are
-    both supported.
+    The script scans YAML files beneath the target repository's .github directory.
+    It updates action references in the form 'uses: owner/repository[/subpath]@<40-character SHA>'.
+    For each reference, GitHub's latest stable release determines the release tag.
+    The script resolves that tag to an immutable commit SHA.
+    It supports lightweight and annotated tags.
 
-    The script changes only external SHA-pinned action references. Local actions
-    ('./path') and Docker actions ('docker://image') do not match the supported reference
-    shape and are left unchanged. A trailing comment is treated as the release tag and is
-    replaced; the latest tag comment is added when it is absent.
+    Only external SHA-pinned action references change.
+    Local actions ('./path') and Docker actions ('docker://image') do not match the supported form.
+    The script leaves them unchanged.
+    It replaces any trailing comment with the release tag, or adds the tag when no comment exists.
 
-    GitHub API requests use GITHUB_TOKEN or GH_TOKEN when either is present. The token is
-    sent only in the Authorization request header and is never written to output. No
-    external PowerShell modules are required.
+    The script uses GITHUB_TOKEN when it has a value. Otherwise, it uses GH_TOKEN.
+    It sends the token only in the Authorization request header.
+    It does not write the token to output.
+    The script requires no external PowerShell modules.
 
 .EXAMPLE
     ./Update-GitHubActionPin.ps1 -RepositoryPath ../service -WhatIf
@@ -37,12 +38,16 @@
     None. This script does not accept pipeline input.
 
 .OUTPUTS
-    [pscustomobject] with Path, Updates, and Updated properties for every changed YAML file.
+    System.Management.Automation.PSCustomObject
+
+    An object with Path, Updates, and Updated properties for each YAML file that needs changes.
+
+    Updated is false when ShouldProcess does not approve the write.
 #>
 [OutputType([pscustomobject])]
 [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
 param(
-    # Repository whose .github YAML files are scanned. Defaults to the current directory.
+    # Repository whose .github YAML files the script scans. Default: the current directory.
     [Parameter()]
     [ValidateScript({ Test-Path -LiteralPath $_ -PathType Container })]
     [string] $RepositoryPath = (Get-Location).Path,
@@ -58,7 +63,7 @@ $ErrorActionPreference = 'Stop'
 function Get-GitHubRequestHeader {
     <#
     .SYNOPSIS
-    Build headers for an authenticated GitHub REST API request when a token is available.
+    Build GitHub REST API headers with a token when available.
     #>
     [OutputType([hashtable])]
     [CmdletBinding()]
