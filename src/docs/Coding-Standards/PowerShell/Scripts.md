@@ -5,13 +5,17 @@ description: Structure for standalone .ps1 scripts — requirements, parameters,
 
 # Scripts
 
-A script (`.ps1`) is an entry point, not a home for logic. Keep scripts **thin**: parse input, call functions, report results. Anything reusable belongs in a function in a module.
+A script (`.ps1`) is an entry point. Keep scripts **thin**: parse input, call functions, report results. Put reusable logic in a function in a module.
 
 ## Section structure
 
-A script file is laid out top to bottom in this order:
+A script file has these sections in this order:
 
-1. **`#Requires`** statements — PowerShell version and module dependencies. Prefer a **minimum** version (`ModuleVersion`) so security patches and fixes flow in. When a new *major* of a dependency would break you — a test framework such as Pester is the typical case — bound it to that major by adding `MaximumVersion` (e.g. `ModuleVersion = '6.0.0'; MaximumVersion = '6.*'`). Avoid exact `RequiredVersion` pins, which freeze out patches and go stale. Pinning module identity with a `GUID` is a separate, stricter supply-chain control — reach for it only when you need identity assurance, not as part of the default version lock.
+1. **`#Requires`** statements — PowerShell version and module dependencies. Prefer a **minimum** version (`ModuleVersion`) so security patches and fixes remain available. If a dependency's next *major* version is incompatible, add `MaximumVersion` to restrict it to the supported major. For example, use `ModuleVersion = '6.0.0'; MaximumVersion = '6.*'`. Test frameworks such as Pester are typical cases.
+
+   Avoid exact `RequiredVersion` pins. They exclude later patches and need maintenance.
+
+   A module `GUID` pins identity as a separate, stricter supply-chain control. Use it only when identity assurance is required, not as part of the default version lock.
 2. **Comment-based help** — the same sections and order as a [function's](Functions.md#comment-based-help-required), only without the enclosing `function` block: `.SYNOPSIS`, `.DESCRIPTION`, at least one `.EXAMPLE`, then `.INPUTS`, `.OUTPUTS`, `.NOTES`, and `.LINK` as they apply. Document each parameter with an inline comment above it, just as a function does.
 3. **`[CmdletBinding()]` + `param()`** — typed and validated, mandatory first; add `SupportsShouldProcess` when the script changes state.
 4. **`$ErrorActionPreference = 'Stop'`**.
@@ -56,11 +60,11 @@ $ErrorActionPreference = 'Stop'
 ## Rules
 
 - **Name scripts `Verb-Noun.ps1`** to match the function convention.
-- **Name a helper module bundled inside a GitHub Action after the action** (`action-name.Helpers`), never a generic name like `Helpers` — a generic name collides with shared or sibling modules in the runner's shared session. See [GitHub Actions](../GitHub-Actions.md#name-helper-modules-after-the-action).
+- **Name a helper module bundled inside a GitHub Action after the action** (`action-name.Helpers`), never a generic name such as `Helpers`. A generic name can collide with shared or sibling modules in the runner's shared session. See [GitHub Actions](../GitHub-Actions.md#name-helper-modules-after-the-action).
 - **No side effects on load.** A script runs top to bottom when invoked; it should not do work merely by being dot-sourced.
 - **Return objects**, so the script composes in a pipeline like any other command.
 
 ## Paths
 
-- **Do not depend on the current directory.** Avoid relative paths and `~` — the meaning of `~` depends on the current PowerShell provider — and build paths from `$PSScriptRoot` with `Join-Path`.
-- **Pass full paths to .NET and native calls.** .NET methods and external executables resolve relative paths against `[System.Environment]::CurrentDirectory`, which PowerShell does not keep reliably in step with `$PWD` — it can lag `Set-Location`, and diverges in non-FileSystem providers (`Registry`, `Cert:`). Resolve to a full path first.
+- **Do not depend on the current directory.** Avoid relative paths and `~`. The meaning of `~` depends on the current PowerShell provider. Build paths from `$PSScriptRoot` with `Join-Path`.
+- **Pass full paths to .NET and native calls.** .NET methods and external executables resolve relative paths against `[System.Environment]::CurrentDirectory`. PowerShell does not reliably synchronize that directory with `$PWD`. The directories can differ after `Set-Location` or in non-FileSystem providers (`Registry`, `Cert:`). Resolve to a full path first.
