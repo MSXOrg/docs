@@ -588,43 +588,47 @@ for exact usage.
 
 ## Choose an action or a reusable workflow
 
-Both an **action** and a **reusable workflow** package automation for reuse, but
-at different granularities, and they plug in at different levels. Match the unit
-to the thing being reused.
+An **action** and a **reusable workflow** both package automation for reuse.
+They use different units and run at different levels.
+Choose the unit according to the work that callers reuse.
 
-- **An action is a reusable unit of *steps*.** It plugs into a job as a step
-  (`uses:` at step level), runs on the caller's runner inside the caller's job —
-  sharing that job's filesystem and environment — and does **one well-defined
-  thing** through an `inputs` / `outputs` interface. Several actions compose
-  within a single job. This is the smaller unit and the common case;
+- **An action is a reusable unit of *steps*.** A step calls it through `uses:` at
+  step level. It runs on the caller's runner inside the caller's job.
+  It shares that job's filesystem and environment.
+  It does **one well-defined task** through an `inputs` / `outputs` interface.
+  Several actions compose within a single job.
+
+  This is the smaller unit and the common case.
   [Extract non-trivial `run:` scripts into an action](#extract-non-trivial-run-scripts-into-an-action)
-  is entirely about authoring one.
-- **A reusable workflow is a reusable unit of *jobs*.** It is called as a
-  job-level `uses:` (`org/repo/.github/workflows/build.yml@<sha>`) and brings its
-  own jobs, runners, `permissions`, and `secrets` contract — a whole pipeline,
-  not a single task. Use it to standardize a **multi-job process** several callers
-  should run the same way: a shared build-test-publish flow, a common release
-  pipeline.
+  describes how to author an action.
+- **A reusable workflow is a reusable unit of *jobs*.** A job calls it through
+  job-level `uses:` (`org/repo/.github/workflows/build.yml@<sha>`).
+  It defines its own jobs, runners, `permissions`, and `secrets` contract.
+  It represents a whole pipeline, not a single task.
+  Use it to standardize a **multi-job process** across callers, such as a shared
+  build-test-publish flow or release pipeline.
 
-Reach for the smallest unit that fits:
+Choose the smallest unit that meets the requirement:
 
 - **Choose an action** to package a **step-level capability** — one task used
   inside a job (`link-check`, `publish-docs`, `start-cloud-agent`). It composes
-  with the steps around it and hands results back as outputs.
-- **Choose a reusable workflow** to package an **end-to-end, multi-job process** —
-  its own job graph, `needs:` ordering, per-job permissions, and environment
-  gates — that several repositories should run identically. When the thing worth
-  sharing is the *whole pipeline* rather than one step of it, the workflow is the
-  unit that carries the jobs with it.
-- **Do not wrap a single task in a reusable workflow.** A workflow drags a job
-  and a runner behind it; if the reused logic is one step's worth, an action is
-  lighter, composes with the surrounding steps, and returns outputs to the
-  calling step directly. Equally, do not force a multi-job pipeline into one
-  action — an action cannot span jobs or set per-job permissions.
+  with the surrounding steps and returns results as outputs.
+- **Choose a reusable workflow** for an **end-to-end, multi-job process** that
+  several repositories should run the same way.
+  Its contract includes the job graph, `needs:` ordering, per-job permissions,
+  and environment gates.
+  Use it when callers share the *whole pipeline* rather than one step.
+- **Do not wrap a single task in a reusable workflow.** A workflow requires a job
+  and a runner. If the reused logic is one step, use an action.
+  It composes with the surrounding steps and returns outputs to the calling
+  step directly.
+  Do not force a multi-job pipeline into one action.
+  An action cannot span jobs or set per-job permissions.
 
-Both follow the same lifecycle: **start as a local action or workflow**,
-referenced by path (`./.github/...`) so it runs at the checked-out commit, and
-**promote it to a standalone repository only once a second consumer appears**
+Both follow the same lifecycle.
+**Start as a local action or workflow**, referenced by path (`./.github/...`).
+This runs the automation at the checked-out commit.
+**Promote it to a standalone repository only once a second consumer appears**
 (see [Start local; promote when it is reused](#start-local-promote-when-it-is-reused)).
 Once standalone, it is consumed by a controlled major tag while its release path
 remains organization- or initiative-owned, or by full commit SHA when external
@@ -665,11 +669,12 @@ jobs:
 
 ## Separate a reusable workflow from the actions it consumes
 
-Choosing a reusable workflow has a consequence for the actions it runs. The
-workflow is a **process** — it stitches jobs into an order — and the actions are
-the **building blocks** it calls. Once the workflow is shared across
-repositories, GitHub's reference resolution forces the two apart, and the split
-pays off in versioning and reuse.
+Choosing a reusable workflow affects how it references actions.
+The workflow is a **process** that defines the job order.
+The actions are the **building blocks** it calls.
+Sharing the workflow across repositories requires separate action references
+because GitHub resolves paths against the checkout.
+This separation supports independent versioning and reuse.
 
 ### A shared reusable workflow ships only workflow files
 
@@ -682,11 +687,12 @@ jobs:
     uses: OWNER/REPO/.github/workflows/name.yml@<sha>
 ```
 
-If that workflow calls another reusable workflow, GitHub loads the nested
-workflow file too. It still does **not** check out the reusable workflow's
-repository. A local action reference inside the workflow therefore resolves
-against the **caller's** checkout, not the workflow's own repository, and finds
-the wrong action or none at all:
+If that workflow calls another reusable workflow, GitHub also loads the nested
+workflow file.
+GitHub does **not** check out the reusable workflow's repository.
+A local action reference inside the workflow resolves against the **caller's**
+checkout, not the workflow's own repository.
+It finds the wrong action or no action:
 
 ```yaml
 steps:
@@ -694,8 +700,8 @@ steps:
     uses: ./.github/actions/some-action
 ```
 
-A same-repository caller may still name the workflow itself by a local path; the
-constraint is on the actions the workflow reaches for.
+A same-repository caller may still name the workflow itself by a local path.
+The constraint applies to the actions that the workflow calls.
 
 - **Reference every action from a shared reusable workflow by full path** —
   `OWNER/REPO/path@<ref>`, which resolves the same way regardless of which
@@ -703,38 +709,42 @@ constraint is on the actions the workflow reaches for.
   controlled major tag for owned automation (see
   [Pin actions according to ownership](#pin-actions-according-to-ownership)).
 - **A composite action may still call a sibling with `./`.** Inside a composite
-  action, `./` resolves within *that action's own repository at the same ref* —
-  the opposite of the workflow case — so colocated actions call each other with
-  `./` and no pin. This asymmetry is what lets a set of actions live and ship
+  action, `./` resolves within *that action's own repository at the same ref*.
+  Colocated actions call each other with `./` and no pin.
+  This differs from workflow path resolution and lets a set of actions release
   together.
-- **Self-checkout is the only escape hatch, and a poor foundation.** A reusable
-  workflow *can* check its own repository out at runtime — without caller input —
-  through the `job.workflow_repository` / `job.workflow_ref` / `job.workflow_sha`
+- **Self-checkout is the only alternative, and a last resort.** A reusable
+  workflow *can* check out its own repository at runtime without caller input.
+  It uses the `job.workflow_repository` / `job.workflow_ref` / `job.workflow_sha`
   contexts (`actions/checkout` with `repository: ${{ job.workflow_repository }}`,
-  `ref: ${{ job.workflow_sha }}`). But those contexts are **not available on
-  GitHub Enterprise Server**, the checkout is extra machinery that must not
-  clobber the caller's workspace, and it ties the actions to the workflow's own
-  commit — so an action others also consume gets no version line of its own.
-  Treat it as a last resort, not the pattern.
+  `ref: ${{ job.workflow_sha }}`).
+
+  Those contexts are **not available on GitHub Enterprise Server**.
+  The checkout must not overwrite the caller's workspace.
+  It ties the actions to the workflow's own commit, so an independently consumed
+  action has no version line of its own.
+  Do not use self-checkout as the standard pattern.
 
 ### Why the actions need their own versioned repository
 
-Two lifecycle needs make a **separately versioned** action repository — not
-colocated local actions — the sound choice:
+Two lifecycle requirements favor a **separately versioned** action repository
+instead of colocated local actions:
 
-- **Development must test the branch, not the last release.** While you build the
-  workflow, you want it to run the action versions *on the branch you are
-  developing*. A `./` local action does not resolve in a shared reusable workflow
-  at all, and pinning `OWNER/REPO/action@<released-sha>` runs stale code — so give
-  the actions their own repository and point the workflow's pin at that
-  repository's **branch or commit** to test branch against branch.
+- **Development must test the branch, not the last release.** During workflow
+  development, run the action versions *on the development branch*.
+  A `./` local action does not resolve in a shared reusable workflow.
+  Pinning `OWNER/REPO/action@<released-sha>` runs released code instead of branch
+  code. Give the actions their own repository.
+  Point the workflow's pin at that repository's **branch or commit** to test both
+  development versions.
 - **A release cannot pin its actions to itself.** The action versions a released
-  workflow runs must be exactly those of that release. But the workflow's tag is
-  cut *after* the merge to its default branch, so the workflow file can never pin
-  a colocated action to its own release commit — that commit does not exist when
-  the file is written. An independently versioned repository has a commit of its
-  own that the workflow pins by SHA, locking the release to an exact set of
-  actions.
+  workflow runs must be exactly those of that release.
+  The workflow's tag is created *after* the merge to its default branch.
+  Its release commit does not exist when the author writes the workflow file.
+  Thus, the file cannot pin a colocated action to its own release commit.
+
+  An independently versioned repository has its own commit.
+  The workflow pins that SHA to fix the exact set of actions for the release.
 
 ### Give the actions a home that matches their reuse
 
@@ -744,56 +754,60 @@ Use the smallest home that matches the reuse boundary and lifecycle:
   `.github/actions/<action-name>/` and call it by `./` so the workflow tests the
   action at the checked-out commit.
 - **Use a standalone action repository** when one action is consumed **on its
-  own** by other repositories — its own responsibility, its own version line.
+  own** by other repositories.
+  The action has its own responsibility and version line.
   This is the promotion path in [Start local; promote when it is
   reused](#start-local-promote-when-it-is-reused).
 - **Use an action-library repository** when several actions are built, tested,
-  and released together as one package. Their lifecycle is shared — changing one
-  re-releases the set — so
+  and released together as one package.
+  Their lifecycle is shared: a change to one action releases the set again.
+  Thus,
   [they belong in one repository](../Ways-of-Working/Repository-Segmentation.md#share-a-repository-only-when-the-development-lifecycle-is-shared),
-  not a repository each: several top-level composite actions, one test suite, one
-  release, one SHA to pin.
-- **Use a reusable-workflow repository** when the thing reused is the *process*:
-  a job graph, permissions contract, environment gates, and ordering that several
-  repositories should run the same way.
+  not one repository per action.
+  The repository contains several top-level composite actions, one test suite,
+  one release, and one SHA to pin.
+- **Use a reusable-workflow repository** when several repositories reuse the
+  *process*: a job graph, permissions contract, environment gates, and ordering.
 
-A shared reusable workflow cannot reach a local action. When that workflow needs
-non-trivial actions, keep the workflow and the action library in **separate
-repositories**: the workflow repository — the *process* — pins the action-library
-repository — the *building blocks* — by SHA. A change then flows outward as a
-deliberate bump at each hop, so every layer upgrades on a reviewed pull request
-rather than silently.
+A shared reusable workflow cannot use a local action.
+When that workflow needs non-trivial actions, keep the workflow and the action
+library in **separate repositories**.
+The workflow repository defines the *process* and pins the action-library
+repository's *building blocks* by SHA.
+Upgrade each layer through a reviewed pull request with an explicit dependency
+update.
 
 ## Default to PowerShell as the glue language
 
-Between the declarative steps, a workflow always has some glue to run — reading a
-value, calling an API, shaping a result. That glue is written in **one language
-by default**, so every action reads the same way and reaches for the same helpers
-instead of each one inventing its own idiom. **PowerShell is that default.** It
-runs cross-platform on every runner, it is held to the
-[PowerShell](PowerShell/index.md) standard like any other code, and it carries the
-ecosystem's Actions tooling — above all the PSModule `GitHub` module, whose
-helpers speak the runner's own workflow-command protocol.
+Workflow scripts read values, call APIs, and prepare results between declarative
+steps. **PowerShell is the default language.**
+One default language gives actions consistent code and shared helpers.
+PowerShell runs cross-platform on every runner and follows the
+[PowerShell](PowerShell/index.md) standard.
+The ecosystem's Actions tooling includes the PSModule `GitHub` module.
+Its helpers implement the runner's workflow-command protocol.
 
-Reach for the options in this order, and drop to the next only when the one above
-genuinely cannot serve:
+Use these options in order.
+Use the next option only if the preceding option cannot meet the requirement:
 
-- **First choice — PowerShell with the PSModule `GitHub` module.** Talk to the
-  runner through the module's commands instead of hand-writing raw workflow
-  strings: the `Write-GitHub*` family (`Write-GitHubNotice`, `Write-GitHubWarning`,
+- **First choice — PowerShell with the PSModule `GitHub` module.** Use the
+  module's commands instead of writing raw workflow-command strings.
+  Use the `Write-GitHub*` family (`Write-GitHubNotice`, `Write-GitHubWarning`,
   `Write-GitHubError`) for annotations, `LogGroup` for grouped logging, and
-  `Set-GitHubStepSummary` for the step summary. The helper escapes dynamic data
-  for you, keeps the script declarative, and gives every action one vocabulary for
-  the diagnostics the [logging section](#build-in-logging-and-diagnostics) calls
-  for.
-- **Fallback — plain PowerShell.** When the `GitHub` module is not available or
-  not warranted — a script that does no runner communication, or one that must run
-  before the module is installed — stay in PowerShell and write to the log
-  directly.
-- **Last resort — Bash, only when PowerShell cannot be supported.** A context with
-  no `pwsh` — a minimal container, or a step that must run before PowerShell is on
-  the image — falls back to Bash. Keep it small and hold it to the same rules,
-  above all [never expand untrusted input inline](#never-expand-untrusted-input-inline).
+  `Set-GitHubStepSummary` for the step summary.
+  The helpers escape dynamic data, keep the script declarative, and standardize
+  the diagnostics in the [logging section](#build-in-logging-and-diagnostics).
+- **Fallback — plain PowerShell.** If the `GitHub` module is unavailable or not
+  needed, use plain PowerShell.
+  This includes scripts with no runner communication and scripts that run before
+  module installation.
+  Write directly to the log.
+- **Last resort — Bash, only when PowerShell cannot be supported.** If a context
+  has no `pwsh`, use Bash.
+  Examples include minimal containers and steps that run before PowerShell is
+  installed on the image.
+  Keep the script small and apply the same rules, especially
+  [never expand untrusted input inline](#never-expand-untrusted-input-inline).
 
 ```yaml
 # Preferred — PowerShell glue; the GitHub module speaks to the runner.
