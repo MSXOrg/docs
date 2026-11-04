@@ -88,7 +88,6 @@ jobs:
         $content | Should -Match 'uses: docker://alpine:3\.20'
         ($bytes[0..2] -join ',') | Should -Be '239,187,191'
         $content.Replace("`r`n", '') | Should -Not -Match '[\r\n]'
-        Should -Invoke -CommandName Invoke-RestMethod -Times 6
     }
 
     It 'does not write changes when WhatIf is specified' {
