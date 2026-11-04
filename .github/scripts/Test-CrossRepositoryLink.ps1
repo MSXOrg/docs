@@ -90,29 +90,29 @@
 #>
 [CmdletBinding()]
 param(
-    # Markdown files to validate, relative to the repository root. Defaults to every
-    # Markdown file in the repository outside a dot-directory and the build output.
+    # Repository-root-relative Markdown files to validate. Default: every Markdown file
+    # outside dot-directories, node_modules, and src/site.
     [Parameter()]
     [string[]] $Path,
 
-    # Repository owners whose links are resolved. Everything else is left alone: the
-    # bounded set we control is where a moved target originates.
+    # Repository owners whose links the script resolves.
+    # Links to other owners remain outside the validation scope.
     [Parameter()]
     [string[]] $Owner = @('MSXOrg', 'PSModule', 'Storhaug-ting'),
 
-    # Base URI of the GitHub REST API. Follows GITHUB_API_URL so the script works
-    # unchanged on GitHub Enterprise Server.
+    # GitHub REST API root. GITHUB_API_URL supplies the default when it has a value.
+    # Otherwise, the default is https://api.github.com.
     [Parameter()]
     [string] $ApiBaseUri = $(if ($env:GITHUB_API_URL) { $env:GITHUB_API_URL } else { 'https://api.github.com' }),
 
-    # 'owner/repository' of the repository being checked, whose links resolve against
-    # the checkout instead of the network. Discovered from the environment or the git
-    # remote when not given.
+    # 'owner/repository' for the repository that uses checkout validation.
+    # If omitted, the script uses GITHUB_REPOSITORY or the git remote.
+    # Its own repository links do not use network requests.
     [Parameter()]
     [string] $SelfRepository = $env:GITHUB_REPOSITORY,
 
-    # How many times a failing request is attempted before the link is called
-    # unresolvable. A transient failure must not read as a broken link.
+    # Maximum number of attempts for a request before the result is unresolvable.
+    # Transient request failures do not establish that the link target is missing.
     [Parameter()]
     [ValidateRange(1, 10)]
     [int] $MaximumAttempt = 3
@@ -126,19 +126,21 @@ $Root = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 function ConvertTo-GitHubSlug {
     <#
         .SYNOPSIS
-        Convert heading text to the anchor GitHub gives it.
+        Convert rendered heading text to a GitHub anchor slug.
 
         .DESCRIPTION
-        Mirror github-slugger, the library GitHub uses: lowercase the text, drop every
-        character that is not a letter, mark, decimal or letter number, or connector
-        punctuation - keeping hyphens and spaces - then turn spaces into hyphens.
+        The function uses github-slugger's character rules.
+        It converts the text to lowercase.
+        It retains letters, marks, decimal numbers, letter numbers, connector
+        punctuation, hyphens, and spaces.
+        It removes other characters and replaces each space with a hyphen.
 
-        The character class is .NET's Unicode categories rather than the generated
-        table github-slugger ships. The two were compared across every code point and
-        agree exactly over Basic Latin, Latin-1, Latin Extended-A and B, Greek,
-        Cyrillic, General Punctuation, currency, letterlike and number forms, and the
-        emoji planes. They disagree on 52 code points in the arrows and symbols blocks
-        and 3 in CJK, where the two Unicode versions classify a character differently.
+        The character class uses .NET Unicode categories instead of github-slugger's
+        generated table. A recorded comparison covered every code point.
+        Results matched for Basic Latin, Latin-1, Latin Extended-A and B, Greek, and Cyrillic.
+        They also matched for General Punctuation, currency, letterlike and number forms, and the emoji planes.
+        The comparison found differences in 52 code points in the arrows and symbols blocks and 3 in CJK.
+        The two Unicode versions classify those characters differently.
 
         .EXAMPLE
         ConvertTo-GitHubSlug -Text 'Prefer .NET for the actual work'
@@ -196,14 +198,15 @@ function Get-MarkdownAnchor {
         Get the anchors a Markdown document exposes.
 
         .DESCRIPTION
-        Return every anchor in the document: one per heading, plus any explicit id on a
-        raw HTML element, which GitHub honours as an anchor of its own. A repeated
-        heading gets the '-1', '-2' suffix github-slugger appends, and the suffixed form
-        is claimed too, so a heading colliding with an already generated suffix still
-        gets a unique anchor. Fenced code blocks are skipped.
+        The function returns heading anchors and explicit ids from raw HTML elements.
+        GitHub uses those ids as anchors.
+        The function adds '-1', '-2' suffixes to duplicate heading slugs, as github-slugger does.
+        It also reserves each suffixed slug.
+        If another heading has that slug, the function assigns a unique suffix.
+        It ignores headings inside fenced code blocks.
 
-        Takes the document text rather than a path, because a cross-repository target
-        arrives as an API response and never touches disk.
+        The function accepts document text, not a file path.
+        Cross-repository content comes from API responses and does not require a local file.
 
         .EXAMPLE
         Get-MarkdownAnchor -Markdown (Get-Content ./README.md -Raw)
@@ -252,13 +255,12 @@ function Get-MarkdownAnchor {
 function Get-CrossRepositoryTarget {
     <#
         .SYNOPSIS
-        Describe what an in-scope cross-repository URL points at.
+        Describe the target of an in-scope cross-repository URL.
 
         .DESCRIPTION
-        Parse a link target into the repository, git reference, path, and fragment it
-        addresses, or return nothing when the URL is not an in-scope file reference -
-        a different host, an owner outside the configured set, or a route such as
-        '/issues/' that names an API object rather than a path.
+        The function parses a link target into its repository, git reference, path, and fragment.
+        It returns no output when the host or owner is outside the configured scope.
+        It also ignores routes such as '/issues/' that identify API objects instead of file paths.
 
         .EXAMPLE
         Get-CrossRepositoryTarget -Url 'https://github.com/PSModule/Demo/blob/main/README.md#usage' -Owner PSModule
@@ -322,14 +324,15 @@ function Get-CrossRepositoryTarget {
 function Invoke-GitHubRequest {
     <#
         .SYNOPSIS
-        Send one GitHub REST request and classify how it went.
+        Send one GitHub REST request and report its result.
 
         .DESCRIPTION
-        Return the status code and body, or a failure description when the check could
-        not get an answer. A transient failure - a connection error or a 5xx - is
-        retried with a growing delay before it is given up on, so a blip does not read
-        as a broken link. An exhausted rate limit is recognised from the response
-        headers and not retried, because waiting will not help within a run.
+        The function returns the status code and response body, or a request-failure description.
+        It retries connection errors and 5xx responses with an increasing delay.
+        A transient request failure does not establish that a link target is missing.
+
+        Rate-limit response headers identify an exhausted limit.
+        The function does not retry that limit within the run.
 
         .EXAMPLE
         Invoke-GitHubRequest -Uri 'https://api.github.com/repos/PSModule/Demo' -MaximumAttempt 3
@@ -345,7 +348,7 @@ function Invoke-GitHubRequest {
         [Parameter(Mandatory)]
         [string] $Uri,
 
-        # How many times to attempt the request before giving up.
+        # Maximum number of request attempts.
         [Parameter(Mandatory)]
         [int] $MaximumAttempt
     )
@@ -411,16 +414,16 @@ $script:rateLimitReached = $null
 function Get-CachedGitHubRequest {
     <#
         .SYNOPSIS
-        Send a GitHub REST request, sending each distinct URI only once.
+        Get a GitHub REST response from the cache or network.
 
         .DESCRIPTION
-        Memoise Invoke-GitHubRequest, so a target linked from ten pages costs one
-        request rather than ten. Documentation repeats its links, and the rate limit
-        is the scarce resource here.
+        The function stores Invoke-GitHubRequest results by URI.
+        Repeated references to the same target reuse one response.
+        This limits duplicate requests against the API quota.
 
-        Once the quota is gone it stops asking altogether. Every later request would
-        answer 403 the same way, and the run is already going to fail; continuing to
-        ask only makes it slower and the reason harder to read.
+        After the quota is exhausted, the function stops network requests.
+        It returns the rate-limit failure for each later request.
+        The run already has a failure, so more requests cannot produce a passing result.
 
         .EXAMPLE
         Get-CachedGitHubRequest -Uri 'https://api.github.com/repos/PSModule/Demo' -MaximumAttempt 3
@@ -436,7 +439,7 @@ function Get-CachedGitHubRequest {
         [Parameter(Mandatory)]
         [string] $Uri,
 
-        # How many times to attempt the request before giving up.
+        # Maximum number of request attempts.
         [Parameter(Mandatory)]
         [int] $MaximumAttempt
     )
@@ -452,17 +455,16 @@ function Get-CachedGitHubRequest {
 function Get-ContentUri {
     <#
         .SYNOPSIS
-        Build the contents-API URI for a target.
+        Build the contents-API URI for a link target.
 
         .DESCRIPTION
-        Compose the repository contents endpoint for the target's path, pinned to the
-        target's git reference when the link carried one. A link without a reference
-        resolves against the repository's default branch, which is what a reader
-        following it gets.
+        The function builds the repository contents endpoint for the target path.
+        If the link includes a git reference, the URI uses that reference.
+        Otherwise, it uses the repository's default branch.
 
-        A target with a reference but no path - 'github.com/OWNER/REPO/tree/REF' -
-        asks for the repository root at that reference, which is what makes an invalid
-        branch or tag answer 404 rather than passing on the repository existing.
+        A reference without a path identifies the repository root at that reference.
+        This includes 'github.com/OWNER/REPO/tree/REF'.
+        An invalid branch or tag returns 404, even when the repository exists.
 
         .EXAMPLE
         Get-ContentUri -Target $target -ApiBaseUri 'https://api.github.com'
@@ -494,10 +496,11 @@ function Get-DocumentText {
         Get the text of a file from a contents-API response.
 
         .DESCRIPTION
-        Decode the base64 body the contents endpoint inlines. A file above the inline
-        size limit arrives with an empty body and a download URL instead, so that is
-        followed rather than treated as an empty document - an empty document exposes
-        no anchors, and every anchor into it would be reported broken.
+        The function decodes the base64 content in a contents-API response.
+        Files above the inline size limit supply a download URL instead of inline content.
+        The function uses that URL to get the file text.
+        This avoids treating a download response as an empty document with no anchors.
+        If content is unavailable, the function returns an empty string.
 
         .EXAMPLE
         Get-DocumentText -Payload $payload -MaximumAttempt 3
@@ -513,7 +516,7 @@ function Get-DocumentText {
         [Parameter(Mandatory)]
         [psobject] $Payload,
 
-        # How many times to attempt a follow-up request before giving up.
+        # Maximum number of attempts for a follow-up request.
         [Parameter(Mandatory)]
         [int] $MaximumAttempt
     )
@@ -531,13 +534,12 @@ function Get-DocumentText {
 function Get-LocalTargetOutcome {
     <#
         .SYNOPSIS
-        Resolve a link into the repository being checked against the checkout.
+        Resolve a link into this repository against the checkout.
 
         .DESCRIPTION
-        A link back into this repository is answered from the working tree rather than
-        from the default branch over the API. Resolved remotely it would confirm the
-        state the change is about to invalidate: a pull request that moves the file
-        would pass, and the link would break as it merged.
+        The function resolves links into this repository against the working tree.
+        It does not use the default branch's remote API state.
+        This includes file moves and link changes from the pull request.
 
         .EXAMPLE
         Get-LocalTargetOutcome -Target $target -Root /repo
@@ -553,7 +555,7 @@ function Get-LocalTargetOutcome {
         [Parameter(Mandatory)]
         [pscustomobject] $Target,
 
-        # Repository root the target's path is resolved against.
+        # Repository root for the target's relative path.
         [Parameter(Mandatory)]
         [string] $Root
     )
@@ -582,19 +584,18 @@ function Get-LocalTargetOutcome {
 function Get-RemoteTargetOutcome {
     <#
         .SYNOPSIS
-        Resolve a link into another repository against that repository.
+        Resolve a link into another repository through the GitHub REST API.
 
         .DESCRIPTION
-        Ask the contents endpoint whether the path exists and, for Markdown with an
-        anchor, whether a heading produces it. A link naming a git reference but no
-        path - 'github.com/OWNER/REPO/tree/REF' - asks for the repository root at that
-        reference, so an invalid branch or tag is caught rather than passing because
-        the repository exists.
+        For a file or directory target, the function uses the contents endpoint.
+        For Markdown targets with an anchor, it also compares the anchor with the document's anchors.
+        A git reference without a path identifies the repository root at that reference.
+        This includes 'github.com/OWNER/REPO/tree/REF'.
+        An invalid branch or tag does not pass merely because the repository exists.
 
-        A 404 is not conclusive on its own - it answers the same for a deleted file
-        and for a repository no anonymous reader can open - so the repository itself
-        is probed before the link is called broken, and an unreadable repository is
-        reported as unresolvable instead.
+        A 404 response can mean a missing file or an unreadable repository.
+        The function then requests the repository itself to distinguish those cases.
+        It reports an unreadable repository as unresolvable, not broken.
 
         .EXAMPLE
         Get-RemoteTargetOutcome -Target $target -ApiBaseUri 'https://api.github.com' -MaximumAttempt 3
@@ -614,7 +615,7 @@ function Get-RemoteTargetOutcome {
         [Parameter(Mandatory)]
         [string] $ApiBaseUri,
 
-        # How many times to attempt a request before giving up.
+        # Maximum number of request attempts.
         [Parameter(Mandatory)]
         [int] $MaximumAttempt
     )
@@ -670,13 +671,13 @@ function Get-RemoteTargetOutcome {
 function Write-WorkflowAnnotation {
     <#
         .SYNOPSIS
-        Emit a GitHub Actions annotation that renders above the collapsed log.
+        Emit a GitHub Actions annotation.
 
         .DESCRIPTION
-        Write a '::notice::' or '::error::' workflow command with the dynamic parts
-        percent-encoded, so a value carrying '%', a newline, a colon, or a comma cannot
-        corrupt or break out of the single-line command. Outside Actions it writes
-        nothing, so a local run is not littered with workflow commands.
+        The function writes a '::notice::' or '::error::' workflow command.
+        It percent-encodes '%' and line breaks in the title and message.
+        It also encodes ':' and ',' in the title to preserve the command properties.
+        Outside GitHub Actions, the function produces no output.
 
         .EXAMPLE
         Write-WorkflowAnnotation -Type notice -Title 'Cross-repository links' -Message '21 link(s) resolve'
@@ -687,12 +688,12 @@ function Write-WorkflowAnnotation {
     #>
     [CmdletBinding()]
     param(
-        # Annotation severity, which decides how GitHub renders it.
+        # Annotation severity, which controls how GitHub displays it.
         [Parameter(Mandatory)]
         [ValidateSet('notice', 'warning', 'error')]
         [string] $Type,
 
-        # Short headline shown in bold on the annotation.
+        # Short title that GitHub shows in bold on the annotation.
         [Parameter(Mandatory)]
         [string] $Title,
 
