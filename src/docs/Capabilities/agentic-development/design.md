@@ -131,7 +131,7 @@ flowchart TD
   newpath -->|"No"| done["Respond, commit, or open PR"]
 ```
 
-Resolution is deterministic. If the active repository remote is `github.com/PSModule/Json`, the selected project context is `PSModule`; if it is `github.com/MSXOrg/docs`, the selected project context is `MSXOrg`. Multi-root workspaces use the active file, explicit user prompt, current terminal directory, or branch repository to select the project. Ambiguity is resolved by asking the user before acting.
+The active repository remote selects project context. For `github.com/PSModule/Json`, the context is `PSModule`. For `github.com/MSXOrg/docs`, the context is `MSXOrg`. In a multi-root workspace, the active file, explicit user prompt, terminal directory, or branch repository selects the project. If that context is ambiguous, ask the user before acting.
 
 ## Pointer files
 
@@ -156,11 +156,13 @@ clone, and update it before reading it.
 Read nearest first. A local file never overrides a standard.
 ```
 
-A router lists the destinations that actually exist — the ones above are an example, not a required layout. Replace the optional local contribution entry with a link to the inherited organization default when no local guide is needed. A repository with no documentation of its own drops that line; one that publishes the standards resolves steps 3 and 4 to the same tree and drops the duplicate. Writing a real path or source link matters more than matching the example, because the router is read literally.
+A router lists only destinations that exist. The example does not require that layout. When no local guide is needed, replace that entry with a link to the inherited organization default. If the repository has no documentation, omit that entry. A standards repository omits the duplicate entry when its local and organization documentation use the same tree. The router uses each path or source link literally.
 
-The index trail is the default. A clear prompt can shortcut stage discovery: `Review this PR <link>` enters Review, `Make this issue <description>` enters Define, and `Implement <issue>` enters Implement. These phrases are routing hints interpreted by [Workflow](../../Ways-of-Working/Workflow.md#find-the-current-stage), not commands with independent procedures.
+The index trail is the default route. A clear prompt can select a stage directly. `Review this PR <link>` enters Review. `Make this issue <description>` enters Define. `Implement <issue>` enters Implement.
 
-> **Reading order vs. conflict precedence** — the router reads the repository's own files first and widens outward, because nearest context is cheapest and most specific. Precedence runs the other way: repository files add nuance and narrow exceptions and never silently override an organization standard unless that standard permits a local exception.
+[Workflow](../../Ways-of-Working/Workflow.md#find-the-current-stage) interprets these phrases as routing hints. They do not define independent procedures.
+
+> **Reading order vs. conflict precedence** — the router reads repository files before organization documentation. This order provides specific context before broader context. Conflict precedence runs in the opposite direction: repository files add detail and narrow exceptions. They do not override an organization standard unless that standard permits a local exception.
 
 `.claude/CLAUDE.md` is a single import:
 
@@ -168,7 +170,7 @@ The index trail is the default. A clear prompt can shortcut stage discovery: `Re
 @../AGENTS.md
 ```
 
-Claude Code accepts either `./CLAUDE.md` or `./.claude/CLAUDE.md` as the project file, and resolves a relative import against the file that contains it — so from `.claude/`, the router is `../AGENTS.md`. Writing `@AGENTS.md` there would resolve to `.claude/AGENTS.md` and silently load nothing.
+Claude Code accepts either `./CLAUDE.md` or `./.claude/CLAUDE.md` as the project file. It resolves each relative import from the file that contains it. From `.claude/`, the router is `../AGENTS.md`. An import of `@AGENTS.md` instead resolves to `.claude/AGENTS.md`, so it does not load the repository router.
 
 `.github/copilot-instructions.md` has the same shape, for the Copilot surfaces that do not read `AGENTS.md`:
 
@@ -176,15 +178,14 @@ Claude Code accepts either `./CLAUDE.md` or `./.claude/CLAUDE.md` as the project
 Follow the instructions in [AGENTS.md](../AGENTS.md).
 ```
 
-That is the entire file. It holds no reading order, no workflow, and no standard, so there is nothing in it that can fall out of step with the router. Any future runtime is handled the same way: give it a route under whatever filename it reads, and leave the content in `AGENTS.md`.
+The file contains only that pointer. It does not duplicate reading order, workflow, or standards. Other runtimes use a route under their recognized filename and keep shared content in `AGENTS.md`.
 
 Path-scoped instruction files are reserved for local rules that cannot live centrally because they apply only to a repository path, and only when the rule does not belong in `README.md` or `.github/CONTRIBUTING.md` instead. They never define workflow stages.
 
 ## Local workspace
 
-A runtime or development setup may materialize a documentation repository in
-any context checkout it controls. The framework does not prescribe that
-checkout's filesystem location.
+A runtime or development setup can create a documentation context checkout at a
+location it controls. The framework does not prescribe that filesystem location.
 
 Before context is read, the agent ensures the clone exists, fetches its remote,
 and fast-forwards its default branch. Each clone must be clean, checked out on
@@ -198,14 +199,11 @@ verified.
 
 ## Context freshness
 
-The freshness gate is only worth as much as the last time it ran. A clone
-synchronized once is current at that moment and progressively less so
-afterwards, and an agent reading a week-old clone reads a standard that has
-since changed while believing it is canonical.
+Git synchronization establishes freshness at session start. A clone can become
+stale after synchronization when its remote changes.
 
-So Git synchronization runs at the **start of every session**, not once per
-machine. What differs between runtimes is where the trigger hangs, never what
-it does:
+Synchronization runs at the **start of every session**, not once per machine.
+Each runtime uses its lifecycle point for the same check:
 
 | Runtime shape | Lifecycle point | How context freshness is established |
 | --- | --- | --- |
@@ -214,24 +212,22 @@ it does:
 | Review-time agent | Pull request event | Instructions are read from the pull request's head branch, so freshness follows the branch under review rather than a local clone. |
 | Batch or scheduled agent | Job start | The job's first step clones or synchronizes the context repository; a scheduled run has no earlier lifecycle point to rely on. |
 
-Each of these is one **declaration** of the same behavior. The runtime ensures
-the clone is clean, on the remote default branch, and exactly equal to the
-fetched head before context is read. A runtime may use its own lifecycle hook,
-or the agent may perform the Git check explicitly.
+Each runtime declares the same behavior. Before context is read, the runtime
+verifies that the clone is clean, on the remote default branch, and exactly
+equal to the fetched head. The runtime can use its lifecycle hook, or the agent
+can perform the Git check explicitly.
 
-The synchronization MUST be idempotent, because it runs far more often than it
-changes anything. A process that is expensive or noisy when everything is
-already current gets disabled, and a disabled process is worse than no process,
-because the workspace still appears synchronized.
+Synchronization MUST be idempotent. It runs each session even when the remote
+has not changed. Excessive cost or output can lead operators to disable it.
+The workspace can then appear current without a freshness check.
 
-Where a runtime offers no lifecycle point at all, Git synchronization MUST be
-invoked explicitly before context is read. It MUST NOT be skipped on the
-grounds that the workspace was synchronized recently; "recently" is not a state
-the agent can observe, and the gate exists precisely to replace that judgment
-with a check.
+Where a runtime offers no lifecycle point, Git synchronization MUST run
+explicitly before context is read. It MUST NOT be skipped because the workspace
+was synchronized recently. The Git check establishes observable state; elapsed
+time does not.
 
-Each shape's obligations beyond context freshness — its entry file, tool declaration, and identity —
-are set out in [Runtime Integration](runtime-integration.md).
+[Runtime Integration](runtime-integration.md) defines each shape's other
+obligations: entry file, tool declaration, and identity.
 
 ## Client behavior
 
@@ -245,7 +241,7 @@ Different clients load different files, but the framework keeps the same depende
 | Copilot surfaces without `AGENTS.md` support | `.github/copilot-instructions.md` | Copilot Chat on GitHub.com, Visual Studio, JetBrains, Eclipse, and Copilot code review outside GitHub.com read this file. It routes them to the router and adds nothing else. |
 | Copilot code review | Head-branch instructions | Reads repository instructions, agent instructions, and skills from the pull request's **head** branch, not the base branch. |
 
-Because Copilot code review reads the head branch, a pull request that changes `AGENTS.md`, a client route, or a path-scoped instruction file also changes the instructions used to review that pull request. Those files are therefore reviewed by a human on their own merits, and an automated approval is never treated as independent of them. What this means for repositories that accept outside contributions is still open — see [MSXOrg/docs#123](https://github.com/MSXOrg/docs/issues/123).
+Copilot code review uses the head-branch versions of `AGENTS.md`, client routes, and path-scoped instruction files. A pull request that changes these files also changes the instructions for its own review. Human review assesses these files directly. Automated approval does not provide an independent assessment of the instructions that produced it. The outside-contribution trust boundary is tracked in [MSXOrg/docs#123](https://github.com/MSXOrg/docs/issues/123).
 
 ## Failure modes
 
@@ -265,7 +261,7 @@ Because Copilot code review reads the head branch, a pull request that changes `
 2. Add the canonical Workflow and linked stage procedures to `docs`.
 3. Add the `AGENTS.md` router to each product repository, plus a route for every client that cannot read it.
 4. Document the canonical docs clone and require Git synchronization before use.
-5. Review new work for pointer discipline: facts live once, links point to them.
+5. Review new work for pointer discipline: each fact has one source, and other files link to it.
 
 ## Where this connects
 
