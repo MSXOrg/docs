@@ -30,7 +30,7 @@
 *[JSON]: JavaScript Object Notation
 *[KPI]: Key Performance Indicator
 *[Kubernetes]: Open-source system for automating deployment, scaling, and management of containerized applications
-*[LTS]: Long-Term Servicing
+*[LTS]: Long-Term Support
 *[MCP]: Model Context Protocol
 *[OKF]: Open Knowledge Format
 *[OKR]: Objectives and Key Results

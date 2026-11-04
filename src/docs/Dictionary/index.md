@@ -47,7 +47,9 @@ The family of always-on practices — continuous integration, delivery, document
 
 ### Conventional Commits
 
-A commit-message convention that puts a machine-readable type and optional scope in the subject line — `feat(api): add pagination` — so tooling can derive version bumps and changelogs from history. This ecosystem derives the bump from a pull-request label instead; see [Commit Conventions](../Ways-of-Working/Commit-Conventions.md).
+A commit-message convention that puts a machine-readable type and optional scope in the subject line — `feat(api): add pagination` — so tooling can derive version bumps and changelogs from history.
+
+For a reviewed pull request, an explicit bump label overrides a valid effective `DefaultBump`. Without an explicit bump label, that valid default supplies the bump. Commit messages do not select the bump. See [PR Format](../Ways-of-Working/PR-Format.md#resolve-release-decisions) for the release decision and [Commit Conventions](../Ways-of-Working/Commit-Conventions.md) for message rules.
 
 ### Conway's Law
 
