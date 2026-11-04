@@ -123,6 +123,7 @@ People, agents, and separate automation systems interpret them the same way.
 The campaign prefix is mandatory on every delivery issue. Each campaign pull
 request has a native link to one prefixed issue. Its reader-facing title follows [PR
 Format](PR-Format.md) without the prefix. At most one `stage:*` label applies at a time.
+Remove the current `stage:*` label before adding its replacement.
 
 A `stage:*` label may be removed when the pull request supplies the equivalent
 native signal. A ready pull request needs no `stage` label.
@@ -187,11 +188,11 @@ flowchart TD
    linked to exactly that prefixed delivery issue, per [PR Format](PR-Format.md)
    and the target-specific linking rules above.
    The Development link carries campaign membership, so the pull request title
-   states only its reader-facing result. Move the stage to `stage:in-progress`.
-   Clear the issue's `stage:queued` so the repository delivery never has two stages at once.
+   states only its reader-facing result. Clear the issue's `stage:queued`.
+   Then set `stage:in-progress` so the repository delivery never has two stages at once.
    If an open pull request covers part of the change, adopt it instead of opening another.
    Add the remaining change to its branch. Return it to **draft** while work is in progress.
-   Give it `stage:in-progress` and clear `stage:*` from its delivery issue.
+   Clear `stage:*` from its delivery issue. Then give the pull request `stage:in-progress`.
    If the native link to the prefixed Task or Bug is missing, add and verify it before continuing.
 3. **Apply the change and run the loop.** Make the change.
    Follow the [Contribution Workflow](Contribution-Workflow.md) and its Copilot
@@ -201,7 +202,8 @@ flowchart TD
    release-range ledger and immutable template comparison in
    [Consumer Upgrades](Consumer-Upgrades.md), including no-action ranges.
 4. **Flag blockers, don't stall the fleet.** If a delivery leaf needs a human
-   decision or off-platform action, set `stage:blocked` with a note.
+   decision or off-platform action, remove its current `stage:*` label.
+   Set `stage:blocked` and add a note.
    Continue to the next repository.
 5. **Mark ready only when the loop is clean.** When Copilot has no more feedback
    and CI is green, mark the PR ready per the
@@ -386,8 +388,8 @@ gh pr view <n> --repo <owner>/<repo> --json `
   isDraft,state,reviewDecision,statusCheckRollup,mergeStateStatus,assignees
 
 # set the pipeline stage (remove the others first) and add a progress note
-gh api -X POST   repos/<owner>/<repo>/issues/<n>/labels -f "labels[]=stage:blocked"
 gh api -X DELETE repos/<owner>/<repo>/issues/<n>/labels/stage:in-progress
+gh api -X POST   repos/<owner>/<repo>/issues/<n>/labels -f "labels[]=stage:blocked"
 gh api -X POST   repos/<owner>/<repo>/issues/<n>/comments -f body="<note>"
 
 # ready for review — the native "ready for a human" signal
