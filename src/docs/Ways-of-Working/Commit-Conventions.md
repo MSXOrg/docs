@@ -5,14 +5,17 @@ description: How commit messages are written.
 
 # Commit Conventions
 
-Commit messages serve two audiences: the engineer reading `git log` six months from now, and the agents trying to reconstruct what changed and why. Both need the same thing — **direct, descriptive messages** that say what was done.
+Engineers and agents use commit messages in `git log` to understand what changed and why.
+Use **direct, descriptive messages** that state the change or result.
 
 ## Rules
 
 1. **State what was done or what the result is.** Imperative or declarative, both work.
-2. **No conventional-commit prefixes.** No `fix:`, `feat:`, `docs:`, `chore:`, `refactor:`, etc. The change type is captured at the PR level — repeating it on every commit adds noise without information.
-3. **No generic messages.** `Update for PR`, `WIP`, `fixes`, `more changes` — all forbidden. They erase traceability.
-4. **One logical change per commit.** Micro-iterative discipline. If a change touches three unrelated concerns, that's three commits.
+2. **No conventional-commit prefixes.** No `fix:`, `feat:`, `docs:`, `chore:`, `refactor:`, etc.
+   The PR records the change type; commit messages need no duplicate type prefix.
+3. **No generic messages.** `Update for PR`, `WIP`, `fixes`, `more changes` — all forbidden.
+   They do not identify the change.
+4. **One logical change per commit.** If a change covers three unrelated concerns, make three commits.
 5. **Reference issues by number when natural** — but don't force it. `Resolves Org/Repo#N` belongs in the PR description, not every commit message.
 
 ## Examples
@@ -36,7 +39,8 @@ Commit messages serve two audiences: the engineer reading `git log` six months f
 
 ## Body (optional)
 
-A commit message body is fine for non-trivial changes that need context. Keep it short. Wrap at ~72 characters per line.
+Use an optional body when a non-trivial change needs context.
+Keep it short. Wrap at approximately 72 characters per line.
 
 ```text
 Switch pagination to link-header-based
@@ -49,16 +53,21 @@ mechanism.
 
 ## Why no conventional commits
 
-MSX classifies changes at the PR level via labels and the change-type field. The release note is generated from the PR description, not from commit messages. Conventional-commit prefixes inside the repo:
+MSX classifies changes at the PR level via labels and the change-type field.
+For a release-bound PR, its description supplies the release note; commit messages do not.
+Conventional-commit prefixes inside the repo:
 
 - Duplicate information already captured elsewhere.
 - Encourage `chore:` and `refactor:` over descriptive messages.
-- Lock the repo into a tooling pattern (Commitizen, semantic-release) that MSX doesn't use.
+- Couple commit messages to a tooling pattern (Commitizen, semantic-release) that MSX does not use.
 
-Direct, descriptive messages serve both engineers and agents without the ceremony.
+Direct, descriptive messages explain the change without duplicate type prefixes.
 
 ## When working with agents
 
-The Builder writes commits during the micro-iterative loop. Each commit covers one discrete change. The Responder writes commits when addressing review feedback — one commit per thread when practical, so the link between feedback and fix is preserved in history.
+The Builder writes commits as work proceeds. Each commit covers one logical change.
+The Responder writes commits to address review feedback.
+Use one commit per thread when practical so the history connects each fix to its feedback.
 
-Never let an agent commit with a placeholder message. If a commit can't be described in one clear line, the change is probably too broad — split it.
+Never let an agent commit with a placeholder message.
+If a commit cannot be described in one clear line, split the change.
