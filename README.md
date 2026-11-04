@@ -4,7 +4,8 @@ This repository contains the shared **MSX** documentation for GitHub projects. T
 
 Contributors, maintainers, integrators, and their agents use the published docs and plugin entry points to build and adopt MSX projects.
 
-[Zensical](https://zensical.org) publishes the documentation to GitHub Pages: **[msxorg.github.io/docs](https://msxorg.github.io/docs/)**.
+[Zensical](https://zensical.org) builds the documentation.
+GitHub Actions publishes the site to GitHub Pages: **[msxorg.github.io/docs](https://msxorg.github.io/docs/)**.
 
 ## What's inside
 
