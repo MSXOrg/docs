@@ -1,20 +1,20 @@
 ---
 title: Capabilities
-description: The capabilities the ecosystem builds, each documented by a spec (why and what) and a design (how and what).
+description: Each MSX capability has a spec for its requirements and a design for its implementation.
 ---
 
 # Capabilities
 
-The independently versioned things the ecosystem builds and runs. Each
-capability is documented by a **spec** — the why and the what — and a
-**design** — the how and the what we build — kept side by side in the
-capability's folder. See the
+Capabilities are the independently versioned systems and tools that the ecosystem builds and operates.
+Each capability has a **spec** that states why it exists and what it must do.
+Its **design** explains how the implementation meets the spec.
+Both documents share the capability's folder. See the
 [Documentation Model](../Ways-of-Working/Documentation-Model.md) for how spec
 and design relate and evolve.
 
-A capability whose design **composes other capabilities** is called a
-*framework* — an adjective, not a different kind of document. It lives here with
-the same spec-and-design shape as any other capability.
+A *framework* is a capability whose design **composes other capabilities**.
+The term does not define a different kind of document.
+A framework uses the same spec-and-design structure and documentation location as other capabilities.
 
 <!-- INDEX:START -->
 
@@ -34,5 +34,5 @@ the same spec-and-design shape as any other capability.
 
 ## Where this connects
 
-- [Documentation Model](../Ways-of-Working/Documentation-Model.md) — the spec-and-design model every capability here follows.
-- [Ways of Working](../Ways-of-Working/index.md) — how the work that builds these capabilities happens.
+- [Documentation Model](../Ways-of-Working/Documentation-Model.md) — the spec-and-design model for each capability.
+- [Ways of Working](../Ways-of-Working/index.md) — the processes for work on these capabilities.
