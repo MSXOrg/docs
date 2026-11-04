@@ -109,7 +109,7 @@ Execute one ready, unblocked Task or Bug. For repository delivery:
 1. **Branch** — create a branch (and [worktree](Git-Worktrees.md)) for the delivery leaf.
 2. **Draft PR** — push early and open a draft pull request scoped to one Task or Bug delivery leaf. The pull request closes that leaf. Link additional fully convergent issues through the session-end issue convergence sweep. This makes progress and CI results visible from the start.
 3. **Implement** — work through the leaf's test-first implementation plan, including relevant [documentation and design evidence](Definition-of-Ready-and-Done.md#documentation-and-design-evidence). One logical change per commit. Update the issue as each plan step completes.
-4. **Test locally** — run relevant local checks before each push. Do not push known failures to CI.
+4. **Test locally** — run relevant local checks. Do not push known failures to CI.
 5. **Self-review with automation** — run the [Copilot review loop](Contribution-Workflow.md#the-copilot-review-loop) until it reports a clean round, fixing in-scope feedback and filing follow-up issues for the rest.
 6. **Standards and framework alignment pass** — once the change is complete, reconcile it against process, the applicable [Coding Standards](../Coding-Standards/index.md) chapters, and the repository's framework documentation, and record the result in the pull request. See [Implement](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass).
 7. **Issue convergence sweep** — in the same session-end window, sweep scoped open issues for asks already satisfied by the finished diff, and link fully convergent issues in the pull request with closing keywords. See [Implement](Workflow-Stages/Implement.md#6-issue-convergence-sweep).
