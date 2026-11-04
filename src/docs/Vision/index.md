@@ -7,7 +7,7 @@ description: The mission and the philosophy of easy, fast, and safe.
 
 MSX exists to make great software delivery the **default** — easy, fast, and safe — for every developer and every agent.
 
-This page is the **why**. It is the most stable thing on this site: products, languages, and tools change, but the reason they exist does not. Everything else — the [Ways of Working](../Ways-of-Working/index.md), the [Coding Standards](../Coding-Standards/index.md), and the [Initiatives](../Initiatives/index.md) — flows from here.
+This page states the **why** behind MSX. Products, languages, and tools change; the mission remains stable. The [Ways of Working](../Ways-of-Working/index.md), [Coding Standards](../Coding-Standards/index.md), and [Initiatives](../Initiatives/index.md) follow this mission.
 
 ## Start with Why
 
@@ -23,11 +23,11 @@ The Why is constant. The How is the way of working. The What is replaceable.
 
 > Make great software delivery the default — easy, fast, and safe — for every developer and every agent.
 
-A mission is something anyone can read and immediately have ideas about how to contribute. It is not a roadmap and it is not a product. It is the direction every product points toward. How the mission turns into measurable objectives and concrete work is described in the [Goal-Setting Framework](../Ways-of-Working/Goal-Setting.md).
+The mission gives contributors a shared direction for product decisions. It is not a roadmap or a product. The [Goal-Setting Framework](../Ways-of-Working/Goal-Setting.md) connects the mission to measurable objectives and concrete work.
 
 ## The three words
 
-Every decision is filtered through **easy**, **fast**, and **safe** — in tension, and on purpose.
+Every decision considers **easy**, **fast**, and **safe** together.
 
 | Word     | What it asks of every decision                                                              |
 | -------- | ------------------------------------------------------------------------------------------- |
@@ -35,20 +35,20 @@ Every decision is filtered through **easy**, **fast**, and **safe** — in tensi
 | **Fast** | Does this shorten the loop between intention and feedback? Is there a thinner slice to ship now?  |
 | **Safe** | Is this reversible? Is it observable? Will a failure teach something instead of causing harm?  |
 
-The words pull against each other, and that is the point. Easy without safe is reckless. Safe without fast is paralysis. Fast without easy burns people out. Holding all three at once is the discipline.
+Easy, fast, and safe are joint decision criteria. Ease without safety permits harmful choices. Safety without timely delivery prevents progress. Speed without ease increases workload. Each decision balances all three.
 
 ## AI-first, determinism-first
 
-Two beliefs sit underneath everything:
+Two beliefs guide the work:
 
-- **AI is a first-class participant.** Agents are part of how work is thought through, built, and delivered — not a feature bolted on at the end. Every workflow and every document is designed so an agent can read it and act.
-- **Determinism comes first.** A script that always produces the correct answer beats a prompt that usually does. AI *builds* the deterministic tools, and then the tools run. AI earns its place by handling what deterministic logic cannot — ambiguity, judgment, natural language, and search spaces too large for hand-written rules.
+- **AI is a first-class participant.** Agents contribute to planning, implementation, and delivery. Workflows and documents support agent participation from the start.
+- **Determinism comes first.** Deterministic tools handle work with a predictable, repeatable answer. AI *builds* those tools. It also handles ambiguity, judgment, natural language, and search spaces too large for handwritten rules.
 
-The result is automation for the predictable and repeatable, and intelligence for the genuinely variable. Both, always available, each used where it is strongest. The full reasoning lives in [Principles → AI-first development](../Ways-of-Working/Principles/AI-First-Development.md).
+Deterministic automation handles repeatable work. AI handles work that requires judgment or variable interpretation. Both remain available within the workflow, each for the work it handles best. [Principles → AI-first development](../Ways-of-Working/Principles/AI-First-Development.md) explains this division.
 
 ## How the vision cascades
 
-The vision is inherited, not copied. It is written once, here, and referenced everywhere:
+The vision is defined once on this site and referenced by each layer:
 
 ```text
 Vision (this site)              the why — stable, evergreen
@@ -62,14 +62,14 @@ Vision (this site)              the why — stable, evergreen
                     └── Agents    read the same documentation as context before acting
 ```
 
-Each layer references the one above instead of restating it. A repository's README does not re-explain the principles — it links to them. An agent pointer does not embed a style guide or workflow stage — it leads into the documentation indexes. This keeps a single source of truth and lets the whole system evolve without drifting out of sync.
+Each layer references the one above instead of restating it. A repository's README links to the principles. An agent pointer leads to the documentation indexes instead of embedding a style guide or workflow stage. This preserves a single source of truth as the layers evolve.
 
-References point in one direction only: upward. A layer names the layer it conforms to, and never enumerates the layers that conform to it. That asymmetry is what keeps the upper layers stable — adding a capability or a repository changes nothing above it.
+References point in one direction only: upward. A layer names the layer it conforms to, and never enumerates the layers that conform to it. This direction keeps higher layers stable when a capability or repository changes.
 
 ## Where it comes to life
 
-A vision that stays on a page is just words. This one is meant to be *demonstrated*. Each initiative in the [Initiatives](../Initiatives/index.md) is a concrete answer to one question:
+The [Initiatives](../Initiatives/index.md) apply the vision through products. Each one answers the same design question:
 
 > What would this look like if it were easy, fast, and safe?
 
-Go see the answers in the [Initiatives](../Initiatives/index.md).
+The [Initiatives](../Initiatives/index.md) describe how products apply these principles.
