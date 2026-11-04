@@ -11,7 +11,7 @@ Use an Epic when the work connects strategy to several bounded bodies of work. U
 
 ## Strategy boundary
 
-An Initiative is an organization-level bet under an OKR; an Epic is that Initiative's repository-level delivery aggregate. Link the Initiative and relevant OKR rather than copying their full bodies. When an Initiative spans repositories, each repository owns the Epic for its part of the outcome.
+An Initiative is an organization-level effort under an OKR. An Epic is that Initiative's repository-level delivery aggregate. Link the Initiative and relevant OKR rather than copying their full bodies. When an Initiative spans repositories, each repository owns the Epic for its part of the outcome.
 
 The Epic states the repository contribution at the [consumer-expectation altitude](../Process/Planning.md#consumer-expectations):
 

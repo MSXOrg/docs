@@ -54,7 +54,7 @@ A defect that needs multiple pull requests is a PBI, not an oversized Bug. Decom
 
 ## Ready
 
-A PBI is ready for delivery when:
+A PBI is ready to coordinate delivery when:
 
 - the consumer need, motivation, bounded outcome, scope, and aggregate scenarios are testable;
 - consumer-facing constraints, native dependencies, and combined behavior expectations are explicit;

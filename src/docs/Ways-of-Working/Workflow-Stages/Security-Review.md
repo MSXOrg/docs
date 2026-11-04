@@ -5,7 +5,7 @@ description: Procedure for the specialized Workflow stage for defensive security
 
 # Security Review
 
-Security Review is a specialized path in the canonical [Workflow](../Workflow.md). On behalf of the code owner, it identifies vulnerabilities and attack vectors in source code and documentation and produces a clear, actionable responsible-disclosure issue for each finding. It uses a defender's mindset, not an attacker's, and produces no working exploit code.
+Security Review is a specialized path in the canonical [Workflow](../Workflow.md). It identifies vulnerabilities and attack vectors in source code and documentation for the code owner. For each finding, it produces a clear, actionable responsible-disclosure issue. The stage supports defensive review and produces no working exploit code.
 
 ## Enter this stage when
 
@@ -30,9 +30,9 @@ Perform a security review, audit code for vulnerabilities, threat-model a change
 
 ## Output
 
-For each finding, a structured block: severity, component, vulnerability class, OWASP category, a plain-language description, an attack path (no exploit code), evidence (file and line), a concrete mitigation, and references (CVE, CWE, or OWASP). Severity is one of Critical, High, Medium, Low, or Informational.
+Each finding has a structured block with severity, component, vulnerability class, and OWASP category. It includes a plain-language description, an attack path without exploit code, evidence with file and line, a concrete mitigation, and references. References identify the applicable CVE, CWE, or OWASP guidance. Severity is one of Critical, High, Medium, Low, or Informational.
 
-After the review, open a security issue on the target repository titled `[Security Review] <scope>`, labelled `security`, with an executive summary followed by the finding blocks. Critical and High findings are flagged as priorities.
+After the review, open a security issue on the target repository titled `[Security Review] <scope>`, labeled `security`. Include an executive summary followed by the finding blocks. Flag Critical and High findings as priorities.
 
 ## Constraints
 
