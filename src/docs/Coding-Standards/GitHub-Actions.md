@@ -5,25 +5,27 @@ description: Workflow authoring — SHA pinning, least-privilege permissions, OI
 
 # GitHub Actions
 
-How GitHub Actions workflows are authored across the ecosystem. Workflows are
-code that runs with access to credentials and the ability to publish — they are
-held to the same bar as application code, plus the supply-chain and
+This standard defines how authors write GitHub Actions workflows across the
+ecosystem. Workflows run with access to credentials and can publish artifacts.
+Workflow authors apply the application-code standards and the supply-chain and
 least-privilege controls below.
 
 This standard builds on the [language-agnostic baseline](index.md). For the
 threat model behind action pinning and vendoring, see
-[Security → Supply chain](Security.md#supply-chain); this standard is the
-canonical "how to author" reference that the security control points to.
+[Security → Supply chain](Security.md#supply-chain).
+This standard is the canonical workflow-authoring reference for that security
+control.
 
 ## Pin actions according to ownership
 
-An external `uses:` dependency is pinned by SHA, which is the GitHub Actions
-expression of the [Dependencies](Dependencies.md) standard: an **identity pin**
-to immutable bytes, kept current by automation (below).
+An external `uses:` dependency uses a SHA pin, as the
+[Dependencies](Dependencies.md) standard requires.
+This **identity pin** identifies immutable bytes. Automation keeps the pin current
+as described below.
 
 A `uses:` reference accepts a tag, a branch, or a commit SHA. Tags and branches
-are **mutable** — a maintainer (or an attacker who compromises one) can move
-them to different code. A full commit SHA is **immutable**. The only controlled
+are **mutable**. A maintainer, or an attacker who compromises the maintainer, can
+move either reference to different code. A full commit SHA is **immutable**. The only controlled
 exception is a floating major tag on automation whose release path MSX controls:
 
 - **External actions and reusable workflows MUST use a full 40-character commit
@@ -38,7 +40,7 @@ exception is a floating major tag on automation whose release path MSX controls:
   release creates the next major tag; it never repoints the existing major tag
   across the compatibility boundary.
 
-A local clone that consumes an allowed owned major tag must explicitly accept
+If a local clone consumes an allowed owned major tag, explicitly accept
 producer-controlled tag movement. Follow
 [Accept moved release tags](../Capabilities/release-management/accept-moved-release-tags.md)
 to repair a stale tag and configure trusted fetches. This does not relax the
@@ -62,16 +64,18 @@ jobs:
 ## Keep pinned actions current
 
 The update path follows ownership. An external SHA pin is immutable, so the
-consumer's dependency automation proposes each newer SHA. An owned floating
-major tag is advanced once by the producer's controlled release automation, so
-compatible patch and minor releases reach every consumer on that major without
-a fleet of pin-update pull requests.
+consumer's dependency automation proposes each newer SHA.
+The producer's controlled release automation advances an owned floating major
+tag once. Compatible patch and minor releases then reach every consumer on that
+major without individual pin-update pull requests.
 
 - **Enable automated updates for the `github-actions` ecosystem** in
   `.github/dependabot.yml`. For external dependencies, the updater opens a pull
   request that rewrites the pin to the new commit SHA and refreshes the trailing
   version comment.
-- **Apply the updater's default three-day cooldown** before adopting a freshly published version. Omit an explicit `cooldown` mapping unless the repository deliberately adopts a non-default duration.
+- **Apply the updater's default three-day cooldown** before adopting a published
+  version. Omit an explicit `cooldown` mapping unless the repository deliberately
+  adopts a non-default duration.
 - **Make the release decision separately** after dependency changes are
   collected when the target route invokes [Release
   Management](../Capabilities/release-management/design.md).
@@ -83,19 +87,32 @@ a fleet of pin-update pull requests.
   A breaking release publishes the next major tag, but consumers remain on their
   current line until that campaign changes their `uses:` references.
 
-The full mechanism — schedule, cooldown, and merge policy — is the
-[Dependency Updates](../Capabilities/dependency-updates/design.md) capability;
-this section is the Actions-specific view of it.
+The [Dependency Updates](../Capabilities/dependency-updates/design.md) capability
+defines the schedule, cooldown, and merge policy.
+This section defines the Actions-specific requirements.
 
 ### Audit and synchronize pins manually
 
 Use the repository's automated dependency-update path for the `github-actions`
 ecosystem. When an action update pull request arrives, verify the new SHA and
-version comment, run the required checks, and merge it through the normal gate.
+version comment. Run the required checks. Merge it through the normal gate.
 
-Use the reusable [`Update-GitHubActionPin.ps1`](https://github.com/MSXOrg/docs/blob/main/.github/scripts/Update-GitHubActionPin.ps1) utility to audit or deliberately synchronize external SHA pins: for example, when onboarding an existing repository, reconciling a repository after an update-service outage, or checking proposed changes before an update pull request is opened. It does not move owned floating major tags.
+Use the reusable [`Update-GitHubActionPin.ps1`](https://github.com/MSXOrg/docs/blob/main/.github/scripts/Update-GitHubActionPin.ps1)
+utility to audit or deliberately synchronize external SHA pins.
+Use it for these tasks:
 
-The script needs PowerShell 7, network access to the GitHub REST API, and a target repository with a `.github` directory. Public actions can be resolved anonymously; set `GITHUB_TOKEN` or `GH_TOKEN` to raise the API rate limit or to resolve actions that require authentication. The token is sent only as an API request header.
+- Add an existing repository to the update process.
+- Reconcile pins after an update-service outage.
+- Verify proposed changes before an update pull request opens.
+
+The utility does not move owned floating major tags.
+
+The utility needs PowerShell 7, network access to the GitHub REST API, and a
+target repository with a `.github` directory. It can resolve public actions
+anonymously.
+Set `GITHUB_TOKEN` or `GH_TOKEN` to raise the API rate limit or resolve actions
+that require authentication.
+The utility sends the token only in an API request header.
 
 From this checkout, preview a target repository without changing it:
 
@@ -115,7 +132,22 @@ When the current directory is the target repository, the path is optional:
 pwsh ../docs/.github/scripts/Update-GitHubActionPin.ps1 -WhatIf
 ```
 
-The utility recursively scans `.github` YAML files and updates only `uses:` references in the form `owner/repository[/subpath]@<40-character-SHA>`. It resolves the latest stable release to its commit SHA, including annotated tags, replaces the trailing release-tag comment, and adds that comment when omitted. It preserves UTF-8 BOM state and existing line endings. Local (`./...`) and Docker (`docker://...`) references, mutable tags or branches, non-YAML files, and expressions outside this shape are intentionally outside its scope. An action with no resolvable stable release or tag-to-commit mapping stops the run with an explicit error so a partial audit does not appear successful.
+The utility recursively scans `.github` YAML files.
+It updates only `uses:` references in the form
+`owner/repository[/subpath]@<40-character-SHA>`.
+It resolves the latest stable release to its commit SHA, including annotated
+tags. It replaces the trailing release-tag comment, or adds the comment if it is
+absent. It preserves UTF-8 BOM state and existing line endings.
+
+The utility does not change these references or files:
+
+- Local (`./...`) and Docker (`docker://...`) references.
+- Mutable tags or branches.
+- Non-YAML files.
+- Expressions outside this shape.
+
+If an action has no resolvable stable release or tag-to-commit mapping, the utility
+stops the run with an explicit error. A partial audit must not appear successful.
 
 ## Grant least-privilege permissions
 
