@@ -5,9 +5,9 @@ description: How the deployment contract is delivered for each service-provider 
 
 # Deployment designs
 
-Each page in this section delivers the [Deployment spec](../spec.md) for one
-service-provider and CI/CD-platform combination. Add a design here without
-changing the technology-agnostic contract.
+Each page describes how one service-provider and CI/CD-platform combination
+satisfies the [Deployment spec](../spec.md). Add a design here without changing
+the technology-independent contract.
 
 <!-- INDEX:START -->
 
