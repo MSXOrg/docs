@@ -30,8 +30,8 @@ The content boundary is:
 | Runtime mechanics: which tools to enable, how to gather the current artifacts | A workflow stage definition |
 | Where to start reading | A copy of anything in `docs` |
 
-An intent that becomes incorrect after a canonical procedure change contains copied process
-rather than only a route.
+The content check compares the intent with its canonical procedure. Repeated process steps
+are copied content, not runtime mechanics.
 
 ## Why intents are worth having anyway
 

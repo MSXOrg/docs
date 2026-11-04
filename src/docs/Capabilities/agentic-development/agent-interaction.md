@@ -79,8 +79,8 @@ participant.
 Agents open issues and pull requests instead of pushing to protected branches. Their changes
 receive review, and their conclusions remain advice until someone acts on them. The
 [four-eyes principle](../../Ways-of-Working/Principles/AI-First-Development.md#4-eyes-or-n-eyes-principle)
-applies to automated participants too. A review by an agent is [advisory](advisory-agents.md),
-and humans retain merge authority.
+applies to automated participants too. An agent's review of another agent's work is
+[advisory](advisory-agents.md). Humans retain merge authority.
 
 The same rules keep agent work subject to the same review controls as human work.
 

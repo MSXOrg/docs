@@ -59,7 +59,7 @@ Feedback on unfinished parts can become irrelevant before review. Contributors c
 ignore later advice, including useful findings. A readiness signal identifies the work the
 author considers complete.
 
-If an agent runs before readiness, it SHOULD limit advice to stable work. It MUST NOT
+If an agent must run before readiness, it SHOULD limit advice to stable work. It MUST NOT
 present provisional findings as conclusions.
 
 ## Advice is legible
@@ -80,7 +80,7 @@ belongs in the documentation.
 Several advisory agents MAY examine the same artifact. They MUST NOT depend on each other's
 output or execution order.
 
-Independent agents can be added or removed without changing other agents. If one opinion
+Maintainers can add or remove independent agents without changing other agents. If one opinion
 depends on another, failures can become difficult to isolate.
 
 If advisors disagree, both conclusions remain available and a human resolves the disagreement.
