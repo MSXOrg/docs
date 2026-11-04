@@ -5,6 +5,12 @@ Describe 'Copilot plugin marketplace' {
         $script:repositoryRoot = Split-Path -Parent $PSScriptRoot
         $marketplacePath = Join-Path $script:repositoryRoot '.github/plugin/marketplace.json'
         $script:marketplace = Get-Content -LiteralPath $marketplacePath -Raw | ConvertFrom-Json
+        $msxPlugin = $script:marketplace.plugins | Where-Object { $_.name -eq 'msx' }
+        $msxPluginRoot = Join-Path -Path $script:repositoryRoot -ChildPath $msxPlugin.source
+        $script:msxSkillNames = @(
+            Get-ChildItem -LiteralPath (Join-Path -Path $msxPluginRoot -ChildPath 'skills') -Directory |
+                Select-Object -ExpandProperty Name
+        )
     }
 
     It 'uses unique plugin names' {
@@ -33,6 +39,27 @@ Describe 'Copilot plugin marketplace' {
                 Should -BeExactly 'https://agent-plugins.org/schemas/1.0.0/plugin.schema.json'
             $manifest.name | Should -BeExactly $plugin.name
             $manifest.version | Should -BeExactly $plugin.version
+        }
+    }
+
+    It 'exposes one shared writing entry point' {
+        $writingSkillNames = @(
+            $msxSkillNames | Where-Object {
+                $_ -eq 'msx-writing' -or $_ -like 'msx-documentation-*'
+            }
+        )
+
+        $writingSkillNames.Count | Should -Be 1
+        $writingSkillNames | Should -Contain 'msx-writing'
+    }
+
+    It 'preserves separate issue, pull request, and workflow entry points' {
+        foreach ($skillName in @(
+                'msx-ways-of-working-issues',
+                'msx-ways-of-working-pr-format',
+                'msx-ways-of-working-workflow'
+            )) {
+            $msxSkillNames | Should -Contain $skillName
         }
     }
 
