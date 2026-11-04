@@ -76,7 +76,7 @@ promotion is impossible and the artifact MUST be rebuilt.
 
 **Promote artifacts with external identity; rebuild artifacts with an embedded
 version.** Promotion preserves the artifact that reviewers verified.
-A rebuild reproduces the artifact from verified source. Reproducibility provides
+A rebuild reproduces the artifact from verified source. Reproducibility gives
 the guarantee for the rebuilt artifact.
 
 ### D2 — Version signals feed in, the decision is reviewed at the PR gate {#d2-version-signals-feed-in-the-label-decides-at-the-pr-gate}
