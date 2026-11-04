@@ -1,8 +1,8 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "msx",
-  "version": "0.2.0",
-  "description": "Routes coding, documentation, consumer upgrades, and work lifecycle tasks to current MSX standards.",
+  "version": "0.3.0",
+  "description": "Routes reader-facing writing, coding, consumer upgrades, and work lifecycle tasks to current MSX standards.",
   "author": {
     "name": "MSXOrg",
     "url": "https://github.com/MSXOrg"
@@ -15,6 +15,7 @@
     "documentation",
     "github-copilot",
     "msx",
+    "technical-writing",
     "workflow"
   ]
 }

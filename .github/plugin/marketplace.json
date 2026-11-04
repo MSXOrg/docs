@@ -5,13 +5,13 @@
   },
   "metadata": {
     "description": "Agent plugins that route Copilot to MSX standards and workflows.",
-    "version": "0.1.0"
+    "version": "0.1.1"
   },
   "plugins": [
     {
       "name": "msx",
-      "description": "Routes coding, documentation, consumer upgrades, and work lifecycle tasks to current MSX standards.",
-      "version": "0.2.0",
+      "description": "Routes reader-facing writing, coding, consumer upgrades, and work lifecycle tasks to current MSX standards.",
+      "version": "0.3.0",
       "source": ".github/plugin/msx"
     }
   ]
