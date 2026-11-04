@@ -1,13 +1,14 @@
 ---
 title: Merge Automation
-description: How a pull request's required status checks become the machine-readable signal that drives automated approval and merge — green merges, red holds, nothing bypasses the gate.
+description: Required status checks control automated approval and merge without bypassing repository gates or review requirements.
 ---
 
 # Merge Automation
 
-How the required status checks on a pull request become a single
-machine-readable signal — so automation can merge a green pull request, hold a
-red one, and never bypass the gate a pipeline or a ruleset sets.
+Required status checks give automation a machine-readable merge signal.
+Automation merges eligible pull requests when all required checks pass.
+It holds a pull request when a required check fails, remains pending, or is
+missing. Pipeline and ruleset gates remain binding.
 
 <!-- INDEX:START -->
 
