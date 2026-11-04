@@ -1,14 +1,13 @@
 # Contributing
 
-Every change lands through a pull request — nothing goes directly to `main`. See the
+Every change enters `main` through a pull request. See the
 [Contribution Workflow](https://msxorg.github.io/docs/Ways-of-Working/Contribution-Workflow/)
-for the full process: draft first, the Copilot review loop, then human review. Write the
+for the process: draft first, the Copilot review loop, then human review. Write the
 title and description according to
 [PR Format](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/).
 
-Everything here is a work in progress and can be improved. Fix a small problem when it is
-directly in scope; register a larger or unrelated one as an issue in the repository that
-owns it.
+Fix a small problem when it is directly in scope.
+Register a larger or unrelated problem as an issue in the repository that owns it.
 
 ## Making a change
 
@@ -16,57 +15,55 @@ owns it.
    per topic branch, named `<type>/<issue>-<slug>` as
    [Branching and Merging](https://msxorg.github.io/docs/Ways-of-Working/Branching-and-Merging/)
    defines.
-2. Edit the relevant page(s) under `src/docs/`, following the authoring conventions below.
-3. If you added or renamed a page, regenerate the indexes:
+2. Edit the relevant pages under `src/docs/`. Follow the authoring conventions below.
+3. If you add or rename a page, regenerate the indexes:
 
    ```pwsh
    pwsh .github/scripts/Update-DocumentationIndex.ps1
    ```
 
-4. Validate links before opening a pull request. The first resolves relative links and
-   anchors from the checkout; the second resolves links into other MSX repositories
-   over the network:
+4. Validate links before you open a pull request.
+   The first script resolves relative links and anchors from the checkout.
+   The second resolves links into other MSX repositories over the network:
 
    ```pwsh
    pwsh .github/scripts/Test-DocumentationLink.ps1
    pwsh .github/scripts/Test-CrossRepositoryLink.ps1
    ```
 
-5. Run the Pester suites — the same job CI runs, so a failure shows up before the
-   pull request is opened:
+5. Run the Pester suites. CI runs the same suites:
 
    ```pwsh
    pwsh .github/scripts/Invoke-PesterSuite.ps1
    ```
 
-   The script installs the pinned Pester version for the current user if it is
-   missing, runs every `tests/*.Tests.ps1` suite, and exits non-zero if any test
-   fails. To run one suite while iterating, use Pester directly:
+   If the pinned Pester version is missing, the script installs it for the current user.
+   It runs every `tests/*.Tests.ps1` suite and exits non-zero if any test fails.
+   To run one suite during development, use Pester directly:
 
    ```pwsh
    Invoke-Pester -Path ./tests/Update-DocumentationIndex.Tests.ps1
    ```
 
-6. Preview the site if you want to see the rendered result — see
+6. If you need to inspect the rendered result, preview the site. See
    [Building and previewing locally](#building-and-previewing-locally).
 7. Open the pull request as a draft and follow the
    [Contribution Workflow](https://msxorg.github.io/docs/Ways-of-Working/Contribution-Workflow/).
 
 ## Pull request format
 
-Write the actual title and complete description using [canonical PR
+Write the title and complete description using [canonical PR
 Format](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/).
 Use its [complete description example](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/#complete-description-example)
-and verify the resulting record and its release-range/source evidence against
-that guidance.
+to write the record. Verify any applicable release-range and source evidence against that guidance.
 
 ## Authoring conventions
 
-The docs are built for recursive navigation, so a reader or an agent can start at the top
-index and drill down to the right page. Three conventions make that work.
+Section indexes help readers and agents find the relevant page.
+Follow these three authoring conventions.
 
-- **Every page carries front matter.** Each `.md` file declares a `title` — the label used
-  in navigation and the generated indexes — and a one-line `description`:
+- **Every page carries front matter.** Each `.md` file declares a `title` for navigation and generated indexes.
+  It also declares a one-line `description`:
 
   ```yaml
   ---
@@ -75,7 +72,7 @@ index and drill down to the right page. Three conventions make that work.
   ---
   ```
 
-- **Every section has an index.** Each `index.md` holds an auto-generated table of the
+- **Every section has an index.** Each `index.md` contains a generated table of the
   documents at its level, between markers:
 
   ```markdown
@@ -84,28 +81,27 @@ index and drill down to the right page. Three conventions make that work.
   ```
 
 - **The tables are generated from front matter.** `.github/scripts/Update-DocumentationIndex.ps1`
-  reads each page's `title` and `description`, orders them to match the navigation in
-  `src/zensical.toml`, and fills every index in place. CI regenerates the indexes before
-  building the site instead of rejecting index drift.
+  reads each page's `title` and `description`. It orders entries to match the navigation in
+  `src/zensical.toml` and updates each index in place.
+  CI regenerates the indexes before the site build. It does not reject differences in generated tables.
 
-Choose a page's home by subject first, then by the artifact that answers the reader's
-question. The [Documentation Model](https://msxorg.github.io/docs/Ways-of-Working/Documentation-Model/#architecture-and-classification)
-defines those artifact tiers and the deliberate use of minimal OKF-style front matter.
+Choose a page's location by subject. Then choose the artifact that answers the reader's question.
+The [Documentation Model](https://msxorg.github.io/docs/Ways-of-Working/Documentation-Model/#architecture-and-classification)
+defines the artifact tiers and minimal OKF-style front matter.
 
-Links are validated the same way: `.github/scripts/Test-DocumentationLink.ps1` checks that
-every relative link and heading anchor across the docs resolves, and
-`.github/scripts/Test-CrossRepositoryLink.ps1` resolves every link into another MSX
-repository against that repository — file and anchor both. Both run in CI on every pull
-request and on every push to `main`, the second also weekly, since a target repository
-moves on its own schedule.
+`.github/scripts/Test-DocumentationLink.ps1` validates relative links and heading anchors in the documentation.
+`.github/scripts/Test-CrossRepositoryLink.ps1` validates file and anchor links into other MSX repositories.
+Both run in CI for each pull request and push to `main`.
+The cross-repository check also runs weekly because target repositories can change independently.
 
-Write to the [Markdown standard](https://msxorg.github.io/docs/Coding-Standards/Markdown/)
-and the [Documentation Model](https://msxorg.github.io/docs/Ways-of-Working/Documentation-Model/);
-both are enforced by the shared linter configuration under `.github/linters/`.
+Follow the [Markdown standard](https://msxorg.github.io/docs/Coding-Standards/Markdown/)
+and the [Documentation Model](https://msxorg.github.io/docs/Ways-of-Working/Documentation-Model/).
+The shared linter configuration under `.github/linters/` enforces Markdown formatting rules.
+Review page purpose and structure against the Documentation Model.
 
 ## Building and previewing locally
 
-The site is built with [Zensical](https://zensical.org), a Python static-site generator.
+The site uses [Zensical](https://zensical.org), a Python static-site generator.
 
 ```bash
 pip install -r requirements.txt
@@ -116,13 +112,12 @@ zensical build    # output to src/site
 
 ## Commits and pushes
 
-Keep work reviewable with small, descriptive commits — one logical change each, no
-conventional-commit prefixes. See
+Use small, descriptive commits, with one logical change in each commit.
+Do not use conventional-commit prefixes. See
 [Commit Conventions](https://msxorg.github.io/docs/Ways-of-Working/Commit-Conventions/).
 
-Push every commit, so the remote branch, CI, and the draft pull request always reflect the
-current state of the work.
+Push every commit so the remote branch, CI, and draft pull request use the same committed work.
 
-See the [README](../README.md) for what this repository is and how it is laid out, and the
-[Ways of Working](https://msxorg.github.io/docs/Ways-of-Working/) for the conventions every
-pull request follows — issue format, PR format, branching, and review etiquette.
+See the [README](../README.md) for the repository's purpose and layout.
+The [Ways of Working](https://msxorg.github.io/docs/Ways-of-Working/) define issue format,
+PR format, branching, and review etiquette.

@@ -1,13 +1,13 @@
 ---
 title: Ways of Working
-description: How work happens across the ecosystem — for humans and agents alike.
+description: Shared principles, processes, and conventions for MSX contributors and agents.
 ---
 
 # Ways of Working
 
-Shared conventions for how work happens across the MSX ecosystem — for humans and agents alike.
+This section defines the shared principles, processes, and conventions for work across the MSX ecosystem.
 
-This section documents the principles, processes, and norms that every contributor follows. Whether you're opening an issue, writing a commit message, reviewing a pull request, or planning a feature — the answer is here.
+Use it to plan work, open issues, write commit messages, and review pull requests.
 
 ## Contents
 
@@ -52,4 +52,5 @@ This section documents the principles, processes, and norms that every contribut
 
 ## Who this is for
 
-Everyone. If you contribute to an MSX project — by code, review, issue, or discussion — these are the norms you follow. Agents follow them too; they read these pages as context before acting.
+These conventions apply to everyone who contributes code, reviews, issues, or discussions to an MSX project.
+Agents read and follow the same guidance.

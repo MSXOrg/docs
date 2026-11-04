@@ -1,44 +1,52 @@
 ---
 title: Home
-description: The top-of-tree documentation for the MSX ecosystem.
+description: Shared vision, principles, and documentation for the MSX ecosystem.
 hide:
   - navigation
 ---
 
 # Make it **easy**, to move **fast**, in a **safe** way
 
-Every decision — from architecture to commit message — is filtered through those three words.
+MSX uses these three principles to evaluate each decision, from architecture to commit messages.
 
 ## Easy
 
-Simplicity is a feature. Make the right thing the easy thing — for users, contributors, and agents alike.
-Prefer the obvious and limited over the powerful and confusing. Automate what is mechanical so that human attention is saved for decisions that require judgment, context, and care.
+Simple systems help users, contributors, and agents make correct choices.
+Prefer clear, limited options to powerful options that are difficult to use.
+Automate routine work so that people can focus on decisions that require judgment, context, and care.
 
-The safe and smart choice should be the default choice. Design systems, tools, and workflows so that doing the right thing requires no extra effort — while allowing a deliberate override when necessary.
+Systems, tools, and workflows use safe defaults. The default requires no extra effort from the user.
+A deliberate override remains possible when necessary.
 
 ## Fast
 
-Shift left, ship early, learn fast, iterate. Work flows in small increments — draft PRs, micro-commits, quick reviews.
-The faster the loop closes between intention and observation, the faster the thing being built improves and evolves.
+Work proceeds in small increments, with draft PRs, small commits, and prompt reviews.
+Early delivery and frequent feedback help contributors compare intended and observed results.
+Contributors use that feedback to improve the system.
 
 ## Safe
 
-Every decision should be reversible. Every release should be observable. Every failure should teach.
-Speed requires safety — fast iteration is only possible when changes are cheap to undo, easy to monitor, and failures produce learning rather than blame.
+Every decision should permit reversal. Every release should provide observable results.
+Every failure should help contributors improve the system.
+
+Frequent changes require safety. Changes are easy to reverse and monitor.
+Contributors use failures to improve the system, not to assign blame.
 
 ## What this is
 
-**MSX** is the umbrella for everything built under it on GitHub. This site is the **top of the tree** — the vision, principles, and ways of working that every organization, repository, and agent inherits. It is written once, here, and referenced everywhere.
+**MSX** defines shared guidance for its GitHub organizations and repositories.
+This site is the canonical source for the vision, principles, and ways of working that each MSX organization, repository, and agent inherits.
 
-- The **why** lives in the [Vision](Vision/index.md).
-- The **how** lives in the [Ways of Working](Ways-of-Working/index.md) and the [Coding Standards](Coding-Standards/index.md).
-- The **what** — the products that make the vision real — lives across the [Initiatives](Initiatives/index.md).
+- The **why**: the [Vision](Vision/index.md) defines the mission and principles.
+- The **how**: the [Ways of Working](Ways-of-Working/index.md) and [Coding Standards](Coding-Standards/index.md) define shared processes and coding rules.
+- The **what**: the [Initiatives](Initiatives/index.md) describe products that apply the vision.
 
-This separation is deliberate. The vision is stable; the products that express it come and go. Keep the principles in one place, reference them from many, and the whole system stays coherent as it grows.
+Products reference this shared guidance. The documentation changes in place as the supported contract changes.
 
 ## Documentation map
 
-Each area below carries its own index. Start here, read the descriptions, and follow the links inward — section to page — until you reach what you need. Agents work the same way: review the index, then drill down to the document that fits the task.
+Each area has an index. Read the descriptions, then follow links from a section to the page for your task.
+Agents use the same route to find the relevant document.
 
 <!-- INDEX:START -->
 
@@ -55,12 +63,14 @@ Each area below carries its own index. Start here, read the descriptions, and fo
 
 ## Where the why comes to life
 
-This site explains the vision. The vision becomes real in the organizations and repositories that adopt it — each one a concrete answer to "what would this look like if it were easy, fast, and safe?"
+Organizations and repositories apply the vision through their products and ways of working.
 
-See the [Initiatives](Initiatives/index.md) for where the principles on this site are put into practice.
+See the [Initiatives](Initiatives/index.md) for products that apply these principles.
 
 ## Built for humans and agents
 
-Everything here is written once, for two audiences. A human reads it to understand how the work is done. An agent reads the same words as context before it acts. There is no separate "agent manual" — the documentation *is* the manual, and keeping it evergreen keeps both audiences aligned.
+The same pages serve people and agents. People read the documentation to understand the work.
+Agents read it as context before they act. There is no separate "agent manual".
+Each page describes the supported contract and changes in place as that contract evolves.
 
-Start with the [Vision](Vision/index.md), or jump straight to the [Ways of Working](Ways-of-Working/index.md).
+Start with the [Vision](Vision/index.md), or go directly to the [Ways of Working](Ways-of-Working/index.md).
