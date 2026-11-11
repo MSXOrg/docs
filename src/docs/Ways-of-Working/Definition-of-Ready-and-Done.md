@@ -1,11 +1,11 @@
 ---
 title: Definition of Ready and Done
-description: The three gates that bracket every piece of work.
+description: Readiness, review, and completion gates for issues and pull requests.
 ---
 
 # Definition of Ready and Done
 
-Three gates bracket work: one gates when an issue can move at its own altitude, one gates when a delivery pull request is ready for other people to review, and one gates when an issue can be called complete. All are shared contracts, not personal preferences.
+Three shared gates govern issue readiness, pull request review readiness, and completion. Each gate applies at the issue's planning altitude.
 
 ## Definition of Ready
 
@@ -13,21 +13,21 @@ Readiness is type-specific. The canonical type pages own the detailed criteria; 
 
 ### Aggregate readiness
 
-An [Epic](Issues/Types/Epic.md#ready) or [PBI](Issues/Types/PBI.md#ready) is ready to decompose or coordinate when its [consumer expectations and scenarios](Issues/Process/Planning.md#consumer-expectations) are testable, its native containment and dependency relationships are current, and no open decision prevents the first required children from becoming ready. Readiness does not send an aggregate into Build or require a technical implementation plan in its body.
+An [Epic](Issues/Types/Epic.md#ready) or [PBI](Issues/Types/PBI.md#ready) is ready to decompose or coordinate when its [consumer expectations and scenarios](Issues/Process/Planning.md#consumer-expectations) are testable. Its native containment and dependency relationships are current. No open decision prevents the first required children from becoming ready. Aggregate readiness does not authorize Build or require a technical implementation plan in the aggregate body.
 
 ### Delivery-leaf readiness
 
-A [Task](Issues/Types/Task.md#ready) or [Bug](Issues/Types/Bug.md#ready) is ready for Build when it owns one independently verifiable deliverable, its local acceptance criteria and implementation plan are executable, its native blockers are clear, and it fits one reviewable pull request. An operational Task is ready only when the action, durable evidence, and independent verifier are identified before execution.
+A [Task](Issues/Types/Task.md#ready) or [Bug](Issues/Types/Bug.md#ready) is ready for Build when it owns one independently verifiable deliverable. Its local acceptance criteria and implementation plan are executable. Its native blockers are clear, and the change fits one reviewable pull request. An operational Task is ready only when the action, durable evidence, and independent verifier are identified before execution.
 
-Ready gates starting, not scope. An issue that is not ready stays in refinement or planning; it is not pulled into Build and figured out on the fly. See [Issue Hierarchy](Issues/Types/Hierarchy.md) for routing and [Issue Relationships](Issues/Process/Relationships.md) for authoritative blockers.
+Readiness determines when work starts, not its scope. Keep an unready issue in refinement or planning; do not resolve missing planning during Build. See [Issue Hierarchy](Issues/Types/Hierarchy.md) for routing and [Issue Relationships](Issues/Process/Relationships.md) for authoritative blockers.
 
 ## Definition of Ready for Review
 
-A pull request stays a **draft** until it is genuinely ready for other people to spend attention on it. "Ready for review" is not "work has started" or "please take a look" — it is a deliberate signal that the change is complete and self-reviewed, and that the only thing left is another perspective before merge. It gates the hand-off in the [Contribution Workflow](Contribution-Workflow.md).
+A pull request stays a **draft** until the author completes and self-reviews the change. Review readiness signals that the work is ready for an independent assessment before merge. The gate controls the handoff in the [Contribution Workflow](Contribution-Workflow.md).
 
 A pull request is ready for review when:
 
-- It closes one scoped Task or Bug delivery leaf, and every item in that leaf's implementation plan is complete or explicitly moved to a follow-up issue. Additional issues may be closed only when the [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) confirms the finished diff already delivers them.
+- It closes one scoped Task or Bug delivery leaf. Every item in that leaf's implementation plan is complete or explicitly moved to a follow-up issue. Additional issues may be closed only when the [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) confirms the finished diff already delivers them.
 - Native dependencies are current and every prerequisite the change relies on has landed; the pull request is not used to bypass a blocked-by edge.
 - All required checks are green — not just tests that pass locally. CI is complete, not in progress, and a pull request that reports no checks has not met this item.
 - The automated review loop has converged — a clean [Copilot round](Contribution-Workflow.md#the-copilot-review-loop) with no unresolved review threads.
@@ -37,7 +37,9 @@ A pull request is ready for review when:
 - Consumer release evidence is complete for the reviewed source under [PR Format](PR-Format.md#write-the-description), including explicit no-action outcomes and applicable immutable template compatibility. An upgrade PR also reconciles its complete baseline-to-target range through [Consumer Upgrades](Consumer-Upgrades.md); the newest release note alone is insufficient.
 - Required post-merge publication, deployment, or template milestones name a [completion-owning issue](#post-merge-completion-ownership) and responsible owner before review; automatic PR closure cannot be their only completion signal.
 
-Absent checks are not a pass. When a pull request reports no checks at all, the usual cause is that the workflow's triggers do not cover it — a base branch outside the `pull_request` trigger's `branches` filter is the common one — and that is a gap to fix or file, not a gate to wave through. Manually dispatching the workflow against the branch does not substitute for it either: jobs gated on the event type are skipped silently, so a green `workflow_dispatch` run can hide verification that never ran. If the checks genuinely cannot be made to run before merge, say so in the pull request and link the issue tracking it, so the reviewer knows the gate was not met instead of assuming it was.
+Absent checks are not a pass. If a pull request reports no checks, inspect whether the workflow triggers cover its base branch. A base branch outside the `pull_request` trigger's `branches` filter is a common cause. Fix the trigger gap or file an issue; do not waive the gate.
+
+A manual workflow dispatch does not substitute for the pull-request run. Event-gated jobs can be skipped, so a successful `workflow_dispatch` run can omit required verification. If checks cannot run before merge, state that in the pull request and link the issue that tracks the gap. This tells the reviewer that the gate is unmet.
 
 Producer review before publication MAY use a verified immutable candidate or
 prerelease source and an immutable template commit, as
@@ -48,7 +50,7 @@ circular pre-merge prerequisite, invent final release coordinates, or describe
 pending template work as delivered. Candidate compatibility must be demonstrated,
 not promised; this does not waive an existing native blocker.
 
-If any item is open, the pull request stays a draft. Marking it ready with known-open work shifts the author's unfinished job onto reviewers — the opposite of what the signal means.
+If any item is open, keep the pull request in draft. Review readiness does not transfer unfinished author work to reviewers.
 
 When a change affects community or contribution guidance, verify
 [effective contribution guidance](Repository-Standard.md#contribution-guidance):
@@ -59,7 +61,7 @@ require a file edit.
 
 Once every item holds, hand the change off: mark it ready for review and enable auto-merge so it lands the moment review approves and the required checks stay green. See [Branching and Merging](Branching-and-Merging.md#required-checks-and-auto-merge).
 
-Auto-merge gates only on what the ruleset declares. It waits for the required status checks and required approvals the branch ruleset names, and for nothing else — so where a ruleset declares no required status checks, an armed auto-merge lands on approval alone and never waits for CI, and "auto-merge is enabled" means considerably less than it appears to. That is a misconfiguration, not a local variation to work around: [Required checks and auto-merge](Branching-and-Merging.md#required-checks-and-auto-merge) already requires the ruleset to enforce required status checks, so a repository without them is in breach of it. The fix is to add the rule, not to compensate by watching the build by hand.
+Auto-merge waits only for requirements in the branch ruleset. These include required status checks and approvals. If the ruleset names no required status checks, approval alone can permit integration before CI completes. This violates [Required checks and auto-merge](Branching-and-Merging.md#required-checks-and-auto-merge), which requires the ruleset to enforce status checks. Add the missing status-check rule. Do not substitute manual build monitoring.
 
 ## Definition of Done
 
@@ -124,4 +126,4 @@ An operational Task is done without a pull request only after the action has dur
 
 A PBI or Epic is done only when every required native child is complete and its own aggregate acceptance criteria, combined behavior, and [documentation and design evidence](#documentation-and-design-evidence) are verified. Close the aggregate directly after that verification; a delivery pull request must not close it.
 
-Done is binary. Skip a criterion only when it genuinely does not apply. If "done" repeatedly needs exceptions, fix the definition rather than quietly lowering the bar.
+Completion requires every applicable criterion. Skip a criterion only when it does not apply. If exceptions recur, correct the definition rather than weaken it.

@@ -5,7 +5,7 @@ description: Procedure for the Workflow stage that independently reviews a pull 
 
 # Review
 
-Review is the independent-assessment stage of the canonical [Workflow](../Workflow.md). It verifies that a pull request delivers its closing Task or Bug, applies good taste, respects security, and does not quietly introduce decisions that were not discussed. This stage comments and approves; it does not change code, fix CI, or merge.
+Review independently assesses a pull request in the canonical [Workflow](../Workflow.md). It verifies delivery of the closing Task or Bug, engineering quality, security, and prior discussion of decisions. This stage comments and approves; it does not change code, fix CI, or merge.
 
 ## Enter this stage when
 
@@ -13,7 +13,7 @@ Review a pull request, check a change for delivery, verify acceptance criteria, 
 
 ## Input
 
-A pull request number or URL. If the pull request was authored by the reviewing identity, switch to self-review: write findings to the terminal, and do not post public comments (an author cannot review their own pull request).
+A pull request number or URL. If the reviewing identity authored the pull request, use self-review. Write findings to the terminal, and do not post public comments; an author cannot review their own pull request.
 
 ## Flow
 
@@ -23,23 +23,23 @@ Confirm the pull request closes one scoped Task or Bug delivery leaf, then revie
 
 ### 2. Read the README
 
-Some "missing" things are by design per the documented scope ([README-Driven Context](../Readme-Driven-Context.md)).
+Read the documented repository scope before you treat absent behavior as a defect ([README-Driven Context](../Readme-Driven-Context.md)).
 
 ### 3. Assess the diff
 
 Check each dimension per [Review Etiquette](../Review-Etiquette.md):
 
-- **Delivery** — does the diff meet the acceptance criteria, without scope it did not ask for?
-- **Taste** — readability, naming, structure, tests that exercise behaviour.
+- **Delivery** — does the diff meet the acceptance criteria without unrequested scope?
+- **Taste** — readability, naming, structure, tests that exercise behavior.
 - **Security** — input validation, no secrets in logs, external action and reusable-workflow references pinned to full commit SHAs, owned major-tag references meeting the controlled-release exception, and least privilege. Escalate a deep pass to [Security Review](Security-Review.md).
-- **Documentation** — updated where user-facing behaviour changed.
+- **Documentation** — updated where user-facing behavior changed.
 - **Pull request artifact** — the title states one result, the description follows
   [PR Format](../PR-Format.md), supporting evidence is section-scoped, and
   release metadata appears only when the target route invokes Release
   Management.
-- **Standards and framework alignment** — the pull request records the author's [alignment pass](Implement.md#5-standards-and-framework-alignment-pass), the result covers every changed surface, and each exception links a real follow-up issue. Spot-check at least one row against the canonical standard or framework page rather than trusting the summary; a missing or hollow pass is a blocking finding.
-- **Issue convergence sweep** — the pull request records the author's [sweep](Implement.md#6-issue-convergence-sweep), including scoped search coverage and any convergent issues linked with closing keywords. Spot-check at least one linked closing issue against the delivered diff; a claimed convergence with no visible delivery evidence is a blocking finding.
-- **Tests** — new behaviour has tests; bugs get regression tests.
+- **Standards and framework alignment** — the pull request records the author's [alignment pass](Implement.md#5-standards-and-framework-alignment-pass), the result covers every changed surface, and each exception links a real follow-up issue. Verify at least one row against the canonical standard or framework page. A missing or unsupported pass is a blocking finding.
+- **Issue convergence sweep** — the pull request records the author's [sweep](Implement.md#6-issue-convergence-sweep), including scoped search coverage and any convergent issues linked with closing keywords. Verify at least one linked closing issue against the delivered diff. Claimed convergence without visible delivery evidence is a blocking finding.
+- **Tests** — new behavior has tests; bugs get regression tests.
 
 For documentation and design, verify the shared [completion evidence gate](../Definition-of-Ready-and-Done.md#documentation-and-design-evidence): current artifacts, examples, links, and instructions, including justified no-change evidence where they already match the delivered behavior.
 
@@ -49,7 +49,7 @@ Use severity prefixes per [Review Etiquette](../Review-Etiquette.md): `Blocking:
 
 ### 5. Approve
 
-An approval co-signs the change, so approve once the blocking concerns are resolved. The approving identity must not be the author and must not be the built-in Actions identity — approvals come from a separate reviewer identity per [Branching and Merging](../Branching-and-Merging.md). With auto-merge enabled, the approval is what lands the change.
+Approve only after the blocking concerns are resolved. The approving identity must not be the author and must not be the built-in Actions identity. A separate reviewer identity supplies the approval per [Branching and Merging](../Branching-and-Merging.md). With auto-merge enabled, integration also requires all required checks to pass.
 
 ## Operating rules
 

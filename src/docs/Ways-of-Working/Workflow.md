@@ -5,16 +5,16 @@ description: The canonical process from idea to delivery, including how to resol
 
 # Workflow
 
-How work flows from idea to delivery — and back again. This is the heartbeat of the MSX ecosystem.
+The workflow connects issue capture, planning, delivery, review, and operation.
 
 ## The big picture
 
-Two things run side by side, continuously:
+Two activities run continuously:
 
-1. **Context** — keeping issues, decisions, READMEs, and documentation right and evergreen.
-2. **Software** — delivering code, tests, and releases.
+1. **Context** — maintain accurate, evergreen issues, decisions, READMEs, and documentation.
+2. **Software** — deliver code, tests, and releases.
 
-Each feeds the other. Software produces signals that require context maintenance. Refined context unblocks the next round of software work. The loop never stops.
+Software operation produces signals for context maintenance. Refined context defines the next software change.
 
 ```mermaid
 flowchart TD
@@ -70,16 +70,16 @@ A desire for change enters the system. It can come from anywhere:
 - An observation during a review.
 - A dependency update or platform change.
 
-The goal is to **write it down** — quickly, in a GitHub issue — so it exists for the world to see and "remember".
-At this stage, precision is less important than existence. The issue captures the current state, the pain or opportunity, and the desired outcome.
+Record the request promptly in a GitHub issue. The issue gives contributors and agents a persistent record to refine.
+Initial capture prioritizes a recorded need over complete detail. State the current condition, the problem or opportunity, and the desired outcome.
 
 See the [Issue Lifecycle](Issues/Process/Lifecycle.md) for how the issue evolves during Capture.
 
 ### Refine
 
-Ground the captured desire in reality. Ask:
+Clarify the recorded need and expected result:
 
-- What is the actual problem? (Not the symptom, not the first solution that comes to mind.)
+- What is the actual problem, distinct from its symptoms and proposed solutions?
 - Who is affected and how?
 - What does "done" look like from
   1. the user's perspective?
@@ -93,7 +93,7 @@ The goal is **shared understanding** — everyone (humans and agents) agrees on 
 
 Turn the refined understanding into actionable work:
 
-- **Gap analysis** — diff the [evergreen specification](Documentation-Model.md#evergreen-and-evolutionary) for the affected capability against the current implementation. The gap is the work.
+- **Gap analysis** — compare the affected capability's [evergreen specification](Documentation-Model.md#evergreen-and-evolutionary) with the current implementation. Plan work for the differences.
 - **Route and define** — assign the native type and use its [planning altitude](Issues/Process/Planning.md): consumer expectations and scenarios in Epics/PBIs, technical decisions and test-first plans in Task/Bug leaves.
 - **Decompose aggregates** — use native sub-issues for Epic and PBI children, and native dependency edges only where execution is genuinely gated.
 - **Prepare delivery leaves** — refine Task and Bug children until they satisfy their type-specific readiness gate.
@@ -107,9 +107,9 @@ See [Documentation Model](Documentation-Model.md), [Issue Planning](Issues/Proce
 Execute one ready, unblocked Task or Bug. For repository delivery:
 
 1. **Branch** — create a branch (and [worktree](Git-Worktrees.md)) for the delivery leaf.
-2. **Draft PR** — push early and open a draft pull request scoped to one Task or Bug delivery leaf. The pull request closes that scoped leaf; any additional convergent issues are linked separately through the session-end issue convergence sweep. This makes progress visible and attaches CI from the start.
+2. **Draft PR** — push early and open a draft pull request scoped to one Task or Bug delivery leaf. The pull request closes that leaf. Link additional fully convergent issues through the session-end issue convergence sweep. This makes progress and CI results visible from the start.
 3. **Implement** — work through the leaf's test-first implementation plan, including relevant [documentation and design evidence](Definition-of-Ready-and-Done.md#documentation-and-design-evidence). One logical change per commit. Update the issue as each plan step completes.
-4. **Test locally** — don't push known failures to CI. Push work as far inward as it can go.
+4. **Test locally** — run relevant local checks. Do not push known failures to CI.
 5. **Self-review with automation** — run the [Copilot review loop](Contribution-Workflow.md#the-copilot-review-loop) until it reports a clean round, fixing in-scope feedback and filing follow-up issues for the rest.
 6. **Standards and framework alignment pass** — once the change is complete, reconcile it against process, the applicable [Coding Standards](../Coding-Standards/index.md) chapters, and the repository's framework documentation, and record the result in the pull request. See [Implement](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass).
 7. **Issue convergence sweep** — in the same session-end window, sweep scoped open issues for asks already satisfied by the finished diff, and link fully convergent issues in the pull request with closing keywords. See [Implement](Workflow-Stages/Implement.md#6-issue-convergence-sweep).
@@ -121,7 +121,7 @@ See [Commit Conventions](Commit-Conventions.md), [PR Format](PR-Format.md), [Con
 
 ### Review
 
-Every change gets a second perspective:
+An independent reviewer assesses each change:
 
 - Does the PR deliver what its closing Task or Bug asks for?
 - Does the delivered slice satisfy its applicable consumer scenarios, with current design, documentation, and working instructions?
@@ -135,7 +135,7 @@ See [Review Etiquette](Review-Etiquette.md).
 
 ### Ship
 
-Human review approves the ready pull request and the required checks stay green, so auto-merge lands the change — squash-merged into the protected branch, its branch deleted — and closes its Task or Bug. Where the project releases from the trunk, the merge cuts the release.
+Human review approves the ready pull request, and the required checks pass. Auto-merge squash-merges the change into the protected branch and deletes its branch. The closing link closes its Task or Bug. If the project releases from the trunk, the merge starts the release.
 
 The pull request description is release-note-ready. When Release Management
 publishes it, the description becomes part of the release record; otherwise it
@@ -148,7 +148,7 @@ Parent PBI and Epic issues close separately when their native children, aggregat
 
 > You build it, you run it.
 
-After merge, the system is live. Monitor, observe, respond to signals. When something breaks or an opportunity appears — the loop starts again at **Capture**.
+The delivery team operates the system and responds to signals. Failures and improvement opportunities return to **Capture**.
 
 ## Three horizons of planning
 
