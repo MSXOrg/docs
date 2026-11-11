@@ -5,75 +5,70 @@ description: Why every failure must be registered somewhere queryable, retained 
 
 # Observability
 
-A failure that is not captured did not happen, as far as the system is concerned. Nobody
-can fix a defect nobody knows about, and nothing accumulates as quietly as a class of
-error that has been failing in the same way for months without ever being counted.
+An unregistered failure supplies no queryable evidence for investigation or trend
+analysis. Maintainers need records to identify defects and count repeated errors.
 
-Observability is therefore treated as a property of the system, not a feature of an
-operations dashboard bolted on afterwards. The requirement is small to state and
-demanding to hold: **every failure MUST be registered somewhere it can be queried.**
+Observability is a system property, not only a dashboard feature.
+**Every failure MUST be registered somewhere it can be queried.**
 
 ## Surface every failure
 
-Every failure, error, and exception MUST be registered somewhere queryable — not only
-emitted into a log stream nobody watches.
+Every failure, error, and exception MUST be registered somewhere queryable.
+A log stream alone does not satisfy this requirement unless its failure records
+can be queried.
 
-A log line satisfies the letter of "we recorded it" and none of its purpose. The
-question a maintainer actually asks is *how often, since when, and is it getting
-worse*, and that question cannot be answered by a stream that is only ever read
-backwards from an incident. The test of whether a failure is surfaced is whether
-someone can ask a question of it without already knowing it exists.
+Maintainers need to query failure frequency, first occurrence, and changes over
+time. A failure is surfaced when a maintainer can find it through a query without
+first knowing it exists.
 
-This is the same argument as [shift left](Principles/Engineering-Practices.md#shift-left),
-applied after release rather than before: the cost of a defect grows with how long it
-stays invisible, and an unregistered failure is invisible indefinitely.
+This applies the [shift left](Principles/Engineering-Practices.md#shift-left)
+principle after release. Early detection limits the time that a defect remains
+unobserved. Queryable records make that detection possible.
 
 ## Slowness is a failure
 
-A slow response MUST be treated as a signal that the architecture or the implementation
-is deficient, and registered with the same rigor as a hard failure.
+The system MUST treat a slow response as a defect signal and register it with the
+same rigor as a hard failure.
 
-Latency is usually filed under user experience, which quietly reclassifies it as taste
-rather than defect. It is a defect. A response that takes ten seconds is telling you
-something structural — a missing index, a serial call that should be parallel, an
-abstraction doing far more work than its name suggests — and the information is lost
-the moment it is dismissed as a nuisance.
+A slow response can indicate a defect in the architecture or implementation.
+It is not only a user-experience concern. For example, a response that takes ten
+seconds can indicate a structural defect. Possible causes include a missing
+index, sequential calls that can run in parallel, or an abstraction that does
+unnecessary work.
 
-Registering it means the same thing as registering an exception: a record that can be
-counted, compared against yesterday, and attached to a change.
+The slow-response record supports counts, comparisons across days, and
+correlation with a change, as an exception record does.
 
 ## Register once, retain over time
 
-Registering a failure once is necessary and not sufficient. Failure data MUST be
-retained long enough for trends to be visible.
+One failure record is not sufficient. Failure data MUST be retained long enough
+for trends to be visible.
 
-A single record tells you a thing failed. A retained series tells you whether it is a
-one-off or a worsening pattern, whether a component is drifting toward an outage, and
-whether the fix that shipped last week actually worked. Those are the only questions
-worth acting on, and none of them can be answered from one data point.
+A retained series shows whether a failure is isolated or becomes more frequent.
+It can show whether a component approaches an outage and whether a released fix
+corrects the defect.
 
-So the durable artifact is an aggregate view rather than an individual line: counts
-over time, grouped by kind and by component. The individual record remains the
-evidence; the series is what gets read.
+An aggregate view shows counts over time, grouped by kind and component.
+The individual records remain the evidence for that view.
 
 ## Failures are data, not prose
 
 A registered failure MUST be structured data, not a human-readable sentence.
 
-This is the point where observability meets
-[AI-First Development](Principles/AI-First-Development.md). An agent can only work on a
-defect it can find, and it finds defects by querying — filtering by kind, counting by
-component, correlating against a deployment. Prose defeats every one of those
-operations. A message assembled for a human to read at 3am is a string that has to be
-parsed back into the fields it was built from, and parsing prose is guessing.
+Structured fields let an agent query failure facts directly. The agent can filter
+by kind, count by component, and correlate records with a deployment. This
+supports [AI-First Development](Principles/AI-First-Development.md).
+
+A prose message requires the reader or agent to extract those facts from text.
+Structured records keep the facts explicit and consistently queryable.
 
 Concretely:
 
 - The failure kind, the component, and the correlating identifier are **fields**, not
   words inside a sentence.
 - Free text MAY accompany a record; it MUST NOT be the only place a fact lives.
-- If answering "how many of these, in which component, since when" requires reading,
-  the record is not yet data.
+- If answering "how many of these, in which component, since when" requires reading
+  free text, the record is not structured data.
 
 ## Where this connects
 
