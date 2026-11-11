@@ -5,25 +5,27 @@ description: Workflow authoring — SHA pinning, least-privilege permissions, OI
 
 # GitHub Actions
 
-How GitHub Actions workflows are authored across the ecosystem. Workflows are
-code that runs with access to credentials and the ability to publish — they are
-held to the same bar as application code, plus the supply-chain and
+This standard defines how authors write GitHub Actions workflows across the
+ecosystem. Workflows run with access to credentials and can publish artifacts.
+Workflow authors apply the application-code standards and the supply-chain and
 least-privilege controls below.
 
 This standard builds on the [language-agnostic baseline](index.md). For the
 threat model behind action pinning and vendoring, see
-[Security → Supply chain](Security.md#supply-chain); this standard is the
-canonical "how to author" reference that the security control points to.
+[Security → Supply chain](Security.md#supply-chain).
+This standard is the canonical workflow-authoring reference for that security
+control.
 
 ## Pin actions according to ownership
 
-An external `uses:` dependency is pinned by SHA, which is the GitHub Actions
-expression of the [Dependencies](Dependencies.md) standard: an **identity pin**
-to immutable bytes, kept current by automation (below).
+An external `uses:` dependency uses a SHA pin, as the
+[Dependencies](Dependencies.md) standard requires.
+This **identity pin** identifies immutable bytes. Automation keeps the pin current
+as described below.
 
 A `uses:` reference accepts a tag, a branch, or a commit SHA. Tags and branches
-are **mutable** — a maintainer (or an attacker who compromises one) can move
-them to different code. A full commit SHA is **immutable**. The only controlled
+are **mutable**. A maintainer, or an attacker who compromises the maintainer, can
+move either reference to different code. A full commit SHA is **immutable**. The only controlled
 exception is a floating major tag on automation whose release path MSX controls:
 
 - **External actions and reusable workflows MUST use a full 40-character commit
@@ -38,7 +40,7 @@ exception is a floating major tag on automation whose release path MSX controls:
   release creates the next major tag; it never repoints the existing major tag
   across the compatibility boundary.
 
-A local clone that consumes an allowed owned major tag must explicitly accept
+If a local clone consumes an allowed owned major tag, explicitly accept
 producer-controlled tag movement. Follow
 [Accept moved release tags](../Capabilities/release-management/accept-moved-release-tags.md)
 to repair a stale tag and configure trusted fetches. This does not relax the
@@ -62,16 +64,18 @@ jobs:
 ## Keep pinned actions current
 
 The update path follows ownership. An external SHA pin is immutable, so the
-consumer's dependency automation proposes each newer SHA. An owned floating
-major tag is advanced once by the producer's controlled release automation, so
-compatible patch and minor releases reach every consumer on that major without
-a fleet of pin-update pull requests.
+consumer's dependency automation proposes each newer SHA.
+The producer's controlled release automation advances an owned floating major
+tag once. Compatible patch and minor releases then reach every consumer on that
+major without individual pin-update pull requests.
 
 - **Enable automated updates for the `github-actions` ecosystem** in
   `.github/dependabot.yml`. For external dependencies, the updater opens a pull
   request that rewrites the pin to the new commit SHA and refreshes the trailing
   version comment.
-- **Apply the updater's default three-day cooldown** before adopting a freshly published version. Omit an explicit `cooldown` mapping unless the repository deliberately adopts a non-default duration.
+- **Apply the updater's default three-day cooldown** before adopting a published
+  version. Omit an explicit `cooldown` mapping unless the repository deliberately
+  adopts a non-default duration.
 - **Make the release decision separately** after dependency changes are
   collected when the target route invokes [Release
   Management](../Capabilities/release-management/design.md).
@@ -83,19 +87,32 @@ a fleet of pin-update pull requests.
   A breaking release publishes the next major tag, but consumers remain on their
   current line until that campaign changes their `uses:` references.
 
-The full mechanism — schedule, cooldown, and merge policy — is the
-[Dependency Updates](../Capabilities/dependency-updates/design.md) capability;
-this section is the Actions-specific view of it.
+The [Dependency Updates](../Capabilities/dependency-updates/design.md) capability
+defines the schedule, cooldown, and merge policy.
+This section defines the Actions-specific requirements.
 
 ### Audit and synchronize pins manually
 
 Use the repository's automated dependency-update path for the `github-actions`
 ecosystem. When an action update pull request arrives, verify the new SHA and
-version comment, run the required checks, and merge it through the normal gate.
+version comment. Run the required checks. Merge it through the normal gate.
 
-Use the reusable [`Update-GitHubActionPin.ps1`](https://github.com/MSXOrg/docs/blob/main/.github/scripts/Update-GitHubActionPin.ps1) utility to audit or deliberately synchronize external SHA pins: for example, when onboarding an existing repository, reconciling a repository after an update-service outage, or checking proposed changes before an update pull request is opened. It does not move owned floating major tags.
+Use the reusable [`Update-GitHubActionPin.ps1`](https://github.com/MSXOrg/docs/blob/main/.github/scripts/Update-GitHubActionPin.ps1)
+utility to audit or deliberately synchronize external SHA pins.
+Use it for these tasks:
 
-The script needs PowerShell 7, network access to the GitHub REST API, and a target repository with a `.github` directory. Public actions can be resolved anonymously; set `GITHUB_TOKEN` or `GH_TOKEN` to raise the API rate limit or to resolve actions that require authentication. The token is sent only as an API request header.
+- Add an existing repository to the update process.
+- Reconcile pins after an update-service outage.
+- Verify proposed changes before an update pull request opens.
+
+The utility does not move owned floating major tags.
+
+The utility needs PowerShell 7, network access to the GitHub REST API, and a
+target repository with a `.github` directory. It can resolve public actions
+anonymously.
+Set `GITHUB_TOKEN` or `GH_TOKEN` to raise the API rate limit or resolve actions
+that require authentication.
+The utility sends the token only in an API request header.
 
 From this checkout, preview a target repository without changing it:
 
@@ -115,21 +132,43 @@ When the current directory is the target repository, the path is optional:
 pwsh ../docs/.github/scripts/Update-GitHubActionPin.ps1 -WhatIf
 ```
 
-The utility recursively scans `.github` YAML files and updates only `uses:` references in the form `owner/repository[/subpath]@<40-character-SHA>`. It resolves the latest stable release to its commit SHA, including annotated tags, replaces the trailing release-tag comment, and adds that comment when omitted. It preserves UTF-8 BOM state and existing line endings. Local (`./...`) and Docker (`docker://...`) references, mutable tags or branches, non-YAML files, and expressions outside this shape are intentionally outside its scope. An action with no resolvable stable release or tag-to-commit mapping stops the run with an explicit error so a partial audit does not appear successful.
+The utility recursively scans `.github` YAML files.
+It updates only `uses:` references in the form
+`owner/repository[/subpath]@<40-character-SHA>`.
+It resolves the latest stable release to its commit SHA, including annotated
+tags. It replaces the trailing release-tag comment, or adds the comment if it is
+absent. It preserves UTF-8 BOM state and existing line endings.
+
+The utility does not change these references or files:
+
+- Local (`./...`) and Docker (`docker://...`) references.
+- Mutable tags or branches.
+- Non-YAML files.
+- Expressions outside this shape.
+
+If an action has no resolvable stable release or tag-to-commit mapping, the utility
+stops the run with an explicit error. A partial audit must not appear successful.
 
 ## Grant least-privilege permissions
 
 - **Set `permissions:` explicitly.** Never rely on the default token scope.
-- **Start from a default-deny floor.** In any workflow with more than one job,
-  declare `permissions: {}` at the workflow (top) level so the baseline is *no*
-  access, then grant each job only the scopes its steps need. A job that omits
-  its own `permissions:` block — including one added later — then inherits
-  nothing rather than the broad default token, so forgetting to scope a new job
-  fails *closed*, not open. (A single-job workflow may scope at the workflow
-  level, since the workflow and its one job are equivalent.)
+- **Start with no default permissions.** In a workflow with more than one job,
+  declare `permissions: {}` at the workflow (top) level.
+  Grant each job only the scopes its steps need.
+  A job without its own `permissions:` block inherits no access, including a job
+  added later. A missing scope then denies access instead of granting broad
+  default access.
+  A single-job workflow may declare its scope at the workflow level because it
+  has only one job.
 - **Declare permissions per job**, not only at workflow level, and grant only
   the scopes that job needs. Most jobs need no more than `contents: read`.
-- **Disable checkout's persisted credentials unless the job intentionally pushes.** `actions/checkout` writes the token into the local Git configuration by default; set `persist-credentials: false` for read-only jobs so later steps cannot accidentally push with it. When a job must push, isolate that work in the smallest possible job, grant the write scope there, and make the persisted credential an explicit review point.
+- **Disable checkout's persisted credentials unless the job intentionally pushes.**
+  `actions/checkout` writes the token into the local Git configuration by default.
+  For read-only jobs, set `persist-credentials: false` so later steps cannot
+  accidentally push with it.
+  If a job must push, isolate that work in the smallest possible job.
+  Grant the write scope there. Make the persisted credential an explicit review
+  point.
 
 ```yaml
 # Default-deny floor at the top; each job opts into exactly what it needs.
@@ -150,9 +189,10 @@ jobs:
 
 ## Use GitHub App installation tokens as the default write identity
 
-When a workflow needs to write — creating commits, releases, comments, statuses,
-or pull requests — default to a **GitHub App installation token**, not a PAT and
-not `github.token`, unless a documented exception requires otherwise.
+When a workflow needs write access, default to a **GitHub App installation token**.
+This includes commits, releases, comments, statuses, and pull requests.
+Do not default to a PAT or `github.token` unless a documented exception requires
+it.
 
 Use the right token type for the job:
 
@@ -181,8 +221,8 @@ Treat these as separate controls:
 - `repositories:` + `permission-*` inputs limit what the minted app token can do.
 
 If a minted app token omits `repositories:` and `permission-*`, it inherits the
-full installation scope — every installed repository and every granted
-permission. That shape is forbidden.
+full installation scope. This includes every installed repository and every
+granted permission. Do not mint a token with that scope.
 
 ### Mint app tokens with minimum scope every time
 
@@ -211,7 +251,7 @@ Rules:
 
 ### Inject app tokens at step scope, not job scope
 
-A token should exist only where it is consumed.
+A token should exist only in the step that consumes it.
 
 - **Prefer step-level `env:`** so one step sees the token.
 - **Avoid job-level `env:`** for tokens; it exposes the token to every step in
@@ -234,14 +274,14 @@ jobs:
       GH_TOKEN: ${{ steps.app-token.outputs.token }}
 ```
 
-Use `GH_TOKEN` for the GitHub CLI. `gh` checks `GH_TOKEN` first, then
-`GITHUB_TOKEN`; setting `GH_TOKEN` avoids accidentally replacing the default
-token other actions may rely on.
+Use `GH_TOKEN` for the GitHub CLI. `gh` reads `GH_TOKEN` before `GITHUB_TOKEN`.
+Setting `GH_TOKEN` avoids accidentally replacing the default token that other
+actions may need.
 
 ### Prefer environment-based token passing for actions and composite actions
 
-When an action supports both a named token input (for example `with: token:`) and
-environment-based auth, prefer the environment variable (`GH_TOKEN`) path.
+If an action supports both a named token input (for example `with: token:`) and
+environment-based authentication, prefer the environment variable (`GH_TOKEN`).
 
 ```yaml
 # Preferred — token passed through environment.
@@ -276,15 +316,17 @@ an action requires a named token input, verify the action masks it at startup
 - **`secrets`** — anything whose disclosure is a security event (private keys,
   API tokens). Never echo a secret to logs; never put one in `vars`.
 - **`vars`** — non-sensitive configuration (client IDs, account numbers,
-  gateway URLs). Using `vars` for config keeps secrets to the minimum that
-  truly needs protecting.
+  gateway URLs). Use `vars` for this configuration.
+  Reserve secrets for values that need protection.
 - When calling a reusable workflow, **always pass secrets explicitly by name**
-  (`secrets: { TOKEN: ${{ secrets.TOKEN }} }`) so the dependency is visible at
-  the call site. **Never use `secrets: inherit`** — it silently forwards every
-  secret the caller holds and makes it impossible to tell from the call site
-  which secrets a workflow actually needs, defeating traceability and least
-  privilege. (Org variables are forwarded to reusable workflows automatically
-  and cannot be named — this rule is about `secrets`, not `vars`.)
+  (`secrets: { TOKEN: ${{ secrets.TOKEN }} }`) to show the dependency at the call
+  site. **Never use `secrets: inherit`**.
+  It forwards every secret the caller holds without listing them.
+  The call site then does not show which secrets the workflow needs.
+  This defeats traceability and least privilege.
+
+  Organization variables reach reusable workflows automatically and cannot be
+  named at the call site. This rule controls `secrets`, not `vars`.
 
 ```yaml
 # Correct — only the needed secret is forwarded; the dependency is auditable
@@ -305,18 +347,21 @@ jobs:
 
 ## Never expand untrusted input inline
 
-Interpolating `${{ github.event.* }}` (PR titles, branch names, issue bodies)
-directly into a `run:` script allows shell injection. **Pass untrusted values
-through an `env:` variable** and reference the variable, which is not re-parsed
-as script.
+Expanding `${{ github.event.* }}` (PR titles, branch names, issue bodies) directly
+in a `run:` script allows shell injection.
+**Pass untrusted values through an `env:` variable** and reference that variable.
+The shell does not parse the variable's contents as script.
 
-Avoid `pull_request_target` and `workflow_run` unless the workflow genuinely
+Avoid `pull_request_target` and `workflow_run` unless the workflow
 needs the elevated context. Both can connect untrusted contributions to tokens,
-secrets, or artifacts from a more privileged run. If one is required, split the
-workflow so untrusted code is never executed with a writable token: validate or
-build the contributor's code in the unprivileged workflow, then let the
-privileged workflow consume only trusted, explicitly produced artifacts or
-metadata.
+secrets, or artifacts from a more privileged run.
+If either is required, use separate workflows:
+
+- Validate or build the contributor's code in the unprivileged workflow.
+- Consume only trusted, explicitly produced artifacts or metadata in the
+  privileged workflow.
+
+Never execute untrusted code with a writable token.
 
 ```yaml
 # Correct — value arrives as an environment variable, not inlined into the shell
@@ -334,30 +379,31 @@ metadata.
 
 ## Structure work into jobs and steps
 
-A workflow is a set of **jobs**, and each job is a sequence of **steps**. The two
-are not interchangeable: steps in a job share one runner — the same filesystem
-and environment, running in order by default — while every job gets a **fresh
-runner** and runs in parallel with its siblings unless told to wait. Reach for a
-step by default; add a job only when a step cannot give you what you need.
+A workflow contains **jobs**. Each job contains **steps**.
+Steps in a job share one runner, filesystem, and environment.
+They run in sequence by default.
+Each job gets a **fresh runner** and runs in parallel with other jobs unless a
+dependency requires it to wait.
+Use a step by default. Add a job only when a step cannot meet the requirement.
 
 - **Default to steps within one job.** Work that is sequential and shares state —
-  check out, build, then test what you just built — belongs in a single job as
-  ordered steps. They share the workspace, so each step sees the files the last
-  one produced without copying anything, and the job reads top to bottom as one
-  story.
+  check out, build, then test the build — belongs in a single job as ordered
+  steps. They share the workspace.
+  Each step can use the files from the preceding step without copying them.
 - **Add a job to run independent work on its own runner.** Two pieces of
   work with no data dependency between them — a lint pass and a security scan —
-  finish sooner as two jobs on two runners than as serial steps on one, each
-  isolated with its own environment and permissions. Steps within a single job
-  can now run concurrently too, but that is newer and shares one runner (see
+  can finish sooner on separate runners than as sequential steps on one.
+  Each job has its own environment and permissions.
+  Steps within a single job can also run concurrently, but they share one runner
+  (see
   [Parallel steps are new and not yet a default](#parallel-steps-are-new-and-not-yet-a-default)).
   Add ordering with `needs:` only where a real dependency exists.
-- **Add a job to draw a permission boundary.** The job is the unit that
+- **Add a job to isolate permissions.** The job is the unit that
   `permissions:` scopes (see
-  [Grant least-privilege permissions](#grant-least-privilege-permissions)). When
-  one slice of the work needs a wider scope — a step that comments on the pull
-  request needs `pull-requests: write` — isolate it in its own job so the rest of
-  the workflow stays read-only instead of raising the floor for everything.
+  [Grant least-privilege permissions](#grant-least-privilege-permissions)).
+  If part of the work needs a wider scope, isolate it in its own job.
+  For example, a step that comments on a pull request needs
+  `pull-requests: write`. A separate job keeps the rest of the workflow read-only.
 - **Add a job for a different runner or a deployment environment.** A job pins
   its own `runs-on:` and can target an `environment:` with its own protection
   rules, approvals, and secrets. Work that must run on a different image, or
@@ -370,12 +416,14 @@ step by default; add a job only when a step cannot give you what you need.
   job-level `uses:`, never as a step (see
   [Choose an action or a reusable workflow](#choose-an-action-or-a-reusable-workflow)).
 
-Weigh these against what a job costs. A new job is a fresh runner: it checks out
-again, warms its own caches, and shares no filesystem with its siblings — data
-crosses a job boundary only through `outputs` or an uploaded artifact. So
-splitting sequential, state-sharing work across jobs buys nothing and adds
-handoff overhead; parallelism across separate runners, an isolated permission
-scope, a distinct environment, and merge gating are what earn a new job.
+Consider the cost of each job. Each new job gets a fresh runner, repeats
+checkout, and prepares its own caches.
+Jobs do not share a filesystem.
+Data crosses a job boundary only through `outputs` or an uploaded artifact.
+Splitting sequential, state-sharing work across jobs adds data-transfer overhead
+without a benefit.
+Separate runners, isolated permissions, distinct environments, and merge checks
+justify a separate job.
 
 ```yaml
 permissions: {}
@@ -419,20 +467,20 @@ jobs:
 
 ### A skipped job in `needs:` skips everything downstream
 
-A job whose `needs:` list contains a **skipped** job is skipped too. This is not
-about failure: `if:` on a job is implicitly wrapped in `success()`, and
-`success()` is false when a dependency was *skipped*, exactly as it is when one
-failed. So adding `needs:` to a job that may not run silently makes every
-dependent job conditional on it as well.
+A job whose `needs:` list contains a **skipped** job is skipped too.
+GitHub implicitly wraps a job's `if:` in `success()`.
+`success()` is false when a dependency was *skipped* or failed.
+Adding `needs:` to a job that may not run also makes every dependent job
+conditional on it.
 
-What makes this expensive is the reporting. A skipped job is not a failed job,
-so the run still concludes **success**: a green check on the commit, a green
-pull request, and a satisfied branch protection gate. The only evidence is a job
-that quietly did not appear, and nobody reads a successful run.
+A skipped job is not a failed job, so the run still concludes **success**.
+The commit and pull request show successful checks, and branch protection
+accepts the result.
+Only the skipped job shows that the work did not run.
 
-The trap is a conditional job *upstream* of an unconditional one — the reverse
-of the `build` / `report` pairing above, where the condition sits on the
-dependent job and the dependency always runs.
+This occurs when a conditional job is *upstream* of an unconditional job.
+In the `build` / `report` pairing above, the condition is on the dependent job
+instead. The dependency always runs.
 
 ```yaml
 # Avoid — the two conditions are mutually exclusive, so publish never runs
@@ -448,14 +496,16 @@ jobs:
     # weeks while every run was green.
 ```
 
-Two corrections, and which one applies depends on whether the dependency is real.
+Choose the correction according to whether the dependency is real.
 
-**When the edge can never carry a signal, delete it.** Above, `lint` runs only
+**When a dependency can never provide a result, remove it.** Above, `lint` runs only
 on a pull request and `publish` runs only when the event is not a pull request:
-they are mutually exclusive by construction, so no result can ever cross that
-edge in either direction. Neutralizing it with a status function leaves a
-`needs:` list that reads as a lint gate while gating nothing. Remove it, and say
-in a comment why it is absent so it is not reinstated.
+the two jobs cannot run on the same event.
+No result can pass between them.
+A status function leaves a `needs:` list that appears to require lint but does
+not.
+Remove the dependency. Explain its absence in a comment so a later edit does
+not restore it.
 
 ```yaml
 # Correct — the dead edge is gone; the implicit success() over build still gates
@@ -466,13 +516,13 @@ publish:
   if: github.event_name != 'pull_request'
 ```
 
-**When the dependency is real but optional, use a status function — and restore
-the failure gate by hand.** If a job should wait for a dependency that sometimes
-does not run, `if:` has to opt out of the implicit `success()`. That opt-out is
-the whole point, and also the danger: `always()` runs the job even when a
-dependency failed or the run was cancelled, and `!cancelled()` still runs it
-when a dependency failed. Neither is safe on its own, so pair it with an
-explicit result check.
+**When the dependency is real but optional, use a status function and test
+failure results explicitly.**
+If a job should wait for a dependency that sometimes does not run, its `if:`
+must override the implicit `success()`.
+`always()` runs the job even when a dependency failed or the run was canceled.
+`!cancelled()` still runs the job when a dependency failed.
+Neither is safe on its own. Pair the function with an explicit result check.
 
 ```yaml
 # Correct — tolerates a skipped optional dependency, still refuses a failed one
@@ -482,98 +532,103 @@ deploy:
   if: ${{ !cancelled() && needs.build.result == 'success' && needs.integration-tests.result != 'failure' }}
 ```
 
-Prefer `!cancelled()` over `always()`: a cancelled run should stop, not deploy.
+Prefer `!cancelled()` over `always()`: a canceled run should stop, not deploy.
 Check the result of every dependency whose failure should block, not just the
-first — an unchecked dependency in `needs:` no longer gates anything once the
-implicit `success()` is gone.
+first. After the override removes implicit `success()`, an unchecked dependency
+in `needs:` no longer blocks the job.
 
-No linter in the [toolchain](#toolchain) catches this. A complete workflow built
-around the avoid example's shape passes `actionlint` with no findings, and
-`zizmor` audits supply-chain and privilege problems rather than reachability, so
-both report clean on the exact diff that introduces it. Catching it would mean
-deciding whether two `if:` expressions can ever be true together, which is beyond
-what either tool does. Reading `needs:` and `if:` together is the only check
-there is.
+No linter in the [toolchain](#toolchain) detects this error.
+A complete workflow built around the avoid example passes `actionlint` with no
+findings.
+`zizmor` audits supply-chain and privilege problems rather than reachability.
+Both report no findings on the diff that introduces the error.
+
+Detection requires analysis of whether two `if:` expressions can ever be true
+together. Neither tool does this analysis.
+Read `needs:` and `if:` together during review.
 
 ### Parallel steps are new and not yet a default
 
-Every step in a job historically ran in sequence — each starting only once the
-last finished — and that sequential model is what the rest of this section
-assumes. GitHub has since added **concurrent steps** within a single job, through
-new workflow keywords:
+Steps in a job run in sequence by default.
+Each step starts after the preceding step finishes.
+The rest of this section uses that sequential model.
+**Concurrent steps** run within a single job through these workflow keywords:
 
-- `background: true` starts a step asynchronously and continues straight to the
+- `background: true` starts a step asynchronously and continues to the
   next step.
 - `wait` / `wait-all` block until one, several, or all prior background steps
   finish.
 - `cancel` stops a background step once it is no longer needed — for instance a
   service started only for the steps that run alongside it.
-- `parallel` runs a group of steps concurrently and then waits for them: the
-  convenience form of "start these together, then carry on".
+- `parallel` runs a group of steps concurrently and waits for them to finish.
 
-This covers patterns that used to force a second job or a shell backgrounding
-hack (`&`): independent work run at once on one runner, a background service that
-later steps use and then shut down, or non-blocking work — uploading telemetry
-while packaging continues — overlapping the steps after it. Because the steps
-share the runner, they also share its filesystem, which a separate job does not.
+Concurrent steps support independent work on one runner, temporary background
+services, and tasks that overlap later steps.
+For example, telemetry upload can continue while packaging runs.
+These patterns avoid a second job or shell-level background execution (`&`).
+The steps share the runner and its filesystem, unlike separate jobs.
 
 Adopt it deliberately:
 
-- **Prefer a separate job for ordinary parallelism.** When independent work does
-  not need a shared workspace, two jobs stay the clearer, better-isolated choice —
-  separate runners, permissions, and logs. Reach for concurrent steps only when
-  the work genuinely benefits from one shared runner.
-- **Confirm the toolchain supports the keywords first.** The feature is recent,
-  so the pinned [`actionlint` / `zizmor`](#toolchain) versions and the runner
-  image in use may not yet validate or run the new keywords; verify before
-  relying on it. Expect interleaved concurrent steps to be harder
-  to follow, so keep the [grouped-logging discipline](#build-in-logging-and-diagnostics).
+- **Prefer a separate job for ordinary parallelism.** When independent work
+  does not need a shared workspace, two jobs provide separate runners,
+  permissions, and logs.
+  Use concurrent steps only when the work benefits from one shared runner.
+- **Confirm the toolchain supports the keywords first.** Verify that the pinned
+  [`actionlint` / `zizmor`](#toolchain) versions and runner image can validate and
+  run the keywords before use.
+  Concurrent-step logs can interleave and become harder to follow.
+  Keep the [grouped-logging discipline](#build-in-logging-and-diagnostics).
 
-Until it has settled in the ecosystem, treat concurrent steps as a tool for the
-few cases that need a shared runner, and let a separate job remain the default
-answer to "these should run in parallel". See the
+Use concurrent steps for work that needs a shared runner.
+Use separate jobs by default for parallel work.
+See the
 [workflow syntax reference](https://docs.github.com/actions/using-workflows/workflow-syntax-for-github-actions)
 for exact usage.
 
 ## Choose an action or a reusable workflow
 
-Both an **action** and a **reusable workflow** package automation for reuse, but
-at different granularities, and they plug in at different levels. Match the unit
-to the thing being reused.
+An **action** and a **reusable workflow** both package automation for reuse.
+They use different units and run at different levels.
+Choose the unit according to the work that callers reuse.
 
-- **An action is a reusable unit of *steps*.** It plugs into a job as a step
-  (`uses:` at step level), runs on the caller's runner inside the caller's job —
-  sharing that job's filesystem and environment — and does **one well-defined
-  thing** through an `inputs` / `outputs` interface. Several actions compose
-  within a single job. This is the smaller unit and the common case;
+- **An action is a reusable unit of *steps*.** A step calls it through `uses:` at
+  step level. It runs on the caller's runner inside the caller's job.
+  It shares that job's filesystem and environment.
+  It does **one well-defined task** through an `inputs` / `outputs` interface.
+  Several actions compose within a single job.
+
+  This is the smaller unit and the common case.
   [Extract non-trivial `run:` scripts into an action](#extract-non-trivial-run-scripts-into-an-action)
-  is entirely about authoring one.
-- **A reusable workflow is a reusable unit of *jobs*.** It is called as a
-  job-level `uses:` (`org/repo/.github/workflows/build.yml@<sha>`) and brings its
-  own jobs, runners, `permissions`, and `secrets` contract — a whole pipeline,
-  not a single task. Use it to standardize a **multi-job process** several callers
-  should run the same way: a shared build-test-publish flow, a common release
-  pipeline.
+  describes how to author an action.
+- **A reusable workflow is a reusable unit of *jobs*.** A job calls it through
+  job-level `uses:` (`org/repo/.github/workflows/build.yml@<sha>`).
+  It defines its own jobs, runners, `permissions`, and `secrets` contract.
+  It represents a whole pipeline, not a single task.
+  Use it to standardize a **multi-job process** across callers, such as a shared
+  build-test-publish flow or release pipeline.
 
-Reach for the smallest unit that fits:
+Choose the smallest unit that meets the requirement:
 
 - **Choose an action** to package a **step-level capability** — one task used
   inside a job (`link-check`, `publish-docs`, `start-cloud-agent`). It composes
-  with the steps around it and hands results back as outputs.
-- **Choose a reusable workflow** to package an **end-to-end, multi-job process** —
-  its own job graph, `needs:` ordering, per-job permissions, and environment
-  gates — that several repositories should run identically. When the thing worth
-  sharing is the *whole pipeline* rather than one step of it, the workflow is the
-  unit that carries the jobs with it.
-- **Do not wrap a single task in a reusable workflow.** A workflow drags a job
-  and a runner behind it; if the reused logic is one step's worth, an action is
-  lighter, composes with the surrounding steps, and returns outputs to the
-  calling step directly. Equally, do not force a multi-job pipeline into one
-  action — an action cannot span jobs or set per-job permissions.
+  with the surrounding steps and returns results as outputs.
+- **Choose a reusable workflow** for an **end-to-end, multi-job process** that
+  several repositories should run the same way.
+  Its contract includes the job graph, `needs:` ordering, per-job permissions,
+  and environment gates.
+  Use it when callers share the *whole pipeline* rather than one step.
+- **Do not wrap a single task in a reusable workflow.** A workflow requires a job
+  and a runner. If the reused logic is one step, use an action.
+  It composes with the surrounding steps and returns outputs to the calling
+  step directly.
+  Do not force a multi-job pipeline into one action.
+  An action cannot span jobs or set per-job permissions.
 
-Both follow the same lifecycle: **start as a local action or workflow**,
-referenced by path (`./.github/...`) so it runs at the checked-out commit, and
-**promote it to a standalone repository only once a second consumer appears**
+Both follow the same lifecycle.
+**Start as a local action or workflow**, referenced by path (`./.github/...`).
+This runs the automation at the checked-out commit.
+**Promote it to a standalone repository only once a second consumer appears**
 (see [Start local; promote when it is reused](#start-local-promote-when-it-is-reused)).
 Once standalone, it is consumed by a controlled major tag while its release path
 remains organization- or initiative-owned, or by full commit SHA when external
@@ -614,11 +669,12 @@ jobs:
 
 ## Separate a reusable workflow from the actions it consumes
 
-Choosing a reusable workflow has a consequence for the actions it runs. The
-workflow is a **process** — it stitches jobs into an order — and the actions are
-the **building blocks** it calls. Once the workflow is shared across
-repositories, GitHub's reference resolution forces the two apart, and the split
-pays off in versioning and reuse.
+Choosing a reusable workflow affects how it references actions.
+The workflow is a **process** that defines the job order.
+The actions are the **building blocks** it calls.
+Sharing the workflow across repositories requires separate action references
+because GitHub resolves paths against the checkout.
+This separation supports independent versioning and reuse.
 
 ### A shared reusable workflow ships only workflow files
 
@@ -631,11 +687,12 @@ jobs:
     uses: OWNER/REPO/.github/workflows/name.yml@<sha>
 ```
 
-If that workflow calls another reusable workflow, GitHub loads the nested
-workflow file too. It still does **not** check out the reusable workflow's
-repository. A local action reference inside the workflow therefore resolves
-against the **caller's** checkout, not the workflow's own repository, and finds
-the wrong action or none at all:
+If that workflow calls another reusable workflow, GitHub also loads the nested
+workflow file.
+GitHub does **not** check out the reusable workflow's repository.
+A local action reference inside the workflow resolves against the **caller's**
+checkout, not the workflow's own repository.
+It finds the wrong action or no action:
 
 ```yaml
 steps:
@@ -643,8 +700,8 @@ steps:
     uses: ./.github/actions/some-action
 ```
 
-A same-repository caller may still name the workflow itself by a local path; the
-constraint is on the actions the workflow reaches for.
+A same-repository caller may still name the workflow itself by a local path.
+The constraint applies to the actions that the workflow calls.
 
 - **Reference every action from a shared reusable workflow by full path** —
   `OWNER/REPO/path@<ref>`, which resolves the same way regardless of which
@@ -652,38 +709,42 @@ constraint is on the actions the workflow reaches for.
   controlled major tag for owned automation (see
   [Pin actions according to ownership](#pin-actions-according-to-ownership)).
 - **A composite action may still call a sibling with `./`.** Inside a composite
-  action, `./` resolves within *that action's own repository at the same ref* —
-  the opposite of the workflow case — so colocated actions call each other with
-  `./` and no pin. This asymmetry is what lets a set of actions live and ship
+  action, `./` resolves within *that action's own repository at the same ref*.
+  Colocated actions call each other with `./` and no pin.
+  This differs from workflow path resolution and lets a set of actions release
   together.
-- **Self-checkout is the only escape hatch, and a poor foundation.** A reusable
-  workflow *can* check its own repository out at runtime — without caller input —
-  through the `job.workflow_repository` / `job.workflow_ref` / `job.workflow_sha`
+- **Self-checkout is the only alternative, and a last resort.** A reusable
+  workflow *can* check out its own repository at runtime without caller input.
+  It uses the `job.workflow_repository` / `job.workflow_ref` / `job.workflow_sha`
   contexts (`actions/checkout` with `repository: ${{ job.workflow_repository }}`,
-  `ref: ${{ job.workflow_sha }}`). But those contexts are **not available on
-  GitHub Enterprise Server**, the checkout is extra machinery that must not
-  clobber the caller's workspace, and it ties the actions to the workflow's own
-  commit — so an action others also consume gets no version line of its own.
-  Treat it as a last resort, not the pattern.
+  `ref: ${{ job.workflow_sha }}`).
+
+  Those contexts are **not available on GitHub Enterprise Server**.
+  The checkout must not overwrite the caller's workspace.
+  It ties the actions to the workflow's own commit, so an independently consumed
+  action has no version line of its own.
+  Do not use self-checkout as the standard pattern.
 
 ### Why the actions need their own versioned repository
 
-Two lifecycle needs make a **separately versioned** action repository — not
-colocated local actions — the sound choice:
+Two lifecycle requirements favor a **separately versioned** action repository
+instead of colocated local actions:
 
-- **Development must test the branch, not the last release.** While you build the
-  workflow, you want it to run the action versions *on the branch you are
-  developing*. A `./` local action does not resolve in a shared reusable workflow
-  at all, and pinning `OWNER/REPO/action@<released-sha>` runs stale code — so give
-  the actions their own repository and point the workflow's pin at that
-  repository's **branch or commit** to test branch against branch.
+- **Development must test the branch, not the last release.** During workflow
+  development, run the action versions *on the development branch*.
+  A `./` local action does not resolve in a shared reusable workflow.
+  Pinning `OWNER/REPO/action@<released-sha>` runs released code instead of branch
+  code. Give the actions their own repository.
+  Point the workflow's pin at that repository's **branch or commit** to test both
+  development versions.
 - **A release cannot pin its actions to itself.** The action versions a released
-  workflow runs must be exactly those of that release. But the workflow's tag is
-  cut *after* the merge to its default branch, so the workflow file can never pin
-  a colocated action to its own release commit — that commit does not exist when
-  the file is written. An independently versioned repository has a commit of its
-  own that the workflow pins by SHA, locking the release to an exact set of
-  actions.
+  workflow runs must be exactly those of that release.
+  The workflow's tag is created *after* the merge to its default branch.
+  Its release commit does not exist when the author writes the workflow file.
+  Thus, the file cannot pin a colocated action to its own release commit.
+
+  An independently versioned repository has its own commit.
+  The workflow pins that SHA to fix the exact set of actions for the release.
 
 ### Give the actions a home that matches their reuse
 
@@ -693,56 +754,60 @@ Use the smallest home that matches the reuse boundary and lifecycle:
   `.github/actions/<action-name>/` and call it by `./` so the workflow tests the
   action at the checked-out commit.
 - **Use a standalone action repository** when one action is consumed **on its
-  own** by other repositories — its own responsibility, its own version line.
+  own** by other repositories.
+  The action has its own responsibility and version line.
   This is the promotion path in [Start local; promote when it is
   reused](#start-local-promote-when-it-is-reused).
 - **Use an action-library repository** when several actions are built, tested,
-  and released together as one package. Their lifecycle is shared — changing one
-  re-releases the set — so
+  and released together as one package.
+  Their lifecycle is shared: a change to one action releases the set again.
+  Thus,
   [they belong in one repository](../Ways-of-Working/Repository-Segmentation.md#share-a-repository-only-when-the-development-lifecycle-is-shared),
-  not a repository each: several top-level composite actions, one test suite, one
-  release, one SHA to pin.
-- **Use a reusable-workflow repository** when the thing reused is the *process*:
-  a job graph, permissions contract, environment gates, and ordering that several
-  repositories should run the same way.
+  not one repository per action.
+  The repository contains several top-level composite actions, one test suite,
+  one release, and one SHA to pin.
+- **Use a reusable-workflow repository** when several repositories reuse the
+  *process*: a job graph, permissions contract, environment gates, and ordering.
 
-A shared reusable workflow cannot reach a local action. When that workflow needs
-non-trivial actions, keep the workflow and the action library in **separate
-repositories**: the workflow repository — the *process* — pins the action-library
-repository — the *building blocks* — by SHA. A change then flows outward as a
-deliberate bump at each hop, so every layer upgrades on a reviewed pull request
-rather than silently.
+A shared reusable workflow cannot use a local action.
+When that workflow needs non-trivial actions, keep the workflow and the action
+library in **separate repositories**.
+The workflow repository defines the *process* and pins the action-library
+repository's *building blocks* by SHA.
+Upgrade each layer through a reviewed pull request with an explicit dependency
+update.
 
 ## Default to PowerShell as the glue language
 
-Between the declarative steps, a workflow always has some glue to run — reading a
-value, calling an API, shaping a result. That glue is written in **one language
-by default**, so every action reads the same way and reaches for the same helpers
-instead of each one inventing its own idiom. **PowerShell is that default.** It
-runs cross-platform on every runner, it is held to the
-[PowerShell](PowerShell/index.md) standard like any other code, and it carries the
-ecosystem's Actions tooling — above all the PSModule `GitHub` module, whose
-helpers speak the runner's own workflow-command protocol.
+Workflow scripts read values, call APIs, and prepare results between declarative
+steps. **PowerShell is the default language.**
+One default language gives actions consistent code and shared helpers.
+PowerShell runs cross-platform on every runner and follows the
+[PowerShell](PowerShell/index.md) standard.
+The ecosystem's Actions tooling includes the PSModule `GitHub` module.
+Its helpers implement the runner's workflow-command protocol.
 
-Reach for the options in this order, and drop to the next only when the one above
-genuinely cannot serve:
+Use these options in order.
+Use the next option only if the preceding option cannot meet the requirement:
 
-- **First choice — PowerShell with the PSModule `GitHub` module.** Talk to the
-  runner through the module's commands instead of hand-writing raw workflow
-  strings: the `Write-GitHub*` family (`Write-GitHubNotice`, `Write-GitHubWarning`,
+- **First choice — PowerShell with the PSModule `GitHub` module.** Use the
+  module's commands instead of writing raw workflow-command strings.
+  Use the `Write-GitHub*` family (`Write-GitHubNotice`, `Write-GitHubWarning`,
   `Write-GitHubError`) for annotations, `LogGroup` for grouped logging, and
-  `Set-GitHubStepSummary` for the step summary. The helper escapes dynamic data
-  for you, keeps the script declarative, and gives every action one vocabulary for
-  the diagnostics the [logging section](#build-in-logging-and-diagnostics) calls
-  for.
-- **Fallback — plain PowerShell.** When the `GitHub` module is not available or
-  not warranted — a script that does no runner communication, or one that must run
-  before the module is installed — stay in PowerShell and write to the log
-  directly.
-- **Last resort — Bash, only when PowerShell cannot be supported.** A context with
-  no `pwsh` — a minimal container, or a step that must run before PowerShell is on
-  the image — falls back to Bash. Keep it small and hold it to the same rules,
-  above all [never expand untrusted input inline](#never-expand-untrusted-input-inline).
+  `Set-GitHubStepSummary` for the step summary.
+  The helpers escape dynamic data, keep the script declarative, and standardize
+  the diagnostics in the [logging section](#build-in-logging-and-diagnostics).
+- **Fallback — plain PowerShell.** If the `GitHub` module is unavailable or not
+  needed, use plain PowerShell.
+  This includes scripts with no runner communication and scripts that run before
+  module installation.
+  Write directly to the log.
+- **Last resort — Bash, only when PowerShell cannot be supported.** If a context
+  has no `pwsh`, use Bash.
+  Examples include minimal containers and steps that run before PowerShell is
+  installed on the image.
+  Keep the script small and apply the same rules, especially
+  [never expand untrusted input inline](#never-expand-untrusted-input-inline).
 
 ```yaml
 # Preferred — PowerShell glue; the GitHub module speaks to the runner.
@@ -761,59 +826,64 @@ genuinely cannot serve:
 
 ## Extract non-trivial `run:` scripts into an action
 
-A short `run:` step — a handful of commands wiring tools together — belongs
-inline. But once a step carries a **multi-line script embedded as a YAML
-string** (a block of Bash, Python, or PowerShell), that script is invisible to
-every linter, formatter, and editor: `shellcheck`, `ruff`, and the type
-checkers all see an opaque string, not code. Pull it out.
+A short `run:` step with a few commands that connect tools belongs inline.
+If a step contains a **multi-line script embedded as a YAML string** (Bash,
+Python, or PowerShell), extract the script.
+actionlint can send inline Bash and sh scripts to `shellcheck` when the integration
+is enabled and the executable is available.
+Its ShellCheck integration does not lint PowerShell or Python.
 
 - **A step whose logic is a non-trivial inline script must become its own
-  action.** The workflow then `uses:` that action instead of carrying the
-  script in its body. This keeps workflows declarative — what runs, in what
-  order, with what permissions — and moves the *how* into linted, testable
-  files.
+  action.** The workflow then `uses:` that action instead of containing the
+  script. The workflow states what runs, in what order, and with what
+  permissions. Separate files contain the logic and support linting and tests.
 
-Extracting a script out of a workflow string is an instance of the
+Moving a script out of a workflow string applies the
 [Code in code files](../Ways-of-Working/Principles/Engineering-Practices.md#code-in-code-files)
-principle: code earns linters, security scanning, and IDE support only once it
-lives in a file of its own language.
+principle.
+Standalone source files give tools the script's native language and file context.
+They support language-specific linters, such as `ruff`, formatters, type checkers,
+security scanners, and IDE features.
 
 ### Generalize the action; drive behaviour through inputs and outputs
 
-An action that is lifted out of one workflow is tempting to write for exactly
-that workflow — hard-coding the repository, the branch, the message it posts.
-Resist this. An extracted action is a reusable unit, and it should be designed
-like one. The [SOLID](https://en.wikipedia.org/wiki/SOLID) principles map
-directly onto action design:
+When extracting an action from one workflow, do not hard-code that workflow's
+repository, branch, or posted message.
+An extracted action is a reusable unit and should be designed for reuse.
+The [SOLID](https://en.wikipedia.org/wiki/SOLID) principles apply to action design:
 
 - **Generalize to the work the action does, not the caller that needs it.**
   Name and scope the action by its *capability* (`start-cloud-agent`,
   `publish-docs`), not by the one situation that prompted it
-  (`bump-one-repo-pin`). The action does one well-defined job — a single
-  responsibility — and does it for any caller. This is what makes it reusable
-  rather than a copy of one workflow's internals.
-- **Adjust behaviour through the input interface, never by editing the action.**
+  (`bump-one-repo-pin`). The action has one well-defined responsibility and
+  performs it for any caller.
+  It is reusable rather than a copy of one workflow's implementation.
+- **Adjust behavior through the input interface, never by editing the action.**
   Every value that varies between callers — the target repository, a model
-  name, a prompt, a flag — is an `input`, with a sensible `default` where one
-  exists. A new use case should be served by passing different inputs, not by
-  forking the script or adding a caller-specific branch inside it. The action is
-  *open for extension* (new inputs, new callers) but *closed for modification*
-  (its logic does not change to accommodate each new consumer).
+  name, a prompt, a flag — is an `input`, with a suitable `default` where one
+  exists. Serve a new use case through different inputs.
+  Do not fork the script or add a caller-specific branch.
+  The action is *open for extension* (new inputs, new callers) but *closed for
+  modification* (its logic does not change for each consumer).
 - **Keep defaults at the interface layer (`action.yml`) only.** Define optional
   input defaults under `inputs.<name>.default` in `action.yml`, and treat that
   as the single source of truth for caller-visible defaults. Do **not** duplicate
-  those defaults in runtime code (`main.js`, shell, Python, PowerShell). This
-  keeps the UI contract and auto-generated interface docs correct by construction,
-  and makes default changes one-line updates without drift.
-- **Keep the input interface focused.** Expose the inputs a caller genuinely
-  needs and no more; a narrow, well-named interface is easier to use correctly
-  than a broad one full of rarely-set knobs. Group related inputs rather than
-  leaking internal implementation details as parameters.
+  those defaults in runtime code (`main.js`, shell, Python, PowerShell).
+  This keeps the UI contract and generated interface docs consistent.
+  A default change then requires one interface update instead of synchronized
+  copies.
+- **Keep the input interface focused.** Expose only the inputs a caller needs.
+  A small, well-named interface is easier to use correctly than a broad one with
+  rarely used options.
+  Group related inputs. Do not expose internal implementation details as
+  parameters.
 - **Output anything a caller might reasonably act on.** Declare `outputs:` for
   the results the action produces — an identifier it created, a URL, a computed
-  version, a pass/fail decision — so downstream steps consume a value instead of
-  re-deriving it or scraping logs. An action that does meaningful work and
-  returns nothing forces every caller to reconstruct what it already knew.
+  version, a pass/fail decision.
+  Downstream steps then consume an output instead of calculating it again or
+  parsing logs.
+  An action that produces results but returns none forces every caller to
+  reconstruct those results.
 
 ```yaml
 # Correct — capability-named, behaviour driven by inputs, results surfaced
@@ -839,10 +909,9 @@ outputs:
 #   no outputs: callers must scrape the log to find the task URL
 ```
 
-Designing the action this way is the difference between *reuse* and
-*copy-paste*: a generalized action is consumed by SHA from many workflows; a
-caller-specific one gets duplicated and diverges the moment a second consumer
-appears.
+Many workflows consume a generalized action by SHA.
+A caller-specific action requires copies for other consumers.
+Those copies can diverge.
 
 ### Start local; promote when it is reused
 
@@ -853,20 +922,21 @@ appears.
   consumed according to ownership: a controlled major tag while its release path
   remains organization- or initiative-owned, or a full SHA when external (see
   [Pin actions according to ownership](#pin-actions-according-to-ownership)).
-  Do not reach for a separate repo preemptively — the cost of a shared release
-  surface is only worth paying once there is a second consumer.
+  Do not create a separate repository before a second consumer needs it.
+  A shared release interface adds maintenance cost.
 - **A reusable workflow's actions are the exception** — a shared reusable
-  workflow cannot reach a local action, and a cohesive set is better kept in one
-  action library than a repository each. See [Separate a reusable workflow from
+  workflow cannot use a local action.
+  Keep a cohesive set in one action library rather than one repository per action.
+  See [Separate a reusable workflow from
   the actions it consumes](#separate-a-reusable-workflow-from-the-actions-it-consumes).
 
 ### Move the script into its own file
 
-- **Lift the script out of `action.yml` into a separate file** so tooling can
-  see it. The action's `run:` step then invokes that file rather than inlining
-  its contents. A script file is subject to its language's coding standard and
-  linter — for example the [PowerShell](PowerShell/index.md) standard — exactly as if
-  it lived in application code.
+- **Move the script out of `action.yml` into a separate file** so tooling can
+  process it. The action's `run:` step then invokes that file instead of
+  containing the script.
+  Apply its language's coding standard and linter, such as the
+  [PowerShell](PowerShell/index.md) standard, just as for application code.
 - **One script file lives at the root of the action folder.** When the action
   grows to several source files, **collect them under a `src/` folder** so the
   action root stays readable.
@@ -881,45 +951,59 @@ appears.
   given a generic name. For a `publish-docs` action the module is
   `publish-docs.Helpers` in `publish-docs.Helpers.psm1`, imported by path from
   the entry script.
-- **Why it matters:** every module imported during a job shares one session on
-  the runner. A generic name — `Helpers`, `Utils`, `Common` — collides with a
-  shared module of the same name (an ecosystem often installs a shared helper
-  module that actions import by name) or with another action's helper loaded in
-  the same job. Once two loaded modules share a name they can no longer be told
-  apart: module resolution is ambiguous, and unit tests that target a module by
-  name — mocking a command *inside* the module, say — fail because the framework
-  cannot choose which copy to patch.
-- **An action-scoped name is unambiguous, mockable, and traceable.** It never
-  clashes, tests can address it by name, and it identifies the owning action in
-  loaded-module listings, errors, and stack traces.
+- **Why it matters:** modules imported during a job share one session on the
+  runner.
+  A generic name — `Helpers`, `Utils`, `Common` — collides with a shared module of
+  the same name or another action's helper in that job.
+  For example, an ecosystem can install a shared helper module that actions
+  import by name.
+  If two loaded modules share a name, module resolution is ambiguous.
+  Unit tests that target a module by name, such as tests that mock an internal
+  command, fail because the framework cannot select a copy.
+- **An action-scoped name is unambiguous, mockable, and traceable.** It does not
+  clash with other module names.
+  Tests can address it by name.
+  It identifies the owning action in loaded-module listings, errors, and stack
+  traces.
 - **The exception is a module published for sharing.** A helper whose whole
   purpose is to be installed and imported by many actions keeps its shared,
   stable name; only an action's *private* helper module is action-scoped.
 
 ## Toolchain
 
-Two linters enforce this standard in CI, and their configuration is derived from
-it — the rules above are the source of truth:
+Two linters check workflow correctness and security in CI.
+Their configuration derives from the rules above, which are the source of truth:
 
 - **[actionlint](https://github.com/rhysd/actionlint)** checks workflow
-  correctness: expression syntax, job and step wiring, runner labels, and the
-  shell of every `run:` step through shellcheck.
+  correctness: expression syntax, job and step connections, and runner labels.
+  Its [ShellCheck integration](https://github.com/rhysd/actionlint/blob/main/docs/checks.md#check-shellcheck-integ)
+  checks inline Bash and sh `run:` scripts when enabled and ShellCheck is available.
+  It does not check PowerShell or Python through ShellCheck.
 - **[zizmor](https://docs.zizmor.sh/)** audits workflow security, flagging the
   failures this standard exists to prevent: unpinned actions, excessive
   `permissions`, template injection from untrusted input, `secrets: inherit`,
   and persisted credentials.
 
 Both run through [super-linter](https://github.com/super-linter/super-linter) on
-every push and pull request, so a workflow that breaks this standard fails the
-build.
+every push and pull request.
+
+The linters do not detect every violation of this standard.
+Review the authoring rules as well as the lint results.
+For conditional dependencies, follow the
+[skipped-job guidance](#a-skipped-job-in-needs-skips-everything-downstream).
 
 Treat `actionlint` errors and high-severity `zizmor` findings as blockers.
-Medium-severity `zizmor` findings are fixed unless the workflow documents why
-the risk is accepted; low-severity findings are fixed when the simpler, safer
-shape is available. In practice, an audit starts by checking for unpinned
-actions, broad or inherited secrets, missing `permissions`, persisted checkout
-credentials, untrusted context interpolation, and elevated triggers such as
-`pull_request_target` or `workflow_run`.
+Fix medium-severity `zizmor` findings unless the workflow documents why the risk
+is accepted.
+Fix low-severity findings when a simpler, safer form is available.
+Start an audit with these checks:
+
+- Unpinned actions.
+- Broad or inherited secrets.
+- Missing `permissions`.
+- Persisted checkout credentials.
+- Untrusted context expansion.
+- Elevated triggers such as `pull_request_target` or `workflow_run`.
 
 ```text
 # Single-file action — main.<ext> at the action root
@@ -941,42 +1025,45 @@ credentials, untrusted context interpolation, and elevated triggers such as
 ### Keep a README with the action
 
 - **Every action carries a `README.md`** describing what it does, its inputs and
-  outputs, and an example `uses:` snippet. This is the starting point a reader
-  hits first.
-- As an action grows — especially once it earns its own repository — fuller
-  reference material moves into a `docs/` folder there, and the README narrows
-  to an overview and a pointer into those docs. The README is always present;
-  it is the entry point, not the whole manual.
+  outputs, and an example `uses:` snippet.
+  This is the reader's starting point.
+- As an action grows, especially into its own repository, move fuller reference
+  material into a `docs/` folder there.
+  Keep an overview and a link to those docs in the README.
+  The README is always present as the entry point, not the whole manual.
 
 ## Reusable workflows with colocated composite actions
 
-When a reusable workflow (`on: workflow_call`) has its own composite actions
-(stored in `.github/actions/` alongside it), those actions are initially local
-to a single workflow — the workflow itself. If a reusable workflow is the only
-caller of such an action, it should stay colocated and not be promoted to a
-standalone repository.
+When a reusable workflow (`on: workflow_call`) has its own composite actions,
+they are local to that workflow.
+They are stored alongside it in `.github/actions/`.
+If the reusable workflow is an action's only caller, the action should stay
+colocated and not be promoted to a standalone repository.
 
-**The problem:** A reusable workflow runs in the *caller's* checked-out workspace,
-not in its own repository. When the workflow tries to `uses:` a relative action
-path (e.g., `./.github/actions/my-action/`), that path resolves to the *caller's*
-repository, not the reusable workflow's repo — so it fails or runs the wrong
-version of the action.
+**The problem:** a reusable workflow runs in the *caller's* checked-out
+workspace, not in its own repository.
+A relative action path in `uses:` (e.g., `./.github/actions/my-action/`) resolves
+to the *caller's* repository.
+The workflow then fails or runs the wrong action version.
 
-**The solution:** The reusable workflow must check itself out first, using the
-`job.workflow_repository` and `job.workflow_sha` contexts provided by GitHub
-Actions. These contexts give the exact repository and commit SHA of the reusable
-workflow being executed, not the caller.
+**The solution:** the reusable workflow must check itself out first.
+Use the `job.workflow_repository` and `job.workflow_sha` contexts from GitHub
+Actions.
+These contexts identify the reusable workflow's exact repository and commit SHA,
+not the caller's.
 
 - **Check out the reusable workflow's own repository** at the start of the job,
   using `job.workflow_repository` and `job.workflow_sha`, before calling any
   local composite actions. This ensures the actions resolve in the reusable
   workflow's own workspace.
 - **Use a `path:` argument** in the checkout step to place the reusable workflow
-  in a separate subdirectory, so you can distinguish it from the caller's
-  checkout and reference actions under that path.
-- The same reusable workflow will then work correctly whether invoked at a
-  tagged release (e.g., `v1.2.3`) or on a development branch, and the caller
-  automatically gets the right version of both the workflow and its actions.
+  in a separate subdirectory.
+  This distinguishes it from the caller's checkout and gives its actions a
+  separate path.
+- The same reusable workflow works at a tagged release (e.g., `v1.2.3`) or on a
+  development branch.
+  The caller automatically gets matching versions of the workflow and its
+  actions.
 
 ```yaml
 jobs:
@@ -1008,10 +1095,10 @@ They are **not** available on GitHub Enterprise Server (GHES).
 
 ## Concurrency
 
-Declare `concurrency` on workflows that must not race — anything that
-publishes, deploys, or mutates shared state. Use a stable group key and choose
-`cancel-in-progress` deliberately (`false` for publish/deploy so runs queue
-rather than abort mid-write).
+Declare `concurrency` on workflows that publish, deploy, or change shared state.
+Use a stable group key. Choose `cancel-in-progress` deliberately.
+For publishing and deployment, use `false` so runs queue instead of stopping
+during a write.
 
 ```yaml
 concurrency:
@@ -1022,56 +1109,61 @@ concurrency:
 ## Pin the runner, name everything, and space it out
 
 - **Pin `runs-on` to a specific runner image** (`ubuntu-24.04`) rather than
-  `ubuntu-latest`, so a runner upgrade is a deliberate, reviewable change rather
-  than a silent one.
+  `ubuntu-latest`.
+  This makes a runner upgrade a deliberate, reviewable change instead of a
+  silent one.
 - **Give every job and every step a `name:`** — not only the non-trivial ones.
-  Left unnamed, a step is labelled by whatever GitHub derives from its `run` or
-  `uses`: the full pinned SHA for an action (`Run actions/checkout@de0fac…`), or
-  the truncated first line of a script — both hard to read, and both changing
-  whenever the command does. A written `name:` is the exact text shown in the
-  Actions UI, the logs, and the Checks view, so a step **reads the same in the
-  code as in the portal**, stays a **stable handle** for links and log searches
-  when the command underneath it changes, and names a failure by intent rather
-  than by a decoded command line. Under the
-  [external SHA-pinning rule](#pin-actions-according-to-ownership) it matters all
-  the more: an unnamed external action step wears its 40-character SHA as its
-  label.
+  Without a name, GitHub derives a step's label from its `run` or `uses`.
+  For an action, the label contains the full pinned SHA
+  (`Run actions/checkout@de0fac…`).
+  For a script, it contains the truncated first line.
+  Both labels can be hard to read and change with the command.
+
+  A written `name:` appears as the same text in the Actions UI, logs, and Checks
+  view. It gives links and log searches a stable label when the command changes.
+  It describes the intent of failed work instead of the command line.
+  This matters under the [external SHA-pinning rule](#pin-actions-according-to-ownership)
+  because an unnamed external action step uses its 40-character SHA as its label.
 - **Separate each job and each step with a single blank line.** One blank line
-  between consecutive steps, and one between consecutive jobs, makes every unit a
-  self-contained block that is easy to scan, reorder, and read in a diff. Use
-  exactly one — with none, adjacent steps blur together; with several, the file
-  turns gappy.
+  between consecutive steps and consecutive jobs makes each unit easy to scan,
+  reorder, and read in a diff.
+  Use exactly one. Without it, adjacent steps are harder to distinguish.
+  Several blank lines add unnecessary space.
 
 ## Build in logging and diagnostics
 
-An action is a black box until it fails. Make every run explain itself — what it
-read, what it decided, and what it produced — *by default*, so a failure is
-diagnosed from the log you already have rather than from a second run with extra
-logging switched on. The craft is keeping all that detail present but out of the
-way until someone wants it.
+An action reports what it reads, decides, and produces on every run.
+A failure should be diagnosable from the existing log without a second run with
+extra logging.
+Keep the details available in collapsed groups.
 
 ### Log the whole story by default, collapsed into groups
 
 - **Log the resolved inputs, the decisions taken, each external call and its
-  status, and the outputs produced — on every run.** These are the details a
-  failure is diagnosed from, so the first run to fail carries enough to diagnose
-  it. Log a secret's presence, never its value; secret inputs stay masked (see
+  status, and the outputs produced — on every run.**
+  The first failed run then contains enough diagnostic detail.
+  Log a secret's presence, never its value.
+  Keep secret inputs masked (see
   [Distinguish `vars` from `secrets`](#distinguish-vars-from-secrets)).
 - **Force an untrusted value onto a single line before logging it.** The runner
-  parses every line of stdout, so a value you do not control that carries a
-  newline followed by `::...` can smuggle in a workflow command. Strip or encode
-  `\r` / `\n` (or emit the value through a helper) so a logged input cannot break
-  out into a command — the same untrusted-input rule as
+  parses every line of stdout.
+  An untrusted value with a newline followed by `::...` can become a workflow
+  command.
+  Strip or encode `\r` / `\n`, or emit the value through a helper.
+  This prevents a logged input from becoming a command, as required by
   [Never expand untrusted input inline](#never-expand-untrusted-input-inline).
-- **Wrap each phase in a `::group::` / `::endgroup::` block.** Grouping keeps the
-  detail present but collapsed — there in plain sight, one expand away — so the
-  top level reads as a short list of phases while the depth sits a click beneath
-  each. Group by phase (`Resolve inputs`, `Publish 42 pages`), one group per
+- **Wrap each phase in a `::group::` / `::endgroup::` block.**
+  Details remain available but collapsed.
+  The top level shows a short list of phases.
+  Expand a phase to read its details.
+  Group by phase (`Resolve inputs`, `Publish 42 pages`), with one group per
   phase, not one per line.
 - **Wrap the group markers in a helper so the script stays declarative.**
-  Emitting the raw `::group::` / `::endgroup::` lines by hand is noisy; a small
-  wrapper that takes a title and a block keeps the intent visible. A PowerShell
-  action gets this from the PSModule `GitHub` module — `LogGroup 'phase' { ... }`.
+  A helper emits matching `::group::` / `::endgroup::` markers.
+  A wrapper that accepts a title and a script block keeps the phase's intent
+  visible.
+  A PowerShell action uses the PSModule `GitHub` module:
+  `LogGroup 'phase' { ... }`.
 
 ```yaml
 - name: Publish
@@ -1093,20 +1185,24 @@ way until someone wants it.
 ### Call out the result with an annotation
 
 - **Use `::notice::`, `::warning::`, or `::error::` for the few lines a reader
-  must not miss** — above all the final result: what was created, or the
-  pass/fail verdict. Annotations render on the run summary and in the Checks
-  view, above the collapsed log, so the headline is visible without expanding a
-  single group.
+  must not miss**, especially the final result: what was created or the
+  pass/fail verdict.
+  Annotations appear on the run summary and in the Checks view, above the
+  collapsed log.
+  The reader can see the result without expanding a group.
 - **Annotate the outcome, not the progress.** Step-by-step narration belongs in
-  the grouped log; if every other line is a `::notice::`, the one callout that
-  matters is lost. Aim to end a run on a single clear annotation.
+  the grouped log.
+  Too many `::notice::` annotations make the result harder to find.
+  Aim to end a run with one clear annotation.
 - **Escape dynamic data in an annotation.** A workflow command is a single line,
-  so a value carrying `%`, a carriage return, or a newline must be encoded
-  (`%25`, `%0D`, `%0A`) or it corrupts the command — the same class of risk as
-  [expanding untrusted input inline](#never-expand-untrusted-input-inline). A
-  value placed in a command *property* (such as `title=`) needs `:` and `,`
-  encoded too (`%3A`, `%2C`), since those characters delimit the property list. A
-  helper that emits the command handles this for you (PowerShell:
+  so a value with `%`, a carriage return, or a newline must be encoded
+  (`%25`, `%0D`, `%0A`).
+  Otherwise, the value corrupts the command, as with
+  [expanding untrusted input inline](#never-expand-untrusted-input-inline).
+  If a value is a command *property* (such as `title=`), also encode `:` and `,`
+  (`%3A`, `%2C`).
+  Those characters delimit the property list.
+  A helper encodes the value when it emits the command (PowerShell:
   `Write-GitHubNotice` / `Write-GitHubError`).
 
 ```powershell
@@ -1122,21 +1218,21 @@ throw "$($rejected.Count) page(s) rejected"
 
 - **When the result is more than a line — a table, per-item counts, a report —
   write it to `$GITHUB_STEP_SUMMARY` as GitHub-flavored Markdown.** The step
-  summary renders on the run's summary page, so the outcome is legible without
-  opening the log at all.
-- **Keep the summary uncluttered by default.** Show the headline — the table or
-  the verdict — in the open, and tuck long or secondary detail inside
-  `<details><summary>...</summary>` blocks that stay closed until the reader
-  opens them. A summary that spills everything inline is as hard to scan as an
-  ungrouped log.
-- **Compose the Markdown with a helper rather than building strings** where you
-  can. A PowerShell action assembles the summary with the PSModule `Markdown`
-  module — `Heading`, `Table`, `Details { ... }` — and writes it with the
-  `GitHub` module's `Set-GitHubStepSummary`.
-- **Surface the same facts as outputs.** A URL, a count, or a verdict worth
-  putting in the summary is also worth an `output` (see
-  [Generalize the action](#generalize-the-action-drive-behaviour-through-inputs-and-outputs)),
-  so a calling workflow acts on a value instead of scraping the summary.
+  summary appears on the run's summary page.
+  The reader can see the outcome without opening the log.
+- **Keep the summary uncluttered by default.** Show the main table or verdict.
+  Put long or secondary details inside `<details><summary>...</summary>` blocks.
+  These blocks stay closed until the reader opens them.
+  A fully expanded report is as hard to scan as an ungrouped log.
+- **Compose the Markdown with a helper rather than building strings** where
+  possible.
+  A PowerShell action uses the PSModule `Markdown` module:
+  `Heading`, `Table`, and `Details { ... }`.
+  Write the summary with the `GitHub` module's `Set-GitHubStepSummary`.
+- **Return the same facts as outputs.** A URL, count, or verdict in the summary
+  also belongs in an `output` (see
+  [Generalize the action](#generalize-the-action-drive-behaviour-through-inputs-and-outputs)).
+  A calling workflow then uses a value instead of parsing the summary.
 
 ```powershell
 Set-GitHubStepSummary -Summary (
@@ -1156,30 +1252,32 @@ Set-GitHubStepSummary -Summary (
 
 ### Report back on the triggering PR or issue
 
-The step summary is only seen by someone who opens the run. When the outcome
-matters to a person mid-flow — a PR author, an issue reporter — surface the
-result where they already are. **Which channel is right depends on the event
-that triggered the run**, so make reporting conditional on the trigger rather
-than assuming one exists.
+Readers see the step summary only if they open the run.
+If an outcome matters to a PR author or issue reporter, report it on that PR or
+issue.
+**Choose the reporting channel according to the event that triggered the run.**
+Make reporting conditional on the trigger instead of assuming a PR or issue
+exists.
 
 - **`pull_request` → a pull request comment.** Post the summary to the PR so the
   author sees it in the timeline.
 - **`issues` / `issue_comment` → an issue comment.** Reply on the issue that
   started the run.
 - **`push` / `schedule` / `workflow_dispatch` → the step summary, plus a tracking
-  issue for a finding worth chasing.** There is no PR or issue in context, so the
-  step summary stands on its own; a scheduled job that detects a problem can open
-  or update an issue.
-- **Upsert one comment; never post a fresh one per run.** Write a hidden marker
-  (an HTML comment such as `<!-- publish-summary -->`) into the body, find the
-  existing comment by that marker, and edit it in place — so a PR pushed ten
-  times carries one current comment, not ten stale ones.
+  issue for a finding that needs follow-up.**
+  There is no PR or issue in context, so the step summary stands on its own.
+  A scheduled job that detects a problem can open or update an issue.
+- **Upsert one comment; never post a new one per run.** Write a hidden marker
+  (an HTML comment such as `<!-- publish-summary -->`) into the body.
+  Find the existing comment by that marker. Edit it in place.
+  A PR pushed ten times then has one current comment, not ten stale copies.
 - **Grant the write scope only on the job that comments.** A PR comment needs
-  `pull-requests: write`, an issue comment needs `issues: write`; the rest of the
-  workflow stays read-only. Keep untrusted input out of the comment body (see
-  [Never expand untrusted input inline](#never-expand-untrusted-input-inline)),
-  and treat `pull_request_target` with particular care — it runs with a writable
-  token in the context of untrusted pull request code.
+  `pull-requests: write`, and an issue comment needs `issues: write`.
+  Keep the rest of the workflow read-only.
+  Keep untrusted input out of the comment body (see
+  [Never expand untrusted input inline](#never-expand-untrusted-input-inline)).
+  Use particular care with `pull_request_target`.
+  It runs with a writable token in the context of untrusted pull request code.
 
 ```yaml
 jobs:
@@ -1203,15 +1301,17 @@ jobs:
 ### Gate merges with a named status check
 
 - **If a run's result should block merge, it must surface as a named status
-  check** that branch protection can require. A run that only writes to the log
-  or a comment cannot hold a pull request; a required check can.
+  check** that branch protection can require.
+  A run that only writes to a log or comment cannot block merge.
+  A required check can.
 - **Keep the check name stable.** Branch protection matches checks by name, so
-  renaming the job or workflow silently drops the gate. Pick a clear, permanent
-  name and treat it as a contract — renaming it later removes the gate without a
-  trace, so the rename and the branch-protection update must land together.
-- **Fail the check for real problems; do not annotate and exit 0.** A gating
-  action must exit non-zero when it finds a blocking issue — the annotations and
-  the red summary are for humans, the exit code is what the merge gate reads.
+  renaming the job or workflow removes the gate.
+  Choose a clear, permanent name and treat it as a contract.
+  The rename and the branch-protection update must land together.
+- **Fail the check for real problems. Do not annotate and exit 0.** A gating
+  action must exit non-zero when it finds a blocking issue.
+  Annotations and the failed summary explain the problem to readers.
+  The merge gate reads the exit code.
   Reserve `::warning::` and `::notice::` for advisory findings that should *not*
   hold the pull request.
 
@@ -1231,19 +1331,22 @@ jobs:
         uses: ./.github/actions/validate-publishable   # exits 1 on a blocker
 ```
 
-**Two mechanisms, either requirable by name.** A named check reaches a pull
-request one of two ways, and a ruleset can require either:
+**Two mechanisms that a ruleset can require by name.**
+A pull request receives a named check in one of two forms.
+A ruleset can require either form:
 
 - **A check run — the job itself.** Every Actions job automatically becomes a
-  check run named after the job, so the `Publishable` job above *is* the check
-  and needs no extra permission. Prefer this whenever the signal is one of the
-  workflow's own jobs.
+  check run named after the job.
+  The `Publishable` job above *is* the check and needs no extra permission.
+  Prefer this form when the signal is one of the workflow's own jobs.
 - **A commit status — the Status API.** A step or an external system posts a
   status against the head commit under its own **context** name via the
   [Commit Status API](https://docs.github.com/rest/commits/statuses), for a
-  signal that is not a whole job — the linter in this repository's own `Docs`
-  workflow reports per-language statuses this way. Posting a status is the one
-  thing that needs **`statuses: write`**; a check run does not.
+  signal that is not a whole job.
+  The linter in this repository's `Docs` workflow reports per-language statuses
+  this way.
+  Posting a status needs **`statuses: write`**.
+  A check run does not.
 
 ```yaml
 jobs:
@@ -1255,11 +1358,15 @@ jobs:
       statuses: write        # post commit statuses via the Status API
 ```
 
-**A check gates nothing until a ruleset requires it.** Publishing the check is
-half the contract; a repository ruleset (or branch protection) must list it as
-**required** by its exact name or context, or it stays advisory — visible on the
-pull request but unable to hold it. A required check's pass or fail is then a
-machine-readable signal that automation can act on: approve or merge a green pull
-request, hold a red one. That end-to-end pattern is the
-[Merge Automation](../Capabilities/merge-automation/index.md) capability; this
-section is the authoring half it builds on.
+**A check blocks nothing until a ruleset requires it.**
+A repository ruleset (or branch protection) must list the check as **required**
+by its exact name or context.
+Otherwise, the check is advisory: visible on the pull request but unable to block
+merge.
+A required check provides a machine-readable pass or fail signal.
+Automation can then approve or merge a successful pull request and hold a failed
+one.
+
+The [Merge Automation](../Capabilities/merge-automation/index.md) capability
+defines that end-to-end pattern.
+This section defines its authoring requirements.
