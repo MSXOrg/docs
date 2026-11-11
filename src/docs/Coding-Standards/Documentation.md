@@ -5,11 +5,11 @@ description: Help that lives next to the code and explains the why.
 
 # Documentation
 
-Documentation is part of the work, not a follow-up to it. Code that is not documented is effectively invisible — to the next contributor, to the user, and to the agents that read docs as their primary context.
+Documentation is part of the work, not a later task. Missing documentation leaves contributors, users, and agents without the context they need.
 
 ## The hierarchy of documentation
 
-Distance between a thing and its documentation is the rate at which they drift apart. Keep each kind of documentation as close to what it describes as possible:
+Documentation and its subject are maintained together. Keep each kind of documentation as close to what it describes as possible:
 
 | Documentation        | Lives                                          |
 | -------------------- | ---------------------------------------------- |
@@ -21,21 +21,21 @@ Distance between a thing and its documentation is the rate at which they drift a
 
 ## Self-documenting code first
 
-The best comment is the one you didn't need to write because the code said it already. Before adding a comment, ask whether a better name, a smaller function, or an extracted variable would remove the need. Reserve comments for what code *cannot* express.
+Use clear names and code structure before adding comments. Before you add a comment, consider whether a clearer name, smaller function, or extracted variable removes the need. Reserve comments for information that code *cannot* express.
 
 ## Comment the why, not the what
 
 - **Bad:** `// increment i by one` — the code already says this.
 - **Good:** `// the API is 1-indexed, so the first page is 1 not 0` — context the code cannot carry.
 
-Comments explain intent, trade-offs, workarounds, and the reasons behind non-obvious choices. They are where you record *why this and not the obvious alternative*.
+Comments explain intent, trade-offs, workarounds, and the reasons for non-obvious choices. They record why one approach is used instead of an alternative.
 
 ## Keep comments concise
 
-Once a comment carries the why, it is done. A short phrase beats a paragraph, and a paragraph beats a screenful — over-explaining buries the one line that matters and rots as the code moves on.
+A comment ends when it explains the reason. Use the shortest explanation that preserves the necessary context. Extra detail can hide important information and become inaccurate as code changes.
 
-- **One line where one line works.** State the reason and stop. If the explanation keeps growing, it belongs in the design, an ADR, or the issue — link to it instead of inlining an essay.
-- **Don't narrate the code.** Skip step-by-step commentary, banner headers, and comments that just echo the next statement.
+- **One line where one line works.** State the reason and stop. Put a longer explanation in the design, an ADR, or the issue, and link to it.
+- **Do not restate the code.** Skip step-by-step commentary, banner headers, and comments that repeat the next statement.
 - **Trust the reader.** Explain the non-obvious, not the ordinary — assume competence with the language and the codebase.
 
 - **Too expressive:** a five-line block walking through each step of a retry loop.
@@ -43,11 +43,11 @@ Once a comment carries the why, it is done. A short phrase beats a paragraph, an
 
 ## Public surfaces are documented
 
-Every public function, command, module, or API carries documentation at its boundary — in the language's native format (comment-based help, docstrings, doc comments) so tooling can surface it. A consumer should never have to read the implementation to learn how to call it.
+Document every public function, command, module, or API at its boundary. Use the language's native format (comment-based help, docstrings, doc comments) so tools can display it. Consumers do not need to read the implementation to learn how to call it.
 
-Include, at minimum: what it does, its parameters, what it returns, and at least one example. Examples are worth a paragraph of prose each.
+Include, at minimum: what it does, its parameters, what it returns, and at least one example. Examples show how to use the documented interface.
 
-This is a floor, not a ceiling. Internal and private units — helper functions and the scripts that call them — carry the same native-format documentation, so the next maintainer or agent can understand a helper without reading its whole implementation.
+Internal and private units, including helper functions and the scripts that call them, carry the same native-format documentation. Maintainers and agents can understand a helper's contract without reading its complete implementation.
 
 ## The README is the front door
 
@@ -57,8 +57,8 @@ See [README-Driven Context](../Ways-of-Working/Readme-Driven-Context.md) for the
 
 ## Write for someone with no context
 
-Assume the reader — human or agent — is seeing this for the first time. Use clear, direct language. Prefer an example over an explanation. Link to related material rather than restating it, so there is one source of truth and no drift.
+Assume the reader, human or agent, has no prior context. Use clear, direct language. Prefer an example over an explanation. Link to related material rather than restating it, so one source of truth defines the information.
 
 ## Documentation is for agents too
 
-Agents read documentation as context before they act. A stale or missing doc does not just confuse a human — it makes an agent build the wrong thing. Keeping documentation ahead of code is what makes [context-first development](../Ways-of-Working/Principles/AI-First-Development.md#context-first-development) work at scale.
+Agents read documentation as context before they act. Outdated or missing documentation can mislead both humans and agents. Updating documentation before code supports [context-first development](../Ways-of-Working/Principles/AI-First-Development.md#context-first-development) across repositories.
