@@ -7,7 +7,7 @@ description: Durable release intents, lifecycle transitions, recovery, withdrawa
 
 This page realizes the [release-management specification](spec.md) through
 shared, GitHub-native release mechanics, including native producer pipelines.
-It defines the durable lifecycle and input contract; the immutable producer
+It defines the durable lifecycle and input contract. The immutable producer
 revision's documented interface and verified behavior establish conformance.
 Documentation alone does not make a lifecycle control or setting available.
 
@@ -15,7 +15,7 @@ Documentation alone does not make a lifecycle control or setting available.
 
 1. **The release intent is authoritative.** Tags, releases, workflow runs, and
    destination listings are observations that must agree with durable state.
-2. **Resolve once, then resume.** A retry continues frozen work; it never turns
+2. **Resolve once, then resume.** A retry continues frozen work. It never turns
    current repository metadata into a different release under the same identity.
 3. **Build once.** Verification and every destination receive the same retained
    bytes.
@@ -32,7 +32,7 @@ The effective pipeline establishes whether the target route produces a
 versioned, immutable output consumed by version. Managed routes participate
 whether they use a shared workflow or a native producer pipeline, and whether
 `.github/release.settings.yml` exists. Unmanaged routes omit release metadata and
-every `release:*` label; a Pages deployment alone is not a versioned release.
+every `release:*` label. A Pages deployment alone is not a versioned release.
 
 ## Release authority and interfaces {#branching-model}
 
@@ -42,7 +42,7 @@ routing types, not additional publication modes: prerelease and release-candidat
 routes both publish prereleases.
 
 The stable branch inherits the repository default branch when `ReleaseType` or
-its `Stable` key is omitted; the other keys are optional. Validate unknown keys
+its `Stable` key is omitted. The other keys are optional. Validate unknown keys
 and duplicate branch assignments after resolving inherited defaults. A branch
 cannot belong to two types, so assigning the inherited stable branch to
 `Prerelease` or `ReleaseCandidate` is invalid.
@@ -64,7 +64,7 @@ fixed source is on that line can create a stable release.
 
 The merge path remains the default because it keeps the compatibility decision,
 consumer evidence, source review, and release-note source together. Manual
-release exists for approved accumulated change, not as a way around review.
+release requires review and covers approved accumulated change.
 
 The [Branching and Merging](../../Ways-of-Working/Branching-and-Merging.md)
 standard owns standing development-to-stable promotion. Release management
@@ -79,8 +79,9 @@ identity makes duplicate delivery and retries idempotent.
 The identity includes the separately approved logical request, not only its
 source commit. Duplicate delivery or retry of that request loads the same
 frozen intent. A new corrective request requires distinct approval/request
-identity and explicitly records which prior intent it replaces; it cannot reuse
-the retired or withdrawn version, even when its reviewed source is unchanged.
+identity. It explicitly records which prior intent it replaces.
+It cannot reuse the retired or withdrawn version, even when its reviewed source
+is unchanged.
 
 | Field | Frozen or progressive | Purpose |
 | --- | --- | --- |
@@ -101,7 +102,7 @@ the retired or withdrawn version, even when its reviewed source is unchanged.
 | Announcement progress by destination | Progressive, append-only | Supports at-least-once delivery without republishing. |
 | Retirement or withdrawal evidence | Append-only | Preserves a terminal operator decision without rewriting history. |
 
-The durable store can be implemented with any shared platform that provides
+The durable store can use any shared platform that provides
 atomic writes, immutable history, and lookup by repository and intent. A
 workflow run summary is useful evidence but is not sufficient storage: runs can
 expire, retries use new run identifiers, and one run cannot safely coordinate
@@ -257,9 +258,8 @@ first stable major release is `1.0.0`.
 
 The resolved version is persisted as a provisional reservation before Build.
 The reservation becomes permanent after the first successful build or any
-external visibility. This separates safe coalescing of untouched work from the
-non-negotiable rule that one visible or built coordinate always means one source
-and one artifact.
+external visibility. Untouched work can be coalesced safely.
+A visible or built coordinate always identifies one source and one artifact.
 
 ### Resolve prereleases and release candidates
 
@@ -301,7 +301,7 @@ prerelease channel, and a canonical prerelease cannot be represented as stable.
 
 ## Build, Verify, and Publish
 
-The lifecycle retains the familiar four-stage pipeline:
+The lifecycle uses four pipeline stages:
 
 ```text
 Resolve -> Build -> Verify -> Publish
@@ -445,8 +445,8 @@ The complete captured title and body remain in the GitHub release record.
 Announcement delivery never extracts a subset of that record for publication.
 
 Each announcement destination has its own delivery record and idempotency key.
-The sender records attempts and acknowledgements. If acknowledgement is missing,
-it may resend the same logical message; receivers therefore observe
+The sender records attempts and acknowledgments. If acknowledgment is missing,
+it may resend the same logical message. Receivers therefore observe
 at-least-once delivery and should deduplicate by release identity.
 
 Announcement failure does not roll back a complete release and does not permit a
@@ -520,12 +520,15 @@ The publication envelope augments, but does not rewrite, the authored note:
 - note snapshot provenance; and
 - completion, retirement, withdrawal, alias, and announcement events.
 
-These bases can differ. With completed `1.4.2`, a permanently reserved retired
-`1.5.0` attempt containing an approved minor change not published to the selected
-artifact target still establishes minor as the minimum aggregate increment.
-A reviewed minor resolves from the reserved base `1.5.0` to `1.6.0`, while that
-target's consumer delta starts from published source `1.4.2`; patch is rejected
-for the accumulated range. Freeze and publish both bases rather than presenting
+These bases can differ. For example, `1.4.2` is complete and `1.5.0` is permanently
+reserved by a retired attempt. The attempt contains an approved minor change
+not published to the selected artifact target. That change still establishes
+minor as the minimum aggregate increment.
+
+A reviewed minor resolves from the reserved base `1.5.0` to `1.6.0`.
+The target's consumer delta starts from published source `1.4.2`.
+Resolve rejects patch for the accumulated range.
+Freeze and publish both bases rather than presenting
 the consumer-change source as proof of the calculation.
 
 For module notes, successful Gallery publication advances the consumer-change
@@ -658,7 +661,7 @@ Lifecycle controls include independently disabled
 destinations; retained-artifact policy; and destination-specific native mapping.
 An implementation documents the exact keys and caller inputs it supports;
 this contract does not make unsupported controls available. Unknown fields and
-values fail closed; repositories must not invent local release schema.
+values fail closed. Repositories must not invent local release schema.
 
 Repositories choose policy. Shared automation owns resolution, durable state,
 SemVer calculation, artifact handoff, retry rules, target adapters, discovery,
@@ -692,7 +695,7 @@ partial publication from completion.
 
 A separate manual pipeline would create a second version algorithm and weaker
 evidence path. Manual requests therefore change only the trigger and approval
-source; they still Resolve, Build, Verify, and Publish one retained artifact.
+source. They still Resolve, Build, Verify, and Publish one retained artifact.
 
 ### Announcements follow completion
 

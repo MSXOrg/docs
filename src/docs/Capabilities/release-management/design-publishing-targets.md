@@ -57,13 +57,13 @@ Two rules apply to every row:
   version.
 - **Completion is an outcome, not a claim of transactional publication.** One
   target may expose content before another fails. Durable per-target progress
-  keeps the release incomplete until all required targets succeed, then lets a
-  retry resume safely.
+  keeps the release incomplete until all required targets succeed.
+  A retry uses that progress to resume safely.
 
 ## GitHub Releases
 
 GitHub Releases is the reference target and the cross-target join point. Every
-repository governed by this capability creates a GitHub Release; a repository
+repository governed by this capability creates a GitHub Release. A repository
 with no external artifact publishes there only. External target coordinates and
 evidence are linked from the same release record.
 
@@ -96,8 +96,8 @@ frozen release intent.
 Repositories enable GitHub's immutable-release protection where the platform
 supports it. Verify the effective repository setting and producer controls from
 read-back evidence rather than assuming they exist because this contract
-describes them. Policy alone is not proof of platform enforcement; missing
-controls are conformance gaps to record and resolve.
+describes them. Policy alone is not proof of platform enforcement.
+Missing controls are conformance gaps to record and resolve.
 
 ### GitHub withdrawal
 
@@ -151,7 +151,7 @@ into its native package coordinate.
 For example, canonical `2.5.0-alpha` maps to `ModuleVersion = '2.5.0'` and
 `PrivateData.PSData.Prerelease = 'alpha'`, not `ModuleVersion = '2.5.0-alpha'`.
 The adapter validates the label against the selected publishing client's actual
-syntax; dotted or build-metadata forms are not assumed to be accepted. A
+syntax. Dotted or build-metadata forms are not assumed to be accepted. A
 non-preserving conversion requires an explicit collision-free, ordering-aware
 mapping or fails as unsupported before publication. Record both canonical and
 native identities. See [PowerShell prerelease module fields](https://learn.microsoft.com/en-us/powershell/gallery/concepts/module-prerelease-support).
@@ -160,8 +160,8 @@ native identities. See [PowerShell prerelease module fields](https://learn.micro
 
 A published module version is immutable. Retrying succeeds only when the
 existing listing and package hash identify the recorded artifact. The gallery
-supports unlisting rather than reclaiming a version; existing consumers and
-caches can still hold it, and the coordinate remains permanently reserved.
+supports unlisting rather than reclaiming a version. Existing consumers and
+caches can still hold it. The coordinate remains permanently reserved.
 
 ### PowerShell Gallery aliases and constraints
 
@@ -222,7 +222,7 @@ mapping plus an independently invented prerelease mapping.
 An odd-minor convention is valid only when the declared stable mapping reserves
 that space and the series/counter allocation is proven collision-free across
 every supported canonical identity. Record canonical and native versions
-together; an unsupported mapping or coordinate collision blocks publication.
+together. An unsupported mapping or coordinate collision blocks publication.
 The [owning framework's mapping contract](../vscode-extension-framework/design.md#marketplace-version-mapping)
 controls that conversion, while the immutable GitHub VSIX install path remains
 available without Marketplace support.
@@ -272,7 +272,7 @@ permitted bounded update selection resolves the eligible version outside that
 field and can retain its digest without a moving alias. A corresponding
 controlled alias is required only when no other permitted resolver supplies
 the requested bound. That alias must satisfy the consumer's trust boundary and
-artifact-specific pinning standard; an unsupported bound fails rather than
+artifact-specific pinning standard. An unsupported bound fails rather than
 widening silently.
 
 ### Container registry release record

@@ -7,12 +7,15 @@ description: Requirements for downstream release propagation — each dependent 
 
 ## Premise
 
-The ecosystem is many small repositories that depend on each other by **version
-reference** — a pinned `uses:` SHA, an image digest, a deployed tag. A reference
-drifts the moment the producer cuts a release. Maintaining them by hand does not
-scale: missed bumps keep security fixes out of the workflows that run them, and
-missed *related* changes merge a bump that then breaks at runtime. When a
-producer releases, every dependent MUST be assessed for an upgrade. A needed
+The ecosystem has many small repositories that depend on each other by **version
+reference**. Examples include a pinned `uses:` SHA, an image digest, or a deployed tag.
+
+A producer release can make a reference outdated.
+Manual updates do not scale across these dependencies.
+Missed version updates can exclude security fixes from the workflows that use them.
+An update that omits required related changes can break at runtime.
+
+When a producer releases, every dependent MUST be assessed for an upgrade. A needed
 upgrade produces a pull request applying the update and its related changes
 for human review; an already-current or superseded target produces an evidenced
 no-upgrade outcome instead.
@@ -28,7 +31,7 @@ This capability rests on the [Principles](../../Ways-of-Working/Principles/index
 
 ## Applicability
 
-Two shapes occur; both are the same mechanism with a different artifact:
+Two dependency patterns use the same mechanism with different artifacts:
 
 | Shape | Producer | Dependent | What the PR changes |
 | --- | --- | --- | --- |
@@ -50,7 +53,12 @@ Two shapes occur; both are the same mechanism with a different artifact:
   record MUST remain recoverable without allowing embedded instructions to
   change the task's scope, permissions, secret handling, or review/validation
   gates. An unsafe evidence boundary MUST block affected delegation.
-- **A pull request per needed upgrade, opened by an agent.** The mechanical work — the bump plus the fixes that make it work — is delegated to a cloud agent *in the dependent*, which opens the pull request when qualification establishes an actual upgrade. **How** the agent is engaged is a design choice, not a requirement: the spec requires delegation and a pull request for the repository change, not a particular delegation mechanism.
+- **A pull request per needed upgrade, opened by an agent.** The automation
+  delegates the version update and required related fixes to a cloud agent *in
+  the dependent*. When qualification establishes an actual upgrade, the agent
+  opens the pull request. **How** the agent is engaged remains a design choice.
+  The spec requires delegation and a pull request for the repository change,
+  not a particular delegation mechanism.
 - **A delivery leaf before the pull request.** The dependent MUST create or reuse
   a Task or Bug for the producer version before the agent opens its pull request.
   The leaf carries the executable local plan and acceptance criteria required by
@@ -67,7 +75,10 @@ Two shapes occur; both are the same mechanism with a different artifact:
   validation MUST leave affected work blocked with an owning issue. Larger
   or riskier required work MUST NOT be treated as an optional follow-up to an
   otherwise ready reference bump.
-- **Backfill on demand.** Propagation MUST be re-runnable for a specific release — for a missed event, or a dependent added after the release. Backfill uses the same idempotency, so re-running for an already-propagated dependent is a no-op rather than a duplicate.
+- **Backfill on demand.** Propagation MUST be re-runnable for a specific release.
+  This covers a missed event or a dependent added after the release.
+  Backfill uses the same idempotency.
+  Re-running for an already-propagated dependent is a no-op, not a duplicate.
 - **A fixed target, not an implicit downgrade.** A delayed notification or
   backfill MUST retain its selected target rather than substitute the newest
   release. If it is no longer an upgrade from the consumer's actual baseline,
@@ -94,7 +105,7 @@ Two shapes occur; both are the same mechanism with a different artifact:
 - An `idle` task retains its execution identity, and a `waiting_for_user` task
   remains blocked until an authorized response reaches that same task; neither
   state creates a replacement task.
-- A dependent added after a release can be back-filled without cutting a new release.
+- A dependent added after a release can receive backfill without another release.
 - A dependent that skipped releases carries complete applicable range evidence,
   reconciled actions, and immutable target-template evidence or a justified
   no-template result; a missing required fact blocks readiness.

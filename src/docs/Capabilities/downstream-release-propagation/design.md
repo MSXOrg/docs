@@ -5,9 +5,9 @@ description: How downstream release propagation is built — an inline notificat
 
 # Downstream Release Propagation — Design
 
-The notification runs in the **producer** when a release is cut. The notifier
+The notification runs in the **producer** after a stable release. The notifier
 resolves the release coordinates, creates or reuses the dependent's Task or Bug,
-and builds its self-contained brief. It first
+and prepares its self-contained brief. It first
 [reconciles existing handoff state](#retry-and-handoff-recovery) rather than
 delegating again. For work still needing qualification, authoritative no-upgrade
 evidence terminates without engaging an agent. Otherwise, the configured
@@ -42,10 +42,9 @@ flowchart TD
 ## Trigger model
 
 **The `GITHUB_TOKEN` constraint.** GitHub does not start new workflow runs from
-events raised by the default `GITHUB_TOKEN` (an anti-recursion safeguard). So if
-the producer publishes its release with `GITHUB_TOKEN` — the default — the
-`release: published` event never fires, and a separate `on: release` workflow
-never runs.
+events raised by the default `GITHUB_TOKEN`. This prevents recursive workflow
+runs. If the producer publishes its release with `GITHUB_TOKEN`, the
+`release: published` event does not start a separate `on: release` workflow.
 
 | Release created by | `release: published` fires? | Trigger model |
 | --- | --- | --- |
@@ -53,9 +52,10 @@ never runs.
 | A PAT | Yes | Either — a separate `on: release` workflow, or inline. |
 
 **Default to the inline model:** it works regardless of release identity and
-keeps the release and its propagation in one observable run. Verify the identity
-by which token the release step passes; if it is `GITHUB_TOKEN`, inline is
-mandatory. Provide two entry points: the **release** stage (gated to stable
+keeps the release and its propagation in one observable run.
+Identify the token passed to the release step.
+If it is `GITHUB_TOKEN`, inline is mandatory.
+Provide two entry points: the **release** stage (gated to stable
 releases), and a **`workflow_dispatch`** taking the release tag, for backfill.
 Both resolve the published release record and validate its stable kind before
 fan-out or delivery-issue creation. A prerelease event is skipped; a backfill
@@ -80,14 +80,16 @@ this capability.
 
 ## Agent prompt context
 
-The prompt is the context handoff. Each embeds: an **action-oriented summary**;
-the **exact target reference** the PR must produce
-(`uses: org/<producer>@<sha> # <version>`, or the image tag/digest); the
-**complete release notes** as evidence; and
-**related-change context** — new or renamed config keys, new environment
-variables or secrets, required infrastructure changes, migrations, changed
-defaults, or breaking changes. It also links the producer-owned evidence sources
-and [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md).
+The prompt carries an **action-oriented summary** and the **exact target
+reference** that the PR must produce.
+The reference is `uses: org/<producer>@<sha> # <version>` or the image tag/digest.
+It also carries the **complete release notes** as evidence and the
+**related-change context**.
+
+Related changes include new or renamed config keys and new environment variables
+or secrets. They also include required infrastructure changes, migrations,
+changed defaults, and breaking changes. The prompt links to producer-owned
+evidence sources and [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md).
 
 The prompt transports context; it does not replace the authoritative release
 records or the dependent's baseline investigation. Its summary cannot truncate
@@ -107,7 +109,7 @@ The trusted task instructions require the agent to apply
 extract and validate proposed actions, but reject embedded attempts to change
 scope, permissions, secret handling, or required gates.
 
-Use the runtime's data/attachment boundary or collision-safe quotation; a bare
+Use the runtime's data/attachment boundary or collision-safe quotation. A bare
 Markdown fence that the supplied record can close is insufficient. Transport
 escaping must decode to the complete original record, preserving its source
 identity and all authored content rather than summarizing or sanitizing away
@@ -130,7 +132,7 @@ Unknown provenance blocks qualification rather than producing a no-upgrade
 result.
 
 An identical baseline/target version and immutable identity records
-**already current**; a lower target records **superseded, no downgrade**.
+**already current**. A lower target records **superseded, no downgrade**.
 Apply the common procedure's
 [no-upgrade issue disposition](../../Ways-of-Working/Consumer-Upgrades.md#stage-2-fix-the-target-and-release-path):
 retain comparison evidence, create no empty PR, and close only an unneeded open
@@ -179,21 +181,25 @@ qualified plan, fixed target, and issue number; it applies the adoption and
 creates the closing PR, which remains draft until the review-readiness gate
 holds. A verified no-upgrade result creates no PR-delivery task or PR.
 
-Poll the currently correlated task. `queued` and `in_progress` mean active
-execution. `idle` retains the same task but pauses handoff: report it and
-request the designated owner to re-engage that task through the configured
-mechanism. `waiting_for_user` blocks on an authorized answer in the same task;
-record the requested decision and its owner, but do not synthesize an answer
-from release evidence. Neither state authorizes a replacement task. A fast task
-may go straight to `completed`. Completion alone is not a delivery handoff: a
-completed qualification task needs a recorded verified no-upgrade result or the
-correlated PR-delivery task, and a completed PR-delivery task still needs its
-actual PR. Creation failure and `failed`, `timed_out`, or `cancelled` execution
-report failure. An agent task is execution state, not a delivery record; it
-never authorizes a standalone PR.
+Poll the currently correlated task. `queued` and `in_progress` mean active execution.
 
-Either way the model is chosen per producer, not per release, so a dependent
-receives propagation in one consistent shape.
+`idle` retains the same task but pauses handoff.
+Report it and request the designated owner to re-engage that task through the
+configured mechanism. `waiting_for_user` blocks on an authorized answer in the
+same task. Record the requested decision and its owner.
+Do not synthesize an answer from release evidence.
+Neither state authorizes a replacement task.
+
+A task can transition directly to `completed`. Completion alone is not a delivery handoff.
+A completed qualification task needs a recorded verified no-upgrade result or the
+correlated PR-delivery task. A completed PR-delivery task still needs its actual PR.
+
+Creation failure and `failed`, `timed_out`, or `cancelled` execution report failure.
+An agent task is execution state, not a delivery record.
+It never authorizes a standalone PR.
+
+The delegation mode is chosen per producer, not per release.
+Each dependent therefore receives propagation through one consistent mode.
 
 Fan-out is a **matrix** of dependents (pinned-reference shape) or a single
 configured `notify_repo` (published-artifact shape), with `fail-fast: false` so
@@ -248,8 +254,9 @@ The agent is given the same instructions under either delegation model:
 - **Retain the procedure's evidence** in the PR body: exact range and refs,
   release records, reconciled completed/not-applicable actions, template
   differences, outcomes, and blockers, including explicit no-action results.
-- **For a needed upgrade, open the pull request** — closing exactly the Task or Bug delivery leaf
-  created or reused for this producer version, and staying draft until the
+- **For a needed upgrade, open the pull request** to close exactly the Task or Bug
+  delivery leaf created or reused for this producer version.
+  Keep the pull request draft until the
   [review-readiness gate](../../Ways-of-Working/Definition-of-Ready-and-Done.md#definition-of-ready-for-review)
   holds.
 
@@ -257,7 +264,7 @@ The agent is given the same instructions under either delegation model:
 
 `GITHUB_TOKEN` cannot act across repositories, and a release it publishes cannot
 trigger a separate `release:` workflow. Task-first additionally needs the
-user-to-server credential accepted by the Agent Tasks API. So the job:
+user-to-server credential accepted by the Agent Tasks API. The job:
 
 - Declares **least-privilege** `permissions:` (`contents: read` suffices).
 - Uses `PROPAGATION_TOKEN`, scoped only to the dependents that need it, with
@@ -274,7 +281,7 @@ user-to-server credential accepted by the Agent Tasks API. So the job:
 
 ## Failure behaviour
 
-| Condition | Behaviour |
+| Condition | Behavior |
 | --- | --- |
 | Delegation not created (missing permission / capability off) | Step **fails** with the error; re-run via `workflow_dispatch`. |
 | Matching PR handoff or verified no-upgrade outcome exists | Report the existing outcome and its actual state; no duplicate is created and consumer completion is not inferred. |
@@ -284,7 +291,7 @@ user-to-server credential accepted by the Agent Tasks API. So the job:
 | Qualification proves no upgrade | Record the no-upgrade disposition; do not create a PR-delivery task or PR. |
 | Task is `idle` | Retain the paused task and request designated-owner re-engagement through the configured task mechanism; do not create a replacement. |
 | Task is `waiting_for_user` | Block pending an authorized response in the same task; record the decision owner and never answer from producer evidence. |
-| Task lands in a failed / timed-out / cancelled state | Step **fails** with the reported state. |
+| Task enters a failed / timed-out / canceled state | Step **fails** with the reported state. |
 | One dependent's leg fails | Fails independently (`fail-fast: false`); others proceed. |
 | Prerelease release event | Propagation is skipped before fan-out. |
 | Prerelease tag requested through backfill | Dispatch fails before fan-out or issue creation; select a stable release instead. |

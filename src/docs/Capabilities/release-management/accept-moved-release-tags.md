@@ -5,9 +5,9 @@ description: Refresh an owned moving release alias locally and configure Git to 
 
 # Accept moved release tags
 
-Use this guide when an MSX-owned producer intentionally publishes a moving Git
-tag such as `v3` or `v3.4` and your local clone still resolves it to an older
-release.
+Use this guide for an MSX-owned producer's intentionally moving Git tag, such as
+`v3` or `v3.4`. Refresh the tag when your local clone still resolves it to an
+older release.
 
 Do not use this procedure for exact version tags such as `v3.4.2`. Exact version
 tags are immutable. A moved exact tag is a producer integrity incident, not a
@@ -43,10 +43,11 @@ git bundle create owned-tags-backup.bundle --tags
 git bundle verify owned-tags-backup.bundle
 ```
 
-Keep that backup private and outside checked-in paths. Pruning removes local tags
-that do not exist on the selected remote, and force permits that remote's tag
-values to replace local values. Confirm that `origin` is the intended trusted
-producer and that no exact-version-tag integrity incident is being normalized.
+Keep that backup private and outside checked-in paths.
+Pruning removes local tags that do not exist on the selected remote.
+Force permits that remote's tag values to replace local values.
+Confirm that `origin` is the intended trusted producer.
+Do not use this procedure to accept a moved exact version tag.
 
 ```bash
 git fetch --tags --force --prune --prune-tags origin
@@ -54,7 +55,7 @@ git fetch --tags --force --prune --prune-tags origin
 
 This refreshes moved aliases and removes tags deleted from the configured
 `origin` remote. Review the fetch output before building or resolving a
-dependency; never let an implicit upstream choose the source of this refresh.
+dependency. Never let an implicit upstream choose the source of this refresh.
 
 ## Keep owned aliases current
 
