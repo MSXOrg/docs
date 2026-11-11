@@ -5,9 +5,9 @@ description: Cross-platform PowerShell 7 — the conventions shared by every scr
 
 # PowerShell
 
-How PowerShell is written across the ecosystem. PowerShell is the tool for operational automation — talking to platform APIs, orchestrating cross-platform tasks, and gluing tools together. The target is **PowerShell 7 LTS** (the cross-platform `pwsh`), leaning on PowerShell's advanced-function machinery rather than plain scripts.
+PowerShell is the tool for operational automation: platform API calls, cross-platform task orchestration, and tool integration. The target is **PowerShell 7 LTS**, the cross-platform `pwsh`. Use PowerShell's advanced-function features rather than plain scripts.
 
-This standard builds on the [language-agnostic baseline](../index.md); where the two overlap, the baseline rules apply and the conventions here add the PowerShell specifics. PowerShell is a heavily used language, so its standard **nests**: the shared conventions live on this page, and each construct — functions, classes, scripts — has its own page with the doc requirements, formatting, and section structure for that construct.
+This standard builds on the [language-agnostic baseline](../index.md). Where the two overlap, the baseline rules apply and this standard adds PowerShell-specific conventions. This page contains the shared conventions. Separate pages define documentation requirements, formatting, and section structure for functions, classes, and scripts.
 
 <!-- INDEX:START -->
 
@@ -25,12 +25,12 @@ This standard builds on the [language-agnostic baseline](../index.md); where the
 
 ## Tools and controllers
 
-PowerShell falls into two kinds, and the difference decides how a command shapes its output:
+PowerShell code uses two roles. The role determines the form of a command's output:
 
-- A **tool** is a reusable unit — an advanced function, usually exported from a module. It takes input only through parameters and emits **raw, least-manipulated objects**, so it stays usable in situations its author never imagined; a tool that measures a size returns bytes, not a rounded string.
-- A **controller** is a script that automates one process by calling tools. It may reshape, round, or format data for how it will be read, and it is not meant to be reused.
+- A **tool** is a reusable unit, usually an advanced function exported from a module. It accepts input only through parameters. It emits **raw, least-manipulated objects** so other callers can reuse the data. A tool that measures size returns bytes, not a rounded string.
+- A **controller** is a script that automates one process by calling tools. It may reshape, round, or format data for its readers. It is not intended for reuse.
 
-Keep the shaping at the edge: tools stay general and emit raw objects, and a controller — or a format view (`.format.ps1xml`) — turns those into presentation. This is the [thin script](Scripts.md) rule seen from the other side, and it is why tools [emit objects, not text](#shared-conventions).
+Keep presentation formatting in controllers. Tools emit raw objects; a controller or a format view (`.format.ps1xml`) converts them for display. This follows the [thin script](Scripts.md) rule and explains why tools [emit objects, not text](#shared-conventions).
 
 ## Shared conventions
 
@@ -39,22 +39,24 @@ These hold for all PowerShell, whatever the construct:
 - **`Verb-Noun` naming** with an approved verb (`Get-Verb`) and a singular noun: `Get-RepositorySecret`, not `Fetch-Secrets`.
 - **`PascalCase`** for functions, parameters, public variables, and class members; `camelCase` for local variables.
 - **Full cmdlet names, never aliases** (`Where-Object`, not `?`; `ForEach-Object`, not `%`).
-- **Full parameter names, and standard ones.** Pass parameters by name and avoid positional arguments in shared code — `Get-Process -Name pwsh`, not `Get-Process pwsh` — so a call survives parameter-set changes and reads clearly. Name your own parameters after PowerShell's built-ins (`Path`, `Name`, `ComputerName`), not `$Param_Computer`.
-- **Map data and integration verbs predictably.** Data modules use `ConvertFrom-` / `ConvertTo-` around a neutral PowerShell object shape, `Import-` / `Export-` for file or store round trips, and `Format-`, `Merge-`, `Compare-`, `Test-`, or `Remove-<Noun>Entry` for structure operations. API and integration modules name commands after the resource and intent, not the transport: map `GET` to `Get-`, create-style `POST` to `New-` / `Add-`, `PUT` / `PATCH` to `Set-` / `Update-`, `DELETE` to `Remove-`, and non-CRUD operations to the approved verb that matches the user intent.
+- **Full parameter names, and standard ones.** Pass parameters by name and avoid positional arguments in shared code: `Get-Process -Name pwsh`, not `Get-Process pwsh`. Named arguments keep the call clear and preserve its meaning across parameter-set changes. Name your own parameters after PowerShell's built-ins (`Path`, `Name`, `ComputerName`), not `$Param_Computer`.
+- **Map data and integration verbs predictably.** Data modules use `ConvertFrom-` / `ConvertTo-` with a neutral PowerShell object structure. Use `Import-` / `Export-` for file or store round trips. Use `Format-`, `Merge-`, `Compare-`, `Test-`, or `Remove-<Noun>Entry` for structure operations.
+
+  API and integration modules name commands after the resource and intent, not the transport. Map `GET` to `Get-`, create-style `POST` to `New-` / `Add-`, `PUT` / `PATCH` to `Set-` / `Update-`, and `DELETE` to `Remove-`. For non-CRUD operations, use the approved verb that matches the user intent.
 - **Set `$ErrorActionPreference = 'Stop'`** at the top of every script and module so errors are terminating, not silently swallowed.
-- **Emit objects, not formatted text.** Return rich objects and let the caller format; reserve `Write-Host` for genuine console UX, and use `Write-Verbose` / `Write-Information` for progress narration.
+- **Emit objects, not formatted text.** Return rich objects and let the caller format them. Reserve `Write-Host` for console user interfaces. Use `Write-Verbose` / `Write-Information` for progress messages.
 
 ## Formatting
 
-These rules define the layout; [PSScriptAnalyzer](#toolchain) enforces them (its settings are derived from this standard, not the reverse), so author to them and let the formatter apply them:
+These rules define the layout. [PSScriptAnalyzer](#toolchain) checks the configured rules; its settings derive from this standard, not the reverse. Write code to the rules and let the formatter apply them:
 
-- **One True Brace Style (OTBS).** Opening brace on the statement line, closing brace on its own line; always brace control blocks, even a single statement. No blank line straight after `{` or before `}`, and `else` / `elseif` / `catch` / `finally` sit on the line with the preceding closing brace.
+- **One True Brace Style (OTBS).** Put the opening brace on the statement line and the closing brace on its own line. Always brace control blocks, even a single statement. Do not put a blank line directly after `{` or before `}`. Put `else` / `elseif` / `catch` / `finally` on the line with the preceding closing brace.
 - **Indent with four spaces, never tabs**, and indent comment-based help to align with the function it documents.
 - **One space around operators and after commas** (`$a -eq $b`, `@(1, 2, 3)`), and **one space between a type and the name** — `[string] $Name`, not `[string]$Name`.
 - **`elseif` is one word**, not `else if`.
 - **Use lowercase language keywords** (`if`, `else`, `foreach`, `class`, `enum`, `return`) and reserve PascalCase for commands and named symbols.
 - **Blank lines separate logical blocks.** No trailing whitespace, and end every file with a single newline.
-- **Keep code lines readable — aim for roughly 120 columns.** When a call grows long, prefer [splatting](#idioms-and-pitfalls) over backtick line-continuations.
+- **Keep code lines readable — aim for approximately 120 columns.** When a call grows long, prefer [splatting](#idioms-and-pitfalls) over backtick line-continuations.
 - **Avoid semicolons, ternary expressions, and regions in shared code.** Put one statement on each line, use ordinary `if` / `else` when a conditional value matters, and structure code with functions, modules, and headings rather than `#region` blocks.
 
 ## Idioms and pitfalls
@@ -62,23 +64,23 @@ These rules define the layout; [PSScriptAnalyzer](#toolchain) enforces them (its
 Beyond the basics, these language-specific habits keep PowerShell correct and fast:
 
 - **Single-quote strings unless you need expansion.** Use `'literal'` by default; reserve `"...$var..."` for interpolation or escape sequences, and here-strings (`@'...'@`, `@"..."@`) for multi-line text — literal-versus-interpolated intent then stays obvious.
-- **Splat calls that carry many parameters.** Build a `@{}` of parameters and splat it (`Get-Thing @params`) instead of a long line of `-Param value` pairs or backtick continuations; it reads better and diffs cleanly.
+- **Splat calls that carry many parameters.** Build a `@{}` of parameters and splat it (`Get-Thing @params`) instead of a long line of `-Param value` pairs or backtick continuations. This makes parameters easier to read and compare in diffs.
 - **Put `$null` on the left of a comparison** — `$null -eq $x`, never `$x -eq $null`. Against a collection the right-hand form *filters* rather than tests. Use `-contains` / `-in` for membership, never `-eq`.
-- **Match text with the operator built for it.** Use `-like` for wildcard patterns and `-match` for regular expressions instead of hand-rolled string surgery; both default to case-insensitive, so add the `-c` prefix (`-clike`, `-cmatch`, `-ceq`) when a comparison must be case-sensitive.
+- **Match text with the operator for the pattern.** Use `-like` for wildcard patterns and `-match` for regular expressions instead of custom string manipulation. Both default to case-insensitive comparisons. Add the `-c` prefix (`-clike`, `-cmatch`, `-ceq`) when a comparison must be case-sensitive.
 - **Use the built-in intent checks for strings and wildcards.** Use `[string]::IsNullOrWhiteSpace($value)` for blank input and `[System.Management.Automation.WildcardPattern]::ContainsWildcardCharacters($pattern)` when deciding whether a value contains wildcard syntax.
-- **Prefer owned code over third-party dependencies in modules.** For a shipped module, exhaust PowerShell itself, the .NET base class library, and already-owned code before adding an external module, DLL, or package. A third-party dependency is a long-term trust and maintenance commitment, so take it only when the capability is large enough or specialized enough that owning it is the worse trade.
-- **Reuse before you build.** Work down the [reuse order](../Functions.md#reuse-before-you-build) inside the controlled code — a built-in cmdlet or operator, then an existing function (public or private), then shared owned code, then new code. Reach for a trusted external module (`#Requires -Modules` / `RequiredModules`) only after that bar is cleared, and state its acceptable versions as a [version range](Version-Constraints.md).
-- **PowerShell already *is* .NET; work at that level rather than wrapping it.** Casts, type accelerators (`[datetime]`, `[int]`), the `-split` / `-replace` / `-match` operators, and member methods (`.Trim()`, `.Where()`) all resolve to the base class library — using .NET means reaching for BCL types and methods for the computation, not restating everything as `[Namespace.Type]::Method(...)`. Where idiomatic PowerShell already resolves to the same .NET call, leave it; reach for explicit .NET only where it is measurably faster or more precise, and keep cmdlets and the pipeline where you need them for glue or readability.
+- **Prefer owned code over third-party dependencies in modules.** For a shipped module, exhaust PowerShell itself, the .NET base class library, and already-owned code before adding an external module, DLL, or package. A third-party dependency requires long-term trust and maintenance. Add it only when the capability's size or specialization makes an owned implementation less appropriate.
+- **Reuse before you build.** Follow the [reuse order](../Functions.md#reuse-before-you-build) within controlled code: a built-in cmdlet or operator, an existing function (public or private), shared owned code, then new code. Use a trusted external module (`#Requires -Modules` / `RequiredModules`) only after evaluating those options and the ownership trade-off above. State its acceptable versions as a [version range](Version-Constraints.md).
+- **Use PowerShell's .NET integration directly.** Casts, type accelerators (`[datetime]`, `[int]`), the `-split` / `-replace` / `-match` operators, and member methods (`.Trim()`, `.Where()`) all resolve to the base class library. Use BCL types and methods for computation rather than rewriting every operation as `[Namespace.Type]::Method(...)`. Keep idiomatic PowerShell when it resolves to the same .NET call. Use explicit .NET only when it is measurably faster or more precise. Keep cmdlets and the pipeline for integration or readability.
 - **Do the work in .NET when you implement it.** When you write the logic yourself — or fix an internal function that is too slow or imprecise on a hot path — call the .NET base class library directly instead of a cmdlet pipeline: `[System.IO.File]::ReadAllText($path)` over `Get-Content -Raw`, `[System.IO.Path]::Combine(...)` for paths, `[System.Text.StringBuilder]` for repeated concatenation, `[int]::TryParse(...)` for parsing. .NET methods are faster and their contracts are precise; keep cmdlets where their clarity is worth more than the speed. The next two rules are specific cases.
 - **Suppress unwanted output with `$null = ...`** (or `[void]` for method calls), not `| Out-Null` — the pipeline form is markedly slower on hot paths.
 - **Build collections with a typed list, not `+=` in a loop.** `$a += $x` reallocates the whole array every iteration; use `[System.Collections.Generic.List[T]]` with `.Add()`, and prefer a cmdlet's `-Filter` over piping to `Where-Object` on large sets.
-- **Guard a value that must not change.** Declare it with `Set-Variable -Name Pi -Value 3.14159 -Option ReadOnly` — or `-Option Constant` for one that can never be reassigned or removed — so an accidental write fails loudly instead of quietly winning.
+- **Guard a value that must not change.** Declare it with `Set-Variable -Name Pi -Value 3.14159 -Option ReadOnly`, or `-Option Constant` for one that can never be reassigned or removed. An accidental write then fails instead of changing the value.
 - **Keep secrets out of source, and never `Invoke-Expression` untrusted input.** Accept credentials as a `[PSCredential]` parameter with the `[Credential()]` attribute rather than calling `Get-Credential` inside a reusable function, so a caller can pass one they already hold, and take other sensitive values as `[securestring]`. Guard state-changing commands with `ShouldProcess` (see [Functions](Functions.md)); the wider rules live in the [Security](../Security.md) baseline.
-- **Read cross-platform environment values through .NET when the provider is not the point.** Prefer `[Environment]::GetEnvironmentVariable('NAME')` for process environment reads that should behave the same on every platform; use `$env:NAME` when you are intentionally working through the PowerShell environment provider.
+- **Read cross-platform environment values through .NET when provider behavior is not required.** Prefer `[Environment]::GetEnvironmentVariable('NAME')` for process environment reads that should behave the same on every platform. Use `$env:NAME` when you specifically need the PowerShell environment provider.
 
 ## Toolchain
 
-The toolchain enforces this standard in CI — it does not define it. The rules above are the source of truth; each tool's configuration is derived from them:
+The toolchain checks this standard in CI; it does not define it. The rules above are the source of truth. Tool configurations derive from them:
 
-- **[PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer)** is the linter and formatter; its settings are derived from this standard, so passing it cleanly means matching the standard. Let it format — do not hand-format.
+- **[PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer)** is the linter and formatter. Its settings derive from this standard. Use the formatter rather than formatting code by hand.
 - **[Pester](https://pester.dev/)** is the test framework; test files are named `*.Tests.ps1`. See [PowerShell Testing](Testing.md) for module test layouts.
