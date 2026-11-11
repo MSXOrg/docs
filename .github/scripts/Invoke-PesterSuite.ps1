@@ -3,22 +3,22 @@
 
 <#
 .SYNOPSIS
-    Run every Pester suite in the repository and gate the pull request on the result.
+    Run every Pester suite in the repository and report the result.
 
 .DESCRIPTION
-    Resolves the pinned Pester version, discovers every '*.Tests.ps1' file beneath the
-    suite directory, runs them all in one Pester session, and reports the result three
-    ways: a grouped console log, per-test error annotations from Pester's GitHub Actions
-    CI format, and a Markdown table on the job summary.
+    The script discovers every '*.Tests.ps1' file beneath the suite directory.
+    It runs the suites in one Pester session.
+    The console log groups the run output.
+    Pester reports per-test errors as GitHub Actions annotations.
+    If GITHUB_STEP_SUMMARY is set, the script appends a Markdown summary table.
 
-    The script exits 1 when a test fails, when a suite fails to run at all, or when
-    discovery finds no test file — a run that silently discovers nothing is green and
-    worthless, so it is treated as a failure. It exits 0 only when every discovered test
-    passed, which is what makes it usable as a merge gate.
+    The script exits 1 if it finds no test files or the suites contain no tests.
+    It also exits 1 if a test fails or a suite cannot run.
+    It exits 0 when Pester reports 'Passed' and no suite fails to run.
 
-    Pester is pinned to an exact version and verified by module GUID. A CI pipeline is an
-    end artifact, so it pins to an exact resolved version for reproducibility rather than
-    to the range the suites themselves declare; see the Dependencies coding standard.
+    The script uses an exact Pester version and verifies the imported module GUID.
+    CI pins an exact version for reproducibility, while the suites declare an allowed version range.
+    The Dependencies coding standard explains this distinction.
 
 .EXAMPLE
     ./Invoke-PesterSuite.ps1
@@ -34,27 +34,27 @@
     You can't pipe objects to Invoke-PesterSuite.ps1.
 
 .OUTPUTS
-    None
+    System.String
 
-    The script reports through the console log, annotations, the job summary, and its
-    exit code.
+    Log text and GitHub Actions workflow commands, not structured test results.
+    The job summary is a file write, and the exit code reports the run result.
 
 .LINK
     https://msxorg.github.io/docs/Coding-Standards/GitHub-Actions/
 #>
 [CmdletBinding()]
 param(
-    # Directory holding the Pester suites. Every '*.Tests.ps1' beneath it is run.
+    # Directory that contains the suites. The script runs every '*.Tests.ps1' file beneath it.
     [Parameter()]
     [string] $Path = (Join-Path (Split-Path -Parent (Split-Path -Parent $PSScriptRoot)) 'tests'),
 
-    # Exact Pester version to run with, so a new release cannot turn an untouched pull
-    # request red. Keep it inside the range the suites' '#Requires' lines declare.
+    # Exact Pester version for reproducible runs. Keep it within the version range
+    # that the suites' '#Requires' lines declare.
     [Parameter()]
     [string] $RequiredVersion = '6.0.1',
 
-    # Pester's module GUID — the identity half of the pin, checked after import so a
-    # name-squatted module cannot satisfy the version.
+    # Expected Pester module GUID. The script verifies this identity after import.
+    # A matching name and version do not establish module identity.
     [Parameter()]
     [guid] $ModuleGuid = 'a699dea5-2c73-4616-a270-1f7abb777e71'
 )
@@ -65,12 +65,12 @@ $ErrorActionPreference = 'Stop'
 function Write-WorkflowAnnotation {
     <#
         .SYNOPSIS
-        Emit a GitHub Actions annotation that renders above the collapsed log.
+        Emit a GitHub Actions notice, warning, or error annotation.
 
         .DESCRIPTION
-        Writes a '::notice::', '::warning::', or '::error::' workflow command with the
-        dynamic parts percent-encoded, so a value carrying '%', a newline, a colon, or a
-        comma cannot corrupt or break out of the single-line command.
+        The function writes a '::notice::', '::warning::', or '::error::' workflow command.
+        It percent-encodes '%' and line breaks in the title and message.
+        It also encodes ':' and ',' in the title to preserve the command properties.
 
         .EXAMPLE
         Write-WorkflowAnnotation -Type notice -Title 'Test' -Message '45 tests passed'
@@ -81,12 +81,12 @@ function Write-WorkflowAnnotation {
     #>
     [CmdletBinding()]
     param(
-        # Annotation severity, which decides how GitHub renders it.
+        # Annotation severity, which controls how GitHub displays it.
         [Parameter(Mandatory)]
         [ValidateSet('notice', 'warning', 'error')]
         [string] $Type,
 
-        # Short headline shown in bold on the annotation.
+        # Short title that GitHub shows in bold on the annotation.
         [Parameter(Mandatory)]
         [string] $Title,
 
@@ -103,12 +103,12 @@ function Write-WorkflowAnnotation {
 function Get-PesterSummaryMarkdown {
     <#
         .SYNOPSIS
-        Render a Pester run as the Markdown written to the job summary.
+        Create the Markdown summary for a Pester run.
 
         .DESCRIPTION
-        Builds a verdict heading and one table row per suite, so a reader sees which
-        suites ran and how many tests each contributed without expanding the raw log.
-        Failed tests are listed underneath in a block that stays closed until opened.
+        The summary contains a result heading and one table row per suite.
+        Each row shows test counts and duration.
+        A collapsed block lists failed tests.
 
         .EXAMPLE
         Get-PesterSummaryMarkdown -Result $result -SuiteRoot ./tests
@@ -123,7 +123,7 @@ function Get-PesterSummaryMarkdown {
         [Parameter(Mandatory)]
         [psobject] $Result,
 
-        # Directory the suite paths are shown relative to.
+        # Base directory for the relative suite paths in the summary.
         [Parameter(Mandatory)]
         [string] $SuiteRoot
     )
