@@ -5,9 +5,9 @@ description: The foundational beliefs and product mindset behind every decision.
 
 # Principles
 
-The ideas underneath how work happens — between people, and between people and their agents. These are evergreen; every other layer refers back to them.
+These principles guide work between people and agents. They remain stable as products and practices change.
 
-Principles are grouped by theme; each theme is its own page so an agent can load only the one it needs. Start here, then follow the theme that fits the task.
+Each theme has a separate page so a reader or agent can load only the relevant principles. Use the index to select a theme for the task.
 
 <!-- INDEX:START -->
 
@@ -24,13 +24,13 @@ Principles are grouped by theme; each theme is its own page so an agent can load
 
 ## Why these principles matter
 
-These are the assumptions every other decision rests on. When behaviour is unclear or contested, the answer comes from here. When something here turns out to be wrong, this page changes — not one agent, one repository, or one review.
+These principles supply shared assumptions when behavior is unclear or contested. A correction belongs in the owning principle, not in an isolated agent, repository, or review.
 
 ## What a principle is
 
-A principle is a belief that holds across every capability, repository, and runtime. It states a position, not a procedure: it says what is always true, and leaves to a standard or a specification the question of how that is achieved in one place.
+A principle states a belief that applies across every capability, repository, and runtime. It states a position rather than a procedure. Standards and specifications describe how to apply that position in a specific context.
 
-A principle MUST be true of work that has not been imagined yet. A rule that only makes sense for one capability, one language, or one tool is not a principle — it belongs in the standard or specification that owns that ground. This is the test that keeps this layer small: if a statement would need editing when a new product is added, it was never a principle.
+A principle MUST be true of work that has not been imagined yet. A rule for one capability, language, or tool belongs in its standard or specification. Adding a product does not require a principle to change.
 
 ## Principles do not link down
 
@@ -40,13 +40,13 @@ Every layer below this one conforms to these principles and MUST NOT restate the
 - A principle **does not link down** in normative prose to the standard,
   capability, or product that applies it.
 
-The asymmetry is deliberate. A principle that names the things that currently implement it acquires a maintenance burden it cannot carry: every new capability becomes an edit here, and every retired one leaves a dangling claim. Keeping references one-directional means this layer stays stable while everything beneath it moves.
+A principle that lists its implementations requires an edit whenever a capability is added or retired. One-directional references let implementations change without changing the principle.
 
 The generated index and other navigation links are allowed to list their direct
 children: they help a reader find a page and do not claim that a child implements
 or governs its parent. The prohibition applies to normative dependency links,
 which would couple a stable principle to the changing things that apply it.
 
-The consequence for a reader is that this layer answers *why*, and never enumerates *where*. To find what applies a principle, read the layer that claims it — the standard or specification says which principle it conforms to, so the relationship is discoverable from below without being duplicated above.
+This layer explains *why* a principle applies. Standards and specifications identify the principles they follow. Readers discover those relationships from the applying layer instead of a duplicate list here.
 
-A principle MAY name another principle. Cross-references inside this layer are horizontal, not downward, and do not create the coupling this rule exists to prevent.
+A principle MAY name another principle. References between principles are horizontal and do not create a dependency on an implementation.

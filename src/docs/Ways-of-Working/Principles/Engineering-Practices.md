@@ -7,21 +7,21 @@ description: Write it down, everything as code, evergreen documentation, test-dr
 
 ## Write it down
 
-If something is only in your head:
+Knowledge held only in personal memory has three limitations:
 
-- Nobody else can work with you on it.
-- You cannot reflect on it.
-- It can escape you and be lost.
+- Other people cannot review it.
+- It is not available for shared reflection.
+- People can forget it.
 
-**Write it down.** Issues, decisions, plans, READMEs. Writing is how knowledge becomes shared and how agents can help.
+**Write it down.** Record knowledge in issues, decisions, plans, and READMEs. Shared records let people and agents review, discuss, and act on that knowledge.
 
 ## Everything as code
 
-Everything — workflows, configuration, infrastructure, processes, pointer files, even the docs you are reading — lives in source control. This is the bedrock of human-agent interaction. An agent can read code, change code, propose code. It cannot read what's only in someone's memory.
+Everything lives in source control, including workflows, configuration, infrastructure, processes, pointer files, and documentation. Source control gives people and agents a shared record to read, change, and review. An agent cannot read information held only in someone's memory.
 
 ## Code in code files
 
-Code lives in a file of its own language — not embedded as a string inside YAML, JSON, a heredoc, or a template. Code in its own file gets the full benefit of tooling: linting, formatting, type-checking, security scanning, tests, and editor support. The same code inlined into another format gets none of it.
+Code lives in a file of its own language — not embedded as a string inside YAML, JSON, a heredoc, or a template. Native code files support linting, formatting, type-checking, security scanning, tests, and editor features. Embedding code in another format hides it from tools that expect native source files.
 
 - When one language must invoke another, call out to a script file rather than inlining the script. A workflow step runs a checked-in script; it does not carry a shell program inside a YAML string.
 - Keep the host format declarative. Configuration declares *what*; the implementation it points to holds the *how*.
@@ -33,25 +33,27 @@ Code lives in a file of its own language — not embedded as a string inside YAM
 - Workflow guidance lives in the org-level docs (this site).
 - Decisions live in the issue that produced them.
 
-Distance between a thing and its documentation is the rate at which they drift apart.
+Documentation becomes harder to keep aligned when it is separate from the thing it describes.
 
 ## Evergreen documentation
 
-Documentation describes the system as it **is**, in the present tense — not the history of how it got there. A reader (human or agent) should be able to trust any page as the current truth without knowing what changed or when.
+Documentation states the **supported target state** in the present tense. Readers use it as the contract without reconstructing change history.
 
-- Write the intended state as if it already exists. Cut hedging, status notes, and future or past framing of the work itself.
+- Write the intended state as if it already exists. Remove hedging, status notes, and future or past framing of the work itself.
 - Describe behavior and intent, not the process of building them. A pull request that adds a capability documents the capability, not the act of adding it.
 - Keep task lists, TODOs, and change history in issues and pull requests — not in evergreen docs.
 - Define a thing by what it is, not by contrast with an abandoned alternative. Lead with the positive fact.
 - When something changes, edit the document in place so it stays current. Git history records what changed; the document records what is.
 
-This governs this site, every README, and every specification — and it is why a pull request description states what the change *contributes*, not the steps taken to produce it.
+A documented target-state contract is not evidence that implementation or enforcement exists.
+
+This applies to this site, every README, and every specification. A pull request description explains the result rather than the steps used to produce it.
 
 ## Intent is the source of truth
 
-The documented intent that lives in the default branch — the specs, the docs, the issue descriptions — is the source of truth for what the system is meant to be. The implementation is a *representation* of that intent: the running code is what the system currently is, not necessarily what it should be.
+The documented intent is the source of truth for what the system is meant to be. It is recorded in default-branch specs and docs, and in issue descriptions. Implementation represents that intent. Running code shows actual behavior, not necessarily desired behavior.
 
-Either can be wrong. The intent may be mistaken, stale, or unclear; the implementation may have drifted from a correct intent. So when the two disagree, do not assume which is at fault — **diagnose it**: is the intent wrong (fix the doc, spec, or issue), or is the implementation wrong (fix the code)? Update whichever is wrong so the two converge again. A mismatch is a signal to reconcile, not a reason to silently trust the code or blindly rewrite the doc.
+Either intent or implementation can be wrong. When they disagree, **diagnose it** rather than assuming which is correct. If the intent is wrong, correct the doc, spec, or issue. If the implementation is wrong, correct the code. Reconcile the mismatch instead of silently trusting the code or rewriting the intent to match it.
 
 ## Test-driven development
 
@@ -59,7 +61,7 @@ Define the tests when you define the behavior. Update them when behavior changes
 
 ## Shift Left
 
-Move quality gates as early as possible in the development cycle. The later a problem is caught, the more expensive it is to fix — a failing test in the editor is free; a bug in production is not. Design solutions so that validation happens at the earliest possible moment, not as an afterthought.
+Move quality gates as early as possible in the development cycle. Earlier validation limits the work affected by a defect. Design solutions so validation occurs at the earliest possible point.
 
 ### Testable locally
 
@@ -67,38 +69,38 @@ Keep a fast local inner loop so a developer or agent can reason about behavior i
 
 ### Pre-commit hooks
 
-Validation that runs automatically on `git commit` — before the change enters history and before a PR is opened. Pre-commit hooks close the gap between "it can be tested locally by choice" and "it is always checked before it leaves the machine."
+Pre-commit hooks run validation on `git commit`, before the change enters history or a PR opens. Hooks make selected checks automatic instead of relying on the contributor to run them.
 
-Typical gates: linting, formatting, static analysis, secret scanning, and fast unit tests. Keep them fast enough to not interrupt flow — if a hook takes more than a few seconds, it will be bypassed.
+Typical gates include linting, formatting, static analysis, secret scanning, and fast unit tests. Keep them fast enough to avoid interrupting work. Slow hooks encourage bypass.
 
 ### Validatable in PRs
 
 Every pull request must trigger automated checks that verify correctness before a human review begins. Tests, linting, module analysis, or any other relevant gate must run in CI on each PR.
 
-A solution without PR validation shifts the cost of catching regressions onto reviewers — and reviewers miss things. Automation catches what humans don't, consistently and at no extra cost per PR.
+Automated checks find regressions before review. Reviewers remain responsible for assessing the change.
 
 ## Local testing for quick iterations
 
-Make it easy to build, test, and run locally. The inner loop is where most engineering time is spent — every second saved there compounds.
+Make it easy to build, test, and run locally. Short local feedback cycles reduce delays during implementation.
 
-Inner / outer loops to be aware of:
+Feedback cycles include:
 
 - **Innermost** — write code, save, see result. Sub-second.
 - **Inner** — run tests, see result. Seconds to a minute.
 - **Outer** — push, CI, review, merge. Minutes to hours.
 - **Outermost** — release, deploy, user feedback. Days to weeks.
 
-Push work as far inward as it can go.
+Run a check in the earliest cycle that can verify its result.
 
 ## 1-2-Automate
 
-If a thing has been done twice, the third time it is automated. Sometimes this is known in advance — go straight to automation. Extreme automation is often the right starting point.
+If a thing has been done twice, the third time it is automated. Start with automation when repetition is known in advance.
 
 ## Manage the fleet, not the repository
 
-A change that is correct for one repository is rarely needed by only one. Treat a group of repositories as a single managed population: the unit of change is the whole set that shares a property, not the individual member.
+A change for a class of repositories applies to the whole class, not only one member. Treat repositories that share a declared property as a single managed population.
 
-This follows from everything as code. If configuration, workflows, and policy are expressed as files, then applying a decision across many repositories is a mechanical operation rather than a manual round of visits — and the same mechanism can verify the result afterwards.
+Source-controlled configuration, workflows, and policy let one mechanism apply a decision and verify the result across many repositories.
 
 The obligations that follow:
 
@@ -108,10 +110,10 @@ The obligations that follow:
 - Drift is expected, not exceptional. Because a population changes underneath any decision, conformance is re-checked continuously and reconciled, rather than assumed to hold because it once did.
 - The scale of the population is a design input. A step that is acceptable once by hand is not acceptable when it repeats across every member.
 
-The intent is that the effort of a decision stays flat as the number of repositories grows. Where per-repository effort scales with the fleet, the mechanism is wrong.
+The goal is to keep manual effort independent of repository count. Per-repository manual work indicates that the mechanism needs improvement.
 
 ## DevOps and SRE
 
 > You build it, you run it.
 
-Everything is continuous — development, integration, delivery, operation. The same team owns the system across the loop. Build the systems, the practices, and the teams that internalize this.
+The same team owns development, integration, delivery, and operation as a continuous cycle. Create systems, practices, and teams that support this ownership.

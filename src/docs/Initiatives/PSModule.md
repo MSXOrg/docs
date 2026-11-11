@@ -5,14 +5,14 @@ description: The GitHub + PowerShell framework — reusable modules and the acti
 
 # PSModule
 
-**[PSModule](https://github.com/PSModule)** makes it *easy* to build, test, and ship PowerShell on GitHub — the fullest expression of the vision, end-to-end.
+**[PSModule](https://github.com/PSModule)** is a framework for PowerShell development and delivery on GitHub. It applies the vision across the module delivery lifecycle.
 
-It is two things at once:
+It provides:
 
-- **A module-building workflow** — GitHub Actions and reusable workflows that automate the whole PowerShell delivery lifecycle: build, test, version, and publish.
-- **The modules themselves** — a growing collection of reusable PowerShell modules built with that workflow.
+- **A module-building workflow** — GitHub Actions and reusable workflows that automate the complete PowerShell delivery lifecycle: build, test, version, and publish.
+- **The modules themselves** — reusable PowerShell modules built with that workflow.
 
-PSModule inherits the [Coding Standards](../Coding-Standards/index.md) and [Ways of Working](../Ways-of-Working/index.md) from this site and adds only what is specific to the framework. The end-to-end workflow that ships every module — [Process-PSModule](https://psmodule.io/Process-PSModule/) — is documented at its canonical site.
+PSModule inherits the [Coding Standards](../Coding-Standards/index.md) and [Ways of Working](../Ways-of-Working/index.md) from this site and adds only framework-specific guidance. The canonical documentation for [Process-PSModule](https://psmodule.io/Process-PSModule/) describes the end-to-end module delivery workflow.
 
 ## Target audience
 

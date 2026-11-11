@@ -15,23 +15,23 @@ description: SOLID, extensibility, smart defaults with local overrides, secure b
 
 ## Extensible by default
 
-Extend by adding, not by modifying what already works — the Open/Closed principle, applied beyond code to how the whole system grows. Ways of working and standards are the **stable core**; the tools that act on them — coding agents, runtimes, integrations — are **pluggable adapters** that slot in. Adding or swapping a tool means writing new pointers, not rewriting process knowledge.
+The Open/Closed principle applies beyond code. Ways of working and standards form the **stable core**. Tools such as coding agents, runtimes, and integrations are **pluggable adapters**. Adding or replacing a tool requires pointers to the process documentation, not copies of process knowledge.
 
-The system stays pluggable: the documentation does not change when a new agent runtime is added — only a new integration layer is written.
+A new agent runtime adds an integration layer without changing shared process documentation.
 
 ## API-first
 
-Expose a capability through a versioned API contract first. Every consumer — a web UI, a CLI, a script, another service, an agent — is a client of that contract, and none of them gets a privileged path around it.
+Expose a capability through a versioned API contract first. Every consumer is a client of that contract: a web UI, a CLI, a script, another service, or an agent. No client has a privileged path around it.
 
-Design the API before the consumers. Doing it in that order leaves one authoritative contract that many clients depend on, so a second or third consumer arrives without renegotiating anything and without coordinating through whichever client happened to be built first. Doing it the other way round hides the real interface inside a UI, and the next consumer either reimplements it or drives the UI as if it were an API.
+Design the API before the consumers. This gives clients one authoritative contract. Additional clients use that contract without coordinating through the first client. An interface hidden inside a UI forces later clients to reimplement it or automate the UI.
 
-Describe the contract explicitly — an OpenAPI document for an HTTP surface — and version it, so a consumer pins a compatible major version and absorbs additive changes without a coordinated release. A contract that is only implied by the code cannot be pinned, and every change to it is a surprise to somebody.
+Describe and version the contract explicitly, using an OpenAPI document for an HTTP surface. A consumer pins a compatible major version and accepts additive changes without a coordinated release. A contract implied only by code does not provide an explicit versioned interface.
 
-The corollary is a test for whether a design actually holds: if a feature is reachable only through one client, it is not part of the contract, and the contract is not the interface.
+A feature available only through one client does not satisfy the shared API contract.
 
 ## Smart defaults, local overrides
 
-The default is the smart, secure choice — what you would pick most of the time, and the safe option when unsure. A system with no configuration is already correct, safe, and useful out of the box. Configuration exists to *deviate* from a good default, never to reach a usable one.
+The default is the smart, secure choice for normal use and when the user has no reason to override it. A system with no configuration is correct, safe, and useful. Configuration expresses a deliberate deviation from the default, not a prerequisite for basic use.
 
 Set the default at the broadest scope, and let each narrower scope override it. The setting closest to the thing it controls wins:
 
@@ -42,33 +42,33 @@ org / ecosystem     the widest default — set once, inherited everywhere
         └── item    the last word — closest to what it configures
 ```
 
-This shape is chosen for manageability over the life of a system, and it earns two properties at once:
+This hierarchy supports two properties:
 
-- **Manageable across the wide.** Change the default in one place and everything that has not opted out follows. You set the norm once instead of finding and editing many copies of it.
-- **Flexible in the narrow.** Deviating is a small, local edit beside the item that needs it — not a fight with the system, and not a change that ripples outward. The exception lives with the thing it applies to.
+- **Manageable across the wide.** Change the default once. Items without a local override inherit it. No duplicate configuration needs manual editing.
+- **Flexible in the narrow.** A local edit defines the exception beside the item that needs it. It does not change the default for other items.
 
-Make the wide default easy to set and the local override easy to make. When the two disagree, the more specific one wins — predictably, by its position in the hierarchy, never by special-casing.
+Make the shared default and local override easy to set. When they differ, the more specific setting wins by its position in the hierarchy. Do not add special cases to change that order.
 
-This is easy-and-safe expressed as design: doing the right thing takes no effort because it is the default, and deviating is deliberate and contained because it is a local override. [Least-privilege](Purpose-and-Direction.md#least-privilege) and [secure by default](#secure-by-default) are this principle applied to permissions and security; the way knowledge cascades from belief to practice is its shape applied to documentation.
+The safe choice requires no extra setup because it is the default. A deliberate local override contains the exception. [Least-privilege](Purpose-and-Direction.md#least-privilege) and [secure by default](#secure-by-default) apply this principle to permissions and security. Documentation uses the same hierarchy to connect beliefs and practices.
 
 ## Secure by default
 
-The safe configuration is the one that requires no decision. Security is a property of the default, not a step someone remembers to take — anything that depends on being remembered will eventually be forgotten.
+The safe configuration requires no decision. Security is a default property, not an optional step that depends on memory.
 
-This follows from smart defaults with local overrides, applied to risk. Where a choice exists between a convenient default and a safe one, the safe option MUST be the default, and relaxing it MUST be explicit, local, and visible in review. A setting that is safe only when someone opts in is not a secure default; it is an unsafe default with documentation.
+This applies smart defaults with local overrides to risk. When a convenient default and a safe default differ, the safe option MUST be the default. Relaxing it MUST be explicit, local, and visible in review. Opt-in safety does not make an unsafe default secure.
 
 Concretely:
 
-- New surfaces start closed. Access, exposure, and permission are granted deliberately rather than removed after the fact.
+- New surfaces start closed. Grant access, exposure, and permission deliberately instead of removing them after the fact.
 - Secrets are never a fallback value. Absent configuration fails the operation rather than silently continuing with something weaker.
-- A relaxation is scoped to the thing that needs it and carries the reason with it, so it can be found and revisited.
-- Validation runs by default. Turning a check off is the exception that gets argued for, not the state a repository drifts into.
+- Scope a relaxation to the item that needs it. Record the reason beside it so reviewers can find and revisit it.
+- Validation runs by default. Disabling a check requires justification.
 
-The intent is that the path of least effort and the correct path are the same path. When they diverge, the default is wrong — not the person who followed it.
+The default makes the safe choice the easy choice. If a default leads to an incorrect action, correct the default rather than blaming the person who followed it.
 
 ## DRY — with judgment
 
-Don't Repeat Yourself, but **don't extract too early**. Wait until the same non-trivial logic appears in three or more places, or until the duplication is clearly load-bearing. Premature abstraction is more expensive than duplication.
+Don't Repeat Yourself, but **do not extract too early**. Wait until the same non-trivial logic appears in three or more places, or until duplication creates a clear maintenance risk. Premature abstraction adds maintenance costs before its need is clear.
 
 ## Clean Code
 
@@ -78,15 +78,15 @@ Write code that is understandable. Code is read more often than it is written. N
 
 ## Evolutionary design / architecture
 
-Don't decide what you don't yet know. Experiment, iterate, treat design as a product — not a fixed contract. Architecture earns its right to be permanent by surviving change.
+Do not fix a design before its unknowns are understood. Experiment and iterate. Treat design as an evolving product rather than a fixed contract. Retain architecture that continues to meet requirements as conditions change.
 
 ## Make change easy, then make the easy change
 
-When a change is hard, resist the temptation to force it. First, restructure the system so the change becomes easy — as a separate, focused step. Then make the change itself. This separates two concerns:
+When a change is difficult, first prepare the system in a separate, focused step. Then make the behavior change. Keep the two concerns separate:
 
-- **Prepare** — refactor, rename, extract, reorganise. No behaviour change.
-- **Change** — add, remove, or alter behaviour. No structural churn.
+- **Prepare** — refactor, rename, extract, reorganize. No behavior change.
+- **Change** — add, remove, or alter behavior. No structural churn.
 
-Applied recursively: if the preparation step is also hard, first make that easy. Work like a zipper — each structural step unlocks the next, until the actual behaviour change is trivial.
+If preparation is difficult, prepare that step first. Each structural step makes the next change easier. Repeat until the behavior change is simple.
 
-Keeping the two steps separate also lets you apply different levels of rigour. Structural changes are reversible — an extracted helper can be inlined again, a rename can be undone. Behaviour changes are often not — output sent, a form filed, a side effect triggered cannot be recalled. Irreversible decisions deserve more care. Separating the two gives you room to apply that care where it actually matters.
+Separate steps allow different levels of care. Structural changes are reversible: an extracted helper can be inlined, and a rename can be undone. Behavior changes can have irreversible effects, such as output sent, a form filed, or a triggered side effect. Separating the steps gives irreversible decisions the additional care they need.

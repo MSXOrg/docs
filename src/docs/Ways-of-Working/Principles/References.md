@@ -5,7 +5,7 @@ description: The literature behind these principles.
 
 # References
 
-Literature and books that inform these principles:
+These sources inform the principles:
 
 - **Start With Why** — Simon Sinek. The Golden Circle framework (Why → How → What) that grounds the purpose-first approach. [simonsinek.com](https://simonsinek.com/books/start-with-why/)
 - **Measure What Matters** — John Doerr. The OKR framework behind goal-setting — objectives over KPIs. [whatmatters.com](https://www.whatmatters.com/)
@@ -14,4 +14,4 @@ Literature and books that inform these principles:
 - **Refactoring** — Martin Fowler. Make change easy, then make the easy change.
 - **The Pragmatic Programmer** — David Thomas and Andrew Hunt. Evolutionary design, DRY, and automation as default.
 - **Accelerate** — Nicole Forsgren, Jez Humble, Gene Kim. The research behind DevOps, Shift Left, and continuous delivery.
-- **Lean Software Development** — Mary and Tom Poppendieck. Start thin, eliminate waste, deliver fast.
+- **Lean Software Development** — Mary and Tom Poppendieck. Small increments, waste reduction, and fast delivery.
