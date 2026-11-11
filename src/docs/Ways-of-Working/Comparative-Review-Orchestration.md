@@ -1,36 +1,34 @@
 ---
 title: Comparative Review Orchestration
-description: A repeatable playbook for reviewing a target against reference sources — establishing the frame, building the evidence model before judging, and converting findings into small scoped issues.
+description: Comparative reviews use source evidence to separate required changes from accepted differences and file focused issues.
 ---
 
 # Comparative Review Orchestration
 
-Some reviews are not "is this correct" but "is this consistent with what we already
-decided". A repository against a standard. An implementation against a sibling that
-solved the same problem first. A capability against the specification it claims to
-satisfy.
+A comparative review compares a target with authoritative reference sources.
+Examples include a repository against a standard, an implementation against a
+sibling implementation, or a capability against its specification.
 
-Run casually, that kind of review produces a long list of differences, an intuition
-about which of them matter, and an umbrella issue nobody picks up. This playbook exists
-so the same review yields the same structure every time, whether a human or an agent
-runs it.
+This playbook gives humans and agents the same process for review evidence and
+small, independently actionable issues. Source evidence distinguishes required
+changes from accepted differences.
 
-The target, the references, and the domain are **inputs** to the process. They are not
-part of it.
+The target, references, and domain are **inputs**. The process does not depend
+on a particular target or domain.
 
 ## Purpose and scope
 
-This playbook standardizes how a comparative review is framed, executed, and closed
-out. In scope:
+Reviewers follow this playbook to frame, execute, and close a comparative review.
+Its scope includes:
 
-- Making the review inputs explicit **before** investigation starts.
-- Converting evidence-backed findings into small, independently fixable issues.
-- Separating actionable gaps from observations, open questions, and deferred work.
-- Filing issues only where the finding is actionable and the owner is known.
+- Explicit review inputs **before** investigation starts.
+- Small, independently fixable issues based on evidence.
+- A distinction between actionable gaps, observations, open questions, and deferred work.
+- Issues filed only where the finding is actionable and the owner is known.
 
 Explicitly out of scope:
 
-- **Implementing fixes during the review.** A review that starts fixing stops reviewing.
+- **Implementing fixes during the review.** Implementation is separate from review.
 - **Umbrella issues** that bundle unrelated improvements.
 - **Treating every difference as a defect.** A difference is a candidate finding, not a
   verdict.
@@ -38,19 +36,19 @@ Explicitly out of scope:
 
 ## Inputs and prerequisites
 
-Before a review starts, all of the following MUST be established:
+Before a review starts, the reviewer MUST establish each input:
 
 | Input | Requirement |
 | --- | --- |
-| Target | The thing being reviewed, named unambiguously |
+| Target | The exact subject of the review |
 | Reference sources | What it is being compared against, and why those are authoritative |
-| Comparison dimensions | The axes the comparison runs along |
+| Comparison dimensions | The aspects being compared |
 | Issue destination rules | Where issues may be filed, and where they MUST NOT be |
-| Access | Repository, documentation, and issue-tracker access is in hand |
+| Access | Repository, documentation, and issue-tracker access is available |
 | Output shape | Findings, issues, deferred observations, open questions, and a suggested dependency order |
 
-A review that begins without the destination rules will discover, halfway through, that
-its most valuable finding belongs to somebody who has not agreed to receive it.
+Destination rules establish owners before investigation. Without them, a review
+can produce findings for an owner who has not agreed to receive them.
 
 ## Workflow stages
 
@@ -65,17 +63,16 @@ Define, in writing:
   **open question**.
 - Where issues may and may not be filed.
 
-Defining the classification vocabulary *before* looking at anything is what stops it
-being defined retroactively to justify whatever was found.
+Define the classification vocabulary **before** investigation. This prevents
+changes to the categories just to justify the findings.
 
 **Exit criteria.** The review scope names the target, the reference sources, the
 comparison dimensions, and the issue destination rules.
 
 ### Stage 2 — Build the evidence model
 
-Inspect the reference sources **before** judging the target. This ordering is the whole
-method: reading the target first produces expectations shaped by what the target already
-does, and every subsequent comparison confirms them.
+Inspect the reference sources **before** judging the target. This keeps source
+expectations independent of the target's existing behavior.
 
 - Extract expectations, patterns, constraints, and invariants from the authoritative
   sources.
@@ -99,12 +96,13 @@ or explicitly marked unresolved.
 
 ### Stage 4 — Check adjacent systems and shared dependencies
 
-A gap observed in the target is not always the target's gap.
+The component where a gap is observed does not necessarily own the gap.
 
 - Inspect adjacent systems, sibling implementations, shared libraries, and process
   dependencies where they affect who owns a finding.
-- Determine whether each gap belongs to the target, a shared dependency, the
-  documentation, an upstream or downstream system — or to no issue at all.
+- Determine whether each gap belongs to the target, a shared dependency,
+  documentation, or an upstream or downstream system.
+  Record when no issue is required.
 - Keep contextual observations out of the issue text unless they directly explain the
   required change.
 
@@ -126,10 +124,10 @@ deferral reason, or an open question.
 
 - One issue per independent improvement.
 - Solution-agnostic acceptance criteria, per [Issue Format](Issues/Process/Format.md).
-- Enough evidence that the issue is fixable **without repeating the review** — source
-  references, the affected area, the expected behavior, and how to validate the fix.
-- No mega-issues, no vague cleanup tickets, and no issue whose fix requires unrelated
-  work first.
+- Include source references, the affected area, expected behavior, and a validation method.
+  The issue is fixable **without repeating the review**.
+- Do not combine unrelated work in one issue.
+  Do not file vague cleanup tickets or issues whose fixes require unrelated work first.
 
 **Exit criteria.** Each issue is independently actionable by one focused pull request
 and carries evidence, acceptance criteria, and validation notes.
@@ -139,8 +137,8 @@ and carries evidence, acceptance criteria, and validation notes.
 - Summarize the filed issues, the deferred observations, the accepted differences, and
   the open questions.
 - Group the filed issues by likely dependency order **without** merging their scopes.
-- Record why reviewed discrepancies did *not* become issues. This is the part most often
-  skipped and the part that stops the next review rediscovering the same non-problems.
+- Record why reviewed discrepancies did *not* become issues. This prevents repeated
+  review of the same accepted differences.
 - Link the closeout summary to the filed issues.
 
 **Exit criteria.** The output is traceable from source evidence to the final issue list,
@@ -148,7 +146,7 @@ and deferred items and open questions are explicit.
 
 ## Quality gates
 
-Every one of these MUST hold at closeout:
+Each of these MUST hold at closeout:
 
 - No finding is actionable without source evidence or observed target behavior.
 - No issue bundles unrelated improvements.
