@@ -1,34 +1,30 @@
 ---
 title: Automation Labels
-description: Why every label that drives automation belongs to exactly one owning function, how namespacing keeps label dimensions disjoint, and why automation ignores labels it does not own.
+description: Ownership and namespace rules for labels that control repository automation.
 ---
 
 # Automation Labels
 
-A label is the cheapest control surface a repository has: anyone with write access
-can apply one, it is visible on the issue or pull request that carries it, and it
-survives in the audit trail. That makes labels the natural way for a human to tell
-automation what to do — and it makes an unstructured label set a liability, because
-the same word can mean different things to different automations reading the same
-pull request.
+Labels let contributors give instructions to repository automation. Anyone with
+write access can apply a label. The issue or pull request displays it, and the
+audit trail retains it. Without a defined label set, different automation
+functions can interpret the same word differently.
 
-Labels that drive automation are therefore **owned**, and ownership is made visible
-in the label's own name.
+Every label that controls automation has one **owner**. Its name identifies that
+owner.
 
 ## One owner per label set
 
-Every label an automation reads MUST belong to exactly one owning function, and
-that function MUST provision the labels it reads.
+Every label an automation reads MUST belong to exactly one owning function.
+That function MUST provision the labels it reads.
 
-Ownership is what makes collisions structurally impossible rather than merely
-unlikely. Two functions cannot disagree about what a word means if only one of them
-is allowed to read it. The alternative — a shared flat vocabulary any automation may
-interpret — requires every function to know about every other function's labels in
-order to avoid them, and that knowledge is nowhere written down.
+Ownership prevents two functions from assigning different meanings to the same
+label. Only the owning function can read it. A shared, unqualified vocabulary
+requires every function to know and avoid every other function's labels. The
+ownership rule removes that dependency.
 
-Because the owning function provisions its own labels, the valid set is derivable
-from that function's configuration rather than from whatever a repository's label
-list happens to contain.
+The owning function provisions its labels, so its configuration defines the valid
+set. A repository's label list does not define that set.
 
 ## Namespacing
 
@@ -39,9 +35,8 @@ owning function and the value is the instruction to it.
 release:minor
 ```
 
-Namespacing is not decoration. It is what lets two functions describe the *same kind
-of thing* about one pull request without either one silently reading the other's
-signal.
+A namespace separates each function's labels. Two functions can describe the same
+kind of decision on one pull request without reading each other's instructions.
 
 ## Every set is namespaced
 
@@ -75,33 +70,30 @@ an omitted setting inherits the documented patch default, while invalid settings
 and conflicting owned labels fail rather than select a fallback. Settings, not
 additional release labels, select configured release-candidate and announcement behavior.
 
-Reserving bare words would be weaker because it depends on a documented
-prohibition rather than making ownership visible in the label itself.
+Bare words depend on a separate ownership rule. A namespace identifies the owner
+in the label itself.
 
 ## Automation ignores what it does not own
 
 Automation MUST NOT respond to a label outside the set it owns.
 
-An ad-hoc label therefore does nothing. That is the safe failure: a label nobody
-provisioned expresses an intent nobody defined, and acting on a guess about it is
-worse than ignoring it. A contributor who applies an invented label and expects a
-consequence gets none, and learns that from the absence of the consequence rather
-than from an unexpected one.
+An ad-hoc label has no defined instruction. Automation ignores it instead of
+inferring an action. Applying an invented label therefore produces no automation
+result.
 
-The corollary is that an owned label MUST be honoured everywhere its function runs.
-A label that acts in one repository and is decorative in another is worse than no
-label, because it teaches a contributor a rule that does not hold.
+The owning function MUST honor an owned label everywhere that function runs.
+A label that controls automation in one repository but has no effect in another
+gives contributors an inconsistent rule.
 
 ## Why not paths, states, or free text
 
-For per-change overrides, labels are chosen over the alternatives because of what
-each one costs. Repository defaults remain version-controlled settings, not
-another label vocabulary:
+Labels provide per-change overrides without the limits below. Repository defaults
+remain version-controlled settings, not another label vocabulary:
 
 | Alternative | Cost |
 | --- | --- |
 | A file in the repository | Requires a commit to change, so it cannot express a decision about a pull request that is already open |
-| A pull request comment | Free text; automation parsing prose is guessing |
+| A pull request comment | Free text requires automation to infer an instruction from prose |
 | A project field | Not visible on the pull request, and not present in the repository's own audit trail |
 | An unowned label | Ambiguous across functions, and indistinguishable from an ad-hoc one |
 
