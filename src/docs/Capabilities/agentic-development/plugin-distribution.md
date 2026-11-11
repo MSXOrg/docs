@@ -5,27 +5,23 @@ description: How recurring workflows are packaged as named intents that point to
 
 # Plugin Distribution
 
-Some workflows recur often enough to earn a name. "Review this pull request", "open an issue
-for this", "wrap up and hand off" — each is a procedure the organization has already
-documented, invoked repeatedly, by everyone.
+Recurring workflows can have **named intents**. Examples include "review this pull request",
+"open an issue for this", and "wrap up and hand off". Each intent points to a documented
+procedure.
 
-Runtimes offer somewhere to put such things: a command, a skill, a named agent, a plugin.
-The name differs; the shape does not. This page calls them **named intents**, and states what
-one may contain.
+Runtimes expose an intent as a command, skill, named agent, or plugin. This page defines what
+that packaged entry point can contain.
 
 ## An intent is a pointer
 
 A named intent MUST resolve to the canonical documentation for its workflow and MUST contain
 only the runtime mechanics needed to get there.
 
-This is the same rule that governs [client routes](design.md#client-behavior), applied to
-behaviour instead of instructions, and for the same reason. An intent that restates its
-procedure is a second definition of that procedure — one that no reviewer of the
-documentation knows exists, and that starts disagreeing with the documentation the moment
-either changes. Whichever one an agent happens to load then determines what the organization
-appears to require.
+The [client routes](design.md#client-behavior) rule also applies to workflow entry points.
+An intent that restates a procedure creates a second definition. Either copy can change
+without the other, so the agent's loaded copy can determine the apparent rule.
 
-So the division is strict:
+The content boundary is:
 
 | An intent MAY contain | An intent MUST NOT contain |
 | --- | --- |
@@ -34,32 +30,28 @@ So the division is strict:
 | Runtime mechanics: which tools to enable, how to gather the current artifacts | A workflow stage definition |
 | Where to start reading | A copy of anything in `docs` |
 
-The test is whether the intent would still be correct if the documentation changed. If it
-would silently become wrong, it is carrying a copy.
+The content check compares the intent with its canonical procedure. Repeated process steps
+are copied content, not runtime mechanics.
 
 ## Why intents are worth having anyway
 
-A pointer sounds like it adds nothing. What it adds is **reliable entry**.
+Named intents provide **reliable entry** to documented procedures.
 
-Without a named intent, reaching a procedure depends on the prompt being phrased in a way
-that leads the agent to the right document. That usually works and occasionally doesn't, and
-when it doesn't the agent invents a plausible process instead of following the documented
-one. An intent removes the guess: the name maps to exactly one starting point.
+Without an intent, procedure discovery depends on the prompt. The agent can select the wrong
+document or substitute an undocumented process. A named intent maps the request to one
+canonical entry point.
 
-Named intents also make the set of recurring workflows **visible**. A runtime that lists its
-available intents is showing the organization's procedures, which is a discovery path a
-newcomer can use without knowing any file path.
+A runtime's intent list also makes recurring workflows **visible**. A contributor can
+discover a procedure without knowing its file path.
 
 ## One model, many runtimes
 
-The set of named intents MUST be one shared model, and each runtime MUST express that same
-set in its own format.
+The set of named intents MUST be one shared model. Each runtime MUST express the same set
+in its own format.
 
-An intent available in one client and absent in another produces the failure mode the
-framework exists to avoid: the same request behaves differently depending on which client
-receives it, and no one can tell whether the difference is intended. Because an intent is
-only a pointer plus mechanics, translating one into another runtime's format is mechanical —
-there is no logic to port.
+If runtimes expose different intent sets, the same request can use different procedures.
+A pointer and its runtime mechanics can use each runtime's native format without copying
+the procedure.
 
 ## Standards profile
 
@@ -79,16 +71,16 @@ The portable package root contains only the Agent Plugins components. Skills liv
 commands, hooks, rules, or extensions belong under `com.github.copilot/`, where another
 client can ignore them without changing the portable contract.
 
-Agent Skills use progressive disclosure: clients discover the `name` and `description`,
-load `SKILL.md` when the request matches, and read referenced resources only when the
-active skill needs them. A description therefore names both the capability and its trigger;
-the body stays a short route and runtime procedure.
+Agent Skills use progressive disclosure. Clients first discover the `name` and `description`.
+When a request matches, they load `SKILL.md`. They read referenced resources only when the
+active skill needs them. A description names both the capability and its trigger.
+The body stays a short route with runtime mechanics.
 
 ## Marketplace structure and skill boundaries
 
-The [Plugin Marketplaces design](design-plugin-marketplaces.md) is the single source of truth
-for marketplace ownership, repository layout, plugin identities, and skill granularity. This
-page covers how named intents are distributed; it does not repeat those structural rules.
+The [Plugin Marketplaces design](design-plugin-marketplaces.md) owns marketplace ownership,
+repository layout, plugin identities, and skill granularity. This page describes named-intent
+distribution and links to those structural rules.
 
 For consumer upgrades, `msx-ways-of-working-consumer-upgrades` is the shared
 pointer to [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md).
@@ -109,9 +101,9 @@ Skills configured for Copilot CLI are also available in the
 [GitHub Copilot app](https://docs.github.com/en/copilot/how-tos/github-copilot-app/customize-github-copilot-app).
 The app also exposes installed plugins under **Settings > Plugins**.
 
-An enterprise can publish the same marketplace and plugin to the app and every other
-supported Copilot client through `copilot/managed-settings.json` in its `.github-private`
-governance repository:
+An enterprise can publish the same marketplace and plugin through
+`copilot/managed-settings.json` in its `.github-private` governance repository. The settings
+apply to the app and other supported Copilot clients:
 
 ```json
 {
@@ -137,33 +129,28 @@ allowlist blocks every non-built-in marketplace.
 
 An intent MUST NOT bundle a copy of the documentation it points to.
 
-Bundling is tempting because it makes an intent self-contained and therefore easy to
-distribute. It is also how the framework's central premise gets broken: a bundled procedure
-is a snapshot, and a snapshot distributed to many places is drift with extra steps. The
-canonical documentation is available to every agent through the
-[freshness gate](design.md#context-freshness); the intent can rely on it being there and current.
+A bundled procedure is a snapshot that can differ from its canonical source.
+Copies across installations can diverge independently. The intent relies on the
+[freshness gate](design.md#context-freshness) for current canonical documentation.
 
-The practical consequence is that updating a procedure needs no redistribution. The
-documentation changes, and every intent pointing at it is immediately correct — which is the
-whole reason the intent holds a pointer instead of a copy.
+If its route remains valid, a procedure update does not require redistributing the intent.
+The intent continues to resolve to the canonical procedure.
 
 ## Intents do not define process
 
 A named intent MUST NOT define a workflow stage, and MUST NOT add a requirement of its own.
 
-The prohibition matters most where an intent looks like the natural place for a rule: a
-review intent that "also checks X". If X is genuinely required, it belongs in the review
-procedure, where it applies to every review including the ones nobody invoked an intent for.
-If it is not required, the intent is inventing policy that no one reviewed.
+A rule added only to a review intent does not apply to reviews reached by other routes.
+If the rule is required, the canonical review procedure owns it. Otherwise, the intent
+introduces unreviewed policy.
 
-An intent whose contents grew past mechanics is a signal that the documentation is missing
-something. The fix is to move the content into the documentation and shrink the intent back
-to a pointer.
+If an intent contains process content, move that content to its canonical documentation.
+Reduce the intent to its pointer and runtime mechanics.
 
 ## Where this connects
 
 - [Spec](spec.md#requirements) — the requirement that named intents stay pointer-based and that no client convenience redefines a stage.
-- [Design](design.md#pointer-files) — the pointer-file discipline this extends from instructions to behaviour.
+- [Design](design.md#pointer-files) — the pointer-file discipline this extends from instructions to behavior.
 - [MCP Servers](mcp-servers.md) — the tool layer an intent's mechanics may enable, which likewise defines no procedure.
 - [Workflow](../../Ways-of-Working/Workflow.md) — the canonical stage procedures intents point at.
 - [Conformance](conformance.md) — the anti-duplication checks that catch an intent carrying a copy.

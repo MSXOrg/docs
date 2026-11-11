@@ -1,23 +1,21 @@
 ---
 title: Advisory Agents
-description: The pattern for automation that analyses work and publishes its conclusion as advice, without deciding, relabelling, or committing.
+description: The pattern for automation that analyzes work and publishes its conclusion as advice, without deciding, relabeling, or committing.
 ---
 
 # Advisory Agents
 
-Some useful automation produces a **judgement** rather than a change: whether a pull request
-looks ready, whether a specification covers its requirements, whether a change carries risk
-its description does not mention. The judgement is worth having and cannot be expressed as a
-passing or failing check, because it is not a fact — it is an opinion, and opinions can be
-wrong.
+An advisory agent assesses work and publishes a **judgment**, not a change. It can assess
+pull-request readiness, requirement coverage, or risks that a description omits. These
+assessments are opinions that can be wrong. They do not establish a passing or failing
+factual check.
 
-The advisory pattern exists so that such automation can be useful without becoming
-authoritative.
+The advisory pattern keeps these assessments useful without giving them decision authority.
 
 ## Advice, not authority
 
-An advisory agent MUST publish its conclusion as advice and MUST NOT be the thing that
-decides.
+An advisory agent MUST publish its conclusion as advice and MUST NOT decide the artifact's
+outcome.
 
 Concretely, it MUST NOT:
 
@@ -26,77 +24,67 @@ Concretely, it MUST NOT:
 - Overwrite a decision a human has recorded.
 - Re-apply a decision a human has changed.
 
-The last two are the ones that get violated by accident. An agent that sets a label on every
-run will faithfully undo the maintainer who corrected it, and it will do so without malice
-and without noticing. From the maintainer's side, the correction simply does not stick, and
-the reasonable conclusion is that the automation is broken and should be turned off.
+A repeated label update can overwrite a maintainer's correction. The agent can repeat this
+action without recognizing that a human changed the decision. The maintainer then loses
+control of the recorded decision.
 
-So the constraint is behavioural, not just permissive: it is not enough that a human *can*
-override the agent. Overriding it MUST be final.
+The constraint is behavioral, not only a permission setting: a human override MUST be final.
 
 ## Seed once, never relabel
 
-Where an advisory agent expresses its conclusion as a label, it MUST apply that label only
-when no label from the same set is present, and MUST leave the set alone thereafter.
+For label-based advice, the agent MUST apply its label only when no label from the same set
+is present. It MUST leave the set unchanged thereafter.
 
-This gives the agent exactly one turn to speak. It supplies an initial assessment when there
-is none — which is the case where the automation adds most, because the alternative is
-nothing — and from then on the field belongs to whoever curates it.
+The agent supplies an initial assessment only when no label from the set exists.
+Later updates remain outside that assessment.
 
-The rule is what makes the agent safe to run repeatedly. Combined with idempotence, it means a
-re-run on an artifact a human has since touched changes nothing at all.
+On repeated runs, the agent leaves an existing label unchanged, including a label corrected
+by a human.
 
 ## Idempotent by construction
 
 An advisory agent MUST be safe to run repeatedly on the same artifact.
 
-It will be: events fire more than once, workflows are re-run, and an artifact under active
-review is re-examined many times. An agent whose output accumulates turns a busy pull request
-into an unreadable one, and the noise costs more than the advice is worth.
+Events can occur more than once. Contributors can rerun workflows or request another review
+of the same artifact. Duplicate advice makes the review harder to read.
 
-In practice that means an agent updates its previous conclusion in place rather than adding a
-new one, and says nothing when it has nothing new to say. Silence at steady state is a
-feature.
+The agent updates its previous conclusion in place instead of adding duplicate advice.
+If the conclusion has not changed, it publishes no update.
 
 ## Triggering late
 
 An advisory agent SHOULD trigger when work is declared ready rather than on every change.
 
-Advice on unfinished work is mostly advice about the unfinished parts, and a contributor
-learns to ignore it — after which the one useful comment is ignored too. Waiting until the
-author says the work is ready both makes the advice relevant and makes it clear what it is
-about.
+Feedback on unfinished parts can become irrelevant before review. Contributors can then
+ignore later advice, including useful findings. A readiness signal identifies the work the
+author considers complete.
 
-Where an agent must run earlier, it SHOULD scope its advice to what is stable, and MUST NOT
+If an agent must run before readiness, it SHOULD limit advice to stable work. It MUST NOT
 present provisional findings as conclusions.
 
 ## Advice is legible
 
-An advisory agent's output MUST make clear what it is: which agent produced it, what it
-examined, and that it is advice rather than a gate.
+An advisory agent's output MUST identify which agent produced it, what it examined, and its
+status as advice rather than a gate.
 
-An unattributed conclusion is indistinguishable from a requirement, and a reviewer who cannot
-tell the difference either treats optional advice as blocking or treats a real constraint as
-optional. Naming the source also makes the agent's own failures diagnosable: advice that is
-consistently wrong is a fixable bug in the agent, but only if it is traceable to the agent.
+Without attribution, reviewers can confuse advice with a requirement. Attribution also lets
+maintainers trace incorrect advice to its source and correct the agent.
 
-Where advice rests on a rule, it MUST cite the documentation that carries the rule, so the
-reviewer can check the rule rather than trusting the agent's summary of it. An agent MUST NOT
-introduce a requirement that no documentation states — if the rule is real it belongs in
-documentation, and if it is not, the agent is inventing policy.
+When advice depends on a rule, it MUST cite the documentation that states that rule.
+The reviewer can then verify the source instead of relying on the agent's summary.
+An agent MUST NOT introduce a requirement that no documentation states. A required rule
+belongs in the documentation.
 
 ## Composition
 
-Several advisory agents MAY examine the same artifact, and MUST NOT depend on each other's
-output or on the order in which they run.
+Several advisory agents MAY examine the same artifact. They MUST NOT depend on each other's
+output or execution order.
 
-Independence is what keeps them cheap to add and remove. A chain of advisors is a pipeline
-with failure modes, and a pipeline whose stages are opinions has failure modes nobody can
-debug.
+Maintainers can add or remove independent agents without changing other agents. If one opinion
+depends on another, failures can become difficult to isolate.
 
-Where two advisors disagree, both conclusions stand and the human resolves them. That is not
-a defect in the design; disagreement between two opinions is information, and suppressing it
-would mean picking a winner arbitrarily.
+If advisors disagree, both conclusions remain available and a human resolves the disagreement.
+Suppressing one opinion would hide evidence from that review.
 
 ## Where this connects
 
