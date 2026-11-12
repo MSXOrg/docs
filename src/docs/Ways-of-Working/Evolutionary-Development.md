@@ -11,7 +11,7 @@ The method uses Darwin's theory of evolution as an analogy: variation, selection
 
 The method uses small experiments and frequent feedback to compare alternatives.
 
-This standard connects three practices in one feedback cycle. [Spec-Driven Development](Spec-Driven-Development.md) records intent in a spec for the why and what, and a design for the how. Behavior-driven discovery expresses that intent as Given / When / Then acceptance criteria. Test-driven development implements the criteria and unit tests in small steps.
+The feedback cycle connects three practices. [Spec-Driven Development](Spec-Driven-Development.md) records intent in a spec for the why and what, and a design for the how. Behavior-driven discovery expresses that intent as Given / When / Then acceptance criteria. Test-driven development implements the criteria and unit tests in small steps.
 
 Context, criteria, and feedback guide the cycle, whether a person, an agent, or a group of agents drives it (see [How the loop is driven](#how-the-loop-is-driven)). It builds on [engineering practices](Principles/Engineering-Practices.md) (test-first where it pays, small batches, reversible decisions) and [AI-first development](Principles/AI-First-Development.md).
 

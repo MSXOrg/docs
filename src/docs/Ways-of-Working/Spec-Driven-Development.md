@@ -7,7 +7,7 @@ description: Requirements, artifact roles, and the path from a need to a deliver
 
 The specification is the source of truth for *why* a change matters and *what* it must do. Design, delivery issues, code, and tests serve that specification. When intent changes, the spec changes first.
 
-This standard defines the **specification**, its **design**, and the supporting artifact tiers. It states their content, level of detail, and role in the delivery lifecycle. It builds on the [evergreen documentation](Principles/Engineering-Practices.md#evergreen-documentation) principle for authoring and the [engineering practices](Principles/Engineering-Practices.md) for planning, delivery, and measurement.
+Specifications, designs, and supporting artifacts use [evergreen documentation](Principles/Engineering-Practices.md#evergreen-documentation) for authoring and [engineering practices](Principles/Engineering-Practices.md) for planning, delivery, and measurement.
 
 ## The model
 
@@ -242,8 +242,7 @@ Separating the spec from the design keeps requirements stable across refactors w
 - **Write intended state.** Use present-tense, definitive prose and state each fact once, as with all [evergreen documentation](Principles/Engineering-Practices.md#evergreen-documentation). Keep task lists, status, and history in issues and PRs, not the spec.
 - **Write impersonally.** Use third person throughout. A spec does not address the reader, name a person, or refer to "we" or "the team". It states facts that remain valid when roles or teams change.
 - **State enduring problems, not timing.** Avoid "why now", "currently", "recently", and similar time-bound framing. State the condition that makes the capability valuable. Record a durable time bound, such as a published deprecation or contractual date, as a constraint.
-- **Let git carry the record.** Keep created and updated dates, revision numbers, authorship, and changelogs in repository history, not document fields. Commits and pull requests that reference the spec preserve that history without duplicate records.
-- **Ownership is by location, not a byline.** The team that owns the code owns its spec ([docs live close to the code](../Coding-Standards/Documentation.md#the-hierarchy-of-documentation)). Accountability lives in `CODEOWNERS`, not a per-document owner field that can become incorrect.
+- **Keep the body focused on its subject.** Follow the [Documentation Model](Documentation-Model.md#subject-focused-content).
 - **Conform, do not restate.** A spec links up to the principle or standard it obeys and never copies it. The direction is one-way by [design](Principles/index.md#principles-do-not-link-down): principles do not link down to specs.
 - **Mark unknowns, do not guess.** If the need is unclear, add an explicit `[NEEDS CLARIFICATION: the specific question]` marker. Do not invent an answer. Resolve and remove all markers before acceptance.
 - **Self-review against a checklist.** Before review, confirm that no clarification markers remain. Confirm that every requirement is testable and has at least one scenario. Confirm that success criteria are measurable.

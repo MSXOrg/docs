@@ -189,6 +189,23 @@ Current product guidance does not establish older-version behavior.
 Decision records preserve choices, rationale, and supersession links. Research
 preserves point-in-time findings. Evergreen resource docs do not replace these records.
 
+## Subject-focused content
+
+The body describes the subject, not the document. Start with the rule, procedure,
+behavior, or design that the reader needs. Remove self-description such as
+"This document explains..." and authoring notes that do not describe the subject.
+
+Keep document-maintenance metadata out of the body: bylines, document owners,
+approval status, review dates, document versions, and revision history.
+Keep required navigation front matter, including `title` and `description`.
+The team that owns the subject owns its documentation. `CODEOWNERS` records that
+ownership. Git history, pull requests, and issues retain change and review records.
+
+Preserve the subject's scope, requirements, source links, mechanisms, alternatives,
+and rationale. Designs explain how the system works and why the chosen approach
+meets its requirements. Keep operational ownership, product versions, observation
+dates, and decision status when they are facts needed to understand or use the subject.
+
 ## Concise by default
 
 Concise documentation reduces the effort needed to find an answer, for humans
