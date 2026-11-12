@@ -7,7 +7,9 @@ description: A copyable skeleton for every spec-driven artifact — specificatio
 
 Each artifact tier defined in [Spec-Driven Development](Spec-Driven-Development.md#the-artifact-tiers) has a template. Copy the template for the artifact. Each template contains all standard sections. **Delete a heading rather than marking it "N/A"** when it does not apply. Empty sections make relevant content harder to find.
 
-Apply the [authoring conventions](Spec-Driven-Development.md#authoring-conventions) for the artifact being written. Specifications and designs use present-tense, impersonal, normative prose without dates or delivery status. Guides and playbooks use direct imperative steps. Research records past findings. Decision records preserve the rationale for the original choice.
+Apply the [authoring conventions](Spec-Driven-Development.md#authoring-conventions) for the artifact being written. Specifications and designs use present-tense, impersonal, normative prose without document-maintenance dates or delivery status. Guides and playbooks use direct imperative steps. Research records past findings. Decision records preserve the rationale for the original choice.
+
+Use the [subject-focused content rule](Documentation-Model.md#subject-focused-content) when you replace the placeholders.
 
 These are durable artifact templates, not issue-body or implementation-plan templates. Issues follow their canonical [planning altitude](Issues/Process/Planning.md). Delivered work verifies the resulting artifacts through the shared [documentation and design evidence](Definition-of-Ready-and-Done.md#documentation-and-design-evidence) gate.
 
@@ -166,7 +168,7 @@ description: <One line: how the capability is built.>
 
 # <Capability name> — Design
 
-<One paragraph on how the design meets the spec.>
+<The implementation approach, how it works, and why it satisfies the requirements.>
 
 ## Specification
 
@@ -219,7 +221,7 @@ description: <One line: the concrete values and names behind the design.>
 
 # <Capability name> — Implementation
 
-<One line: the concrete detail this page specifies and the design it serves.>
+<The concrete settings, values, or identifiers and why the implementation uses them.>
 
 ## Design
 
@@ -281,12 +283,12 @@ description: <One line: the outcome of following these steps.>
 ````markdown
 ---
 title: <What is being looked up>
-description: <One line: the facts this page holds.>
+description: <One line: the settings, interfaces, or values available for lookup.>
 ---
 
 # <What is being looked up>
 
-<One line: what this page is the single source for.>
+<The settings, interfaces, or values and the context needed to interpret them.>
 
 | <Name> | <Type> | <Default> | <Meaning> |
 |---|---|---|---|
@@ -295,7 +297,7 @@ description: <One line: the facts this page holds.>
 
 ## Research
 
-Research is the one artifact written in the past tense. Git records its dates.
+Research is the one artifact written in the past tense. Git records its document dates.
 
 ````markdown
 ---
@@ -407,11 +409,11 @@ description: <One line: what this playbook produces.>
 
 # <The orchestrated activity>
 
-<One paragraph: what this coordinates, and why it needs stages rather than a checklist.>
+<The coordinated outcome and why the stages must run in order.>
 
 ## Purpose and scope
 
-<What this playbook is for.>
+<The work and boundaries of the coordinated process.>
 
 **Out of scope**
 
@@ -464,8 +466,7 @@ description: <One line: the decisions this register holds.>
 
 # <Scope> — Decisions
 
-<One line: what this register covers, and what a reader should conclude from an entry
-being here — that the question is closed.>
+<The scope of the settled choices and their effect on the subject.>
 
 ## Recorded decisions
 

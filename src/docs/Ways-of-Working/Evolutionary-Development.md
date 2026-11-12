@@ -11,7 +11,7 @@ The method uses Darwin's theory of evolution as an analogy: variation, selection
 
 The method uses small experiments and frequent feedback to compare alternatives.
 
-This standard connects three practices in one feedback cycle. [Spec-Driven Development](Spec-Driven-Development.md) records intent in a spec for the why and what, and a design for the how. Behavior-driven discovery expresses that intent as Given / When / Then acceptance criteria. Test-driven development implements the criteria and unit tests in small steps.
+The feedback cycle connects three practices. [Spec-Driven Development](Spec-Driven-Development.md) records intent in a spec for the why and what, and a design for the how. Behavior-driven discovery expresses that intent as Given / When / Then acceptance criteria. Test-driven development implements the criteria and unit tests in small steps.
 
 Context, criteria, and feedback guide the cycle, whether a person, an agent, or a group of agents drives it (see [How the loop is driven](#how-the-loop-is-driven)). It builds on [engineering practices](Principles/Engineering-Practices.md) (test-first where it pays, small batches, reversible decisions) and [AI-first development](Principles/AI-First-Development.md).
 
@@ -118,12 +118,14 @@ This makes [context-first development](Principles/AI-First-Development.md#contex
 
 ## The instructions evolve too
 
+Durable, reusable instructions follow the same engineering practices as code. This includes standards, guides, stored prompts, skills, and agent files. Source control, testing and verification, pull requests, review, and acceptance apply through the [Contribution Workflow](Contribution-Workflow.md). One-off chat requests are outside these source-control and pull-request requirements.
+
 > [!IMPORTANT]
-> Self-directed update is a standing directive, not an optional courtesy. A person or agent that learns something or finds an incorrect instruction is expected to improve that instruction immediately. Do not leave the correction for someone else. The next cycle uses that correction. A cycle that cannot improve its instructions cannot evolve.
+> Self-directed update is a standing directive, not an optional courtesy. A person or agent that learns something or finds an incorrect instruction starts a proposed correction immediately. Do not leave the correction for someone else. Starting a correction does not bypass verification, review, or acceptance. The next cycle uses the accepted correction. A cycle that cannot improve its instructions cannot evolve.
 
-Standards, guides, and agent instructions provide context for each cycle (see [How the loop is driven](#how-the-loop-is-driven)). A weak instruction can misdirect every reader. Correct instructions when they are wrong and refine them when evidence identifies a better approach. This maintenance is part of the work. It applies [self-improving agents](Principles/AI-First-Development.md#self-improving-agents) to the instructions themselves.
+These instructions provide context for each cycle (see [How the loop is driven](#how-the-loop-is-driven)). A weak instruction can misdirect every reader. Correct instructions when they are wrong and refine them when evidence identifies a better approach. This maintenance is part of the work. It applies [self-improving agents](Principles/AI-First-Development.md#self-improving-agents) to the instructions themselves.
 
-When a cycle exposes an incorrect instruction or a better way of working, propose the correction as its own small change. Review and merge it through the same [decision point](Principles/AI-First-Development.md#decision-before-change). Relevant signals include:
+When a cycle exposes an incorrect instruction or a better way of working, propose the correction as its own small change. Its pull request must be reviewed, approved, and merged through the same [decision point](Principles/AI-First-Development.md#decision-before-change). Only then does the correction become accepted guidance. Relevant signals include:
 
 - An agent needs the same clarification twice, or a `[NEEDS CLARIFICATION]` marker keeps recurring.
 - A review comment teaches a rule that is not written down yet.
@@ -131,7 +133,7 @@ When a cycle exposes an incorrect instruction or a better way of working, propos
 - A turn goes wrong in a way a clearer instruction would have prevented.
 - A cycle finds a better prompt, sequence, or rule that should be reused.
 
-A standard is defined once and referenced by its consumers ([Agentic Development](../Capabilities/agentic-development/index.md)). Readers receive corrections through that shared source. The same verification that keeps a spec aligned with intent also keeps instructions accurate as understanding grows.
+A standard is defined once and referenced by its consumers ([Agentic Development](../Capabilities/agentic-development/index.md)). Correct a missing or incorrect rule in its canonical document before adding or updating instructions that depend on it. Prompts, skills, and agent instructions link to that document instead of copying the rule. The same verification that keeps a spec aligned with intent also keeps instructions accurate as understanding grows.
 
 ## Working a v1
 
