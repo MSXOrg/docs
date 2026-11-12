@@ -5,9 +5,8 @@ description: Refresh an owned moving release alias locally and configure Git to 
 
 # Accept moved release tags
 
-Use this guide for an MSX-owned producer's intentionally moving Git tag, such as
-`v3` or `v3.4`. Refresh the tag when your local clone still resolves it to an
-older release.
+For an MSX-owned producer's intentionally moving Git tag, such as `v3` or `v3.4`,
+refresh the tag when your local clone still resolves it to an older release.
 
 Do not use this procedure for exact version tags such as `v3.4.2`. Exact version
 tags are immutable. A moved exact tag is a producer integrity incident, not a

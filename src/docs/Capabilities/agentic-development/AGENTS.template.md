@@ -5,9 +5,9 @@ description: The repository-level agent router template and the guidance for app
 
 # AGENTS.md Template
 
-This document explains the repository-level `AGENTS.md` template. It is not
-itself the router that agents load. Copy the contents of the fenced `markdown`
-block into an `AGENTS.md` at the repository root.
+A repository-level `AGENTS.md` router uses the fenced `markdown` block below,
+not the surrounding guidance. Copy that block into an `AGENTS.md` at the
+repository root.
 
 The router reads repository-local guidance first, initiative-specific guidance
 next, and central organization guidance last.

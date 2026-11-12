@@ -5,8 +5,8 @@ description: Reusable modules, actions, and the Process-PSModule framework imple
 
 # Design
 
-This design implements the [capability requirements](spec.md) through reusable
-modules, actions, and the `Process-PSModule` framework.
+Reusable modules, actions, and the `Process-PSModule` framework implement the
+[capability requirements](spec.md).
 
 ## Capability model
 
@@ -25,7 +25,7 @@ The model has two paths:
 ## Operating pattern
 
 - Keep component-level details in initiative/module docs.
-- Keep reusable architecture and decision rationale here.
+- Keep reusable architecture and decision rationale with the capability.
 - Link initiative pages to this capability as canonical context.
 
 ## Current canonical references

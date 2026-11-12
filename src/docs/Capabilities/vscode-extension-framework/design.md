@@ -5,8 +5,8 @@ description: How the VS Code extension framework is built — a shared reusable 
 
 # VS Code Extension Framework — Design
 
-The [spec](spec.md) defines the framework's behavior. The design combines a
-**shared reusable workflow** with a **template repository**. It follows the
+The framework combines a **shared reusable workflow** with a **template repository**
+to meet the [spec](spec.md). It follows the
 organization's `Process-*` / `Template-*` convention, which
 [Process-PSModule](https://github.com/PSModule/Process-PSModule) uses for PowerShell
 modules.
@@ -244,7 +244,7 @@ The template defines the following repository structure. It follows
 
 ## Where this connects
 
-- [Spec](spec.md) — the requirements this design delivers.
+- [Spec](spec.md) — VS Code extension lifecycle requirements.
 - [Release Management](../release-management/design.md) — the versioning and publication rules that the VSIX pipeline follows.
 - [Dependency Updates](../dependency-updates/design.md) — how the extension's dependencies stay current.
 - [Merge Automation](../merge-automation/spec.md) — how the pipeline's named status checks gate the merge.

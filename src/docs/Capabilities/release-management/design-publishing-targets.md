@@ -11,8 +11,8 @@ passes every target the same frozen version, retained artifact, note envelope,
 and release-intent identity.
 
 Targets differ in native version syntax, prerelease channels, deletion, and
-consumer resolution. This page makes those differences explicit so adding a
-destination does not change the [release-management specification](spec.md).
+consumer resolution. Each destination's contract records those differences
+without changing the [release-management specification](spec.md).
 
 ## Publishing-target contract
 

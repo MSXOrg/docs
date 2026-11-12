@@ -5,9 +5,9 @@ description: Durable release intents, lifecycle transitions, recovery, withdrawa
 
 # Release Management — Design
 
-This page realizes the [release-management specification](spec.md) through
-shared, GitHub-native release mechanics, including native producer pipelines.
-It defines the durable lifecycle and input contract. The immutable producer
+Release management satisfies the [release-management specification](spec.md)
+through shared, GitHub-native mechanics, including native producer pipelines.
+These mechanics use a durable lifecycle and input contract. The immutable producer
 revision's documented interface and verified behavior establish conformance.
 Documentation alone does not make a lifecycle control or setting available.
 
@@ -675,7 +675,7 @@ controls, and conformance evidence before relying on them. A configuration
 example or normative requirement is not proof that an older producer implements
 it. Version-specific implementation deltas and required adoption actions belong
 in that producer's PR/release record, not a parallel status or migration history
-in this design.
+in the shared lifecycle contract.
 
 For an incomplete release, an operator MUST NOT work around a
 partial release by rerunning against changed metadata or rebuilding under the

@@ -51,7 +51,7 @@ dependencies current.
 
 A plain Node package that is not a VS Code extension is outside this scope.
 Documentation for a specific extension lives in that extension's repository.
-This capability documents the framework itself.
+The shared capability owns the framework requirements and design.
 
 ## Requirements
 
@@ -66,7 +66,7 @@ This capability documents the framework itself.
 - **Optional marketplace publication.** When configured, the pipeline also publishes the same VSIX to an extension marketplace (the VS Code Marketplace and/or Open VSX). Marketplace publication is opt-in and MUST NOT be a prerequisite for the GitHub-Release install path.
 - **A prerelease from an open pull request.** A prerelease VSIX MUST be obtainable from an open pull request for tests before merge. It never becomes the latest stable version.
 - **A named status check per merge-blocking stage.** Every stage that must hold a pull request surfaces a named status check, so [Merge Automation](../merge-automation/spec.md) can gate the merge on it.
-- **Documentation travels with the extension.** Each extension's user documentation lives in its own repository. The framework builds and publishes that documentation. There is no separate internal-versus-user split. This capability contains the framework's own documentation.
+- **Documentation travels with the extension.** Each extension's user documentation lives in its own repository. The framework builds and publishes that documentation. There is no separate internal-versus-user split. Framework documentation belongs to the shared capability.
 - **Dependencies kept current.** The extension's pinned dependencies — npm packages and pinned Actions — are kept current and secure through [Dependency Updates](../dependency-updates/spec.md).
 - **Standard GitHub primitives only.** The framework uses pull requests, labels, releases, environments, and GitHub Actions. It uses no external release tooling beyond `gh` and the editor's own packaging and publishing CLIs.
 
@@ -86,6 +86,6 @@ This capability documents the framework itself.
 - [Release Management](../release-management/spec.md) — the versioning and release mechanics this framework drives.
 - [Dependency Updates](../dependency-updates/spec.md) — how the extension's dependencies stay current.
 - [Merge Automation](../merge-automation/spec.md) — how the framework's status checks gate the merge.
-- [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — why this spec defines requirements and an extension's docs live in its own repository.
+- [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — capability requirements and repository-local extension documentation.
 - [TypeScript](../../Coding-Standards/TypeScript.md) — the language standard extensions are written to.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md) — how the pipeline that delivers this is authored.

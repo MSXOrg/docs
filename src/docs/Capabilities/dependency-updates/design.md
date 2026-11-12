@@ -159,7 +159,7 @@ fresh output is drift. Generation MUST preserve surfaces marked
 
 ## Where this connects
 
-- [Spec](spec.md) — the requirements this design delivers.
+- [Spec](spec.md) — dependency-update requirements.
 - [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) — the procedure that turns an update proposal into verified adoption.
 - [Repository Governance](../repository-governance/design.md#drift-detection-and-reconciliation) — the reconciliation that compares generated configuration against what is committed.
 - [Release Management](../release-management/design.md) — the conditional release decision and output for an update pull request.

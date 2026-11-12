@@ -110,7 +110,7 @@ This is the order in which context is **read**, nearest first. It is not the ord
 - [Plugin Distribution](plugin-distribution.md) — how named intents stay pointers to documentation.
 - [Agent Interaction](agent-interaction.md) — issues, labels, and pull requests as the coordination substrate.
 - [Advisory Agents](advisory-agents.md) — the pattern for automation that advises without deciding.
-- [Conformance](conformance.md) — how a repository is measured against this spec.
-- [Agentic Development](index.md) — the framework this specification defines.
+- [Conformance](conformance.md) — repository checks against the framework's requirements.
+- [Agentic Development](index.md) — organization-scoped agent context.
 - [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — how specs and designs are written and kept evergreen.
 - [Open Knowledge Format](../../Dictionary/index.md#open-knowledge-format) — the Markdown and frontmatter model used for knowledge pages.

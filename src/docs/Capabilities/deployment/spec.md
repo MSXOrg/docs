@@ -225,5 +225,5 @@ Feature: Deployment approves and applies the effect, not just the code
 
 - [Designs](index.md) — how these requirements are delivered for a specific
   service provider and CI/CD platform.
-- [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — why this spec holds only the why and the what.
+- [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — the separation between capability requirements and implementation details.
 - [PR Format](../../Ways-of-Working/PR-Format.md) — the review that approves the change and its effect.

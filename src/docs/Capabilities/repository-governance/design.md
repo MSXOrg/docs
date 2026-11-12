@@ -10,8 +10,8 @@ rulesets**, and **reconciliation**. The property carries the declaration.
 Organization rulesets read it, and reconciliation compares live configuration
 with the declared requirements.
 
-This design defines the reconciliation contract. Delivery records provide
-evidence that an implementation and its enforcement satisfy this contract.
+Delivery records provide evidence that an implementation and its enforcement
+satisfy the reconciliation contract.
 
 ```mermaid
 flowchart LR
@@ -39,8 +39,7 @@ branch-model and layering obligations
 The property mechanism — how conditions target it, why conditions are written as
 exclusions, and how an existing condition is migrated onto it without dropping
 coverage — is owned by [Repository Type
-Property](../../Ways-of-Working/Repository-Type-Property.md). This design does not
-restate it.
+Property](../../Ways-of-Working/Repository-Type-Property.md).
 
 Moving an organization from a single-select property to a multi-select `Type`
 property is a schema change the platform does not perform in place. The migration
@@ -153,8 +152,8 @@ names.
 
 The [Repository Standard](../../Ways-of-Working/Repository-Standard.md#required-files)
 owns the file list, its conditional contribution rule, and which type adds to
-it. This design owns only the enforcement: reconciliation checks required local
-files on the default branch and resolves effective contribution guidance under
+it. Reconciliation checks required local files on the default branch and
+resolves effective contribution guidance under
 the [contribution rule](../../Ways-of-Working/Repository-Standard.md#contribution-guidance), at
 **Block** severity for the files that make a repository contributable and
 **Report** severity for the rest.
@@ -239,7 +238,7 @@ change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before
 
 ## Where this connects
 
-- [Spec](spec.md) — the requirements this design delivers.
+- [Spec](spec.md) — repository governance requirements.
 - [Repository Types](design-types.md) — the catalog the rulesets select on.
 - [Repository Type Property](../../Ways-of-Working/Repository-Type-Property.md) — the property mechanism and condition migration.
 - [Repository Standard](../../Ways-of-Working/Repository-Standard.md) — the required-file sets reconciliation checks.

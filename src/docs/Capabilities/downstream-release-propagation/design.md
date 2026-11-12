@@ -306,7 +306,7 @@ review, merged, or met its applicable
 
 ## Where this connects
 
-- [Spec](spec.md) — the requirements this design delivers.
+- [Spec](spec.md) — downstream release propagation requirements.
 - [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) — the complete-range adoption procedure used by each dependent.
 - [Release Management](../release-management/design.md) — produces the release and note this consumes.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md) — SHA pinning, least-privilege permissions, explicit secret passing.
