@@ -10,7 +10,6 @@ release describe different automation boundaries. These boundaries determine whe
 human approval is required, what the pipeline can do automatically, and when a
 change is complete.
 
-This page defines those boundaries and their design decisions.
 [Continuous Practices](Continuous-Practices.md) describes the wider family of
 always-on practices and the origin of each term.
 

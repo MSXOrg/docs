@@ -5,10 +5,6 @@ description: A curated reading list and the principles behind the way of working
 
 # DevOps Reference
 
-This reference connects DevOps sources, frameworks, and engineering practices.
-
----
-
 ## 1. Essential Reading List
 
 ### The Canon (Books)

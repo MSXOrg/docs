@@ -5,7 +5,7 @@ description: Shared terms and definitions for the MSX ecosystem.
 
 # Dictionary
 
-This dictionary defines shared terms for readers and agents across the MSX ecosystem. Ecosystem-specific terms link to their detailed documentation.
+Readers and agents use shared terms across the MSX ecosystem. Ecosystem-specific terms link to their detailed documentation.
 
 ## Terms
 

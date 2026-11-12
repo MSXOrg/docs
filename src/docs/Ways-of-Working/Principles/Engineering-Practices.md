@@ -47,7 +47,7 @@ Documentation states the **supported target state** in the present tense. Reader
 
 A documented target-state contract is not evidence that implementation or enforcement exists.
 
-This applies to this site, every README, and every specification. A pull request description explains the result rather than the steps used to produce it.
+Shared guidance, every README, and every specification follow these evergreen rules. A pull request description explains the result rather than the steps used to produce it.
 
 ## Intent is the source of truth
 

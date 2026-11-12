@@ -5,9 +5,9 @@ description: Shared principles, processes, and conventions for MSX contributors 
 
 # Ways of Working
 
-This section defines the shared principles, processes, and conventions for work across the MSX ecosystem.
+Shared principles, processes, and conventions apply across the MSX ecosystem.
 
-Use it to plan work, open issues, write commit messages, and review pull requests.
+Use them to plan work, open issues, write commit messages, and review pull requests.
 
 ## Contents
 

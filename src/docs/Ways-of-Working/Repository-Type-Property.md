@@ -11,7 +11,7 @@ rules. One GitHub organization **custom property named `Type`** provides the
 classification mechanism. Its repository values determine which organization-wide
 rulesets and controls apply.
 
-This page defines the **mechanism**: property declaration, ruleset conditions,
+The classification **mechanism** uses property declarations, ruleset conditions,
 and safe condition changes. [Repository Types](../Capabilities/repository-governance/design-types.md)
 defines the individual values. [Repository Governance](../Capabilities/repository-governance/spec.md)
 defines the controls they select.

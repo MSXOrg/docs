@@ -5,7 +5,7 @@ description: Maintain the canonical Workflow stage procedures and the thin repos
 
 # Maintain Workflow Guidance
 
-Maintain the canonical [Workflow](../Workflow.md), the stage procedures in this section, and the per-repository pointer files that lead to the documentation root. Every pointer file stays thin. This maintenance path keeps the indexes, workflow, procedures, and pointers coherent; it does not encode process knowledge in configuration.
+Maintain the canonical [Workflow](../Workflow.md), its stage procedures, and the per-repository pointer files that lead to the documentation root. Every pointer file stays thin. This maintenance path keeps the indexes, workflow, procedures, and pointers coherent; it does not encode process knowledge in configuration.
 
 ## Enter this maintenance path when
 
@@ -46,4 +46,4 @@ A repository never carries a copy of the workflow. Its `AGENTS.md` and client ro
 ## Where this connects
 
 - [Agentic Development](../../Capabilities/agentic-development/index.md) — the pointer model this maintains.
-- [Documentation Model](../Documentation-Model.md) — how these pages stay evergreen.
+- [Documentation Model](../Documentation-Model.md) — evergreen workflow guidance.
