@@ -5,16 +5,14 @@ description: Workflow authoring — SHA pinning, least-privilege permissions, OI
 
 # GitHub Actions
 
-This standard defines how authors write GitHub Actions workflows across the
-ecosystem. Workflows run with access to credentials and can publish artifacts.
-Workflow authors apply the application-code standards and the supply-chain and
-least-privilege controls below.
+GitHub Actions workflows can access credentials and publish artifacts.
+Workflow authors across the ecosystem apply the application-code standards and
+the supply-chain and least-privilege controls below.
 
-This standard builds on the [language-agnostic baseline](index.md). For the
+Workflow-authoring rules extend the [language-agnostic baseline](index.md). For the
 threat model behind action pinning and vendoring, see
 [Security → Supply chain](Security.md#supply-chain).
-This standard is the canonical workflow-authoring reference for that security
-control.
+The workflow-specific requirements below apply that supply-chain control.
 
 ## Pin actions according to ownership
 
@@ -89,7 +87,6 @@ major without individual pin-update pull requests.
 
 The [Dependency Updates](../Capabilities/dependency-updates/design.md) capability
 defines the schedule, cooldown, and merge policy.
-This section defines the Actions-specific requirements.
 
 ### Audit and synchronize pins manually
 
@@ -551,7 +548,6 @@ Read `needs:` and `if:` together during review.
 
 Steps in a job run in sequence by default.
 Each step starts after the preceding step finishes.
-The rest of this section uses that sequential model.
 **Concurrent steps** run within a single job through these workflow keywords:
 
 - `background: true` starts a step asynchronously and continues to the
@@ -979,15 +975,15 @@ Their configuration derives from the rules above, which are the source of truth:
   Its [ShellCheck integration](https://github.com/rhysd/actionlint/blob/main/docs/checks.md#check-shellcheck-integ)
   checks inline Bash and sh `run:` scripts when enabled and ShellCheck is available.
   It does not check PowerShell or Python through ShellCheck.
-- **[zizmor](https://docs.zizmor.sh/)** audits workflow security, flagging the
-  failures this standard exists to prevent: unpinned actions, excessive
-  `permissions`, template injection from untrusted input, `secrets: inherit`,
+- **[zizmor](https://docs.zizmor.sh/)** audits workflow security, flagging
+  unpinned actions, excessive `permissions`, template injection from untrusted
+  input, `secrets: inherit`,
   and persisted credentials.
 
 Both run through [super-linter](https://github.com/super-linter/super-linter) on
 every push and pull request.
 
-The linters do not detect every violation of this standard.
+The linters do not detect every workflow-authoring violation.
 Review the authoring rules as well as the lint results.
 For conditional dependencies, follow the
 [skipped-job guidance](#a-skipped-job-in-needs-skips-everything-downstream).
@@ -1369,4 +1365,3 @@ one.
 
 The [Merge Automation](../Capabilities/merge-automation/index.md) capability
 defines that end-to-end pattern.
-This section defines its authoring requirements.

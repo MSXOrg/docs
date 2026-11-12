@@ -5,7 +5,7 @@ description: Prove supported behavior through real entry points and APIs, with j
 
 # Testing
 
-Tests are executable specifications. They define intended behavior, verify its implementation, and detect regressions. This page owns the testing policy; language standards and agent skills build on it or link to it rather than define another one.
+Tests are executable specifications. They define intended behavior, verify its implementation, and detect regressions. Language standards and agent skills extend or link to the shared testing policy rather than define separate policies.
 
 ## Test supported behavior
 

@@ -7,7 +7,7 @@ description: Stack layout, version pinning, state and secrets, and the fmt/valid
 
 Terraform provisions cloud infrastructure as code. Infrastructure changes follow the same review and approval gates as application code. See [Decision before change](../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change).
 
-This standard builds on the [language-agnostic baseline](index.md). Where the two overlap, the baseline rules apply and this standard adds Terraform-specific conventions.
+Terraform-specific conventions extend the [language-agnostic baseline](index.md). Where the rules overlap, the baseline rules apply.
 
 ## Stack layout
 

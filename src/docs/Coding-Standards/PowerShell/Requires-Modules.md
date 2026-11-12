@@ -5,7 +5,7 @@ description: Valid `#Requires -Modules` version specifications — minimum, majo
 
 # Module Requirements
 
-Scripts and test files declare module dependencies with [`#Requires -Modules`](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_requires). The value is a module name or a **module-specification hashtable**. This page defines the version-specification forms and when to use them. [Security → Supply chain](../Security.md#supply-chain) explains the rationale. [Scripts](Scripts.md) and [Functions](Functions.md) define placement within each construct.
+Scripts and test files declare module dependencies with [`#Requires -Modules`](https://learn.microsoft.com/powershell/module/microsoft.powershell.core/about/about_requires). The value is a module name or a **module-specification hashtable**. [Security → Supply chain](../Security.md#supply-chain) explains the rationale. [Scripts](Scripts.md) and [Functions](Functions.md) define placement within each construct.
 
 ## Valid version specifications
 

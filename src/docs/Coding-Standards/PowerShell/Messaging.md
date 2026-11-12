@@ -96,12 +96,12 @@ Invoke-RepositoryOperation
 
 ## Relationship to other messaging
 
-This standard covers the two main diagnostic channels. For context:
+Other message streams serve different purposes:
 
 - **`Write-Information`** — user-facing information outside troubleshooting. Use it for important operational summaries that should always be visible without `-Verbose`. The default `$InformationPreference` is `SilentlyContinue`, which hides these messages. `-InformationAction Continue` displays them without changing the preference. For example, "Migration complete: 42 items processed."
 - **`Write-Warning`** — a condition the operator should know about but that did not stop the operation; reserved for genuine warnings, not verbose narration.
 - **`Write-Error`** — reports a non-terminating error by default. `-ErrorAction Stop` makes the error terminating. `$ErrorActionPreference = 'Stop'` does the same unless a command-level error action overrides it. Use `[PSCustomObject]` with `-TargetObject` for structured context, or supply an error record with `-ErrorRecord`.
-- **Logging (event logs, files)** — persistent audit; separate from these streams and outside the scope of this standard.
+- **Logging (event logs, files)** — persistent audit, separate from these streams and their selection rules.
 
 Use each stream for its intended audience so operators and maintainers can find the messages they need.
 

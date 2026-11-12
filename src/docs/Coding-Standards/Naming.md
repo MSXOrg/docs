@@ -38,7 +38,7 @@ Follow the **language's conventions**, and apply them consistently within a code
 
 Solution-owned settings MUST use `<name>.settings.yml` as their conventional filename, where `<name>` identifies the owning solution. One naming shape makes both the owner and the file's purpose discoverable.
 
-Each solution documents its settings location. This standard does not impose a shared directory or change settings schemas, defaults, or precedence.
+Each solution documents its settings location. The filename convention does not impose a shared directory or change settings schemas, defaults, or precedence.
 
 Tool-mandated manifests, lockfiles, workflow filenames, and YAML files that are not solution-owned settings follow their tool's contract, not this settings-filename convention.
 

@@ -7,7 +7,7 @@ description: ES modules, strict-mode typing, pinned dependencies, and the Pretti
 
 TypeScript is the language for Node-based tooling, GitHub Actions written in JavaScript, and **VS Code extensions**. Target the **latest stable TypeScript** on **Node.js Active LTS**. Use **ES modules** and require the compiler's strict mode.
 
-This standard builds on the [language-agnostic baseline](index.md). Where the two overlap, the baseline rules apply and this standard adds TypeScript-specific conventions.
+TypeScript-specific conventions extend the [language-agnostic baseline](index.md). Where the rules overlap, the baseline rules apply.
 
 ## Project shape
 
