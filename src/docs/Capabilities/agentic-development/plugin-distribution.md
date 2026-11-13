@@ -9,8 +9,7 @@ Recurring workflows can have **named intents**. Examples include "review this pu
 "open an issue for this", and "wrap up and hand off". Each intent points to a documented
 procedure.
 
-Runtimes expose an intent as a command, skill, named agent, or plugin. This page defines what
-that packaged entry point can contain.
+Runtimes expose an intent as a command, skill, named agent, or plugin.
 
 ## An intent is a pointer
 
@@ -79,8 +78,8 @@ The body stays a short route with runtime mechanics.
 ## Marketplace structure and skill boundaries
 
 The [Plugin Marketplaces design](design-plugin-marketplaces.md) owns marketplace ownership,
-repository layout, plugin identities, and skill granularity. This page describes named-intent
-distribution and links to those structural rules.
+repository layout, plugin identities, and skill granularity. Named-intent
+distribution follows those structural rules.
 
 For consumer upgrades, `msx-ways-of-working-consumer-upgrades` is the shared
 pointer to [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md).

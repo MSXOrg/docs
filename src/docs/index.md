@@ -35,7 +35,7 @@ Contributors use failures to improve the system, not to assign blame.
 ## What this is
 
 **MSX** defines shared guidance for its GitHub organizations and repositories.
-This site is the canonical source for the vision, principles, and ways of working that each MSX organization, repository, and agent inherits.
+MSXOrg/docs is the canonical source for the vision, principles, and ways of working that each MSX organization, repository, and agent inherits.
 
 - The **why**: the [Vision](Vision/index.md) defines the mission and principles.
 - The **how**: the [Ways of Working](Ways-of-Working/index.md) and [Coding Standards](Coding-Standards/index.md) define shared processes and coding rules.

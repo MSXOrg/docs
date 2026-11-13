@@ -7,11 +7,11 @@ description: GitHub Flavored Markdown authoring rules enforced by the shared mar
 
 Documentation across the ecosystem uses [GitHub Flavored Markdown (GFM)](https://github.github.com/gfm/) and a **single shared `markdownlint` configuration**. Repositories consume this configuration rather than define separate formatting rules.
 
-This standard covers the **syntax and style rules** the linter enforces. For how documentation lives next to the thing it describes, see the [Documentation](Documentation.md) baseline standard and [README-Driven Context](../Ways-of-Working/Readme-Driven-Context.md).
+Markdown linting enforces **syntax and style rules**. For how documentation lives next to the thing it describes, see the [Documentation](Documentation.md) baseline standard and [README-Driven Context](../Ways-of-Working/Readme-Driven-Context.md).
 
 ## The shared configuration is the source of truth
 
-The rules below come from `.github/linters/.markdown-lint.yml`. Markdownlint uses this configuration through super-linter at PR time and on the assembled artifact. Both runs use the **same** configuration. A successful local run covers only the examined content and enabled rules. The configuration file, not this page, is authoritative if they differ.
+The rules below come from `.github/linters/.markdown-lint.yml`. Markdownlint uses this configuration through super-linter at PR time and on the assembled artifact. Both runs use the **same** configuration. A successful local run covers only the examined content and enabled rules. The configuration file is authoritative when a rule description differs.
 
 Check locally before opening a PR:
 
@@ -64,7 +64,7 @@ These rules are disabled or widened so they do not flag valid documentation — 
 
 ## Links are checked
 
-Repositories validate the links this standard requires. This repository runs two checks on every pull request and on every push to `main`. Each check covers a different link scope.
+Repositories validate relative links and in-scope cross-repository links. This repository runs two checks on every pull request and on every push to `main`. Each check covers a different link scope.
 
 **Inside a repository** — `Test-DocumentationLink.ps1` resolves every relative target and every heading anchor against the checkout. It needs no network. It fails when a target or anchor does not resolve.
 

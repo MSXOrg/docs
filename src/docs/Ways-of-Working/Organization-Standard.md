@@ -5,9 +5,9 @@ description: What every initiative organization must define centrally so humans 
 
 # Organization Standard
 
-An MSX initiative organization contains repositories that share one way of working. This standard defines what each repository can expect from the organization. It identifies the source of truth and the files that the organization must manage consistently.
+An MSX initiative organization contains repositories that share one way of working. Each repository can expect a shared source of truth and files that the organization must manage consistently.
 
-This page owns the **why** and **what**. Initiative repositories own the implementation design: how they distribute files, which automation enforces the contract, and how exceptions are handled.
+Organization requirements cover the **why** and **what**. Initiative repositories own the implementation design: how they distribute files, which automation enforces the contract, and how exceptions are handled.
 
 ## Required organization docs
 
@@ -188,8 +188,8 @@ canonical standards.
 ## Where this connects
 
 - [Repository Standard](Repository-Standard.md) — the repository-level contract every repository must satisfy.
-- [Repository Type Property](Repository-Type-Property.md) — the concrete `Type` custom-property mechanism that implements "repository types" and "required custom properties, branch protection" from this page.
-- [Repository Governance](../Capabilities/repository-governance/index.md) — the classification, ruleset, required-file, exemption, and reconciliation machinery that puts this standard in force.
+- [Repository Type Property](Repository-Type-Property.md) — the concrete `Type` custom-property mechanism for repository types, required custom properties, and branch protection.
+- [Repository Governance](../Capabilities/repository-governance/index.md) — the classification, ruleset, required-file, exemption, and reconciliation machinery that enforces organization requirements.
 - [Repository Segmentation](Repository-Segmentation.md) — where a repository's boundary falls, which is what gets classified.
 - [Automation Labels](Automation-Labels.md) — the label vocabulary organization automation reads and writes.
 - [Documentation Model](Documentation-Model.md) — why specs own why and what, while designs own implementation.

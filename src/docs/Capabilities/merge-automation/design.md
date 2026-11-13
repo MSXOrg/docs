@@ -110,7 +110,7 @@ Scope the app's approval to the eligible set the ruleset permits it to satisfy.
 
 ## Where this connects
 
-- [Spec](spec.md) — the requirements this design delivers.
+- [Spec](spec.md) — merge automation requirements.
 - [GitHub Actions](../../Coding-Standards/GitHub-Actions.md#gate-merges-with-a-named-status-check) — authoring the named checks this consumes.
 - [Dependency Updates](../dependency-updates/design.md) — the auto-merge policy this generalizes. Dependency update PRs are the canonical eligible set.
 - [Release Management](../release-management/design.md) — the release a merge triggers on an invoked route.

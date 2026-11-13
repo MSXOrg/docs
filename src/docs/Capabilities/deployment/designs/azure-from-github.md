@@ -5,7 +5,7 @@ description: How the deployment spec is delivered with Azure as the service prov
 
 # Deploying Azure from GitHub
 
-This design defines how one combination satisfies the [Deployment spec](../spec.md):
+The deployment workflow satisfies the [Deployment spec](../spec.md) with
 **Azure** (including Microsoft Entra ID) as the service provider, **GitHub** as
 the CI/CD platform, and **Terraform (open source)** as the change engine. The
 computed resource effect is a **saved Terraform plan**. Each environment has its

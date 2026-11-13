@@ -9,8 +9,8 @@ YAML defines workflows, linter configurations, dependency manifests, and deploym
 descriptors. Valid YAML syntax can still produce unintended values. Use linting rather
 than visual review alone.
 
-This standard builds on the [language-agnostic baseline](index.md). Where the two
-overlap, the baseline rule applies and this standard adds YAML-specific conventions.
+YAML-specific conventions extend the [language-agnostic baseline](index.md).
+Where the rules overlap, the baseline rule applies.
 
 ## Use `.yml` consistently
 

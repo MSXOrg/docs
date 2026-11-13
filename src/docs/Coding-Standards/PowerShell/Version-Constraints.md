@@ -7,7 +7,7 @@ description: "Express module and package version constraints as NuGet version ra
 
 A version constraint specifies which dependency versions are acceptable. PowerShell exposes several interfaces: an `Install-PSResource` call, a `#Requires` line, a module manifest, or a `.csproj`. These interfaces do not all accept the same string. Express constraints in **one** notation: the [NuGet version range](https://learn.microsoft.com/nuget/concepts/package-versioning#version-ranges). The install tooling ([PSResourceGet](https://learn.microsoft.com/powershell/module/microsoft.powershell.psresourceget/)) and .NET package references use it natively. It follows [SemVer](https://semver.org/) and makes minimums, maximums, exact pins, and ranges explicit for review.
 
-This page applies the [Dependencies](../Dependencies.md) standard to PowerShell. That standard defines the locking spectrum and the balance between update speed and supply-chain risk. This page defines the PowerShell syntax for each constraint. It extends the [PowerShell standard](index.md), builds on [Security → Supply chain](../Security.md#supply-chain), and pairs with [Dependency Updates](../../Capabilities/dependency-updates/index.md) for pin maintenance.
+The [Dependencies](../Dependencies.md) standard defines the locking spectrum and the balance between update speed and supply-chain risk. PowerShell constraint syntax extends the [PowerShell standard](index.md), builds on [Security → Supply chain](../Security.md#supply-chain), and pairs with [Dependency Updates](../../Capabilities/dependency-updates/index.md) for pin maintenance.
 
 ## The rule
 

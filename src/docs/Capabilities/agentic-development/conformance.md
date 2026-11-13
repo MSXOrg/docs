@@ -5,9 +5,9 @@ description: What a repository must provide to be conformant with the agentic de
 
 # Conformance
 
-Conformance defines the required files, context resolution, and duplication limits for a
-repository. This page states the baseline it MUST provide, what it MAY add, and how to
-identify a deviation.
+Conformance checks assess a repository's required files, context resolution, and
+duplication limits. A conformant repository MUST meet the baseline and MAY add
+the scoped extensions below.
 
 These checks assess structure and content. Documentation quality requires review; file and
 content inspection establishes whether agent context resolves correctly.
@@ -95,7 +95,7 @@ That answer depends on the same context being assessed.
 
 ## Where this connects
 
-- [Spec](spec.md) — the requirements this checklist measures against.
+- [Spec](spec.md) — agentic-development conformance requirements.
 - [Design](design.md) — the mechanisms each baseline item refers to.
 - [MCP Servers](mcp-servers.md) — the shared tool layer the **Uniform** level requires.
 - [Plugin Distribution](plugin-distribution.md) — the pointer discipline the duplication checks apply to intents.

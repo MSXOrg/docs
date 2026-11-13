@@ -7,7 +7,7 @@ description: Cross-platform PowerShell 7 — the conventions shared by every scr
 
 PowerShell is the tool for operational automation: platform API calls, cross-platform task orchestration, and tool integration. The target is **PowerShell 7 LTS**, the cross-platform `pwsh`. Use PowerShell's advanced-function features rather than plain scripts.
 
-This standard builds on the [language-agnostic baseline](../index.md). Where the two overlap, the baseline rules apply and this standard adds PowerShell-specific conventions. This page contains the shared conventions. Separate pages define documentation requirements, formatting, and section structure for functions, classes, and scripts.
+PowerShell-specific conventions extend the [language-agnostic baseline](../index.md). Where the rules overlap, the baseline rules apply. Functions, classes, and scripts have additional documentation, formatting, and section-structure requirements.
 
 <!-- INDEX:START -->
 
@@ -48,7 +48,7 @@ These hold for all PowerShell, whatever the construct:
 
 ## Formatting
 
-These rules define the layout. [PSScriptAnalyzer](#toolchain) checks the configured rules; its settings derive from this standard, not the reverse. Write code to the rules and let the formatter apply them:
+These rules define the layout. [PSScriptAnalyzer](#toolchain) checks the configured rules; its settings derive from these rules, not the reverse. Write code to the rules and let the formatter apply them:
 
 - **One True Brace Style (OTBS).** Put the opening brace on the statement line and the closing brace on its own line. Always brace control blocks, even a single statement. Do not put a blank line directly after `{` or before `}`. Put `else` / `elseif` / `catch` / `finally` on the line with the preceding closing brace.
 - **Indent with four spaces, never tabs**, and indent comment-based help to align with the function it documents.
@@ -80,7 +80,7 @@ Beyond the basics, these language-specific habits keep PowerShell correct and fa
 
 ## Toolchain
 
-The toolchain checks this standard in CI; it does not define it. The rules above are the source of truth. Tool configurations derive from them:
+The PowerShell rules are the source of truth. The toolchain checks them in CI with configurations derived from those rules:
 
-- **[PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer)** is the linter and formatter. Its settings derive from this standard. Use the formatter rather than formatting code by hand.
+- **[PSScriptAnalyzer](https://github.com/PowerShell/PSScriptAnalyzer)** is the linter and formatter. Its settings derive from the PowerShell rules. Use the formatter rather than formatting code by hand.
 - **[Pester](https://pester.dev/)** is the test framework; test files are named `*.Tests.ps1`. See [PowerShell Testing](Testing.md) for module test layouts.

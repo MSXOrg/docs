@@ -92,8 +92,8 @@ It adds unnecessary work where every merge already releases the change.
 The protected branch's ruleset defines the conditions each pull request must satisfy before merge.
 These include **required status checks**, **required approvals**, and any other configured requirement, such as conversation resolution or signed commits.
 A pull request cannot merge until all required conditions are satisfied, regardless of its readiness state.
-The ruleset is configured in repository settings, not in these files.
-This section defines what the ruleset must enforce; it does not configure those settings.
+The ruleset configuration lives in repository settings.
+Written requirements do not configure or enforce those settings.
 
 Use auto-merge by default.
 A ready pull request with auto-merge enabled squash-merges only after every required condition is satisfied.

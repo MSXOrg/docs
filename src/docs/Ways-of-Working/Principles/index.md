@@ -47,6 +47,6 @@ children: they help a reader find a page and do not claim that a child implement
 or governs its parent. The prohibition applies to normative dependency links,
 which would couple a stable principle to the changing things that apply it.
 
-This layer explains *why* a principle applies. Standards and specifications identify the principles they follow. Readers discover those relationships from the applying layer instead of a duplicate list here.
+Principles explain *why* a belief applies. Standards and specifications identify the principles they follow. Readers discover those relationships from the applying layer instead of a duplicate list in the principles.
 
 A principle MAY name another principle. References between principles are horizontal and do not create a dependency on an implementation.

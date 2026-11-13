@@ -23,7 +23,7 @@ requires it. [Resource documentation](Documentation-Model.md#current-product-gui
 describes supported target-state behavior and usage, not release-specific
 transitions or history.
 
-This page owns the title and description format. The
+The title and description use a shared format. The
 [Contribution Workflow](Contribution-Workflow.md) owns draft, assignment,
 review, and handoff mechanics; [Branching and Merging](Branching-and-Merging.md)
 owns branches, commits, and integration.

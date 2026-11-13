@@ -7,7 +7,7 @@ description: The mission and the philosophy of easy, fast, and safe.
 
 MSX exists to make great software delivery the **default** — easy, fast, and safe — for every developer and every agent.
 
-This page states the **why** behind MSX. Products, languages, and tools change; the mission remains stable. The [Ways of Working](../Ways-of-Working/index.md), [Coding Standards](../Coding-Standards/index.md), and [Initiatives](../Initiatives/index.md) follow this mission.
+Products, languages, and tools change; the mission remains stable. The [Ways of Working](../Ways-of-Working/index.md), [Coding Standards](../Coding-Standards/index.md), and [Initiatives](../Initiatives/index.md) follow this mission.
 
 ## Start with Why
 

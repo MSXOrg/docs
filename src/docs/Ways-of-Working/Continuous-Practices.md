@@ -5,8 +5,6 @@ description: The Continuous X family, Continuous AI, and the DevOps Dojo pillars
 
 # Continuous Practices
 
-This page describes the "Continuous X" practices, how Continuous AI extends them, and their sources.
-
 ## 1. The "Continuous X" Practices
 
 ### Microsoft DevOps Dojo's eight pillars (White Belt)

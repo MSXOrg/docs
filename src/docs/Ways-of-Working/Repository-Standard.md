@@ -9,9 +9,9 @@ A repository is the smallest unit of ownership in the MSX ecosystem. It must exp
 
 The Repository Standard is the default for every governed repository across the MSX Enterprise, regardless of initiative, organization, or technology. It defines the baseline contract a repository must meet to be understandable, secure, and maintainable on its own.
 
-Initiative standards operate at the same altitude as this standard, not beneath it. An initiative such as PSModule adds to and adjusts these defaults for its repository types rather than merely implementing them. A repository inherits every rule this standard sets unless its initiative explicitly changes it; where an initiative standard adds or overrides a rule, the initiative standard governs that initiative's repositories.
+Initiative standards operate at the same altitude as the ecosystem repository standard, not beneath it. An initiative such as PSModule adds to and adjusts these defaults for its repository types rather than merely implementing them. A repository inherits every baseline rule unless its initiative explicitly changes it; where an initiative standard adds or overrides a rule, the initiative standard governs that initiative's repositories.
 
-This page defines the repository-level contract. Initiative documentation defines implementation details such as exact file templates, managed-file source paths, and rollout automation.
+Initiative documentation owns implementation details such as exact file templates, managed-file source paths, and rollout automation.
 
 Which natural language each repository artifact is written in follows [Natural Language](../Coding-Standards/Natural-Language.md).
 

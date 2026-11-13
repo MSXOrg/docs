@@ -9,17 +9,16 @@ A comparative review compares a target with authoritative reference sources.
 Examples include a repository against a standard, an implementation against a
 sibling implementation, or a capability against its specification.
 
-This playbook gives humans and agents the same process for review evidence and
-small, independently actionable issues. Source evidence distinguishes required
-changes from accepted differences.
+Humans and agents use the same evidence process to produce small, independently
+actionable issues. Source evidence distinguishes required changes from accepted
+differences.
 
 The target, references, and domain are **inputs**. The process does not depend
 on a particular target or domain.
 
 ## Purpose and scope
 
-Reviewers follow this playbook to frame, execute, and close a comparative review.
-Its scope includes:
+A comparative review includes:
 
 - Explicit review inputs **before** investigation starts.
 - Small, independently fixable issues based on evidence.
@@ -172,4 +171,4 @@ Each of these MUST hold at closeout:
 - [Issue Planning](Issues/Process/Planning.md) — how the filed issues are sized and ordered afterwards.
 - [Definition of Ready and Done](Definition-of-Ready-and-Done.md) — the readiness bar a filed issue must clear.
 - [Review Etiquette](Review-Etiquette.md) — the tone and severity conventions the findings are written in.
-- [Spec-Driven Development Templates](Spec-Driven-Development-Templates.md) — the orchestration playbook skeleton this page is an instance of.
+- [Spec-Driven Development Templates](Spec-Driven-Development-Templates.md) — the canonical orchestration playbook structure.

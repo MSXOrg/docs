@@ -5,7 +5,7 @@ description: How issue bodies, types, readiness, and relationships evolve throug
 
 # Issue Lifecycle
 
-[Workflow](../../Workflow.md) is the sole definition of the Capture, Refine, Plan, Build, Review, Ship, and Operate phases. This page maps only how an issue's body, native type, readiness, and relationships evolve while work passes through those phases.
+[Workflow](../../Workflow.md) is the sole definition of the Capture, Refine, Plan, Build, Review, Ship, and Operate phases. An issue's body, native type, readiness, and relationships evolve with those phases as follows.
 
 | Workflow phase | Issue evolution |
 | --- | --- |

@@ -265,13 +265,13 @@ Copilot code review uses the head-branch versions of `AGENTS.md`, client routes,
 
 ## Where this connects
 
-- [Spec](spec.md) — the requirements this design delivers.
+- [Spec](spec.md) — agentic development requirements.
 - [MCP Servers](mcp-servers.md) — the shared tool layer every runtime declares in its own format.
 - [Plugin Distribution](plugin-distribution.md) — how named intents are packaged and kept pointer-based.
 - [Runtime Integration](runtime-integration.md) — what each runtime shape supplies, and why it never supplies process.
 - [Agent Interaction](agent-interaction.md) — how agents and humans coordinate through platform artifacts.
 - [Advisory Agents](advisory-agents.md) — agents that produce advice rather than commits.
 - [Conformance](conformance.md) — the checklist a repository is measured against.
-- [Agentic Development framework](index.md) — the framework this design delivers.
+- [Agentic Development framework](index.md) — organization-scoped documentation and agent context.
 - [Documentation Model](../../Ways-of-Working/Documentation-Model.md) — why spec and design are split.
 - [README-Driven Context](../../Ways-of-Working/Readme-Driven-Context.md) — why local repository context remains the front door.

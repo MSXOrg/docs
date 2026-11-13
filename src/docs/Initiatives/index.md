@@ -11,7 +11,7 @@ Each **initiative** is a product that applies the vision through a framework, re
 
 Initiatives inherit the vision, principles, ways of working, and coding standards from this site. Products can change or retire without changing these shared principles.
 
-These pages describe the target roles and contracts of the initiatives. They do not establish which products or controls are deployed.
+Target-state roles and contracts are not evidence of deployed products or controls.
 
 <!-- INDEX:START -->
 
@@ -39,4 +39,4 @@ Each initiative references these principles instead of restating them. Ideas beg
 
 ## A living map
 
-Each initiative links to the [Vision](../Vision/index.md) for its purpose and shared principles. Initiative pages describe the corresponding products and link to their canonical documentation.
+Each initiative follows the [Vision](../Vision/index.md) for its purpose and shared principles. Product details remain in the initiative's canonical documentation.

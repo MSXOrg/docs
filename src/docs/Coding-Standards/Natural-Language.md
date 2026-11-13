@@ -7,7 +7,7 @@ description: Language choice and en-US writing for user and developer interactio
 
 Natural language gives humans and agents instructions and information. It serves user and developer interactions, issues, pull requests, documentation, prompts, comments, help, error messages, and release notes. Write it with the same care as code: clear, testable, consistent, and easy to change.
 
-This standard defines which language each artifact is written in, and how English prose is written in the MSX ecosystem. The project dialect is **American English (`en-US`)**.
+The project dialect is **American English (`en-US`)**.
 
 Reader-facing English MUST follow [ASD-STE100 Issue 9](https://doi.org/10.5281/zenodo.23666006) writing practices and use American English (`en-US`).
 
