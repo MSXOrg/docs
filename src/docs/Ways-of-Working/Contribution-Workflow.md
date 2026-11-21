@@ -34,9 +34,12 @@ flowchart TD
    `<type>/<issue>-<description>` branch. Keep per-change implementation detail in
    that delivery issue and the pull request, not in the spec, design, or parent
    aggregate.
-2. **Open the pull request as a draft.** Use a draft to run CI and iterate before
-   requesting human review. Assign the pull request to
-   its author and apply any repository-owned workflow labels.
+2. **Open the pull request as a draft.** By default, an AI agent drafts and
+   updates the title and description from the evidence required by
+   [PR Format](PR-Format.md). A person can write or update them manually when
+   needed and follows the same format. Use a draft to run CI and iterate before
+   requesting human review. Assign the pull request to its author and apply any
+   repository-owned workflow labels.
 3. **Run the Copilot review loop** (below) until Copilot reports a clean round —
    no changes requested and no new inline comments.
 4. **Finalize and mark the pull request ready for review.** Re-read the complete
