@@ -44,7 +44,7 @@ A manual workflow dispatch does not substitute for the pull-request run. Event-g
 
 Producer review before publication MAY use a verified immutable candidate or
 prerelease source and an immutable template commit, as
-[PR Format](PR-Format.md#complete-description-example) permits. If final template wiring
+[PR Format](PR-Format.md#add-result-details-in-order) permits. If final template wiring
 requires the released producer version, identify that work in a linked delivery
 Task with its owner, sequencing, and completion evidence. Do not create a
 circular pre-merge prerequisite, invent final release coordinates, or describe

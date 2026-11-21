@@ -418,9 +418,10 @@ It MUST state the required action or explain why no action is needed. Deadlines 
 prerequisites that determine whether or when to upgrade MUST be visible.
 When exact technical adoption steps apply, the result MUST carry them in its
 [Migration guide](../../Ways-of-Working/PR-Format.md#write-the-migration-guide),
-with applicability, order, and verification. Review-only evidence MUST
-identify the result or interface it supports. It MUST appear in that result's
-collapsed blocks under [PR Format](../../Ways-of-Working/PR-Format.md#add-result-details-in-order).
+with applicability, order, and verification. Review-only evidence MUST appear
+in a collapsed block for a result it supports. If the evidence also supports
+other results or interfaces, the block MUST identify them. See
+[PR Format](../../Ways-of-Working/PR-Format.md#add-result-details-in-order).
 Announcements MUST NOT truncate the full release record.
 
 Canonical format adherence MUST be verified from the actual title, complete
@@ -457,7 +458,8 @@ MUST block the affected publication rather than become a no-action result.
 
 ```gherkin
 Scenario: A later release includes a skipped change
-  Given change A was merged with a skip decision
+  Given change A affects a supported consumer contract
+  And an approved skip defers publication of A
   And approved change B triggers the next release
   When release notes are frozen
   Then the notes and aggregate decision cover A and B exactly once
@@ -483,8 +485,9 @@ Scenario: Partial destination completion does not repeat published module change
 ### FR11 — Eligibility evaluates the complete unreleased artifact scope {#fr11}
 
 Only changes that affect the delivered artifact or a supported consumer contract
-MUST produce a release. Eligibility MUST evaluate the complete unreleased range,
+are eligible for release. Eligibility MUST evaluate the complete unreleased range,
 including direct and transitive build inputs, rather than only the latest change.
+An [approved skip](#fr1) can defer an eligible change.
 If that range affects neither the artifact nor a supported contract, Release
 Management MUST NOT select a version bump, publish a release, or send a
 completion announcement. Validation MUST still run when publication is skipped.

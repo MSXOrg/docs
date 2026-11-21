@@ -215,12 +215,13 @@ Record these decisions:
 
 1. **Release or skip.** Apply the
    [release scope rules](../Capabilities/release-management/design.md#release-scope)
-   to the full range. If the range has an effect on the delivered artifact
-   or a supported consumer contract, release it. If it has no such effect, select
-   `release:skip`. This decision has no version bump or completion announcement.
-   Validation still runs. An internal-only PR diff does not show that the
-   full range is internal. If the range has earlier unpublished product
-   changes, include them in the decision and the consumer summary.
+   to the full range. If the range qualifies, record `Release: Yes` unless an
+   [approved skip](../Capabilities/release-management/spec.md#fr1) defers publication.
+   If the range does not qualify or the decision defers it, use `release:skip`.
+   A skip has no version bump or completion announcement. Validation still runs.
+   Keep deferred changes in the range for a later release. An internal-only PR
+   diff does not show that the full range is internal. If the range has earlier
+   unpublished product changes, include them in the decision and the consumer summary.
 2. **Version bump.** For a release, select Patch, Minor, or Major from the
    effect on compatibility. Do not use changes outside the release scope
    to select the bump.
@@ -347,6 +348,7 @@ For internal-only work with no release, the summary is for
 reviewers, not an announcement. The marker does not trigger an announcement.
 
 <a id="describe-each-result"></a>
+<a id="explain-each-reader-facing-result"></a>
 
 ### Write each result
 
@@ -424,6 +426,8 @@ Put all `Internal:` sections after the consumer sections. If the pull request
 has only internal changes, start the `Internal:` sections directly after the
 summary marker. Do not add a consumer section.
 
+<a id="close-each-section-with-supporting-details"></a>
+
 ### Add result details in order
 
 Put the detail blocks after the visible text and any example. For each type
@@ -441,10 +445,14 @@ supports.
 
 Put the evidence for the
 [standards and framework alignment pass](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass)
-in `Technical details`. Include the consumer and immutable template
-compatibility evidence that applies. If a release-bound record has no
-applicable template, give the reason.
-See the [Release Management requirements](../Capabilities/release-management/spec.md#release-evidence).
+in `Technical details`. Include the applicable consumer compatibility evidence.
+If an integration template applies, give its repository and full commit SHA.
+Show that the template commit works with the exact producer source. Before
+publication, use a verified immutable candidate or prerelease source. If
+a release-bound record has no applicable template, give the reason.
+See the [Release Management requirements](../Capabilities/release-management/spec.md#release-evidence)
+and the [completion gate](Definition-of-Ready-and-Done.md#repository-delivery-leaf)
+for the evidence required after publication.
 
 Record the [publication baseline and candidate](#resolve-release-coverage-first),
 comparison, and freshness evidence once per range. Keep the scoped PR-base
@@ -594,11 +602,12 @@ finds no other issue that the PR resolves, record that result. }}
 | --- | --- | --- | --- |
 | `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
 
-{{ For each range, record the publication baseline and receipt. Record the
-immutable artifact and source identities and the fixed candidate. Record the
-comparison and freshness evidence. Give shared evidence only once. Identify
-the results it supports. Record the scoped PR-base comparison separately.
-Do not give a predicted version. }}
+{{ For each range, record the publication baseline, receipt, and immutable
+artifact and source identities. For a first publication, give evidence that
+there is no earlier artifact. Record the fixed candidate, comparison, and
+freshness evidence. Give shared evidence only once. Identify the results it
+supports. Record the scoped PR-base comparison separately. Do not give a
+predicted version. }}
 
 {{ If an integration template applies, give its repository and compatible
 immutable commit. Give evidence of compatibility with the fixed source. If
@@ -765,9 +774,10 @@ Before you mark the pull request ready, use this list:
 - Make sure that release-bound claims match the full range. Make sure
   that implementation claims match the separate scoped PR diff.
 - For a release-bound record, make sure that the publication baseline and
-  exact candidate are correct and current. Include the product, target, and
-  channel. Include the successful publication and immutable artifact and source
-  evidence. If not all destinations complete, use the receipts for the
+  exact candidate are correct and current. Include the product, target, and channel.
+  For a first publication, include evidence that there is no earlier artifact.
+  Otherwise, include the successful publication and immutable artifact and
+  source evidence. If not all destinations complete, use the receipts for the
   destinations that published. A GitHub hint is not proof.
 - Include consumer changes from earlier merges, direct commits, skip
   decisions, and bundled work. Do not make coverage claims until you have
@@ -788,6 +798,9 @@ Before you mark the pull request ready, use this list:
   Give the applicable baselines and uses, exact edits, and steps in order.
   Give the checks and their expected results. If no steps apply, do not add
   the block.
+- If an integration template applies, verify its immutable commit against
+  the exact producer source. If no template applies to a release-bound record,
+  give the reason.
 - For a release-bound PR, make sure that the full title and description apply
   to the fixed source. Include all collapsed blocks. Do not put a required step
   only in a diff, link, issue, template, or evergreen document.
