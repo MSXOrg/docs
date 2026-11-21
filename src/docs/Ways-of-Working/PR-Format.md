@@ -10,7 +10,7 @@ people and systems that use the products of the repository.
 
 If the pull request has both consumer and internal changes, put the internal
 changes at the end. If the pull request has only internal changes, give the
-internal result first. Put review evidence at the end.
+internal result first. Keep review evidence with the result it supports.
 
 For a release-bound pull request, write the release note in that pull request.
 Publication uses the frozen snapshot of the complete reviewed title and
@@ -58,7 +58,7 @@ understand or do. Do not say that the change also updates the documented system.
 ### Resolve release coverage first
 
 For a release-bound record, establish the artifact-to-candidate range before
-inspecting a scoped PR diff or writing the title, classified results, adoption
+inspecting a scoped PR diff or writing the title, result sections, adoption
 actions, or compatibility decision. The
 [actual publication route](../Capabilities/release-management/design.md#applicability)
 determines the product, publishing target, and stable/prerelease channel.
@@ -90,13 +90,13 @@ artifact target's publication baseline.
    does not define this boundary.
 5. **Inventory the complete delivered range.** Inspect every consumer-facing
    change in that comparison, including earlier merged, skipped, or otherwise
-   unshipped changes. Use this inventory for the title, ordered result groups,
+   unshipped changes. Use this inventory for the title, ordered result sections,
    complete adoption actions, and compatibility decision. Do not classify a
    change as new merely because an older publication record finished later.
 
-Record these identities in the `Technical details` block once per applicable
-product, publishing target, and channel. Identify which range supports each
-result when the ranges differ:
+Record these identities in a `Technical details` block for a result they
+support. Record them once per applicable product, publishing target, and
+channel. Identify which range supports each result when the ranges differ:
 
 | Field | Evidence |
 | --- | --- |
@@ -187,8 +187,8 @@ that producer's PR/release record. Hold finalization until the effective mapping
 and required decision check are verified; do not apply a label the pipeline
 ignores, silently translate it, or classify an incompatible producer as unmanaged.
 
-If the route does not invoke Release Management, omit the entire `Release
-decisions` block and do not apply or report any `release:*` label, including
+If the route does not invoke Release Management, omit the `Release details`
+block. Do not apply or report any `release:*` label, including
 `release:skip`.
 
 If the route does invoke Release Management, resolve these decisions from the
@@ -216,21 +216,20 @@ decision source, not an error recovery path.
 ### Select the news
 
 If a change has an effect on consumers, use the title for the most important
-consumer result. Write the shareable summary for consumers. Use the classified
-sections only for consumer results. Include all applicable changes and upgrade
-steps. Put maintainer-only changes and review evidence
-[at the end](#put-maintainer-content-last).
+consumer result. Write the shareable summary for consumers. Include all
+applicable consumer changes and upgrade steps. Put
+[maintainer-only sections](#put-maintainer-content-last) after all consumer
+sections. Keep supporting details with the result they support.
 
 If the work has only internal changes, give the internal result in the title.
 Give the reason for the change in the summary. Do not add a consumer result
-or an upgrade step.
+or a consumer upgrade step.
 
 ### Group related changes
 
-Group consumer changes by result or affected interface, not by commit, file,
+Group changes by result or affected interface, not by commit, file,
 issue, or implementation step. One section may describe several files that
-jointly deliver one result. Give distinct consumer results their own sections
-and classify each once.
+jointly deliver one result. Give each distinct result its own section.
 
 ## Write in Simplified Technical English
 
@@ -302,10 +301,11 @@ The marker appears exactly once, on its own line, outside a code fence, and
 before the first detailed section. Text before it must remain useful when shared
 without the rest of the description.
 
-### Explain each reader-facing result
+### Describe each result
 
-Use these classifiers for consumer results only. Keep this order and omit
-empty groups. An internal-only pull request has no classified sections.
+Start each result section with an H2 heading: `## <qualifier>: <result>`.
+Give the description below the heading. Use these qualifiers in order for
+consumer results. Do not add empty sections.
 
 1. `## Breaking: <result>`
 2. `## Removed: <result>`
@@ -313,7 +313,7 @@ empty groups. An internal-only pull request has no classified sections.
 4. `## Changed: <result>`
 5. `## Fixed: <result>`
 
-| Classifier | Use when |
+| Qualifier | Use when |
 | --- | --- |
 | `Breaking` | A supported consumer must act or an existing supported use becomes incompatible. |
 | `Removed` | A supported capability, interface, or documented path is no longer available. |
@@ -321,29 +321,27 @@ empty groups. An internal-only pull request has no classified sections.
 | `Changed` | Existing behavior, configuration, or guidance changes compatibly. |
 | `Fixed` | An incorrect behavior or guidance now works as intended. |
 
-Use one result as the section heading. Do not use only the component name.
-Start the section with one or two visible paragraphs. Tell the reader what
+Name the result in the heading, not only the component. Start the description
+with one or two visible paragraphs. For a consumer result, tell the reader what
 changes and why. Identify which supported uses the change applies to. Tell the
 reader if those uses stay compatible. Give the required action. If the consumer
 only has to select the release reference, give the reason. If a prerequisite
 or deadline controls whether or when to upgrade, put it in the visible text.
-Do not put it only in a collapsed block. For a documentation change, use the
-classifier for the new result of the guidance.
+Do not put it only in a collapsed block. For a documentation change, choose
+the qualifier that describes what readers can now understand or do.
 
 ### Show interfaces after the prose
 
 After the opening prose, add a short interface example or compact table only
 when it clarifies the result. Do not lead a section with a code block or table.
-Put exact transition examples in `Migration details`.
+Put exact transition examples in the `Migration guide`.
 
-Link optional usage documentation using an absolute default-branch URL or the
-canonical published URL so the link survives when the pull request becomes a
-release record. Never include secret values.
+Never include secret values.
 
-### Record migration details
+### Write the migration guide
 
 If a result has technical steps for adoption, put them in one `<details>`
-block. Use `Migration details` as the exact summary. If a compatible change
+block. Use `Migration guide` as the exact summary. If a compatible change
 has adoption steps, use the block for those steps. If adoption is optional,
 tell the reader in the visible text. If no migration applies, do not add the
 block. Do not use an empty block or a placeholder for no action.
@@ -352,11 +350,11 @@ block. Do not use an empty block or a placeholder for no action.
   uses and prerequisites.
 - Give exact old and new names, values, commands, or examples. For first-time
   adoption, give the exact setup. Do not add a previous state that did not exist.
-- Put edits and operations in the order the consumer must do them. If an
+- Put edits and operations in the order the reader must do them. If an
   intermediate installation or run is necessary, give the version or source.
   Give the steps for that operation. Give the reason why it is necessary.
 - Give the checks and their expected results. If a check must pass before the
-  consumer continues, put the check before the next step.
+  reader continues, put the check before the next step.
 
 If a release changes an earlier instruction, tell the reader which step to
 remove or replace. Tell the reader which intermediate steps still apply.
@@ -365,21 +363,31 @@ diff, link, issue, template, or evergreen document.
 
 ### Put maintainer content last
 
-After the last consumer result, add each applicable collapsed block one time.
-Use the order below. These blocks apply to the complete pull request.
+Use `## Internal: <what changes internally>` for a result that applies only to
+maintainers.
+Give the result and the reason below the heading. Use the same block order as
+for a consumer result. If maintainers must act, give the action in the visible
+text and the exact steps in that section's `Migration guide`. Keep consumer
+steps in the consumer section they belong to.
 
-1. `Internal changes`: Give a short summary of each useful change for
-   maintainers only. Give the reason for each change. If there is no useful
-   internal result, do not add the block.
-2. `Technical details`: Record implementation and validation evidence. Name
-   the result or changed interface that each item supports.
-3. `Related references`: Include closing and non-closing references. Name
-   the relevant result or interface when the connection is not clear.
+Put all `Internal:` sections after the consumer sections. If the pull request
+has only internal changes, start the `Internal:` sections directly after the
+summary marker. Do not add a consumer section.
 
-For internal-only work, put the applicable `Technical details` and `Related
-references` blocks directly after the summary marker. Do not repeat the outcome
-in an `Internal changes` block. Keep every consumer migration step with its
-consumer result, not in the maintainer blocks.
+### Add result details in order
+
+After the visible text and any example, add one collapsed `<details>` block
+for each type that applies to the result. Use these exact summaries in this
+order:
+
+1. `Migration guide`: Give the technical steps to adopt the result.
+2. `Technical details`: Give evidence of the implementation and checks.
+3. `Related links`: Give closing and non-closing references, and any optional
+   usage links for the result.
+
+Keep each block in a result section. If several results share evidence, record
+it once in a section it supports. Name the other results or interfaces it
+supports.
 
 Put the standards and framework alignment evidence required by
 [Implement](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass)
@@ -393,27 +401,29 @@ not release-note coverage.
 
 Record the closing delivery leaf's implementation-plan progress and the
 [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep)
-search scope and outcome in that same block, including when no additional issue
-converges.
+search scope and outcome in a `Technical details` block for a result they
+support. Record the outcome even when no other issue converges.
 
 Use fully qualified `owner/repository#number` references for every same-instance
 GitHub issue or pull request, including references to the current repository.
 Use closing keywords only for issues the complete change actually resolves.
 Prefix non-closing relationships with terms such as `References`, `Depends on`,
 or `Followed by`. Use absolute Markdown links for Jira, cross-instance GitHub,
-and references that will render outside GitHub.
+and references that will render outside GitHub. For optional usage
+documentation, use an absolute default-branch URL or the canonical published
+URL. The link must also work in the release record.
 
 Do not include AI or agent attribution anywhere in the description.
 
 ### Record release decisions only when invoked
 
-When the target route invokes Release Management, add one `Release decisions`
-block at the end, after all other content. Apply the exact labels the block
-reports:
+When the target route invokes Release Management, add one standalone `<details>`
+block after all other content. Use `Release details` as the exact summary.
+This block is not part of a result. Apply the exact labels the block reports:
 
 ```markdown
 <details>
-<summary>Release decisions</summary>
+<summary>Release details</summary>
 
 - **Release:** Yes - the delivered artifact and supported caller contract change.
 - **Version bump:** Minor - callers gain a compatible optional input.
@@ -427,7 +437,7 @@ For a no-release decision, include only the decision and its label:
 
 ```markdown
 <details>
-<summary>Release decisions</summary>
+<summary>Release details</summary>
 
 - **Release:** No - the change does not affect the artifact or its supported consumer contracts.
 - **Labels:** `release:skip`
@@ -451,11 +461,14 @@ Use this order:
 
 1. Summary prose: consumer impact, or the operational outcome for internal-only work.
 2. The shareable-summary marker.
-3. Consumer sections in classifier order, each with its own `Migration details`
-   block when applicable. Omit these sections for internal-only work.
-4. Applicable end blocks in order: `Internal changes` (mixed work only),
-   `Technical details`, and `Related references`.
-5. `Release decisions` last, only when the target route invokes Release Management.
+3. Consumer sections in qualifier order. Do not add these sections for
+   internal-only work.
+4. `Internal:` sections after all consumer sections.
+5. `Release details` last, only when the target route invokes Release Management.
+
+In each result section, put the H2 heading first. Give the description next.
+Then add the applicable blocks in this order: `Migration guide`,
+`Technical details`, and `Related links`.
 
 Do not add a `Summary` heading, empty sections or blocks, or parallel
 release-note metadata.
@@ -469,9 +482,11 @@ when you use either example.
 
 Use the most important consumer result as the title. Replace every placeholder
 below and delete sections, examples, or blocks that do not apply. Repeat a
-consumer section when several distinct results share the same classifier.
-Keep classifier order and include `Migration details` only where there are
-technical adoption steps, including compatible adoption where applicable.
+section when several distinct results share the same qualifier. Keep consumer
+sections in qualifier order. Put all `Internal:` sections after the consumer
+sections. For consumer-only work, omit the `Internal:` section. Use the
+applicable blocks in each section in the order shown under `Breaking:`. If a
+result has technical adoption steps, give them in its `Migration guide`.
 
 Use the final block only for a route that invokes Release Management. Follow
 [Record release decisions only when invoked](#record-release-decisions-only-when-invoked)
@@ -490,138 +505,122 @@ deadline or prerequisite that controls whether or when to upgrade. }}
 
 ## Breaking: {{ Consumer result }}
 
-{{ Tell the reader what changes and why. Identify which supported uses the
-change applies to. Tell the reader if those uses stay compatible. Give the
-required action. If no action is necessary, give the reason. Give any
-prerequisite or deadline that controls whether or when to upgrade. }}
+{{ Tell the reader what changes and why. Identify the affected supported uses.
+Tell the reader which uses are no longer compatible. Give the required action.
+Give any prerequisite or deadline that controls whether or when to upgrade. }}
 
 {{ Optional short interface example or table that clarifies the result. }}
 
 <details>
-<summary>Migration details</summary>
+<summary>Migration guide</summary>
 
 {{ Identify the applicable baselines, uses, and prerequisites. Give exact old
 and new values or examples. Give the steps in order. Include any necessary
 intermediate operation. Give the checks and their expected results. Tell the
 reader which earlier steps to remove, replace, or keep. }}
-
-</details>
-
-## Removed: {{ Consumer result }}
-
-{{ Tell the reader what changes and why. Identify which supported uses the
-change applies to. Tell the reader if those uses stay compatible. Give the
-required action. If no action is necessary, give the reason. Give any
-prerequisite or deadline that controls whether or when to upgrade. }}
-
-{{ Optional short interface example or table that clarifies the result. }}
-
-<details>
-<summary>Migration details</summary>
-
-{{ Identify the applicable baselines, uses, and prerequisites. Give exact old
-and new values or examples. Give the steps in order. Include any necessary
-intermediate operation. Give the checks and their expected results. Tell the
-reader which earlier steps to remove, replace, or keep. }}
-
-</details>
-
-## New: {{ Consumer result }}
-
-{{ Tell the reader what changes and why. Identify which supported uses the
-change applies to. Tell the reader if those uses stay compatible. Give the
-required action. If no action is necessary, give the reason. Give any
-prerequisite or deadline that controls whether or when to upgrade. }}
-
-{{ Optional short interface example or table that clarifies the result. }}
-
-<details>
-<summary>Migration details</summary>
-
-{{ Identify the applicable baselines, uses, and prerequisites. Give exact old
-and new values or examples. Give the steps in order. Include any necessary
-intermediate operation. Give the checks and their expected results. Tell the
-reader which earlier steps to remove, replace, or keep. }}
-
-</details>
-
-## Changed: {{ Consumer result }}
-
-{{ Tell the reader what changes and why. Identify which supported uses the
-change applies to. Tell the reader if those uses stay compatible. Give the
-required action. If no action is necessary, give the reason. Give any
-prerequisite or deadline that controls whether or when to upgrade. }}
-
-{{ Optional short interface example or table that clarifies the result. }}
-
-<details>
-<summary>Migration details</summary>
-
-{{ Identify the applicable baselines, uses, and prerequisites. Give exact old
-and new values or examples. Give the steps in order. Include any necessary
-intermediate operation. Give the checks and their expected results. Tell the
-reader which earlier steps to remove, replace, or keep. }}
-
-</details>
-
-## Fixed: {{ Consumer result }}
-
-{{ Tell the reader what changes and why. Identify which supported uses the
-change applies to. Tell the reader if those uses stay compatible. Give the
-required action. If no action is necessary, give the reason. Give any
-prerequisite or deadline that controls whether or when to upgrade. }}
-
-{{ Optional short interface example or table that clarifies the result. }}
-
-<details>
-<summary>Migration details</summary>
-
-{{ Identify the applicable baselines, uses, and prerequisites. Give exact old
-and new values or examples. Give the steps in order. Include any necessary
-intermediate operation. Give the checks and their expected results. Tell the
-reader which earlier steps to remove, replace, or keep. }}
-
-</details>
-
-<details>
-<summary>Internal changes</summary>
-
-{{ Give each useful change for maintainers only. Give the reason for it. }}
 
 </details>
 
 <details>
 <summary>Technical details</summary>
 
-{{ Record implementation and validation evidence by result or changed
-interface. Record closing delivery-leaf plan progress and the issue-convergence
-search scope and outcome, even when no additional issue converges. }}
+{{ Give the implementation and checks for this result. Record the delivery
+plan status and the issue search scope and outcome in the section they support.
+If no other issue converges, record that result. }}
 
 | Changed surface | Standards checked | Framework docs checked | Result |
 | --- | --- | --- | --- |
 | `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
 
-{{ For each applicable range, record the product, target, and channel, latest
-successful artifact and immutable source, exact candidate source, comparison,
-and freshness as specified under Resolve release coverage first. State which
-results the range covers. Record the scoped PR-base comparison separately.
-For an affected integration template, identify its repository, verified
-compatible immutable commit, and compatibility evidence. Do not predict a
-final version. Delete inapplicable evidence. }}
+{{ Record the publication baseline, receipt, immutable artifact and source
+identities, candidate, comparison, and freshness evidence for each applicable
+range. Give shared evidence only once. Name the results it supports. Record
+the scoped PR-base comparison separately. If an integration template applies,
+give its repository, compatible immutable commit, and verification evidence.
+Do not predict the final version. }}
 
 </details>
 
 <details>
-<summary>Related references</summary>
+<summary>Related links</summary>
 
 - Resolves MSXOrg/repository#123
-- References MSXOrg/repository#456
 - Depends on MSXOrg/other-repository#789
 
 </details>
 
+## Removed: {{ Consumer result }}
+
+{{ Name the removed interface and tell the reader why it is no longer
+available. Identify who uses it. Give the required action and any timing
+constraints. }}
+
 <details>
-<summary>Release decisions</summary>
+<summary>Migration guide</summary>
+
+{{ Give the exact steps and checks for consumers who use the removed
+interface. }}
+
+</details>
+
+## New: {{ Consumer result }}
+
+{{ Tell the reader what consumers can now do and why it helps. Identify the
+uses that stay compatible. For a new feature that consumers can choose to
+use, state that adoption is optional. Give any applicable timing constraints. }}
+
+<details>
+<summary>Migration guide</summary>
+
+{{ Give the exact setup and checks for consumers who adopt the new feature. }}
+
+</details>
+
+## Changed: {{ Consumer result }}
+
+{{ Explain what changes and why. Identify the uses that stay compatible and
+why no action is necessary. Give any applicable timing constraints. }}
+
+<details>
+<summary>Technical details</summary>
+
+{{ Give the implementation and checks for the compatible change. }}
+
+</details>
+
+## Fixed: {{ Consumer result that needs no migration }}
+
+{{ Tell the reader what the fix changes and why. Identify the supported uses
+that stay compatible. Give the reason why consumers do not need to act. }}
+
+## Internal: {{ What changes internally }}
+
+{{ Tell maintainers what changes and why. If they need to act, give the
+required action here. }}
+
+<details>
+<summary>Migration guide</summary>
+
+{{ Give the step-by-step instructions and checks for maintainers only. }}
+
+</details>
+
+<details>
+<summary>Technical details</summary>
+
+{{ Give the implementation and checks for this maintainer result. }}
+
+</details>
+
+<details>
+<summary>Related links</summary>
+
+- References MSXOrg/repository#456
+
+</details>
+
+<details>
+<summary>Release details</summary>
 
 - **Release:** {{ Yes or No }} - {{ Evidence from the artifact, route, and
   supported consumer contract. }}
@@ -643,8 +642,8 @@ final version. Delete inapplicable evidence. }}
 Example title: `Docs builds use a cache for Python packages`
 
 This route deploys the docs site. It does not publish a versioned artifact.
-The example has no `Release decisions` block. If the actual route invokes
-Release Management, put the `Release decisions` block at the end. Use the
+The example has no `Release details` block. If the actual route invokes
+Release Management, put the `Release details` block at the end. Use the
 same release criteria as for other changes. Do not select skip only because
 the change is internal.
 
@@ -653,6 +652,11 @@ The docs build job keeps Python packages in a cache. Later runs use the cache
 and do not download the same packages again.
 
 <!-- ANNOUNCEMENT STOP -->
+
+## Internal: Later docs builds use the package cache
+
+The build job gets Python packages from the cache when the requirements file
+has not changed. The build command stays the same.
 
 <details>
 <summary>Technical details</summary>
@@ -670,7 +674,7 @@ issue in that set.
 </details>
 
 <details>
-<summary>Related references</summary>
+<summary>Related links</summary>
 
 - Resolves MSXOrg/repository#123
 
@@ -698,12 +702,14 @@ Before marking the pull request ready, verify:
   inputs are resolved; an initial publication has explicit reviewed initial
   coverage rather than a fabricated predecessor or no-action assumption;
 - when any result affects consumers, only consumer results appear in the
-  title, shareable summary, and classified sections. Classifier groups are
-  non-empty and ordered;
+  title, shareable summary, and consumer sections. Consumer sections are in
+  qualifier order;
+- each result starts with `## <qualifier>: <result>` and a visible description.
+  All `Internal:` sections follow the consumer sections;
 - consumer-facing prose explains what changed and why, affected supported uses,
   compatibility, and the required action or compatible no-action outcome. It
   shows deadlines and prerequisites that affect whether or when to upgrade;
-- each result with technical adoption steps has a `Migration details` block
+- each result with technical adoption steps has a `Migration guide` block
   with applicability, exact edits, ordered operations, and verification.
   Results with no migration have no block;
 - for a release-bound PR, the complete reviewed title and description,
@@ -712,18 +718,17 @@ Before marking the pull request ready, verify:
 - release-order composition preserves required intermediate operations without
   assuming every intermediate version must be installed;
 - prose precedes optional examples and tables;
-- in mixed work, useful maintainer-only outcomes appear in one optional
-  `Internal changes` block after all consumer results. Review-only `Technical
-  details` and `Related references` follow there, with evidence mapped to the
-  result or interface it supports and common source evidence recorded once;
+- each result has one collapsed block per applicable type. The order is
+  `Migration guide`, `Technical details`, then `Related links`. Shared evidence
+  appears once and names the results or interfaces it supports;
 - for internal-only work, the title names the internal outcome and the summary
-  explains why it matters. No classified section, migration block, or `Internal
-  changes` block appears. Any review evidence follows the marker;
+  explains why it matters. No consumer results or consumer upgrade steps
+  appear;
 - same-instance references are fully qualified and closing keywords are
   accurate;
 - release metadata and `release:*` labels are absent when the route does not
   invoke Release Management;
-- when Release Management applies, `Release decisions` is the final block and
+- when Release Management applies, `Release details` is the final block and
   agrees with the labels, effective configuration, and complete-change evidence;
 - the description contains no AI or agent attribution.
 

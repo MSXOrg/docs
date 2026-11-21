@@ -178,7 +178,7 @@ exists. Delivery records contain that evidence and any remaining gap.
 The release-bound PR is the single authored record. Publication preserves a
 frozen snapshot of its complete reviewed title and description for the fixed
 source, including collapsed blocks. [PR Format](PR-Format.md) owns the visible
-result and its `Migration details` block.
+result and its `Migration guide` block.
 
 For MSX releases, consumers compose the upgrade from all applicable notes after
 their actual consumed baseline through the fixed target. Only those notes

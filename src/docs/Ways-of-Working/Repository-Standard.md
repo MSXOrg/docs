@@ -195,7 +195,7 @@ A pull request closes one scoped Task or Bug, with any additional closing links
 limited to issues the session-end convergence sweep shows are fully delivered by
 the same diff. When the target route invokes Release Management, the description
 and labels carry its evidence-based release decision. A route without that
-invocation carries neither the `Release decisions` block nor `release:*` labels.
+invocation carries neither the `Release details` block nor `release:*` labels.
 
 Contribution guidance and thin skills direct humans and agents to the
 [complete PR description example](PR-Format.md#complete-description-example).

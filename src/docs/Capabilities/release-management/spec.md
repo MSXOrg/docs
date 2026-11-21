@@ -417,10 +417,10 @@ and why, which supported uses it affects, and whether they remain compatible.
 It MUST state the required action or explain why no action is needed. Deadlines and
 prerequisites that determine whether or when to upgrade MUST be visible.
 When exact technical adoption steps apply, the result MUST carry them in its
-[Migration details block](../../Ways-of-Working/PR-Format.md#record-migration-details),
-with applicability, order, and verification. Review-only evidence MUST follow
-all consumer results and identify the result or interface it supports, under
-[PR Format](../../Ways-of-Working/PR-Format.md#put-maintainer-content-last).
+[Migration guide](../../Ways-of-Working/PR-Format.md#write-the-migration-guide),
+with applicability, order, and verification. Review-only evidence MUST
+identify the result or interface it supports. It MUST appear in that result's
+collapsed blocks under [PR Format](../../Ways-of-Working/PR-Format.md#add-result-details-in-order).
 Announcements MUST NOT truncate the full release record.
 
 Canonical format adherence MUST be verified from the actual title, complete

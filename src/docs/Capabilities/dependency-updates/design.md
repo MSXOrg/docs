@@ -105,7 +105,7 @@ This adoption obligation uses the existing review path, not another updater.
 Dependency changes are collected before any repository release decision is
 made. When the target route invokes [Release
 Management](../release-management/design.md), that capability resolves the
-repository-wide effect. Otherwise the pull request omits the `Release decisions`
+repository-wide effect. Otherwise the pull request omits the `Release details`
 block and all `release:*` labels.
 
 ## Review and merge

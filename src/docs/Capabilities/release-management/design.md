@@ -484,11 +484,12 @@ affected uses and compatibility, and the required action or explicit
 no-action outcome.
 Keep prerequisites and deadlines that affect whether or when to upgrade
 visible. Put exact adoption steps in the result's
-[Migration details block](../../Ways-of-Working/PR-Format.md#record-migration-details)
-when they apply. Put maintainer-only outcomes and review evidence in the
-[end blocks](../../Ways-of-Working/PR-Format.md#put-maintainer-content-last),
-not between consumer results. For internal-only work, the summary states the
-operational outcome and review evidence follows the marker.
+[Migration guide](../../Ways-of-Working/PR-Format.md#write-the-migration-guide)
+when they apply. Keep review evidence in the
+[detail blocks](../../Ways-of-Working/PR-Format.md#add-result-details-in-order)
+for the result it supports. Put
+[maintainer-only sections](../../Ways-of-Working/PR-Format.md#put-maintainer-content-last)
+after all consumer sections.
 
 Verify format adherence from the actual title, complete body, source coverage,
 and evidence for each affected result or interface. Similarity to an inherited

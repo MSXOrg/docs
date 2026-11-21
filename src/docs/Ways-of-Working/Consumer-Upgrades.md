@@ -120,12 +120,14 @@ traversal.
 ### Stage 3: Compose the action ledger
 
 Read each applicable record in full. Read the visible results for impact and
-timing, and open the [Migration details blocks](PR-Format.md#record-migration-details)
-for exact steps. Read supporting evidence, including template compatibility,
-where applicable. Together the MSX release records after the actual baseline
-through the fixed target supply every release-specific action. A diff, link,
-issue, template, or evergreen document can corroborate an action but cannot
-fill a gap in those instructions.
+timing. For each consumer result that applies to your use, read its
+[Migration guide](PR-Format.md#write-the-migration-guide) when it has one.
+Do not add steps from `Internal:` sections to the consumer ledger.
+Read supporting evidence, including template compatibility, where applicable.
+Together the MSX release records after the actual baseline through the fixed
+target supply every release-specific action. A diff, link, issue, template, or
+evergreen document can corroborate an action but cannot fill a gap in those
+instructions.
 
 1. Associate each release/change identifier with the consumer surfaces it
    affects. Record applicability against the actual baseline and intended use,
