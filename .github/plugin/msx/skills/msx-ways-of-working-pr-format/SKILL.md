@@ -1,6 +1,6 @@
 ---
 name: msx-ways-of-working-pr-format
-description: Format MSX pull request titles, descriptions, change types, and labels.
+description: Format MSX pull request titles, descriptions, change types, and labels. Use when authoring release notes and migration instructions in a release-bound pull request.
 ---
 
 # Follow the MSX pull request format

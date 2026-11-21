@@ -175,12 +175,17 @@ not a parallel history file or migration-guide hierarchy.
 A normative contract is not proof that its implementation or CI enforcement
 exists. Delivery records contain that evidence and any remaining gap.
 
-Release notes explain what changed, why, who is affected, compatibility, and
-exact applicable adoption actions or an explicit no-action result. All applicable
-records after the actual consumed baseline through the target supply the required
-upgrade actions. PRs and diffs provide optional detail. General upgrade procedures
-may explain how to use those records. They do not become another source of
-release-specific instructions.
+The release-bound PR is the single authored record. Publication preserves a
+frozen snapshot of its complete reviewed title and description for the fixed
+source, including collapsed blocks. [PR Format](PR-Format.md) owns the visible
+result and its `Migration details` block.
+
+For MSX releases, consumers compose the upgrade from all applicable notes after
+their actual consumed baseline through the fixed target. Only those notes
+supply the release-specific instructions. Diffs, links, issues, templates, and
+resource docs can add context, usage, or evidence, not missing steps.
+[Consumer Upgrades](Consumer-Upgrades.md) explains how to use the notes, not
+which edits a specific release requires.
 
 For an older target, a consumer reads that target's immutable source/documentation
 snapshot and release records through [Consumer Upgrades](Consumer-Upgrades.md).

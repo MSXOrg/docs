@@ -9,19 +9,17 @@ A pull request title and description are release-note-ready artifacts. They
 explain one complete change to the people who use what the repository delivers,
 while carrying the evidence reviewers and maintainers need.
 
-The release-bound title and complete description author the eventual release
-note. Published release records are the consumer's sufficient upgrade history:
-what changed, why, who is affected, compatibility, and exactly how to adopt each
-release, including an explicit no-action result when applicable. PRs and diffs
-provide optional depth, not required instructions missing from the notes.
+Author the release note in the release-bound PR. Publication uses the frozen
+snapshot of the complete reviewed title and description for the fixed source,
+including collapsed blocks. Published MSX notes are the only source consumers
+need for release-specific changes and upgrade actions. Diffs, links, issues,
+templates, and [resource documentation](Documentation-Model.md#current-product-guidance-and-release-history)
+can provide context, current usage, or evidence, but not missing steps.
 
-Consumers read every applicable release after their actual consumed baseline
-through the chosen target in release order and compose the necessary actions.
-Reading those records does not require installing every intermediate version;
-an intermediate installation or run is required only when a note explicitly
-requires it. [Resource documentation](Documentation-Model.md#current-product-guidance-and-release-history)
-describes supported target-state behavior and usage, not release-specific
-transitions or history.
+Consumers read every applicable release note after their actual consumed
+baseline through the fixed target in release order and compose the necessary
+actions. Install or run an intermediate version only when a note explicitly
+requires it.
 
 The title and description use a shared format. The
 [Contribution Workflow](Contribution-Workflow.md) owns draft, assignment,
@@ -261,9 +259,11 @@ required action and breaking impact when either exists. A short unordered list
 is acceptable only when the change has several distinct result groups that
 cannot be stated clearly in prose.
 
-Use the vocabulary of the supported interface. Describe what changes, who is
-affected, and what they need to do. Keep implementation narration out of the
-summary.
+Use the vocabulary of the supported interface. Describe what changes and why,
+which supported uses are affected, and whether they remain compatible. State
+what readers need to do or why no action is needed. Include deadlines or
+prerequisites that affect whether or when to upgrade. Keep implementation
+narration out of the summary.
 
 ### End the shareable summary
 
@@ -293,34 +293,60 @@ Use these classifiers in this order and omit empty groups:
 | `Fixed` | An incorrect behavior or guidance now works as intended. |
 
 Each section heading states one result, not a component name. Open the section
-with one or two prose paragraphs that explain what changes, why, affected
-supported uses, compatibility, and exact adoption actions or an explicit
-no-action result. Include applicable prerequisites, verification, and ordering
-constraints. A later release that supersedes an earlier action explains how
-consumers compose the remaining actions through its target; preserve any
-required intermediate installation or run. A documentation change uses the
+with one or two visible paragraphs. Explain what changes and why. Name the
+affected supported uses and state their compatibility. State the required
+action or say why no action is needed beyond selecting the release reference.
+Keep prerequisites and deadlines that affect whether or when to upgrade
+visible, not only in a collapsed block. A documentation change uses the
 classifier that describes what its guidance now provides.
 
 ### Show interfaces after the prose
 
-After the opening prose, add an interface example or compact table only when it
-makes the reader's action clearer. Do not lead a section with a code block or
-table. Include necessary old-to-new examples, before-and-after comparisons, or
-diagrams in the note itself when they explain an applicable transition. Keep
-release-specific migration details here; evergreen resource docs show supported
-usage without accumulating those transitions.
+After the opening prose, add a short interface example or compact table only
+when it clarifies the result. Do not lead a section with a code block or table.
+Put exact transition examples in `Migration details`.
 
 Link optional usage documentation using an absolute default-branch URL or the
 canonical published URL so the link survives when the pull request becomes a
-release record. Such links supplement the note; consumers must not need them to
-discover required upgrade actions. Never include secret values.
+release record. Never include secret values.
+
+### Record migration details
+
+When a result has exact technical adoption steps, put them in one `<details>`
+block with the exact summary `Migration details`. This includes compatible
+changes that have steps to adopt a new or changed behavior. If adoption is
+optional, say so in the visible prose. Omit the block when no migration applies.
+Do not include an empty block or a no-action placeholder.
+
+- Identify the affected versions or source baselines, supported uses, and
+  prerequisites for the steps.
+- Give exact old and new names, values, commands, or examples. For initial
+  adoption, give the exact setup without inventing a previous state.
+- Put edits and operations in the order the consumer must perform them. If an
+  intermediate installation or run is necessary, state the version or source,
+  what to do, and why the consumer cannot skip it.
+- Give verification steps and the expected results, including any checks the
+  consumer must complete before proceeding.
+
+If this release supersedes an earlier action, explain what to omit or replace
+and which intermediate operations still apply. Put every required step in the
+release notes themselves, not only in a diff, link, issue, template, or
+evergreen document.
 
 ### Close each section with supporting details
 
-A named section may end with either or both of these optional blocks, in this
-order:
+After the visible prose and any short interface example, close the result with
+the applicable blocks in this order:
 
 ```markdown
+<details>
+<summary>Migration details</summary>
+
+Applicable sources and uses, exact old and new values or examples, ordered
+adoption steps, and verification with expected results.
+
+</details>
+
 <details>
 <summary>Technical details</summary>
 
@@ -337,9 +363,9 @@ Implementation and validation evidence for this result.
 </details>
 ```
 
-The blocks are section-scoped. Do not add global catch-all `Technical details`
-or `Related references` blocks after several classified sections. If the pull
-request is internal-only and has no classified section, place its supporting
+The blocks are section-scoped. Do not add global catch-all blocks after several
+classified sections. If the pull request is internal-only and has no classified
+section, place any applicable `Technical details` and `Related references`
 blocks directly after the summary marker.
 
 Put the standards and framework alignment evidence required by
@@ -349,9 +375,8 @@ release-managed result, include the applicable consumer, product-integration,
 and baseline
 evidence required by [Release
 Management](../Capabilities/release-management/spec.md#release-evidence) in that
-same scoped block. Keep the consumer's instructions in the result's prose and
-examples; the supporting evidence verifies those instructions rather than
-replacing them.
+same scoped block. This evidence supports the result and its migration
+instructions; it does not supply missing steps.
 
 Include the [publication-baseline and candidate
 identities](#resolve-release-coverage-first), comparison, and freshness evidence
@@ -419,10 +444,11 @@ Use this order:
 
 1. Summary prose.
 2. The shareable-summary marker.
-3. Classified sections in the required order, each with its own optional
-   `Technical details` and `Related references` blocks.
-4. Supporting blocks directly after the marker only when internal-only work has
-   no classified section.
+3. Classified sections in the required order. In each section, put the visible
+   result first, then `Migration details`, `Technical details`, and `Related
+   references` in that order. Omit blocks that do not apply.
+4. For internal-only work with no classified section, put the applicable
+   `Technical details` and `Related references` blocks directly after the marker.
 5. The conditional `Release decisions` block, only when the target route
    invokes Release Management.
 
@@ -436,7 +462,8 @@ every placeholder and delete every
 classifier section, supporting block, example, or release field that does not
 apply. Repeat a complete classifier section when several distinct results share
 the same classifier, and keep every remaining classifier group in the order
-shown.
+shown. Keep `Migration details` only for results that have technical adoption
+steps, including compatible adoption when applicable.
 
 For internal-only work with no classified result, delete all five classifier
 groups and place one applicable `Technical details` block and `Related
@@ -453,22 +480,29 @@ does. Include configured release-candidate routing in the mode evidence. Never
 turn invalid settings or conflicting owned labels into a no-action result.
 
 ````markdown
-{{ One or two short summary paragraphs that state what changes, why, who is
-affected, and required adoption actions or an explicit no-action result. }}
+{{ One or two short summary paragraphs that state what changes and why, which
+supported uses are affected, and the required action or compatible no-action
+outcome. Include deadlines or prerequisites that affect whether or when to
+upgrade. }}
 
 <!-- ANNOUNCEMENT STOP -->
 
 ## Breaking: {{ Reader-facing result }}
 
-{{ Explain what changes, why, affected supported uses, compatibility, and exact
-adoption actions or an explicit no-action result. Include applicable
-prerequisites, verification, ordering, and any required intermediate installation
-or run. }}
+{{ Explain what changes and why, affected supported uses, compatibility, and
+the required action or why none is needed. Keep prerequisites and deadlines
+that affect whether or when to upgrade visible. }}
 
-{{ Interface or old-to-new example, comparison, or diagram after the prose when
-needed to make adoption unambiguous. Keep required transition details in this
-note; link to evergreen usage docs only for optional depth. Delete when prose
-is sufficient. }}
+{{ Optional short interface example or table that clarifies the result. }}
+
+<details>
+<summary>Migration details</summary>
+
+{{ Affected baselines and uses, prerequisites, exact old and new values or
+examples, ordered steps including any required intermediate operations, and
+verification with expected results. Explain any superseded actions. }}
+
+</details>
 
 <details>
 <summary>Technical details</summary>
@@ -503,15 +537,20 @@ Delete inapplicable evidence. }}
 
 ## Removed: {{ Reader-facing result }}
 
-{{ Explain what changes, why, affected supported uses, compatibility, and exact
-adoption actions or an explicit no-action result. Include applicable
-prerequisites, verification, ordering, and any required intermediate installation
-or run. }}
+{{ Explain what changes and why, affected supported uses, compatibility, and
+the required action or why none is needed. Keep prerequisites and deadlines
+that affect whether or when to upgrade visible. }}
 
-{{ Interface or old-to-new example, comparison, or diagram after the prose when
-needed to make adoption unambiguous. Keep required transition details in this
-note; link to evergreen usage docs only for optional depth. Delete when prose
-is sufficient. }}
+{{ Optional short interface example or table that clarifies the result. }}
+
+<details>
+<summary>Migration details</summary>
+
+{{ Affected baselines and uses, prerequisites, exact old and new values or
+examples, ordered steps including any required intermediate operations, and
+verification with expected results. Explain any superseded actions. }}
+
+</details>
 
 <details>
 <summary>Technical details</summary>
@@ -546,15 +585,20 @@ Delete inapplicable evidence. }}
 
 ## New: {{ Reader-facing result }}
 
-{{ Explain what changes, why, affected supported uses, compatibility, and exact
-adoption actions or an explicit no-action result. Include applicable
-prerequisites, verification, ordering, and any required intermediate installation
-or run. }}
+{{ Explain what changes and why, affected supported uses, compatibility, and
+the required action or why none is needed. Keep prerequisites and deadlines
+that affect whether or when to upgrade visible. }}
 
-{{ Interface or old-to-new example, comparison, or diagram after the prose when
-needed to make adoption unambiguous. Keep required transition details in this
-note; link to evergreen usage docs only for optional depth. Delete when prose
-is sufficient. }}
+{{ Optional short interface example or table that clarifies the result. }}
+
+<details>
+<summary>Migration details</summary>
+
+{{ Affected baselines and uses, prerequisites, exact old and new values or
+examples, ordered steps including any required intermediate operations, and
+verification with expected results. Explain any superseded actions. }}
+
+</details>
 
 <details>
 <summary>Technical details</summary>
@@ -589,15 +633,20 @@ Delete inapplicable evidence. }}
 
 ## Changed: {{ Reader-facing result }}
 
-{{ Explain what changes, why, affected supported uses, compatibility, and exact
-adoption actions or an explicit no-action result. Include applicable
-prerequisites, verification, ordering, and any required intermediate installation
-or run. }}
+{{ Explain what changes and why, affected supported uses, compatibility, and
+the required action or why none is needed. Keep prerequisites and deadlines
+that affect whether or when to upgrade visible. }}
 
-{{ Interface or old-to-new example, comparison, or diagram after the prose when
-needed to make adoption unambiguous. Keep required transition details in this
-note; link to evergreen usage docs only for optional depth. Delete when prose
-is sufficient. }}
+{{ Optional short interface example or table that clarifies the result. }}
+
+<details>
+<summary>Migration details</summary>
+
+{{ Affected baselines and uses, prerequisites, exact old and new values or
+examples, ordered steps including any required intermediate operations, and
+verification with expected results. Explain any superseded actions. }}
+
+</details>
 
 <details>
 <summary>Technical details</summary>
@@ -632,15 +681,20 @@ Delete inapplicable evidence. }}
 
 ## Fixed: {{ Reader-facing result }}
 
-{{ Explain what changes, why, affected supported uses, compatibility, and exact
-adoption actions or an explicit no-action result. Include applicable
-prerequisites, verification, ordering, and any required intermediate installation
-or run. }}
+{{ Explain what changes and why, affected supported uses, compatibility, and
+the required action or why none is needed. Keep prerequisites and deadlines
+that affect whether or when to upgrade visible. }}
 
-{{ Interface or old-to-new example, comparison, or diagram after the prose when
-needed to make adoption unambiguous. Keep required transition details in this
-note; link to evergreen usage docs only for optional depth. Delete when prose
-is sufficient. }}
+{{ Optional short interface example or table that clarifies the result. }}
+
+<details>
+<summary>Migration details</summary>
+
+{{ Affected baselines and uses, prerequisites, exact old and new values or
+examples, ordered steps including any required intermediate operations, and
+verification with expected results. Explain any superseded actions. }}
+
+</details>
 
 <details>
 <summary>Technical details</summary>
@@ -711,13 +765,20 @@ Before marking the pull request ready, verify:
   coverage rather than a fabricated predecessor or no-action assumption;
 - classified sections are non-empty, ordered, and grouped by reader-facing
   result;
-- the notes explain what changed, why, affected supported uses, compatibility,
-  and exact applicable actions or an explicit no-action result, without
-  requiring PRs, diffs, or historical product docs to discover instructions;
+- the visible prose explains what changed and why, affected supported uses,
+  compatibility, and the required action or compatible no-action outcome. It
+  shows deadlines and prerequisites that affect whether or when to upgrade;
+- each result with technical adoption steps has a `Migration details` block
+  with applicability, exact edits, ordered operations, and verification.
+  Results with no migration have no block;
+- for a release-bound PR, the complete reviewed title and description,
+  including collapsed blocks, are ready to freeze for the fixed source. No
+  required step lives only in a diff, link, issue, template, or evergreen document;
 - release-order composition preserves required intermediate operations without
   assuming every intermediate version must be installed;
 - prose precedes optional examples and tables;
-- supporting blocks are scoped to their section and ordered correctly;
+- blocks are scoped to their result, with `Migration details` before
+  `Technical details` and `Related references` when present;
 - same-instance references are fully qualified and closing keywords are
   accurate;
 - release metadata and `release:*` labels are absent when the route does not

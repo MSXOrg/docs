@@ -455,11 +455,12 @@ post-completion task.
 
 ## Release notes and evidence {#release-notes}
 
-Release notes preserve contributor-authored pull-request content rather than
-reducing it to a generated commit list. The frozen note snapshot follows
-[PR Format](../../Ways-of-Working/PR-Format.md) and covers the complete
-publication-to-candidate consumer range, including earlier merged, skipped,
-direct, or unshipped changes.
+Contributors author the release note in the release-bound pull request. Resolve
+freezes the complete reviewed title and description for the fixed source,
+including all collapsed blocks. Publish uses that snapshot unchanged in the
+release record. The note follows [PR Format](../../Ways-of-Working/PR-Format.md)
+and covers the complete publication-to-candidate consumer range, including
+earlier merged, skipped, direct, or unshipped changes.
 
 Before writing the record or capturing its snapshot, follow [Resolve release
 coverage first](../../Ways-of-Working/PR-Format.md#resolve-release-coverage-first).
@@ -478,12 +479,14 @@ a retry preserves that snapshot rather than re-resolving later metadata.
 This authoring range does not change aggregate approval of the accumulated
 range, version allocation, or overall destination completion.
 
-Each result's prose and examples contain what changed, why, affected uses,
-compatibility, exact actions with prerequisites, ordering, and verification, or
-an explicit no-action result with its compatibility basis. Required old-to-new
-instructions stay in the note, not repository migration guides or a parallel
-changelog. Result-scoped technical details hold supporting evidence; internal-only
-work without a classifier uses the block after the summary marker.
+Each result's visible prose states the change, why it matters, affected uses
+and compatibility, and the required action or explicit no-action outcome.
+Keep prerequisites and deadlines that affect whether or when to upgrade
+visible. Put exact adoption steps in the result's
+[Migration details block](../../Ways-of-Working/PR-Format.md#record-migration-details)
+when they apply. `Technical details` holds implementation and validation
+evidence, not migration steps. Internal-only work without a classifier uses
+supporting blocks after the summary marker.
 
 Verify format adherence from the actual title, complete body, source coverage,
 and scoped supporting evidence. Similarity to an inherited scaffold or central
@@ -491,11 +494,11 @@ copy is not evidence. An affected product integration template still requires
 its verified immutable identity and producer-compatibility evidence.
 
 Consumers read every applicable source-bound record after their actual consumed
-baseline through the target and compose the actions in release order. Later
-notes explain superseded actions while retaining required intermediate
-installations or runs. Reading a record does not require installing its version
-unless the note explicitly requires that operation. PRs and diffs provide
-optional depth; resource docs describe supported target-state behavior and usage.
+baseline through the fixed target and compose the actions in release order.
+Later notes explain superseded actions while retaining required intermediate
+installations or runs. Install or run an intermediate version only when the
+notes require it. Diffs, links, issues, templates, and resource docs provide
+context, current usage, or evidence, not missing release-specific steps.
 
 Manual requests supply equivalent reviewed context for direct or otherwise
 unaccounted changes. Resolve fails if a source revision in the range lacks

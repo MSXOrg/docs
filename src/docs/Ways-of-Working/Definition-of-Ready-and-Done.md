@@ -34,7 +34,8 @@ A pull request is ready for review when:
 - The [standards and framework alignment pass](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass) has run against the finished change, its result covers every changed surface in the pull request, and every exception links a follow-up issue.
 - The [issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep) has run against scoped open issues, and every fully convergent issue is linked in the pull request with a closing keyword.
 - The title and release-note-ready description are finalized per [PR Format](PR-Format.md). When the target route invokes Release Management, the `Release decisions` block, effective configuration, and applied `release:*` labels agree, and the [required decision check](../Capabilities/release-management/design.md#required-pre-merge-decision-check) passes; an explicit bump label is not mandatory when the valid effective default supplies the level, including supported caller overrides. When the route does not invoke Release Management, the block and labels are absent.
-- Consumer release evidence is complete for the reviewed source under [PR Format](PR-Format.md#write-the-description), including explicit no-action outcomes and applicable immutable template compatibility. An upgrade PR also reconciles its complete baseline-to-target range through [Consumer Upgrades](Consumer-Upgrades.md); the newest release note alone is insufficient.
+- A release-bound PR is ready to freeze its complete reviewed title and description for the fixed source. Visible results state the impact, upgrade timing constraints, and required action or compatible no-action outcome. Each applicable [Migration details block](PR-Format.md#record-migration-details) contains the exact adoption steps, and supporting evidence includes applicable immutable template compatibility. No required step is missing from the record.
+- An upgrade PR reconciles every applicable release after its actual baseline through the fixed target under [Consumer Upgrades](Consumer-Upgrades.md); the newest release note alone is insufficient.
 - Required post-merge publication, deployment, or template milestones name a [completion-owning issue](#post-merge-completion-ownership) and responsible owner before review; automatic PR closure cannot be their only completion signal.
 
 Absent checks are not a pass. If a pull request reports no checks, inspect whether the workflow triggers cover its base branch. A base branch outside the `pull_request` trigger's `branches` filter is a common cause. Fix the trigger gap or file an issue; do not waive the gate.
@@ -93,7 +94,7 @@ Keep the milestones distinct:
 | --- | --- |
 | Review readiness | The reviewed candidate has complete consumer evidence and verified applicable template compatibility. |
 | Merge | The reviewed source change is integrated, not necessarily published. |
-| Publication | The actual release/source identities and complete source-bound notes are available through the release process. |
+| Publication | The release record contains the published artifact and source identities and the complete reviewed note, including collapsed blocks, from the frozen snapshot. |
 | Template completion | Necessary linked template changes are delivered and immutable compatibility with the published producer identity is evidenced. |
 
 #### Post-merge completion ownership

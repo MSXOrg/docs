@@ -402,21 +402,26 @@ overall release completion fails. Completing an older record MUST NOT make its
 already-published artifact changes new again. Record coverage MUST NOT redefine
 aggregate approval, version reservations, or completed-state discovery.
 
-The record MUST preserve contributor-authored title, complete description,
-adoption guidance, consumer-change evidence, and maintainer evidence under
-[PR Format](../../Ways-of-Working/PR-Format.md), or equivalent reviewed aggregate
-context for a manual release. A prerelease MUST retain the snapshot appropriate
-to its immutable source, not a later description of different code.
+For a release-bound pull request, the published record MUST preserve the frozen
+snapshot of the complete reviewed title and description for the fixed source,
+including all collapsed blocks, under [PR Format](../../Ways-of-Working/PR-Format.md).
+For a manual release, the record MUST preserve equivalent reviewed aggregate
+context. A prerelease MUST retain the snapshot appropriate to its immutable
+source, not a later description of different code.
 
 #### Release evidence
 
 The complete description MUST contain exactly one announcement boundary after
-its leading summary. Each result MUST explain what changed, why, affected
-supported uses, compatibility, exact adoption actions with prerequisites,
-ordering, and verification, or an explicit no-action result with its
-compatibility basis. Supporting evidence MUST remain scoped to its result;
-internal-only work without a classifier uses the supporting block after the
-summary marker. Announcements MUST NOT truncate the full release record.
+its leading summary. Each result MUST visibly explain what changed, why,
+affected supported uses, and compatibility. It MUST state the required action
+or an explicit no-action outcome with its compatibility basis. Deadlines and
+prerequisites that determine whether or when to upgrade MUST be visible.
+When exact technical adoption steps apply, the result MUST carry them in its
+[Migration details block](../../Ways-of-Working/PR-Format.md#record-migration-details),
+with applicability, order, and verification. Supporting evidence MUST remain
+scoped to its result; internal-only work without a classifier uses the
+supporting block after the summary marker. Announcements MUST NOT truncate the
+full release record.
 
 Canonical format adherence MUST be verified from the actual title, complete
 body, source coverage, and supporting evidence under
@@ -431,13 +436,14 @@ today's template, or an unsupported compatibility claim MUST NOT replace that
 evidence. If no template applies, record that result and its basis explicitly.
 
 Reading every applicable source-bound release record after the actual consumed
-baseline through the target in release order MUST be sufficient to compose the
-required actions. Notes MUST explain superseded actions while retaining required
-intermediate installations or runs; reading a record MUST NOT itself require
-installing its version. PRs and diffs MAY provide optional depth but MUST NOT
-replace required instructions. Missing instructions MUST block the affected
-publication as evidence gaps. Resource docs describe supported target-state
-behavior and usage, not version-specific migration history or a parallel changelog.
+baseline through the fixed target in release order MUST be sufficient to
+compose the required actions. Notes MUST explain superseded actions while
+retaining required intermediate installations or runs; reading a record MUST
+NOT itself require installing its version. Diffs, links, issues, templates,
+and resource docs MAY provide context or evidence but MUST NOT supply missing
+instructions. Missing instructions MUST block the affected publication as
+evidence gaps. Resource docs describe supported target-state behavior and usage,
+not version-specific migration history or a parallel changelog.
 
 The resolved version, version baseline, product/target/channel publication
 baseline, publication receipt, verified immutable artifact/source provenance,
@@ -455,6 +461,14 @@ Scenario: A later release includes a skipped change
   And approved change B triggers the next release
   When release notes are frozen
   Then the notes and aggregate decision cover A and B exactly once
+
+Scenario: Publication retains collapsed migration instructions
+  Given a fixed source has a reviewed pull request with a shareable summary
+  And the description includes collapsed migration instructions
+  When the source is published
+  Then the published record contains the frozen title and complete description
+  And the record includes the collapsed migration instructions
+  And any announcement takes its summary from before the boundary
 
 Scenario: Partial destination completion does not repeat published module changes
   Given module source B was successfully published to Gallery

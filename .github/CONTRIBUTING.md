@@ -54,8 +54,10 @@ Register a larger or unrelated problem as an issue in the repository that owns i
 
 Write the title and complete description using [canonical PR
 Format](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/).
-Use its [complete description example](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/#complete-description-example)
-to write the record. Verify any applicable release-range and source evidence against that guidance.
+For a release-bound change, the title and description are the only authored
+release note.
+Use the [complete description example](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/#complete-description-example)
+and verify any applicable release-range and source evidence against that guidance.
 
 ## Authoring conventions
 
