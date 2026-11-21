@@ -433,11 +433,16 @@ consume an owned alias follow [Accept moved release tags](accept-moved-release-t
 ## Completion announcements
 
 Announcements are a post-completion delivery channel, not part of artifact
-publication. Resolve freezes whether announcements are enabled and which
-configured destinations apply. Complete freezes the canonical message context:
-version, immutable release link, summary, and release-intent identity.
+publication. Resolve freezes announcement eligibility and the configured
+destinations. A release is eligible for an announcement only when the route
+enables announcements and the full
+[publication-to-candidate range](../../Ways-of-Working/PR-Format.md#resolve-release-coverage-first)
+has a consumer result. Do not announce a skip or a release with only internal
+results. This does not change [release scope](#release-scope).
 
-The summary is exactly the leading text before the single
+For an eligible announcement, Complete freezes the message context: version,
+immutable release link, consumer summary, and release-intent identity.
+The summary is the leading text before the single
 `<!-- ANNOUNCEMENT STOP -->` marker required by [PR Format](../../Ways-of-Working/PR-Format.md).
 Validate that boundary outside code fences before preparing the message;
 missing or duplicate markers are errors, not instructions to truncate elsewhere.
@@ -455,11 +460,12 @@ post-completion task.
 
 ## Release notes and evidence {#release-notes}
 
-Release notes preserve contributor-authored pull-request content rather than
-reducing it to a generated commit list. The frozen note snapshot follows
-[PR Format](../../Ways-of-Working/PR-Format.md) and covers the complete
-publication-to-candidate consumer range, including earlier merged, skipped,
-direct, or unshipped changes.
+Contributors author the release note in the release-bound pull request. Resolve
+freezes the complete reviewed title and description for the fixed source,
+including all collapsed blocks. Publish uses that snapshot unchanged in the
+release record. The note follows [PR Format](../../Ways-of-Working/PR-Format.md)
+and covers the complete publication-to-candidate consumer range, including
+earlier merged, skipped, direct, or unshipped changes.
 
 Before writing the record or capturing its snapshot, follow [Resolve release
 coverage first](../../Ways-of-Working/PR-Format.md#resolve-release-coverage-first).
@@ -478,24 +484,29 @@ a retry preserves that snapshot rather than re-resolving later metadata.
 This authoring range does not change aggregate approval of the accumulated
 range, version allocation, or overall destination completion.
 
-Each result's prose and examples contain what changed, why, affected uses,
-compatibility, exact actions with prerequisites, ordering, and verification, or
-an explicit no-action result with its compatibility basis. Required old-to-new
-instructions stay in the note, not repository migration guides or a parallel
-changelog. Result-scoped technical details hold supporting evidence; internal-only
-work without a classifier uses the block after the summary marker.
+Each consumer result's visible prose states the change, why it matters,
+affected uses and compatibility, and the required action or explicit
+no-action outcome.
+Keep prerequisites and deadlines that affect whether or when to upgrade
+visible. Put exact adoption steps in the result's
+[Migration guide](../../Ways-of-Working/PR-Format.md#write-the-migration-guide)
+when they apply. Keep review evidence in the
+[detail blocks](../../Ways-of-Working/PR-Format.md#add-result-details-in-order)
+for the result it supports. Put
+[maintainer-only sections](../../Ways-of-Working/PR-Format.md#put-maintainer-content-last)
+after all consumer sections.
 
 Verify format adherence from the actual title, complete body, source coverage,
-and scoped supporting evidence. Similarity to an inherited scaffold or central
-copy is not evidence. An affected product integration template still requires
-its verified immutable identity and producer-compatibility evidence.
+and evidence for each affected result or interface. Similarity to an inherited
+scaffold or central copy is not evidence. An affected product integration template
+still requires its verified immutable identity and producer-compatibility evidence.
 
 Consumers read every applicable source-bound record after their actual consumed
-baseline through the target and compose the actions in release order. Later
-notes explain superseded actions while retaining required intermediate
-installations or runs. Reading a record does not require installing its version
-unless the note explicitly requires that operation. PRs and diffs provide
-optional depth; resource docs describe supported target-state behavior and usage.
+baseline through the fixed target and compose the actions in release order.
+Later notes explain superseded actions while retaining required intermediate
+installations or runs. Install or run an intermediate version only when the
+notes require it. Diffs, links, issues, templates, and resource docs provide
+context, current usage, or evidence, not missing release-specific steps.
 
 Manual requests supply equivalent reviewed context for direct or otherwise
 unaccounted changes. Resolve fails if a source revision in the range lacks

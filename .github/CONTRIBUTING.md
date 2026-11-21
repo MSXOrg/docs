@@ -52,10 +52,12 @@ Register a larger or unrelated problem as an issue in the repository that owns i
 
 ## Pull request format
 
-Write the title and complete description using [canonical PR
-Format](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/).
-Use its [complete description example](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/#complete-description-example)
-to write the record. Verify any applicable release-range and source evidence against that guidance.
+Use [PR Format](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/) to
+write the title and complete description. Follow its
+[ASD-STE100 writing rule](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/#write-in-simplified-technical-english).
+For a release-bound change, write the release note in the pull request only.
+Use the [complete description example](https://msxorg.github.io/docs/Ways-of-Working/PR-Format/#complete-description-example)
+for the description. Check the release range and source evidence that apply.
 
 ## Authoring conventions
 

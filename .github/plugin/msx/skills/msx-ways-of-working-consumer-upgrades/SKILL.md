@@ -1,6 +1,6 @@
 ---
 name: msx-ways-of-working-consumer-upgrades
-description: Apply the MSX consumer upgrade procedure when upgrading an upstream dependency or framework.
+description: Apply the MSX consumer upgrade procedure when upgrading an upstream dependency or framework. Use when composing migration steps from release notes across skipped versions.
 ---
 
 # Upgrade an MSX consumer

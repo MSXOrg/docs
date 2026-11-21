@@ -107,9 +107,9 @@ implementation; create no empty PR. Leave existing closed records unchanged.
 An existing PR or unmet local criterion requires reconciliation with its owner,
 not automatic cancellation from a version comparison alone.
 
-For an older target, read immutable target-era source and documentation together
-with its source-bound release records. Today's documentation, template, or
-`latest` alias cannot establish what that target supports.
+For an older target, use immutable target-era source and documentation to
+verify what the target supports. Today's documentation, template, or `latest`
+alias cannot establish that target's behavior.
 
 **Exit criteria.** A proven no-upgrade outcome terminates with its issue
 disposition. Otherwise, evidence identifies the fixed target, complete ordered
@@ -119,25 +119,29 @@ traversal.
 
 ### Stage 3: Compose the action ledger
 
-Read each applicable record in full, including adoption instructions,
-consumer-change evidence, prerequisites, no-action outcomes, and template
-compatibility. [PR Format](PR-Format.md#complete-description-example) defines the MSX
-release-record authoring structure. The ledger uses those records; it does not
-define another release schema.
+Read each applicable record in full. Read the visible results for impact and
+timing. For each consumer result that applies to your use, read its
+[Migration guide](PR-Format.md#write-the-migration-guide) when it has one.
+Do not add steps from `Internal:` sections to the consumer ledger.
+Read supporting evidence, including template compatibility, where applicable.
+Together the MSX release records after the actual baseline through the fixed
+target supply every release-specific action. A diff, link, issue, template, or
+evergreen document can corroborate an action but cannot fill a gap in those
+instructions.
 
 1. Associate each release/change identifier with the consumer surfaces it
    affects. Record applicability against the actual baseline and intended use,
-   the required action or final state, prerequisite ordering, and the existing
-   validation that can demonstrate the result.
-2. Compose changes across the range. Follow rename chains to the target name;
+   the required action or final state, prerequisites, deadlines, and the checks
+   and expected results that can verify the change.
+2. Compose changes in release order. Follow rename chains to the target name;
    reconcile superseded or reversed changes against the target contract. Keep
    the earlier entries and links explaining their disposition instead of
    deleting evidence.
 3. Retain genuinely required intermediate operations, such as a data conversion
    or a tool that only accepts the preceding format. A later rename or reversal
-   does not cancel a required intermediate step. Skip a transient edit only when
-   the evidence establishes that direct adoption reaches the supported target
-   state without it.
+   does not cancel a required intermediate step. Install or run an intermediate
+   version only when the release evidence requires it. Skip a transient edit
+   only when that evidence shows the consumer can reach the target without it.
 4. Give every inspected release and affected action an explicit disposition:
    completed with evidence, not applicable with a reason, no action required,
    or blocked with the missing decision/evidence and owning issue. A no-action

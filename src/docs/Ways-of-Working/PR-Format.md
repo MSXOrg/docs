@@ -1,243 +1,301 @@
 ---
 title: PR Format
-description: Audience-first pull request titles and descriptions with evidence-based, conditional release decisions.
+description: Write pull requests for consumers and maintainers. Give upgrade steps and release decisions when they apply.
 ---
 
 # PR Format
 
-A pull request title and description are release-note-ready artifacts. They
-explain one complete change to the people who use what the repository delivers,
-while carrying the evidence reviewers and maintainers need.
+Write the pull request title and description for consumers first. Consumers
+are the people and systems that use the repository's products. If the pull
+request has both consumer and internal changes, put the internal changes last.
+If it has only internal changes, give the internal result first. Keep review
+evidence with the result it supports.
 
-The release-bound title and complete description author the eventual release
-note. Published release records are the consumer's sufficient upgrade history:
-what changed, why, who is affected, compatibility, and exactly how to adopt each
-release, including an explicit no-action result when applicable. PRs and diffs
-provide optional depth, not required instructions missing from the notes.
+Write the release note only in the release-bound pull request. Release
+Management freezes the full title and description that reviewers approve
+for the fixed source. The snapshot includes all collapsed blocks. The
+publisher copies the snapshot to the release record without changes.
 
-Consumers read every applicable release after their actual consumed baseline
-through the chosen target in release order and compose the necessary actions.
-Reading those records does not require installing every intermediate version;
-an intermediate installation or run is required only when a note explicitly
-requires it. [Resource documentation](Documentation-Model.md#current-product-guidance-and-release-history)
-describes supported target-state behavior and usage, not release-specific
-transitions or history.
+Put all release-specific changes and upgrade steps in the MSX release notes.
+Diffs, links, issues, templates, and
+[resource documentation](Documentation-Model.md#current-product-guidance-and-release-history)
+can give context, usage information, or evidence. Do not put a necessary step
+only in those sources.
 
-The title and description use a shared format. The
-[Contribution Workflow](Contribution-Workflow.md) owns draft, assignment,
-review, and handoff mechanics; [Branching and Merging](Branching-and-Merging.md)
-owns branches, commits, and integration.
+Consumers read every applicable note in release order. They start after
+their actual baseline and read through the note for the fixed target. They
+use the notes to make an upgrade plan. They install or run an intermediate
+version only if the notes show that the operation is necessary.
 
-## Analyze before writing
+The [Contribution Workflow](Contribution-Workflow.md) gives the rules for
+drafts, assignment, review, and handoff. [Branching and Merging](Branching-and-Merging.md)
+gives the rules for branches, commits, and integration.
 
-Write from evidence, not from the branch name, commit messages, or the existing
-pull request text. Those surfaces are useful leads, but the complete change is
-the source.
+<a id="analyze-before-writing"></a>
+
+## Examine the change before you write
+
+Use evidence from the full change. Branch names, commit messages, and
+earlier pull request text can help you find evidence. Do not use them as proof.
 
 ### Identify the readers
 
-Start with the repository [README audience
-declaration](Readme-Driven-Context.md#target-audience), then inspect linked user
-documentation, capability specifications, and effective configuration.
+Start with the [audience in the README](Readme-Driven-Context.md#target-audience).
+Read the linked product documentation and capability specifications. Read the
+configuration in effect. Identify what the repository supplies. Identify how
+consumers use those products.
 
-Treat every supported interface as reader-facing when someone depends on it.
-Commands, APIs, configuration, reusable workflows, Actions, templates, and
-published guidance can all be the product. Do not classify an integration as
-internal merely because its readers write scripts or maintain another product.
+If consumers use a supported interface, include it in the consumer scope.
+The product can be a command, API, configuration, reusable workflow, Action,
+template, or published guidance. If a workflow changes behavior that other
+repositories use, include that change in the consumer results. If a change
+to the test setup has no effect on supported uses, it is internal. Consumers
+can write scripts or maintain other products.
 
-For documentation-only work, the delivered result is guidance. State what a
-reader can now understand or do; do not present documentation as product
-behavior that the change did not implement.
+If a change is only to documentation, tell the reader what they can now
+understand or do. Do not say that the change also changes the system.
 
 ### Resolve release coverage first
 
-For a release-bound record, establish the artifact-to-candidate range before
-inspecting a scoped PR diff or writing the title, classified results, adoption
-actions, or compatibility decision. The
-[actual publication route](../Capabilities/release-management/design.md#applicability)
-determines the product, publishing target, and stable/prerelease channel.
-Native producers participate even when they do not call a named shared workflow.
-If a record serves several artifact targets or channels, resolve each
-consumer-publication baseline independently and state each result's
-applicability. A metadata-only mirror's completion does not replace the actual
-artifact target's publication baseline.
+For a release-bound record, find the artifact-to-candidate range first. Do this
+before you examine the scoped PR diff. Use the range for the title, result
+sections, adoption steps, and compatibility decision.
 
-1. **Find the actual publication baseline.** Inspect the target's authoritative
-   publication inventory and successful-publication receipts for that same
-   product, target, and channel. Establish which artifact was last successfully
-   published from publication evidence, not an assumed highest version.
-   GitHub's Latest hint and moving tags may aid discovery but are not proof;
-   a failed run alone is not a published artifact.
-2. **Verify its immutable source.** Read back the artifact identity and retained
-   provenance linking it to the exact source tree. Pin the artifact version or
+Use the [actual publication route](../Capabilities/release-management/design.md#applicability)
+to identify the product, publishing target, and stable or prerelease channel.
+Use this procedure for native producers, even if they do not call a shared
+workflow. Find the publication baseline separately for each product, target,
+and channel. Identify which results apply to each range. Completion of a
+metadata-only mirror does not replace the publication baseline for the artifact.
+
+1. **Find the actual publication baseline.** Read the target's authoritative
+   publication inventory and success receipts for that product, target, and
+   channel. Use this evidence to find the last artifact that the producer
+   published successfully. Do not assume that the highest version is the
+   baseline. Use GitHub's Latest hint and moving tags only to find candidates.
+   A failed run alone does not show successful publication.
+2. **Identify the artifact's exact source.** Use the artifact's provenance to
+   identify the source tree of the artifact. Record the artifact version or
    digest, publication evidence, source repository, and full source identity.
-   For module publication, PowerShell Gallery success counts even when later
-   GitHub completion fails. Completing that older GitHub record does not make
-   its already-published module changes new again.
-3. **Pin the exact candidate.** Record the candidate PR source repository and
-   full immutable source identity. Do not compare a moving branch name, tag,
-   latest commit selected later, or a different build's source.
-4. **Verify the comparison.** Check that the published and candidate sources
-   belong to the intended publication lineage. Compare those two source trees,
-   for example with `git diff <published-source> <candidate-source>`, and retain
-   the comparison evidence. A scoped PR-base diff or substituted merge base
-   does not define this boundary.
-5. **Inventory the complete delivered range.** Inspect every consumer-facing
-   change in that comparison, including earlier merged, skipped, or otherwise
-   unshipped changes. Use this inventory for the title, ordered result groups,
-   complete adoption actions, and compatibility decision. Do not classify a
-   change as new merely because an older publication record finished later.
+   If publication to PowerShell Gallery succeeds, use that module artifact
+   as the baseline even if GitHub completion fails. If the producer completes
+   the older GitHub record later, do not list the published module changes
+   as new.
+3. **Record the fixed candidate.** Record the candidate PR source repository
+   and full immutable source identity. Do not use a moving branch name, a moving
+   tag, a later commit, or the source of a different build.
+4. **Compare the source trees.** Make sure that the source trees are in the
+   same intended publication lineage. Compare the published and candidate
+   source trees with a command such as
+   `git diff <published-source> <candidate-source>`. Keep the comparison evidence.
+   Do not use the scoped PR-base diff or a substitute merge base for this range.
+5. **List the consumer changes.** Examine the full comparison for consumer
+   changes. Include changes from earlier merges, direct commits, skip
+   decisions, or other unpublished work. Use the list for the title, result
+   sections, adoption steps, and compatibility decision.
 
-Record these identities in the applicable result's supporting evidence:
+Put this evidence in a `Technical details` block for a result that it supports.
+Record it once for each product, publishing target, and channel that applies.
+If the ranges differ, identify the range for each result.
 
 | Field | Evidence |
 | --- | --- |
 | Product scope | Product, publishing target, and channel whose consumers receive the artifact. |
-| Published artifact | Actual latest successful artifact identity and publication receipt; explicitly no predecessor only for a verified initial publication. |
-| Published source | Source repository, full immutable source identity, and verified artifact-to-source provenance. |
-| Candidate source | Exact candidate source repository and full immutable identity reviewed for this record. |
-| Scoped PR comparison | PR base and candidate source identities, retained separately for implementation and reviewer evidence. |
+| Published artifact | Artifact identity and receipt for the last successful publication. For a first publication, give evidence that no earlier artifact exists. |
+| Published source | Source repository, full immutable source identity, and evidence that connects the artifact to that source. |
+| Candidate source | Exact candidate source repository and full immutable identity that reviewers examined. |
+| Scoped PR comparison | PR base and candidate source identities. Keep this evidence separate for the implementation review. |
 
-Missing or unverifiable publication/source evidence is an unresolved coverage
-gap, not a no-action result or proof of patch compatibility. If no predecessor
-exists, verify and record initial publication and review the whole candidate's
-supported consumer surface and initial adoption instructions instead of
-inventing a previous artifact or treating `0.0.0` as a consumed release. A
-version-computation baseline does not establish consumer history.
+If you do not have reliable publication or source evidence, stop. Do not
+use missing evidence as a no-action result or proof of patch compatibility.
 
-Resolve diverged lineage or an ambiguous target/channel before making coverage
-claims; do not silently choose another release, branch, or merge base. Re-read
-the publication baseline and candidate before readiness and release-bound
-snapshot capture. If either identity changes, refresh the comparison,
-inventory, instructions, and compatibility evidence; the older analysis does
-not validate the new pair.
+If there is no earlier artifact, make sure that this is the first publication.
+Record the evidence for that result. Do not invent an earlier artifact.
+Do not use `0.0.0` as a consumed release. The version-computation baseline
+does not show consumer history.
+
+For a first publication, examine all supported uses of the candidate. Give
+all necessary instructions for first use.
+
+If the sources diverge or the target or channel is not clear, stop. Find the
+correct range before you write the note. Do not substitute another release,
+branch, or merge base.
+
+Before you mark the PR ready, read the publication baseline and candidate
+again. Before you freeze the record, repeat this check.
+If either identity changes, do the comparison again. Use the new evidence
+for the list of changes, the instructions, and the compatibility decision.
+The old comparison does not support the new range.
 
 #### Coverage counterexamples
 
 | Evidence | Release-bound coverage | Scoped PR evidence |
 | --- | --- | --- |
-| Artifact source A is published; B merges a new input without publication; candidate C adds a fix. | A-to-C includes B's new input and C's fix, even if B was skipped. | B-to-C describes only the current PR's implementation. |
-| Module source B is successfully published to Gallery, but its GitHub completion fails; candidate C follows. | B-to-C describes only changes not already published to module consumers. Later GitHub completion of B does not reintroduce A-to-B as new. | The current PR diff remains separate; GitHub's older Latest hint is not the module baseline. |
+| The producer publishes an artifact from A. B adds an input, but the producer does not publish it. Candidate C removes an error. | A to C includes the input from B and the fix from C, even if the producer skipped B. | B to C shows only the current PR's implementation. |
+| The producer publishes the module from B to Gallery. GitHub completion fails. Candidate C follows. | B to C shows only changes that the producer did not publish to module consumers. Later completion of B does not make A to B new. | The current PR diff is separate. GitHub's older Latest hint is not the module baseline. |
 
-A, B, and C represent pinned immutable source identities, not moving refs.
-These cases establish authoring scope, not a new publisher or version resolver.
+A, B, and C are immutable source identities, not moving refs. These cases
+show what to include in the note. They do not change publication or version
+selection.
 
 ### Read the whole change
 
-For a release-bound record, inspect the complete
-[resolved publication-to-candidate comparison](#resolve-release-coverage-first).
-A promotion or bundled release retains every applicable consumer delta, not
-just the latest commit or pull request.
+For a release-bound record, examine the full
+[publication-to-candidate comparison](#resolve-release-coverage-first).
+For a promotion or bundled release, include every consumer change in the range.
+Do not use only the latest commit or pull request.
 
-Inspect the ordinary base-to-head PR diff separately to establish the scoped
-implementation, validation, Task/Bug plan progress, and issue-convergence
-evidence reviewers need. It does not replace the release-note coverage range
-or make earlier work part of this PR's implementation. When no release-bound
-artifact record applies, this scoped diff supplies the PR's change coverage;
-do not manufacture a publication baseline or release metadata.
+Examine the ordinary base-to-head PR diff separately. Use it as evidence for
+this PR's implementation, validation, Task or Bug plan, and issue convergence.
+The scoped diff does not replace the release-note range. It does not make
+earlier work part of this PR's implementation. If no release-bound artifact
+record applies, use the scoped diff for the PR's change coverage. Do not invent
+a publication baseline or release metadata.
 
-Check claims against the changed public interfaces, documentation,
-configuration, tests, and generated output. Commit messages and an earlier pull
-request description may be incomplete or stale and never replace this check.
+Make sure that changed interfaces, documentation, configuration, tests, and
+outputs support your claims. Do not use commit messages or older PR text
+instead of this evidence.
 
 ### Keep claims accurate
 
 State only outcomes the evidence supports:
 
-- Describe a dependency update's behavior or security benefit only when upstream
-  notes, tests, or product evidence establish that result.
-- Describe documentation work as changed guidance unless the same change also
-  changes the documented product.
-- Distinguish a public contract change from the internal implementation that
-  delivers it.
-- Check affected supported uses for compatibility, prerequisites, and exact
-  adoption actions, including required ordering or intermediate operations.
-- State an explicit no-action result and its compatibility basis when adoption
-  needs no consumer change beyond selecting the release reference.
-- Treat missing applicability or migration instructions as an evidence gap to
-  resolve in the note, not a reason to send consumers to PRs, diffs, or
-  historical product docs.
+- Use upstream notes, tests, or product evidence before you make claims
+  about a dependency update. Do not claim a behavior change or security
+  benefit without this evidence.
+- If the change is only to documentation, tell the reader how the guidance
+  changes.
+- Keep public contract changes separate from the internal work that delivers
+  them.
+- For each supported use in scope, examine compatibility, prerequisites, and
+  the steps to adopt the change. Put the steps in order. Include any necessary
+  intermediate operations.
+- If consumers must change only the release reference, tell them that no
+  other edits are necessary. Give the compatibility evidence.
+- If you do not know which uses or migration steps apply, get the missing
+  evidence. Put the result in the note. Do not send consumers to PRs, diffs,
+  or older product docs for required steps.
 
 ### Resolve release decisions
 
-Before adding release metadata or changing a `release:*` label, determine
-whether the repository invokes [Release
-Management](../Capabilities/release-management/spec.md) for the pull request's
-target route. Inspect the effective pipeline and its inputs, including native
-producer pipelines that publish versioned artifacts without calling a named
-shared workflow. The [applicability contract](../Capabilities/release-management/design.md#applicability)
-is about the route's release behavior, not one implementation. The optional
-`.github/release.settings.yml` file refines the route's settings; its absence alone
-does not prove that release management is absent.
+Before you add release metadata or change a `release:*` label, examine the
+pipeline. Read the settings and inputs it uses. Use the
+[route's release behavior](../Capabilities/release-management/design.md#applicability)
+to see if [Release Management](../Capabilities/release-management/spec.md)
+applies. Include native pipelines that publish versioned artifacts without
+a shared workflow. A Pages deployment alone does not invoke Release Management.
 
-Verify the immutable producer revision's supported settings and owned-label
-mapping before using the canonical signals below. A native producer participates
-in the contract but does not gain support for those signals from this
-documentation alone. If its released interface differs, require a verified
-adapter or a producer/configuration migration with complete adoption actions in
-that producer's PR/release record. Hold finalization until the effective mapping
-and required decision check are verified; do not apply a label the pipeline
-ignores, silently translate it, or classify an incompatible producer as unmanaged.
+The optional `.github/release.settings.yml` file gives settings for the route.
+A route can invoke Release Management without that file.
 
-If the route does not invoke Release Management, omit the entire `Release
-decisions` block and do not apply or report any `release:*` label, including
-`release:skip`.
+Before you use the canonical settings and labels, examine the immutable
+producer revision. Make sure that the revision supports the settings and the
+owned-label mapping. Do not assume that a native producer supports a signal
+in this document. If the released interface is different, use one of these
+options:
 
-If the route does invoke Release Management, resolve these decisions from the
-complete [delivered consumer range](#resolve-release-coverage-first) and the effective
-[configuration](../Capabilities/release-management/design.md#configuration-surface):
+- Use an adapter. Get evidence that it works with the immutable producer revision.
+- Migrate the producer or its configuration.
 
-1. **Release or skip.** Release when the change affects the versioned artifact
-   or a supported consumer contract. Otherwise select `release:skip`.
-2. **Version bump.** For a release, choose Patch, Minor, or Major from the
-   compatibility impact. An explicit bump label overrides a valid
-   effective `DefaultBump`; a matching default supplies the level without a
-   per-PR bump label. Resolve the documented shared default, repository settings,
-   and supported caller overrides under
-   [settings and caller overrides](../Capabilities/release-management/design.md#settings-and-caller-overrides).
-3. **Mode.** Record Stable or Prerelease from the target route and any valid
-   `release:prerelease` override. Identify a configured release-candidate route
-   in the mode evidence; release candidates are prereleases, not another bump.
+Put all adoption steps in the producer's release note.
+
+Before you mark the PR ready, make sure that the effective label mapping
+works. Make sure that the required release-decision check passes. If you
+cannot show both, stop. Do not apply a label that the pipeline ignores. If a
+producer or adapter translates a label, record the supported mapping. An
+incompatible producer is not an unmanaged producer.
+
+If the route does not invoke Release Management, do not add the `Release details`
+block. Do not apply or list any `release:*` label. This includes `release:skip`.
+
+If the route invokes Release Management, use the full
+[delivered consumer range](#resolve-release-coverage-first) and the effective
+[configuration](../Capabilities/release-management/design.md#configuration-surface).
+Record these decisions:
+
+1. **Release or skip.** Apply the
+   [release scope rules](../Capabilities/release-management/design.md#release-scope)
+   to the full range. If the range qualifies, record `Release: Yes` unless an
+   [approved skip](../Capabilities/release-management/spec.md#fr1) defers publication.
+   If the range does not qualify or the decision defers it, use `release:skip`.
+   A skip has no version bump or completion announcement. Validation still runs.
+   Keep deferred changes in the range for a later release. An internal-only PR
+   diff does not show that the full range is internal. If the range has earlier
+   unpublished product changes, include them in the decision and the consumer summary.
+2. **Version bump.** For a release, select Patch, Minor, or Major from the
+   effect on compatibility. Do not use changes outside the release scope
+   to select the bump.
+   An explicit bump label overrides a valid effective `DefaultBump`. A
+   matching default supplies the bump without a per-PR bump label. Use the
+   [settings and caller override rules](../Capabilities/release-management/design.md#settings-and-caller-overrides)
+   to find the effective default.
+3. **Mode.** For a release, record Stable or Prerelease from the target route
+   and any valid `release:prerelease` override. If the route uses release
+   candidates, say so in the mode evidence. A release candidate is a
+   prerelease, not a bump.
 
 Use only the labels owned by the
-[`release:` namespace](Automation-Labels.md#every-set-is-namespaced). Missing,
-invalid, or conflicting decisions are errors to resolve before review, not
-reasons to invent a fallback. Inheriting the documented patch default is a valid
-decision source, not an error recovery path.
+[`release:` namespace](Automation-Labels.md#every-set-is-namespaced). Before
+review, make sure that the decisions are present, valid, and consistent.
+Do not use a fallback for errors. The documented patch default is a valid
+source of a bump. It is not a fallback for an error.
 
-### Select the news
+<a id="select-the-news"></a>
 
-Keep the summary and named sections focused on results that matter to the
-identified readers without omitting a consumer delta or required action. Put
-implementation facts, validation, and process evidence in supporting details.
-Omit internal facts that neither explain a reader-facing result nor help review
-it.
+### Select the main result
 
-Internal-only work can still have a clear result, such as a shared automation
-configuration. When it has no reader-facing classified section, summarize the
-result and put necessary supporting blocks directly after the summary marker.
+If a change has an effect on consumers, use the title for the most important
+consumer result. Write the summary for consumers. Include all consumer changes
+and upgrade steps that apply. Put
+[maintainer-only sections](#put-maintainer-content-last) after all consumer
+sections. Keep supporting details with the result they support.
 
-### Group related changes
+If the work has only internal changes, give the internal result in the title.
+Give the reason for the change in the summary. Do not add a consumer result
+or a consumer upgrade step.
 
-Group changes by audience-facing result or affected interface, not by commit,
-file, issue, or implementation step. One section may describe several files
-that jointly deliver one result. Separate unrelated reader outcomes into their
-own sections and classify each result once.
+<a id="group-related-changes"></a>
+
+### Put related changes together
+
+Put changes to the same result or interface together. Do not divide them by
+commit, file, issue, or implementation step. One result can come from several
+files. Give each different result its own section.
+
+## Write in Simplified Technical English
+
+Use **ASD-STE100 Issue 9** writing practices. Use American English (`en-US`).
+These rules apply to the title and all prose in the description. They also
+apply to the published release note and to text in collapsed blocks.
+Follow [Natural Language](../Coding-Standards/Natural-Language.md). Use the
+[Technical Writing Guide](../Coding-Standards/Writing-Guide.md) to find the
+official rules and dictionary.
+
+- Use approved words in their approved meanings and parts of speech. Use
+  technical nouns and verbs as Issue 9 permits.
+- Use the active voice. Write instructions as commands. Give one instruction
+  in each sentence. If the reader must know a condition first, put it
+  before the command.
+- Use the `-ing` form of a verb only as a technical noun or as part of one.
+- Use no more than 20 words in an instruction sentence. Use no more than
+  25 words in a descriptive sentence.
+- Use the same term for the same concept. Keep exact interface names,
+  commands, labels, and values.
 
 ## Write the title
 
-Use one short statement of the most important user-facing result. For a
-release-bound record, choose it from the complete resolved delivered range,
-not only the scoped PR implementation:
+Use a short title for the most important consumer result. For a release-bound
+record, use the full publication-to-candidate range to select that result.
+Do not use only the changes in the pull request diff.
 
 ```text
-LLM Gateway streaming requests report usage
+LLM Gateway shows usage for streaming requests
 ```
 
-For internal-only work, name the operational result:
+For internal-only work, give the internal result:
 
 ```text
-Release automation uses a shared configuration
+Docs builds use a cache for Python packages
 ```
 
 The title must not contain:
@@ -247,36 +305,57 @@ The title must not contain:
 - an issue reference;
 - a list of unrelated changes;
 - AI or agent attribution;
-- an implementation detail when a reader-facing result is available.
+- an implementation detail when a consumer result is available.
 
 ## Write the description
 
-The description stands on its own for a reader who has not inspected the diff.
-Use the following structure.
+Give the reader all necessary information in the description. Do not make the
+reader use the diff to find a required step.
 
-### Summarize the result
+<a id="summarize-the-result"></a>
 
-Start with one or two short paragraphs and no `Summary` heading. Lead with
-required action and breaking impact when either exists. A short unordered list
-is acceptable only when the change has several distinct result groups that
-cannot be stated clearly in prose.
+### Write the summary
 
-Use the vocabulary of the supported interface. Describe what changes, who is
-affected, and what they need to do. Keep implementation narration out of the
-summary.
+Start with one or two short paragraphs. Do not add a `Summary` heading.
+If a change breaks a supported use or makes an action necessary, put that
+information first. If a list makes different results easier to read, use a
+short unordered list.
 
-### End the shareable summary
+For consumer results, use the terms of the supported interface. Tell the
+reader what changes and why. Identify which supported uses the change applies
+to. Tell the reader if those uses stay compatible. Give the required action.
+If no action is necessary, give the reason.
 
-End the summary with the exact HTML marker shown in the
+If a deadline or prerequisite controls whether or when to upgrade, give it
+in the summary. Do not put implementation details in the summary.
+
+For internal-only work, give the internal result and the reason for the change.
+Do not add a statement about consumer compatibility or adoption.
+
+<a id="end-the-shareable-summary"></a>
+
+### Add the summary marker
+
+After the summary, put the exact HTML marker in the
 [complete description example](#complete-description-example).
 
-The marker appears exactly once, on its own line, outside a code fence, and
-before the first detailed section. Text before it must remain useful when shared
-without the rest of the description.
+Put the marker exactly once on its own line. Put it outside code fences and
+before the first detailed section. If the route sends a release announcement,
+it uses the consumer summary above the marker. Write that summary so it is
+useful on its own.
 
-### Explain each reader-facing result
+If the full range has only internal results, keep the internal summary.
+Do not send it in an announcement, even if the route publishes a release.
+The marker does not trigger an announcement.
 
-Use these classifiers in this order and omit empty groups:
+<a id="describe-each-result"></a>
+<a id="explain-each-reader-facing-result"></a>
+
+### Write each result
+
+Start each result section with an H2 heading: `## <qualifier>: <result>`.
+Give the description below the heading. Use these qualifiers in order for
+consumer results. Do not add empty sections.
 
 1. `## Breaking: <result>`
 2. `## Removed: <result>`
@@ -284,449 +363,468 @@ Use these classifiers in this order and omit empty groups:
 4. `## Changed: <result>`
 5. `## Fixed: <result>`
 
-| Classifier | Use when |
+| Qualifier | Use when |
 | --- | --- |
 | `Breaking` | A supported consumer must act or an existing supported use becomes incompatible. |
 | `Removed` | A supported capability, interface, or documented path is no longer available. |
-| `New` | Readers gain a capability, interface, or body of guidance. |
-| `Changed` | Existing behavior, configuration, or guidance changes compatibly. |
-| `Fixed` | An incorrect behavior or guidance now works as intended. |
+| `New` | Readers get a new capability, interface, or body of guidance. |
+| `Changed` | Behavior, configuration, or guidance changes. Supported uses stay compatible. |
+| `Fixed` | Behavior or guidance now gives the correct result. |
 
-Each section heading states one result, not a component name. Open the section
-with one or two prose paragraphs that explain what changes, why, affected
-supported uses, compatibility, and exact adoption actions or an explicit
-no-action result. Include applicable prerequisites, verification, and ordering
-constraints. A later release that supersedes an earlier action explains how
-consumers compose the remaining actions through its target; preserve any
-required intermediate installation or run. A documentation change uses the
-classifier that describes what its guidance now provides.
+Give the result in the heading, not only the component name. Start the
+description with one or two visible paragraphs.
+
+For a consumer result, tell the reader what changes and why. Identify which
+supported uses the change applies to. Tell the reader if those uses stay
+compatible. Give the required action. If the consumer only has to select the
+release reference, give the reason. If a prerequisite or deadline controls
+whether or when to upgrade, put it in the visible text. Do not put it only
+in a collapsed block.
+
+For a documentation change, select the qualifier for what readers can now
+understand or do.
 
 ### Show interfaces after the prose
 
-After the opening prose, add an interface example or compact table only when it
-makes the reader's action clearer. Do not lead a section with a code block or
-table. Include necessary old-to-new examples, before-and-after comparisons, or
-diagrams in the note itself when they explain an applicable transition. Keep
-release-specific migration details here; evergreen resource docs show supported
-usage without accumulating those transitions.
+If an example or table helps explain the result, put it after the first
+paragraphs. Keep it short. Do not start a section with a code block or table.
+Put examples of the exact adoption steps in the `Migration guide`.
 
-Link optional usage documentation using an absolute default-branch URL or the
-canonical published URL so the link survives when the pull request becomes a
-release record. Such links supplement the note; consumers must not need them to
-discover required upgrade actions. Never include secret values.
+Never include secret values.
 
-### Close each section with supporting details
+### Write the migration guide
 
-A named section may end with either or both of these optional blocks, in this
-order:
+If a result has technical steps for adoption, put them in one `<details>`
+block. Use `Migration guide` as the exact summary. Give the steps even if the
+change is compatible. If adoption is optional, say so in the visible text.
+If the result has no technical adoption steps, do not add the block. Do not
+add an empty block or a placeholder.
 
-```markdown
-<details>
-<summary>Technical details</summary>
+- Identify the versions or source baselines that apply. Identify the supported
+  uses and prerequisites.
+- Give exact old and new names, values, commands, or examples. For first use,
+  give the exact setup. Do not give a previous state that did not exist.
+- Put edits and operations in the order the reader must do them. If an
+  intermediate installation or run is necessary, give the version or source.
+  Give the steps for that operation. Give the reason for it.
+- Give the checks and their expected results. If a check must pass before the
+  reader continues, put the check before the next step.
 
-Implementation and validation evidence for this result.
+If a later release changes an earlier instruction, identify the step to
+remove or replace. Identify the intermediate steps that still apply.
+Put all required steps in the notes. Do not put a required step only in a
+diff, link, issue, template, or evergreen document.
 
-</details>
+### Put maintainer content last
 
-<details>
-<summary>Related references</summary>
+Use `## Internal: <what changes internally>` for a result that applies only to
+maintainers. Give the result and the reason below the heading. Use the same
+block order as for a consumer result. If maintainers must act, give the action
+in the visible text. Put the exact steps in that section's `Migration guide`.
+Keep consumer steps in the applicable consumer section.
 
-- Resolves MSXOrg/repository#123
-- Depends on MSXOrg/other-repository#456
+Put all `Internal:` sections after the consumer sections. If the pull request
+has only internal changes, start the `Internal:` sections directly after the
+summary marker. Do not add a consumer section.
 
-</details>
-```
+<a id="close-each-section-with-supporting-details"></a>
 
-The blocks are section-scoped. Do not add global catch-all `Technical details`
-or `Related references` blocks after several classified sections. If the pull
-request is internal-only and has no classified section, place its supporting
-blocks directly after the summary marker.
+### Add result details in order
 
-Put the standards and framework alignment evidence required by
-[Implement](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass)
-in the `Technical details` block for the result it supports. For a
-release-managed result, include the applicable consumer, product-integration,
-and baseline
-evidence required by [Release
-Management](../Capabilities/release-management/spec.md#release-evidence) in that
-same scoped block. Keep the consumer's instructions in the result's prose and
-examples; the supporting evidence verifies those instructions rather than
-replacing them.
+Put the detail blocks after the visible text and any example. For each type
+that applies, add one collapsed `<details>` block. Use these exact summaries
+in this order:
 
-Include the [publication-baseline and candidate
-identities](#resolve-release-coverage-first), comparison, and freshness evidence
-for a release-bound result. Identify the scoped PR-base comparison separately;
-it supports implementation review, not release-note coverage.
+1. `Migration guide`: Give the technical steps for first use or an upgrade.
+2. `Technical details`: Give evidence of the implementation and checks.
+3. `Related links`: Give closing and non-closing references and any optional
+   usage links for the result.
 
-Record the closing delivery leaf's implementation-plan progress and the
-[issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep)
-search scope and outcome in that same block, including when no additional issue
-converges. For internal-only work without classified sections, the block after
-the summary marker carries this evidence and any applicable release evidence.
+Keep each block in a result section. If several results share evidence, record
+it once in a section it supports. Name the other results or interfaces it
+supports.
 
-Use fully qualified `owner/repository#number` references for every same-instance
-GitHub issue or pull request, including references to the current repository.
-Use closing keywords only for issues the complete change actually resolves.
-Prefix non-closing relationships with terms such as `References`, `Depends on`,
-or `Followed by`. Use absolute Markdown links for Jira, cross-instance GitHub,
-and references that will render outside GitHub.
+Put the evidence for the
+[standards and framework alignment pass](Workflow-Stages/Implement.md#5-standards-and-framework-alignment-pass)
+in `Technical details`. Include the applicable consumer compatibility evidence.
+If an integration template applies, give its repository and full commit SHA.
+Show that the template commit works with the exact producer source. Before
+publication, use a verified immutable candidate or prerelease source. If
+a release-bound record has no applicable template, give the reason.
+See the [Release Management requirements](../Capabilities/release-management/spec.md#release-evidence)
+and the [completion gate](Definition-of-Ready-and-Done.md#repository-delivery-leaf)
+for the evidence required after publication.
+
+Record the [publication baseline and candidate](#resolve-release-coverage-first),
+comparison, and freshness evidence once per range. Keep the scoped PR-base
+comparison separate. It supports implementation review, not release-note
+coverage.
+
+In `Technical details`, give the status of the implementation plan for the
+Task or Bug that the PR closes. Give the scope and result of the
+[issue convergence sweep](Workflow-Stages/Implement.md#6-issue-convergence-sweep).
+Give the result even if the search finds no other issue that the PR resolves.
+Put the evidence in a result section that it supports.
+
+For GitHub issues and pull requests on the same instance, use the full
+`owner/repository#number` reference. Do this for the current repository, too.
+Use closing keywords only for issues that the full change resolves.
+For other references, use a term such as `References`, `Depends on`, or
+`Followed by` first.
+
+Use absolute Markdown links for Jira, other GitHub instances, and
+references that must work outside GitHub. For optional usage
+documentation, use an absolute URL to the default branch or published page.
+Make sure that the link also works in the release record.
 
 Do not include AI or agent attribution anywhere in the description.
 
-### Record release decisions only when invoked
+<a id="record-release-decisions-only-when-invoked"></a>
 
-When the target route invokes Release Management, add one `Release decisions`
-block after the classified sections and apply the exact labels the block
-reports:
+### Record the release decision
+
+If the target route invokes Release Management, put one `<details>` block
+after all other content. Use `Release details` as the exact summary.
+This block is not part of a result. Use the same labels on the pull request
+and in the block:
 
 ```markdown
 <details>
-<summary>Release decisions</summary>
+<summary>Release details</summary>
 
 - **Release:** Yes - the delivered artifact and supported caller contract change.
-- **Version bump:** Minor - callers gain a compatible optional input.
+- **Version bump:** Minor - callers can use a new optional input. Existing inputs still work.
 - **Mode:** Stable - the target route publishes stable releases.
 - **Labels:** `release:minor`
 
 </details>
 ```
 
-For a no-release decision, include only the decision and its label:
+If the decision is no release, give only the decision and its label. Do not
+add a version bump or mode. Validation still runs:
 
 ```markdown
 <details>
-<summary>Release decisions</summary>
+<summary>Release details</summary>
 
-- **Release:** No - the change does not affect the artifact or its supported consumer contracts.
+- **Release:** No - the full range changes neither the artifact nor its supported consumer contracts.
 - **Labels:** `release:skip`
 
 </details>
 ```
 
-The evidence after each decision must identify the applicable route,
-configuration, and audience impact. List the exact resulting labels, or `None`
-when effective configuration supplies the release decision and no override
-label applies. Do not predict the final version; Release Management resolves it
-from the actual base.
+Give the route, configuration, and effect on consumers as evidence for each
+decision. List the exact labels. If the effective configuration supplies the
+decision and no override label applies, write `None`. Do not give a predicted
+version. Release Management uses the actual base to select the final version.
 
-When the target route does not invoke Release Management, omit this block and
-all `release:*` labels. Do not add `release:skip` merely because the repository
-has no `.github/release.settings.yml`.
+If the target route does not invoke Release Management, do not add this block.
+Do not add any `release:*` label. A missing `.github/release.settings.yml` file
+is not a reason to add `release:skip`.
 
-### Assemble the body
+<a id="assemble-the-body"></a>
+
+### Put the sections in order
 
 Use this order:
 
-1. Summary prose.
-2. The shareable-summary marker.
-3. Classified sections in the required order, each with its own optional
-   `Technical details` and `Related references` blocks.
-4. Supporting blocks directly after the marker only when internal-only work has
-   no classified section.
-5. The conditional `Release decisions` block, only when the target route
-   invokes Release Management.
+1. The summary: the effect on consumers or the result of internal-only work.
+2. The summary marker. It does not trigger an announcement.
+3. Consumer sections in qualifier order. Do not add these sections for
+   internal-only work.
+4. `Internal:` sections after all consumer sections.
+5. `Release details` last, only when the target route invokes Release Management.
 
-Do not add a `Summary` heading, empty classified sections, global supporting
-blocks, or parallel release-note metadata.
+In each result section, put the H2 heading first. Give the description next.
+Then add the applicable blocks in this order: `Migration guide`,
+`Technical details`, and `Related links`.
+
+Do not add a `Summary` heading, empty sections or blocks, or parallel
+release-note metadata.
 
 ### Complete description example
 
-Use the complete example below to write the actual PR description. Replace
-every placeholder and delete every
-classifier section, supporting block, example, or release field that does not
-apply. Repeat a complete classifier section when several distinct results share
-the same classifier, and keep every remaining classifier group in the order
-shown.
+Follow the [ASD-STE100 writing rule](#write-in-simplified-technical-english)
+when you use either example.
 
-For internal-only work with no classified result, delete all five classifier
-groups and place one applicable `Technical details` block and `Related
-references` block directly after the marker. Delete the complete `Release
-decisions` block when the target route does not invoke Release Management. On an
-invoked route with a no-release decision, replace the release block with the
-shorter no-release form shown in
-[Record release decisions only when invoked](#record-release-decisions-only-when-invoked).
+#### Mixed change
 
-For a publishing decision, retain the resolved bump and mode with their input
-sources. A valid effective `DefaultBump` needs no per-PR bump label: report
-`Labels: None` when no owned override applies, or the exact mode label when it
-does. Include configured release-candidate routing in the mode evidence. Never
-turn invalid settings or conflicting owned labels into a no-action result.
+Use the most important consumer result as the title. Remove sections, examples,
+or blocks that do not apply. Replace every placeholder in the sections you use.
+
+If several results have the same qualifier, give each result its own section.
+Keep consumer sections in qualifier order. Put all `Internal:` sections after
+the consumer sections. If the work is consumer-only, do not add an `Internal:`
+section. Use the block order below `Breaking:` for each result. If a result has
+technical adoption steps, give them in its `Migration guide`.
+
+If the route invokes Release Management, use the final block. Follow
+[Record the release decision](#record-the-release-decision) for both decisions.
+If a valid effective `DefaultBump` supplies the correct bump, you do not need
+a per-PR bump label. If the route uses release candidates, give that evidence
+under `Mode`. Do not use invalid settings or label conflicts as evidence for
+a no-action result.
 
 ````markdown
-{{ One or two short summary paragraphs that state what changes, why, who is
-affected, and required adoption actions or an explicit no-action result. }}
+{{ Write one or two short paragraphs for consumers. Tell the reader what
+changes and why. Identify which supported uses the change applies to. Give
+the required action. If no action is necessary, give the reason. Give any
+deadline or prerequisite that controls whether or when to upgrade. }}
 
 <!-- ANNOUNCEMENT STOP -->
 
-## Breaking: {{ Reader-facing result }}
+## Breaking: {{ Consumer result }}
 
-{{ Explain what changes, why, affected supported uses, compatibility, and exact
-adoption actions or an explicit no-action result. Include applicable
-prerequisites, verification, ordering, and any required intermediate installation
-or run. }}
+{{ Tell the reader what changes and why. Identify the supported uses that
+change. Tell the reader which uses are no longer compatible. Give the required
+action. Give any prerequisite or deadline that controls whether or when to
+upgrade. }}
 
-{{ Interface or old-to-new example, comparison, or diagram after the prose when
-needed to make adoption unambiguous. Keep required transition details in this
-note; link to evergreen usage docs only for optional depth. Delete when prose
-is sufficient. }}
+{{ If an interface example or table helps explain the result, give it here. }}
+
+<details>
+<summary>Migration guide</summary>
+
+{{ Identify the baselines, uses, and prerequisites that apply. Give exact
+old and new values or examples. Give the steps in order. Include any necessary
+intermediate operation. Give the checks and their expected results. Identify
+the earlier steps to remove, replace, or keep. }}
+
+</details>
 
 <details>
 <summary>Technical details</summary>
 
-{{ Implementation and validation evidence, closing delivery-leaf plan progress,
-and issue-convergence search scope and outcome for this result, even when no
-additional issue converges. }}
+{{ Give the implementation and checks for this result. Give the status of the
+delivery plan and the scope and result of the issue search. If the search
+finds no other issue that the PR resolves, record that result. }}
 
 | Changed surface | Standards checked | Framework docs checked | Result |
 | --- | --- | --- | --- |
 | `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
 
-{{ Publication-baseline evidence: for a release-bound result, identify the
-product/target/channel, latest successful artifact and immutable source, exact
-candidate source, comparison, and freshness under Resolve release coverage
-first. Retain the scoped PR-base comparison separately. Support the actions or
-no-action result above. For an affected integration template, identify its
-repository, verified compatible immutable commit, and compatibility evidence.
-Publication resolves actual coordinates; do not predict a final version.
-Delete inapplicable evidence. }}
+{{ For each range, record the publication baseline, receipt, and immutable
+artifact and source identities. For a first publication, give evidence that
+there is no earlier artifact. Record the fixed candidate, comparison, and
+freshness evidence. Give shared evidence only once. Identify the results it
+supports. Record the scoped PR-base comparison separately. Do not give a
+predicted version. }}
+
+{{ If an integration template applies, give its repository and compatible
+immutable commit. Give evidence of compatibility with the fixed source. If
+a release-bound record has no applicable template, give the reason. }}
 
 </details>
 
 <details>
-<summary>Related references</summary>
+<summary>Related links</summary>
 
 - Resolves MSXOrg/repository#123
-- References MSXOrg/repository#456
 - Depends on MSXOrg/other-repository#789
 
 </details>
 
-## Removed: {{ Reader-facing result }}
+## Removed: {{ Consumer result }}
 
-{{ Explain what changes, why, affected supported uses, compatibility, and exact
-adoption actions or an explicit no-action result. Include applicable
-prerequisites, verification, ordering, and any required intermediate installation
-or run. }}
+{{ Identify the removed interface. Tell the reader why it is no longer
+available. Identify who uses it. Give the required action and any timing
+constraints. }}
 
-{{ Interface or old-to-new example, comparison, or diagram after the prose when
-needed to make adoption unambiguous. Keep required transition details in this
-note; link to evergreen usage docs only for optional depth. Delete when prose
-is sufficient. }}
+<details>
+<summary>Migration guide</summary>
+
+{{ Give the exact steps and checks for consumers who use the removed
+interface. }}
+
+</details>
+
+## New: {{ Consumer result }}
+
+{{ Tell the reader what consumers can now do and why it helps. Identify the
+uses that stay compatible. If adoption is optional, say so. Give any timing
+constraints that apply. }}
+
+<details>
+<summary>Migration guide</summary>
+
+{{ Give the exact setup and checks for consumers who adopt the new feature. }}
+
+</details>
+
+## Changed: {{ Consumer result }}
+
+{{ Tell the reader what changes and why. Identify the uses that stay
+compatible. Give the reason why no action is necessary. Give any timing
+constraints that apply. }}
 
 <details>
 <summary>Technical details</summary>
 
-{{ Implementation and validation evidence, closing delivery-leaf plan progress,
-and issue-convergence search scope and outcome for this result, even when no
-additional issue converges. }}
-
-| Changed surface | Standards checked | Framework docs checked | Result |
-| --- | --- | --- | --- |
-| `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
-
-{{ Publication-baseline evidence: for a release-bound result, identify the
-product/target/channel, latest successful artifact and immutable source, exact
-candidate source, comparison, and freshness under Resolve release coverage
-first. Retain the scoped PR-base comparison separately. Support the actions or
-no-action result above. For an affected integration template, identify its
-repository, verified compatible immutable commit, and compatibility evidence.
-Publication resolves actual coordinates; do not predict a final version.
-Delete inapplicable evidence. }}
+{{ Give the implementation and checks for the compatible change. }}
 
 </details>
+
+## Fixed: {{ Consumer result that needs no migration }}
+
+{{ Tell the reader what the fix changes and why. Identify the supported uses
+that stay compatible. Give the reason why consumers do not need to act. }}
+
+## Internal: {{ What changes internally }}
+
+{{ Tell maintainers what changes and why. If they must act, give the
+required action here. }}
 
 <details>
-<summary>Related references</summary>
+<summary>Migration guide</summary>
 
-- Resolves MSXOrg/repository#123
-- References MSXOrg/repository#456
-- Depends on MSXOrg/other-repository#789
+{{ Give the step-by-step instructions and checks for maintainers only. }}
 
 </details>
-
-## New: {{ Reader-facing result }}
-
-{{ Explain what changes, why, affected supported uses, compatibility, and exact
-adoption actions or an explicit no-action result. Include applicable
-prerequisites, verification, ordering, and any required intermediate installation
-or run. }}
-
-{{ Interface or old-to-new example, comparison, or diagram after the prose when
-needed to make adoption unambiguous. Keep required transition details in this
-note; link to evergreen usage docs only for optional depth. Delete when prose
-is sufficient. }}
 
 <details>
 <summary>Technical details</summary>
 
-{{ Implementation and validation evidence, closing delivery-leaf plan progress,
-and issue-convergence search scope and outcome for this result, even when no
-additional issue converges. }}
-
-| Changed surface | Standards checked | Framework docs checked | Result |
-| --- | --- | --- | --- |
-| `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
-
-{{ Publication-baseline evidence: for a release-bound result, identify the
-product/target/channel, latest successful artifact and immutable source, exact
-candidate source, comparison, and freshness under Resolve release coverage
-first. Retain the scoped PR-base comparison separately. Support the actions or
-no-action result above. For an affected integration template, identify its
-repository, verified compatible immutable commit, and compatibility evidence.
-Publication resolves actual coordinates; do not predict a final version.
-Delete inapplicable evidence. }}
+{{ Give the implementation and checks for this maintainer result. }}
 
 </details>
 
 <details>
-<summary>Related references</summary>
+<summary>Related links</summary>
 
-- Resolves MSXOrg/repository#123
 - References MSXOrg/repository#456
-- Depends on MSXOrg/other-repository#789
-
-</details>
-
-## Changed: {{ Reader-facing result }}
-
-{{ Explain what changes, why, affected supported uses, compatibility, and exact
-adoption actions or an explicit no-action result. Include applicable
-prerequisites, verification, ordering, and any required intermediate installation
-or run. }}
-
-{{ Interface or old-to-new example, comparison, or diagram after the prose when
-needed to make adoption unambiguous. Keep required transition details in this
-note; link to evergreen usage docs only for optional depth. Delete when prose
-is sufficient. }}
-
-<details>
-<summary>Technical details</summary>
-
-{{ Implementation and validation evidence, closing delivery-leaf plan progress,
-and issue-convergence search scope and outcome for this result, even when no
-additional issue converges. }}
-
-| Changed surface | Standards checked | Framework docs checked | Result |
-| --- | --- | --- | --- |
-| `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
-
-{{ Publication-baseline evidence: for a release-bound result, identify the
-product/target/channel, latest successful artifact and immutable source, exact
-candidate source, comparison, and freshness under Resolve release coverage
-first. Retain the scoped PR-base comparison separately. Support the actions or
-no-action result above. For an affected integration template, identify its
-repository, verified compatible immutable commit, and compatibility evidence.
-Publication resolves actual coordinates; do not predict a final version.
-Delete inapplicable evidence. }}
 
 </details>
 
 <details>
-<summary>Related references</summary>
-
-- Resolves MSXOrg/repository#123
-- References MSXOrg/repository#456
-- Depends on MSXOrg/other-repository#789
-
-</details>
-
-## Fixed: {{ Reader-facing result }}
-
-{{ Explain what changes, why, affected supported uses, compatibility, and exact
-adoption actions or an explicit no-action result. Include applicable
-prerequisites, verification, ordering, and any required intermediate installation
-or run. }}
-
-{{ Interface or old-to-new example, comparison, or diagram after the prose when
-needed to make adoption unambiguous. Keep required transition details in this
-note; link to evergreen usage docs only for optional depth. Delete when prose
-is sufficient. }}
-
-<details>
-<summary>Technical details</summary>
-
-{{ Implementation and validation evidence, closing delivery-leaf plan progress,
-and issue-convergence search scope and outcome for this result, even when no
-additional issue converges. }}
-
-| Changed surface | Standards checked | Framework docs checked | Result |
-| --- | --- | --- | --- |
-| `{{ Path or interface }}` | {{ Applicable standards }} | {{ Applicable framework docs, or `None (no framework-specific docs)` }} | {{ `Aligned`, `Fixed in this PR`, or `Exception - MSXOrg/repository#123` }} |
-
-{{ Publication-baseline evidence: for a release-bound result, identify the
-product/target/channel, latest successful artifact and immutable source, exact
-candidate source, comparison, and freshness under Resolve release coverage
-first. Retain the scoped PR-base comparison separately. Support the actions or
-no-action result above. For an affected integration template, identify its
-repository, verified compatible immutable commit, and compatibility evidence.
-Publication resolves actual coordinates; do not predict a final version.
-Delete inapplicable evidence. }}
-
-</details>
-
-<details>
-<summary>Related references</summary>
-
-- Resolves MSXOrg/repository#123
-- References MSXOrg/repository#456
-- Depends on MSXOrg/other-repository#789
-
-</details>
-
-<details>
-<summary>Release decisions</summary>
+<summary>Release details</summary>
 
 - **Release:** {{ Yes or No }} - {{ Evidence from the artifact, route, and
   supported consumer contract. }}
 - **Version bump:** {{ Patch, Minor, or Major }} - {{ Compatibility evidence.
-  Identify the explicit label, supported caller input, repository setting, or
-  documented shared default that supplies it. Delete this field when Release
-  is No. }}
+  Give the source of the bump: explicit label, supported caller input,
+  repository setting, or documented shared default. If Release is No, remove
+  this field. }}
 - **Mode:** {{ Stable or Prerelease }} - {{ Target-route or override evidence.
-  Identify configured release-candidate routing when applicable. Delete this
-  field when Release is No. }}
+  If the route uses release candidates, give that evidence. If Release is
+  No, remove this field. }}
 - **Labels:** {{ Exact `release:*` labels, or `None` when effective configuration
   supplies the decision without an override label. }}
 
 </details>
 ````
 
-## Check readiness
+#### Internal-only change
 
-Before marking the pull request ready, verify:
+Example title: `Docs builds use a cache for Python packages`
 
-- the title states one result and contains none of the prohibited prefixes,
-  references, lists, or attribution;
-- the summary is accurate on its own and the marker appears exactly once in the
-  required position;
-- release-bound claims match the complete published-artifact-to-candidate
-  range; implementation claims match the separate scoped PR diff;
-- the product/target/channel, actual successful publication, immutable
-  artifact/source provenance, and exact candidate identities are verified and
-  current, including partial-publication evidence rather than a GitHub hint;
-- the complete delivered range is covered, including earlier merged, skipped,
-  unshipped, and bundled consumer deltas;
-- missing or unverifiable baselines, diverged lineage, and changing comparison
-  inputs are resolved; an initial publication has explicit reviewed initial
-  coverage rather than a fabricated predecessor or no-action assumption;
-- classified sections are non-empty, ordered, and grouped by reader-facing
-  result;
-- the notes explain what changed, why, affected supported uses, compatibility,
-  and exact applicable actions or an explicit no-action result, without
-  requiring PRs, diffs, or historical product docs to discover instructions;
-- release-order composition preserves required intermediate operations without
-  assuming every intermediate version must be installed;
-- prose precedes optional examples and tables;
-- supporting blocks are scoped to their section and ordered correctly;
-- same-instance references are fully qualified and closing keywords are
-  accurate;
-- release metadata and `release:*` labels are absent when the route does not
-  invoke Release Management;
-- when Release Management applies, the decision block, labels, effective
-  configuration, and complete-change evidence agree;
-- the description contains no AI or agent attribution.
+This route deploys the docs site. It does not publish a versioned artifact.
+This PR does not change the published site. The summary is for reviewers.
+The example has no `Release details` block.
 
-The pull request still follows the complete [Definition of Ready for
+On a Release Management route, examine the effect of the full range on the
+artifact and its supported consumer contracts. If the range has no effect
+on either, use the no-release block.
+
+```markdown
+The docs build job keeps Python packages in a cache. Later runs use the cache
+and do not download the same packages again.
+
+<!-- ANNOUNCEMENT STOP -->
+
+## Internal: Later docs builds use the package cache
+
+The build job gets Python packages from the cache when the requirements file
+has not changed. The build command stays the same.
+
+<details>
+<summary>Technical details</summary>
+
+The docs build job uses the requirements file for its cache key. One test
+starts with an empty cache. The other test uses the packages from the cache.
+Both tests pass. Both give the same site output.
+
+The delivery plan is complete. The search covered open docs CI issues. This
+change does not resolve any other issue in that set.
+
+| Changed surface | Standards checked | Framework docs checked | Result |
+| --- | --- | --- | --- |
+| Docs build job | GitHub Actions, Testing | None (no framework-specific docs) | Aligned |
+
+</details>
+
+<details>
+<summary>Related links</summary>
+
+- Resolves MSXOrg/repository#123
+
+</details>
+```
+
+<a id="check-readiness"></a>
+
+## Readiness check
+
+Before you mark the pull request ready, use this list:
+
+- Make sure that the title gives one result. Remove any prohibited prefix,
+  reference, list, or attribution.
+- Apply the [ASD-STE100 writing rule](#write-in-simplified-technical-english)
+  to the title and all prose in the description.
+- Make sure that the summary is accurate on its own. Use the marker exactly
+  once in the required position. Give only consumer results in an announcement.
+- Make sure that release-bound claims match the full range. Make sure
+  that implementation claims match the separate scoped PR diff.
+- For a release-bound record, make sure that the publication baseline and
+  exact candidate are correct and current. Include the product, target, and channel.
+  For a first publication, include evidence that there is no earlier artifact.
+  Otherwise, include the successful publication and immutable artifact and
+  source evidence. If not all destinations complete, use the receipts for the
+  destinations that published. A GitHub hint is not proof.
+- Include consumer changes from earlier merges, direct commits, skip
+  decisions, and bundled work. Do not make coverage claims until you have
+  evidence for the full range. If you do not have evidence for the
+  baseline or lineage, stop. If either source changes, examine the range
+  again. For a first publication, make sure that the note covers all
+  supported uses. Do not invent a prior artifact or a no-action result.
+- If the change has an effect on consumers, give only consumer results in
+  the title, summary, and consumer sections. Put consumer sections in qualifier
+  order.
+- Start each result with `## <qualifier>: <result>`. Put the visible
+  description next. Put all `Internal:` sections after the consumer sections.
+- For each consumer result, give the change and its reason. Identify the
+  supported uses in scope. Make compatibility clear. Give the required action
+  or the reason why no action is necessary. Show prerequisites and deadlines
+  that control whether or when to upgrade.
+- If a result has technical adoption steps, give them in its `Migration guide`.
+  Give the applicable baselines and uses, exact edits, and steps in order.
+  Give the checks and their expected results. If no steps apply, do not add
+  the block.
+- If an integration template applies, verify its immutable commit against
+  the exact producer source. If no template applies to a release-bound record,
+  give the reason.
+- For a release-bound PR, make sure that the full title and description apply
+  to the fixed source. Include all collapsed blocks. Do not put a required step
+  only in a diff, link, issue, template, or evergreen document.
+- Read the notes in release order. Make sure that the upgrade plan keeps all
+  necessary intermediate operations. Do not assume that consumers must install
+  every version.
+- If you add an example or table, put it after the prose.
+- Put the applicable collapsed blocks in this order: `Migration guide`,
+  `Technical details`, then `Related links`. Use each block type once per result.
+  Give shared evidence once. Identify the results or interfaces it supports.
+- For internal-only work, give the internal result in the title. Give the reason
+  in the summary. Do not add consumer results or consumer upgrade steps.
+- Use full same-instance references. Make sure that each closing keyword
+  points to an issue that the change resolves.
+- If Release Management does not apply, do not add release metadata or
+  `release:*` labels.
+- If Release Management applies, put `Release details` last. Make sure that
+  it agrees with the labels, effective configuration, and full range.
+  If the decision is no release, give `Release: No` with its reason and
+  `release:skip`. Do not give a bump or mode.
+- Do not include AI or agent attribution in the description.
+
+The pull request still follows the [Definition of Ready for
 Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review).
 
 ## Where this connects
@@ -737,6 +835,8 @@ Review](Definition-of-Ready-and-Done.md#definition-of-ready-for-review).
   moves through automated and human review.
 - [Definition of Ready and Done](Definition-of-Ready-and-Done.md) — the gate
   before review and completion.
+- [Consumer Upgrades](Consumer-Upgrades.md) — how consumers use release
+  notes to make an upgrade plan.
 - [Branching and Merging](Branching-and-Merging.md) — branch, integration, and
   merge rules.
 - [Automation Labels](Automation-Labels.md) — ownership and meaning of

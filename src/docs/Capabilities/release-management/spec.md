@@ -342,11 +342,13 @@ identity and notes at each. The release MUST remain incomplete until every
 required artifact and release record is published successfully. Completed
 destination work MUST be recorded and reused idempotently.
 
-Completion announcements MUST be separate from artifact publication. Delivery
-progress MUST be retained per release and destination, and an unacknowledged
-delivery MAY be retried with at-least-once semantics. Announcement failure MUST
-NOT create another version, rebuild, republish the artifact, or revoke an
-otherwise complete release.
+Completion announcements MUST be separate from artifact publication. If the full
+publication-to-candidate range has no consumer results, the release MUST NOT
+send a completion announcement. This rule MUST NOT change publication eligibility.
+Delivery progress MUST be retained per release and destination, and an
+unacknowledged delivery MAY be retried with at-least-once semantics. Announcement
+failure MUST NOT create another version, rebuild, republish the artifact, or
+revoke an otherwise complete release.
 
 #### FR8 scenarios
 
@@ -357,6 +359,13 @@ Scenario: Announcement retry does not create another release
   When announcement delivery is retried
   Then the same release identity and message context are reused
   And no new version, build, or artifact publication occurs
+
+Scenario: A release with only internal results completes without an announcement
+  Given an eligible release has no consumer results in its full publication-to-candidate range
+  And the route enables completion announcements
+  When every required destination publishes the artifact and complete release note
+  Then the release completes
+  And no completion announcement is sent
 ```
 
 ### FR9 — Every destination satisfies the publishing-target contract {#fr9}
@@ -402,25 +411,31 @@ overall release completion fails. Completing an older record MUST NOT make its
 already-published artifact changes new again. Record coverage MUST NOT redefine
 aggregate approval, version reservations, or completed-state discovery.
 
-The record MUST preserve contributor-authored title, complete description,
-adoption guidance, consumer-change evidence, and maintainer evidence under
-[PR Format](../../Ways-of-Working/PR-Format.md), or equivalent reviewed aggregate
-context for a manual release. A prerelease MUST retain the snapshot appropriate
-to its immutable source, not a later description of different code.
+For a release-bound pull request, the published record MUST preserve the frozen
+snapshot of the complete reviewed title and description for the fixed source,
+including all collapsed blocks, under [PR Format](../../Ways-of-Working/PR-Format.md).
+For a manual release, the record MUST preserve equivalent reviewed aggregate
+context. A prerelease MUST retain the snapshot appropriate to its immutable
+source, not a later description of different code.
 
 #### Release evidence
 
 The complete description MUST contain exactly one announcement boundary after
-its leading summary. Each result MUST explain what changed, why, affected
-supported uses, compatibility, exact adoption actions with prerequisites,
-ordering, and verification, or an explicit no-action result with its
-compatibility basis. Supporting evidence MUST remain scoped to its result;
-internal-only work without a classifier uses the supporting block after the
-summary marker. Announcements MUST NOT truncate the full release record.
+its leading summary. Each consumer result MUST visibly explain what changed
+and why, which supported uses it affects, and whether they remain compatible.
+It MUST state the required action or explain why no action is needed. Deadlines and
+prerequisites that determine whether or when to upgrade MUST be visible.
+When exact technical adoption steps apply, the result MUST carry them in its
+[Migration guide](../../Ways-of-Working/PR-Format.md#write-the-migration-guide),
+with applicability, order, and verification. Review-only evidence MUST appear
+in a collapsed block for a result it supports. If the evidence also supports
+other results or interfaces, the block MUST identify them. See
+[PR Format](../../Ways-of-Working/PR-Format.md#add-result-details-in-order).
+Announcements MUST NOT truncate the full release record.
 
 Canonical format adherence MUST be verified from the actual title, complete
 body, source coverage, and supporting evidence under
-[PR Format](../../Ways-of-Working/PR-Format.md#check-readiness).
+[PR Format](../../Ways-of-Working/PR-Format.md#readiness-check).
 An inherited scaffold or similarity to a central copy MUST NOT substitute for
 that record evidence.
 
@@ -431,13 +446,14 @@ today's template, or an unsupported compatibility claim MUST NOT replace that
 evidence. If no template applies, record that result and its basis explicitly.
 
 Reading every applicable source-bound release record after the actual consumed
-baseline through the target in release order MUST be sufficient to compose the
-required actions. Notes MUST explain superseded actions while retaining required
-intermediate installations or runs; reading a record MUST NOT itself require
-installing its version. PRs and diffs MAY provide optional depth but MUST NOT
-replace required instructions. Missing instructions MUST block the affected
-publication as evidence gaps. Resource docs describe supported target-state
-behavior and usage, not version-specific migration history or a parallel changelog.
+baseline through the fixed target in release order MUST be sufficient to
+compose the required actions. Notes MUST explain superseded actions while
+retaining required intermediate installations or runs; reading a record MUST
+NOT itself require installing its version. Diffs, links, issues, templates,
+and resource docs MAY provide context or evidence but MUST NOT supply missing
+instructions. Missing instructions MUST block the affected publication as
+evidence gaps. Resource docs describe supported target-state behavior and usage,
+not version-specific migration history or a parallel changelog.
 
 The resolved version, version baseline, product/target/channel publication
 baseline, publication receipt, verified immutable artifact/source provenance,
@@ -451,10 +467,19 @@ MUST block the affected publication rather than become a no-action result.
 
 ```gherkin
 Scenario: A later release includes a skipped change
-  Given change A was merged with a skip decision
+  Given change A affects a supported consumer contract
+  And an approved skip defers publication of A
   And approved change B triggers the next release
   When release notes are frozen
   Then the notes and aggregate decision cover A and B exactly once
+
+Scenario: Publication retains collapsed migration instructions
+  Given a fixed source has a reviewed pull request with a shareable summary
+  And the description includes collapsed migration instructions
+  When the source is published
+  Then the published record contains the frozen title and complete description
+  And the record includes the collapsed migration instructions
+  And any announcement takes its summary from before the boundary
 
 Scenario: Partial destination completion does not repeat published module changes
   Given module source B was successfully published to Gallery
@@ -469,9 +494,12 @@ Scenario: Partial destination completion does not repeat published module change
 ### FR11 — Eligibility evaluates the complete unreleased artifact scope {#fr11}
 
 Only changes that affect the delivered artifact or a supported consumer contract
-MUST produce a release. Eligibility MUST evaluate the complete unreleased range,
+are eligible for release. Eligibility MUST evaluate the complete unreleased range,
 including direct and transitive build inputs, rather than only the latest change.
-Validation MUST still run when publication is skipped.
+An [approved skip](#fr1) can defer an eligible change.
+If that range affects neither the artifact nor a supported contract, Release
+Management MUST NOT select a version bump, publish a release, or send a
+completion announcement. Validation MUST still run when publication is skipped.
 
 Without configured scope, every changed path MUST be treated conservatively as
 release-affecting. A repository MAY narrow the scope explicitly. File categories
@@ -483,10 +511,11 @@ because they can be the product or an artifact input.
 ```gherkin
 Scenario: An out-of-scope change validates without publishing
   Given the repository declares its artifact-affecting scope
-  And the full unreleased range contains no matching change
+  And no change in the full unreleased range affects the artifact or a supported consumer contract
   When release processing runs
   Then validation runs
-  And no version or release is published
+  And the request does not select a version bump
+  And the request does not publish a release or send a completion announcement
 ```
 
 ### FR12 — Release requests are serialized and accounted for in source order {#fr12}

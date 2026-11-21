@@ -86,19 +86,19 @@ block, `release:*` labels, or missing-decision check; continuous delivery alone
 does not opt it into a versioned release process.
 
 Signals include the diff, test changes, commit messages, and an AI-assisted
-analysis of the change. The release process MUST treat these signals as input. The
-[resolved release decision](../Capabilities/release-management/design.md#version-computation)
-comes from an explicit owned bump label or the valid effective `DefaultBump`, and
-its suitability for the audience is reviewed at the pull-request gate.
+analysis of the change. The release process MUST treat these signals as input.
+First verify [whether the full range needs a release](../Capabilities/release-management/spec.md#fr11).
+If it does not, record a no-release decision in the pull request. Do not select
+a version bump.
 
-A documented default records an existing policy decision.
+For a release, the [version bump](../Capabilities/release-management/design.md#version-computation)
+comes from an explicit owned bump label or the valid effective `DefaultBump`.
 Repository settings and supported caller inputs can override it; an
 explicit owned bump label overrides the valid effective default. Invalid
 supplied settings and conflicting owned labels fail rather than use a fallback.
-The pull request records the effective level and its source, and review
-confirms that the level fits the declared user/integrator impact. A missing
-decision fails a required CI check and blocks merge; publication
-does not discover the missing decision only after integration.
+For a release, record the effective level and its source. Verify that the
+level matches the effect on consumers. The required CI check validates release
+and no-release decisions. A missing decision blocks merge.
 
 ### D3 — Prerelease by default, stabilized on merge
 
