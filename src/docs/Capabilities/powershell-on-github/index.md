@@ -1,13 +1,14 @@
 ---
 title: PowerShell on GitHub
-description: How we make GitHub a first-class platform for PowerShell through reusable modules, actions, and capability gaps we close over time.
+description: Reusable modules, actions, and platform advocacy define the PowerShell development capability on GitHub.
 ---
 
 # PowerShell on GitHub
 
-This capability captures the strategic and technical work of infusing GitHub with PowerShell.
-
-It centralizes reusable architecture and platform-gap documentation previously spread across initiative-local docs.
+This capability defines reusable PowerShell architecture and GitHub platform
+support requirements. MSXOrg/docs owns the canonical guidance.
+Initiative repositories reference this guidance instead of maintaining separate
+copies.
 
 <!-- INDEX:START -->
 

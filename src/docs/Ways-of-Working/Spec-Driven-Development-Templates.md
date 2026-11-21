@@ -5,11 +5,13 @@ description: A copyable skeleton for every spec-driven artifact — specificatio
 
 # Spec-Driven Development Templates
 
-One skeleton per artifact tier defined in [Spec-Driven Development](Spec-Driven-Development.md#the-artifact-tiers). Copy the one that matches the tier being written. Every section is present so nothing is forgotten; **delete a heading rather than marking it "N/A"** — empty scaffolding hides the real content.
+Each artifact tier defined in [Spec-Driven Development](Spec-Driven-Development.md#the-artifact-tiers) has a template. Copy the template for the artifact. Each template contains all standard sections. **Delete a heading rather than marking it "N/A"** when it does not apply. Empty sections make relevant content harder to find.
 
-Each template assumes the [authoring conventions](Spec-Driven-Development.md#authoring-conventions): present tense, impersonal, normative, and free of dates and status.
+Apply the [authoring conventions](Spec-Driven-Development.md#authoring-conventions) for the artifact being written. Specifications and designs use present-tense, impersonal, normative prose without document-maintenance dates or delivery status. Guides and playbooks use direct imperative steps. Research records past findings. Decision records preserve the rationale for the original choice.
 
-These are durable artifact templates, not issue-body or implementation-plan templates. Issues follow their canonical [planning altitude](Issues/Process/Planning.md); delivered work verifies the resulting artifacts through the shared [documentation and design evidence](Definition-of-Ready-and-Done.md#documentation-and-design-evidence) gate.
+Use the [subject-focused content rule](Documentation-Model.md#subject-focused-content) when you replace the placeholders.
+
+These are durable artifact templates, not issue-body or implementation-plan templates. Issues follow their canonical [planning altitude](Issues/Process/Planning.md). Delivered work verifies the resulting artifacts through the shared [documentation and design evidence](Definition-of-Ready-and-Done.md#documentation-and-design-evidence) gate.
 
 ## Specification
 
@@ -126,7 +128,7 @@ description: <One line: what this feature adds to the capability.>
 ## Extends
 
 - `../spec.md` — the core requirements this feature inherits.
-- <Any core requirement this feature specialises, linked by anchor into the core spec.>
+- <Any core requirement this feature specializes, linked by anchor into the core spec.>
 
 ## Scope
 
@@ -166,7 +168,7 @@ description: <One line: how the capability is built.>
 
 # <Capability name> — Design
 
-<One paragraph on how the spec is realised.>
+<The implementation approach, how it works, and why it satisfies the requirements.>
 
 ## Specification
 
@@ -209,7 +211,7 @@ description: <One line: how the capability is built.>
 
 ## Implementation doc
 
-Optional. Added only once the design has accumulated concrete detail — see the [design/implementation altitude test](Spec-Driven-Development.md#what-a-design-is).
+This artifact is optional. It holds concrete detail that needs a separate page under the [design/implementation altitude test](Spec-Driven-Development.md#what-a-design-is).
 
 ````markdown
 ---
@@ -219,7 +221,7 @@ description: <One line: the concrete values and names behind the design.>
 
 # <Capability name> — Implementation
 
-<One line: what concrete detail this page pins, and which design it serves.>
+<The concrete settings, values, or identifiers and why the implementation uses them.>
 
 ## Design
 
@@ -254,7 +256,7 @@ description: <One line: the outcome of following these steps.>
 
 # <Task the reader wants to accomplish>
 
-<One line: what the reader ends up with.>
+<One line: the result of the procedure.>
 
 ## Before starting
 
@@ -281,12 +283,12 @@ description: <One line: the outcome of following these steps.>
 ````markdown
 ---
 title: <What is being looked up>
-description: <One line: the facts this page holds.>
+description: <One line: the settings, interfaces, or values available for lookup.>
 ---
 
 # <What is being looked up>
 
-<One line: what this page is the single source for.>
+<The settings, interfaces, or values and the context needed to interpret them.>
 
 | <Name> | <Type> | <Default> | <Meaning> |
 |---|---|---|---|
@@ -295,7 +297,7 @@ description: <One line: the facts this page holds.>
 
 ## Research
 
-Research is the one artifact written in the past tense. Git carries its dates.
+Research is the one artifact written in the past tense. Git records its document dates.
 
 ````markdown
 ---
@@ -336,7 +338,7 @@ description: <One line: the decision and its scope.>
 
 ## Context
 
-<The forces in play and the constraint that made a choice necessary.>
+<The context and constraint that made a choice necessary.>
 
 ## Decision
 
@@ -360,7 +362,7 @@ description: <One line: the decision and its scope.>
 
 ## Standard
 
-A standard states a rule and how it is held. It carries its reasoning inline rather than deferring it, because a rule without a stated reason is followed until it is inconvenient.
+A standard states a rule, its rationale, and its enforcement method. The rationale appears beside the rule.
 
 ````markdown
 ---
@@ -383,7 +385,7 @@ derives from it. Everything else references it rather than restating it.>
 |---|---|
 | <name> | <MUST / SHOULD / MAY statement> |
 
-<Or a `###` subsection per rule where a rule needs its reasoning spelled out.>
+<Or a `###` subsection per rule where the rationale needs a separate explanation.>
 
 ## Enforcement
 
@@ -397,7 +399,7 @@ may grant one. "None" is a valid answer and is better than silence.>
 
 ## Orchestration playbook
 
-A playbook describes work that runs in stages, where each stage has to finish before the next begins. Its distinguishing feature is **exit criteria**: a stage that cannot be shown to be complete cannot be handed to the next one.
+A playbook coordinates work in stages. Each stage finishes before the next starts. **Exit criteria** give observable completion evidence. The next stage cannot start until those criteria hold.
 
 ````markdown
 ---
@@ -407,11 +409,11 @@ description: <One line: what this playbook produces.>
 
 # <The orchestrated activity>
 
-<One paragraph: what this coordinates, and why it needs stages rather than a checklist.>
+<The coordinated outcome and why the stages must run in order.>
 
 ## Purpose and scope
 
-<What this playbook is for.>
+<The work and boundaries of the coordinated process.>
 
 **Out of scope**
 
@@ -454,7 +456,7 @@ reader can inspect, not an assertion that the work was done.>
 
 ## Decisions register
 
-A register holds the decisions a body of work has settled, so a question is answered once. It is not a substitute for a [decision record](#decision-record): a record argues a single choice at length, while a register is the index of choices that are no longer open.
+A register indexes settled decisions so each question is answered once. It does not replace a [decision record](#decision-record). A record explains one choice in detail, while the register links to choices that are no longer open.
 
 ````markdown
 ---
@@ -464,8 +466,7 @@ description: <One line: the decisions this register holds.>
 
 # <Scope> — Decisions
 
-<One line: what this register covers, and what a reader should conclude from an entry
-being here — that the question is closed.>
+<The scope of the settled choices and their effect on the subject.>
 
 ## Recorded decisions
 
@@ -475,8 +476,8 @@ being here — that the question is closed.>
 
 ## Standing choices
 
-<Positions that are settled but too small to warrant a record of their own. Each
-points outward to the page that carries the detail.>
+<Settled choices that are too small to need separate records. Each
+links to the page that contains the detail.>
 
 - **<Choice>** — <what was chosen and why>, per [<page>](<path>).
 ````

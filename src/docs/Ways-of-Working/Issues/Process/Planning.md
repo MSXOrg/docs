@@ -15,7 +15,7 @@ Issue planning separates consumer expectations from implementation. Epics and PB
 | [PBI](../Types/PBI.md) | The consumer's bounded need and why it contributes to the parent outcome. | Acceptance scenarios for the combined behavior of its children. | Coordinate native children by outcome; keep implementation choices in the design and delivery leaves. |
 | [Task](../Types/Task.md) or [Bug](../Types/Bug.md) | Enough local consumer context to understand the delivery leaf independently. | One concrete, verifiable deliverable sized for one pull request or one audited operational completion. | Record implementation decisions, repository paths, interfaces, and the test-first execution plan. |
 
-Every child retains enough local Why and acceptance criteria to be picked up independently. It references its parent's outcome instead of copying the parent's full body.
+Every child retains enough local Why and acceptance criteria for independent work. It references its parent's outcome instead of copying the parent's full body.
 
 ## Consumer expectations
 
@@ -43,7 +43,7 @@ Completion follows the shared [Definition of Done](../../Definition-of-Ready-and
 
 ## Progressive decomposition
 
-1. Start at the highest issue that can state the outcome honestly.
+1. Start at the highest issue whose scope matches the outcome.
 2. State the consumer's need and motivation, then use observable acceptance examples to establish scope.
 3. Separate meaningful consumer outcomes with native sub-issues; link the current design rather than prescribing it in the aggregate.
 4. Record technical choices and test-first execution steps in the Task or Bug that delivers each slice.

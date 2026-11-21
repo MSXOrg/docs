@@ -5,7 +5,7 @@ description: How issue bodies, planning, lifecycle, and native relationships sup
 
 # Issue Process
 
-How issue bodies, planning, lifecycle, and native relationships support delivery.
+Issue bodies, planning, lifecycle, and native relationships support delivery.
 
 <!-- INDEX:START -->
 

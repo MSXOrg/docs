@@ -5,7 +5,7 @@ description: The operational issue hierarchy from delivery work to strategic agg
 
 # Issue Types
 
-How native issue types organize delivery and aggregation.
+Native issue types organize delivery and aggregation.
 
 <!-- INDEX:START -->
 

@@ -22,22 +22,22 @@ The detail increases as work moves from Later toward Now.
 
 ## Lean Software Development
 
-Start very thin. Get the team's ideas flowing. Enable more people to contribute. Don't build for tomorrow's requirements (**YAGNI**).
+Start with a small deliverable. Invite the team to contribute ideas. Enable more people to contribute. Do not implement a requirement before the current deliverable needs it (**YAGNI**).
 
-The iteration phases — moved through quickly, sometimes in parallel:
+Iterations move through these phases quickly, sometimes in parallel:
 
 1. **Spike / Experiment** — can this thing even be built?
-2. **Proof of Concept** — does the experiment survive contact with reality?
+2. **Proof of Concept** — does the experiment work under realistic conditions?
 3. **MVP** — the first version that can run in production. Start collecting real feedback.
 4. **Improvements** — stabilize, add functionality, harden.
 
-The best feedback is the feedback from people who have seen the thing.
+Feedback from people who use or observe the deliverable informs the next iteration.
 
 ## Ways of working
 
-One size does not fit all. The way work happens follows the principles above, including the principle of evolving how work happens.
+Ways of working follow these principles, adapt to the work, and evolve with feedback.
 
 - **Start lean** with processes and ceremonies. Get to know each other and the work first.
 - **Scrum + Kanban hybrid** — dynamic cycles, no firm sprint end dates. A cycle is over when an Epic is delivered. Estimation is approximate; Epics themselves are kept lean.
 - **Limit Work in Progress.** Roughly three concurrent items per person is the typical ceiling for sustained focus.
-- **Extreme Programming** — pair programming (human + human, or human + agent) as a vehicle for learning, decision-making, review, and validation.
+- **Extreme Programming** — pair programming (human + human, or human + agent) supports learning, decision-making, review, and validation.

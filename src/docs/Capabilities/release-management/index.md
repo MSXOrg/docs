@@ -5,11 +5,12 @@ description: Durable version resolution, publication, recovery, withdrawal, and 
 
 # Release Management
 
-Turning approved source into a versioned, immutable artifact — a container
-image, GitHub Action or reusable workflow, language package, Terraform module,
-or documentation site — with durable release state and evidence. The ordinary
-path starts from a reviewed merge; an approved manual request can release an
-accumulated range. Both paths resolve once, build once, resume by recorded
+Release management turns approved source into a versioned, immutable artifact
+with durable release state and evidence. The artifact can be a container image,
+GitHub Action or reusable workflow, language package, Terraform module, or
+documentation site. The ordinary path starts from a reviewed merge.
+An approved manual request can release an accumulated range.
+Both paths resolve once, build once, resume by recorded
 phase, and advertise only completed eligible releases.
 
 Contributors express release intent through GitHub. Maintainers can recover,

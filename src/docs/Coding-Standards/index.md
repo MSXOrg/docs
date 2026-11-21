@@ -1,22 +1,25 @@
 ---
 title: Coding Standards
-description: The shared baseline every repository inherits, and the per-language standards that build on it.
+description: Shared coding rules and language-specific standards for every MSX repository.
 ---
 
 # Coding Standards
 
-Standards for code written anywhere in the MSX ecosystem, in two tiers. The **baseline** encodes the [Principles](../Ways-of-Working/Principles/index.md) at the level of day-to-day code — how it is named, laid out, documented, tested, and secured — and applies in every language. The **per-language standards** add the idioms of one language or tool on top, and never contradict the baseline.
+The MSX coding standards have two tiers.
+The **baseline** applies the [Principles](../Ways-of-Working/Principles/index.md) to code in every language.
+It defines rules for naming, code layout, documentation, testing, and security.
+The **per-language standards** add rules for a specific language or tool without contradicting the baseline.
 
 These standards are prescriptive, and they are the source of truth: the relevant linter or formatter is the enforcement mechanism, and its configuration is derived from the standard — never the other way around. Wherever a rule can be checked mechanically, a linter derived from the standard enforces it in CI.
 
 ## Linter decision path
 
-When a PSScriptAnalyzer rule flags code, follow this order:
+When a PSScriptAnalyzer rule reports an issue, follow this order:
 
 1. **Fix the issue.**
 2. **Reconsider the implementation approach or design.**
 3. **If the implementation is correct only for this case, add one file-level suppression attribute at the top of that file.**
-4. **If the implementation is broadly correct always, update linter settings (usually under `.github/linters`).**
+4. **If the implementation is correct for all applicable cases, update the linter settings (usually under `.github/linters`).**
 
 ```powershell
 [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
@@ -27,7 +30,7 @@ When a PSScriptAnalyzer rule flags code, follow this order:
 
 ## Contents
 
-The baseline pages apply to all code and come first; the per-language standards build on them and follow.
+The baseline pages apply to all code and come first. The per-language standards follow and extend the baseline.
 
 <!-- INDEX:START -->
 
@@ -56,16 +59,24 @@ The baseline pages apply to all code and come first; the per-language standards 
 
 ## Two tiers
 
-The **baseline** applies in every language — naming, code layout, functions, error handling, documentation, testing, performance, and security. Every repository inherits it.
+The **baseline** defines naming, code layout, functions, error handling, documentation, testing, performance, and security for every language.
+Every repository inherits it.
 
-The **per-language standards** capture the idioms of one language or tool: the conventions, the toolchain that enforces them, and the rationale where it is not obvious. A PowerShell module, a Terraform stack, a GitHub Actions workflow, and a Markdown document each have idioms of their own. A per-language standard always builds on the baseline and never contradicts it — where they overlap, the baseline rule applies and the per-language page adds the specifics.
+The **per-language standards** define conventions, required tools, and reasons for one language or tool.
+A PowerShell module, a Terraform stack, a GitHub Actions workflow, and a Markdown document each have specific conventions.
+A per-language standard extends the baseline without contradicting it.
+Where the rules overlap, the baseline rule applies and the per-language page adds the details.
 
 ## The one rule above the rules
 
 > Code is read far more often than it is written.
 
-Every standard here serves that single fact. When a rule and readability disagree, readability wins — and the rule gets revisited. When in doubt, optimize for the next person (or agent) who has to understand the code cold.
+Every standard supports code readability.
+If a rule reduces readability, prioritize readability and review the rule.
+Write for the next person or agent without local context.
 
 ## How standards evolve
 
-Standards are evergreen, not frozen. When one stops serving its purpose, it changes — in a pull request, against this repository, with the reasoning written down. A standard that cannot be justified is a standard that should be removed.
+Standards change when their purpose or requirements change.
+If a standard no longer serves its purpose, change it through a pull request in this repository and record the reason.
+A standard that cannot be justified should be removed.

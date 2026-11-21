@@ -5,11 +5,12 @@ description: How producer releases reach dependents through verified upgrade pul
 
 # Downstream Release Propagation
 
-When a producer cuts a release, every dependent is assessed against its actual
-baseline. A needed upgrade produces a pull request with the reference change
-and related actions, opened by a delegated cloud agent for human review. An
-already-current or superseded target produces an evidenced no-upgrade outcome
-instead. No dependent has to notice the release or track the bump by hand.
+When a producer publishes a release, propagation assesses every dependent
+against its actual baseline. For a needed upgrade, a delegated cloud agent
+opens a pull request for human review. The pull request contains the reference
+change and related actions. An already-current or superseded target produces
+an evidenced no-upgrade outcome instead.
+Dependents do not need to discover the release or track reference updates manually.
 
 <!-- INDEX:START -->
 

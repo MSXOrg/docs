@@ -9,9 +9,9 @@ A repository is the smallest unit of ownership in the MSX ecosystem. It must exp
 
 The Repository Standard is the default for every governed repository across the MSX Enterprise, regardless of initiative, organization, or technology. It defines the baseline contract a repository must meet to be understandable, secure, and maintainable on its own.
 
-Initiative standards operate at the same altitude as this standard, not beneath it. An initiative such as PSModule adds to and adjusts these defaults for its repository types rather than merely implementing them. A repository inherits every rule this standard sets unless its initiative explicitly changes it; where an initiative standard adds or overrides a rule, the initiative standard governs that initiative's repositories.
+Initiative standards operate at the same altitude as the ecosystem repository standard, not beneath it. An initiative such as PSModule adds to and adjusts these defaults for its repository types rather than merely implementing them. A repository inherits every baseline rule unless its initiative explicitly changes it; where an initiative standard adds or overrides a rule, the initiative standard governs that initiative's repositories.
 
-This page defines the repository-level contract. Initiative documentation defines implementation details such as exact file templates, managed-file source paths, and rollout automation.
+Initiative documentation owns implementation details such as exact file templates, managed-file source paths, and rollout automation.
 
 Which natural language each repository artifact is written in follows [Natural Language](../Coding-Standards/Natural-Language.md).
 
@@ -24,7 +24,7 @@ repository follows the explicit discoverability minimum defined below instead.
 
 | File | Requirement |
 | --- | --- |
-| `README.md` | Acts as the repository start page: purpose, target audience, value, access, first mental model, and where to go next. |
+| `README.md` | Serves as the repository start page: purpose, target audience, value, access, main capabilities, and links to details. |
 | `LICENSE` | States the legal terms for reuse and redistribution. |
 | `.github/CONTRIBUTING.md` | Required locally only for repository-specific instructions or a documented exception; otherwise use shared guidance. See [Contribution guidance](#contribution-guidance) and [PR Format](PR-Format.md). |
 | `AGENTS.md` and its client routes | Route every agent runtime from this repository's own files outward to the initiative and central documentation. [Agentic Development](../Capabilities/agentic-development/design.md#client-behavior) names the files and the path each one sits at. |
@@ -91,7 +91,7 @@ Repository-specific instructions that follow shared policy are not a policy exce
 
 ## README defaults
 
-The README is the repository start page. It brings a reader in, gives them the first useful mental model, and then points them to the right deeper surface. It must be short enough to stay current and specific enough that a human or agent can understand the repository before reading source code.
+The README is the repository start page. It introduces the repository, explains its main capabilities, and links to detailed documentation. It must be short enough to stay current. It must give humans and agents enough context to understand the repository before they read source code.
 
 A README answers these questions, in this order:
 
@@ -116,7 +116,7 @@ Do not leave template placeholders such as `{{ NAME }}`, `{{ DESCRIPTION }}`, `Y
 
 ## Product documentation defaults
 
-The README is not the complete product manual. Important product documentation belongs in a documentation surface that can grow without bloating the start page.
+The README is not the complete product manual. Important product documentation belongs in a documentation surface that can grow while the start page stays short.
 
 Default expectations by repository type:
 
@@ -128,7 +128,9 @@ Default expectations by repository type:
 | Reusable workflows | The README is the main documentation surface because callers need workflow interface, permissions, secrets, and examples in the repository. |
 | Documentation repositories | The published site is the product. The repository README explains what the source repository is and how it is laid out, and points to repository-specific authoring and build guidance in a local contribution guide when needed. |
 
-Documentation content lives in one folder, never spread across the repository root. A repository whose product is content — a documentation site, a reference collection, an archive of external material — keeps that content under a single documentation root: `docs/` by default, or a generator's source root such as `src/docs/` when the site tooling needs one. The repository root stays reserved for the README, the tooling, and the governance files, so a reader can tell content from machinery without opening a folder.
+Documentation content lives in one folder, never spread across the repository root. A repository whose product is content keeps that content under a single documentation root. Examples include a documentation site, a reference collection, and an archive of external material. The default root is `docs/`. A generator's source root, such as `src/docs/`, applies when the site tooling needs one.
+
+The repository root stays reserved for the README, tooling, and governance files. This separation lets readers identify documentation content without opening a folder.
 
 Initiative docs define the implementation: exact folder layout, publishing workflow, URL convention, and which repositories are exceptions. MSX defines the expectation that product docs have an owner and that README pages stay small.
 
@@ -193,7 +195,7 @@ A pull request closes one scoped Task or Bug, with any additional closing links
 limited to issues the session-end convergence sweep shows are fully delivered by
 the same diff. When the target route invokes Release Management, the description
 and labels carry its evidence-based release decision. A route without that
-invocation carries neither the `Release decisions` block nor `release:*` labels.
+invocation carries neither the `Release details` block nor `release:*` labels.
 
 Contribution guidance and thin skills direct humans and agents to the
 [complete PR description example](PR-Format.md#complete-description-example).

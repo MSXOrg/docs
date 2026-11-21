@@ -1,6 +1,6 @@
 ---
 title: README-Driven Context
-description: Why the README is the front door and the source of truth.
+description: The README defines repository context for humans and agents.
 ---
 
 # README-Driven Context
@@ -9,10 +9,10 @@ The README is the **evergreen context document** for every repository in the MSX
 
 ## Core principles
 
-- **The README is the front door.** Anyone — human or agent — encountering the repository for the first time should understand the purpose, scope, and current capabilities from the README without reading source code.
-- **The README is evergreen.** It is a living document that reflects the current state of the repository. Update affected content in the same unit of work.
-- **Documentation is not optional.** A feature missing from the relevant README content is effectively invisible. Verification and any needed update are part of completing the work, not a follow-up task.
-- **The README is authoritative, but not automatically right.** It is the intended source of truth, yet a README can be wrong just as code can. When the README and the code disagree, [diagnose which is wrong](Principles/Engineering-Practices.md#intent-is-the-source-of-truth) — correct the README if the intent drifted, or fix the code if it diverged — so the two converge.
+- **The README introduces the repository.** A first-time reader, human or agent, should understand its purpose, scope, and current capabilities without reading source code.
+- **The README is evergreen.** It describes the repository's current state. Update affected content in the same unit of work.
+- **Documentation is not optional.** Relevant README content makes features discoverable. Verification and any needed update are part of completing the work, not a follow-up task.
+- **The README is authoritative, but not automatically right.** A README can be wrong, just as code can. When they disagree, [diagnose which is wrong](Principles/Engineering-Practices.md#intent-is-the-source-of-truth). Correct the README if the intent changed, or fix code that differs from the intended behavior.
 
 ## What belongs in the README
 
@@ -26,11 +26,11 @@ Include what is relevant. Not every repository needs every section.
 | **Getting started**  | How to install, configure, or use the project for the first time.                |
 | **Usage**            | Examples and explanations of key functionality. Code samples where applicable.   |
 | **Configuration**    | Settings, environment variables, or options the user can control.                |
-| **Architecture**     | High-level overview — folders, components, data flow — for complex repos.        |
+| **Architecture**     | High-level overview — folders, components, data flow — for complex repositories. |
 | **Contributing**     | Applicable contribution guidance: the organization default, or a [local guide when needed](Repository-Standard.md#contribution-guidance). |
 | **License**          | License type or a link to the LICENSE file.                                      |
 
-For simple repositories (e.g., a single GitHub Action), a subset is fine — at minimum the title, description, and usage sections.
+For a simple repository, such as a single GitHub Action, use at least the title, description, and usage sections.
 
 ## Target audience
 
@@ -77,7 +77,7 @@ When a human or agent works on a repository, the README sequence is:
 
 - Write for a reader who has **no prior context**.
 - Use clear, direct language. Avoid jargon unless the audience is technical and the term is standard.
-- Use examples liberally — a code sample is worth a paragraph.
+- Use examples when they make an explanation shorter or clearer.
 - Focus on **what** and **how**, not implementation details. Internal design lives in code comments or architecture docs.
 - Follow the organization-wide Markdown style.
 
@@ -85,4 +85,4 @@ When a human or agent works on a repository, the README sequence is:
 
 This docs site (msxorg.github.io/docs) is the **organization-level** evergreen context — principles, workflow, standards. The README is the **repository-level** evergreen context — what this specific repo is and does.
 
-Both are required. The docs site explains how MSX works. The README explains what this repository is. An agent reading the docs site knows the system; an agent reading a README knows the project.
+Both are required. The docs site explains how MSX works. The README explains what this repository is. Humans and agents use the docs site for shared context and the README for repository-specific context.

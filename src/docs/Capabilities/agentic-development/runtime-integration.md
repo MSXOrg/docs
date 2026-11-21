@@ -1,18 +1,15 @@
 ---
 title: Runtime Integration
-description: How a runtime is wired into the framework — the entry file it reads, the lifecycle point where it verifies context freshness, the permissions it needs, and what a new runtime must supply to be supported.
+description: Requirements for a runtime's entry file, context freshness, tool declaration, identity, and permissions.
 ---
 
 # Runtime Integration
 
-The framework is deliberately indifferent to which agent runtime a contributor uses. A
-procedure documented once holds for every runtime, because a runtime supplies *capability
-and lifecycle*, never process.
+The framework supports different agent runtimes. A runtime supplies capabilities and
+lifecycle points, not process rules. Each runtime follows the same documented procedure.
 
-That indifference is not free. It holds only while each runtime is integrated the same way,
-and a runtime integrated by improvisation becomes the one place where the documented process
-is not what actually happens. So integration is itself a defined shape: four things a runtime
-MUST supply, and nothing else.
+Every runtime MUST supply the four integration elements below. These elements keep
+runtime-specific mechanics separate from shared process.
 
 ## What a runtime must supply
 
@@ -23,20 +20,19 @@ MUST supply, and nothing else.
 | **Tool declaration** | The shared tool server set, expressed in the runtime's own configuration format | [MCP Servers](mcp-servers.md#same-contract-different-declaration-syntax) |
 | **Identity** | The credential the runtime authenticates with, and the permissions that identity holds | [Permissions](#permissions-follow-the-identity-not-the-runtime) |
 
-A runtime that supplies all four is supported. A runtime missing any of them is usable by a
-human who knows what is missing, and MUST NOT be relied on by documentation — because the
-documentation cannot say which part of the procedure will silently not happen.
+A runtime that supplies all four elements is supported. A human who knows the gap can use
+a runtime with a missing element. Documentation MUST NOT rely on such a runtime, because
+part of the procedure can fail without a visible error.
 
-Nothing on that list is process. That is the point: the list is short because integration
-work is *plumbing*, and plumbing is where a new runtime's cost should be.
+Integration covers entry files, lifecycle points, tool declarations, and identity.
+Process remains in the canonical documentation.
 
 ## Runtime shapes, not runtime names
 
-Integration differs by the **shape** of the runtime, not by which product it is. Shapes are
-stable; the products occupying them change, and a design pinned to a product name expires
-with it.
+Integration depends on the runtime's **shape**, not its product name. A shape describes
+where the runtime runs and when it can prepare context.
 
-Four shapes cover the field:
+The framework distinguishes four runtime shapes:
 
 | Shape | Where it runs | Distinguishing constraint |
 | --- | --- | --- |
@@ -45,68 +41,63 @@ Four shapes cover the field:
 | **Review-time** | Triggered by a platform event on a pull request | Reads instructions from the branch under review, not from a local clone |
 | **Scheduled** | On a timer, with no human present | No earlier lifecycle point exists, and no one is watching a failure |
 
-The same Git synchronization contract, the same router, and the same tool contract serve all
-four. What changes is only where synchronization runs.
+All four use the same Git synchronization contract, router, and tool contract.
+Only the synchronization lifecycle point differs.
 
 ### Local interactive
 
-The durable workspace is the hazard. A local runtime is the only shape whose context
-survives between sessions, which means it is the only shape that can read a week-old standard
-while believing it is canonical.
+A durable local workspace can contain context from an earlier session. The runtime can
+therefore read a stale standard as if it were current.
 
-So Git synchronization MUST attach to a session-start lifecycle point in the runtime's own
-configuration, and it MUST run before the first turn rather than on first use of context.
+Git synchronization MUST run at a session-start lifecycle point in the runtime's own
+configuration. It MUST run before the first turn, not on first context use.
 
 Where the runtime offers no session-start point, Git synchronization MUST be invoked explicitly
 before context is read.
 
 ### Hosted
 
-A hosted runtime gets a fresh workspace per run, so staleness is not the risk — *absence*
-is. The environment either establishes context during setup or the agent works without it.
+A hosted runtime receives a fresh workspace for each run. Setup provides the required
+context before the agent starts.
 
-Git synchronization therefore belongs in the environment's setup steps, and setup failure MUST fail
-the run. An agent that starts successfully against missing context produces work that looks
-finished and was never governed, which is the most expensive failure in the set because it is
-the one that reaches review looking normal.
+The environment runs Git synchronization during setup. A setup failure MUST fail the run.
+Without this failure signal, ungoverned work can appear complete at review.
 
 ### Review-time
 
-A review-time runtime reads from the head branch of the pull request it is reviewing. This
-inverts the usual freshness problem: context follows the branch under review, so a change to
-the instructions is in effect for the very pull request that proposes it.
+A review-time runtime reads instructions from the head branch of the pull request under
+review. An instruction change therefore applies to the pull request that proposes it.
 
-That is correct and worth stating, because it means a contributor can change agent behaviour
-and see the result in the same review — and it means instruction changes MUST be reviewed as
-carefully as code, since they are live before merge.
+A contributor can change agent behavior and observe the result in the same review.
+Reviewers MUST assess instruction changes as carefully as code because those instructions
+apply before merge.
 
 ### Scheduled
 
-A scheduled runtime has no lifecycle point earlier than the job itself, so Git synchronization
-is the job's first step. It also has no human to notice a problem, which raises the bar on
-failure handling: a scheduled run MUST fail loudly and MUST NOT proceed with partial context,
-because a silent partial run repeats on the schedule.
+The job itself is a scheduled runtime's first lifecycle point, so Git synchronization is
+the job's first step. No human is present to observe a failure. A scheduled run MUST report
+a visible failure and MUST NOT proceed with partial context. Otherwise, the same partial
+run can repeat on the schedule.
 
 ## Permissions follow the identity, not the runtime
 
-Every runtime reaches the same tool servers. What differs is the identity it authenticates
-as, and therefore what it is permitted to do.
+Every runtime reaches the same tool servers. Its authenticated identity determines
+what it is permitted to do.
 
 A local runtime acts as the person operating it. A hosted or scheduled runtime acts as the
 identity its environment grants. A review-time runtime acts with whatever the platform event
-provides. These are different permission sets reaching an identical tool contract, and the
-difference is
-[least privilege](../../Ways-of-Working/Principles/Purpose-and-Direction.md#least-privilege)
-working as designed rather than an inconsistency to normalise.
+provides. These permission sets use the same tool contract. Their differences implement
+[least privilege](../../Ways-of-Working/Principles/Purpose-and-Direction.md#least-privilege);
+they are not runtime inconsistencies.
 
 Two rules follow:
 
-- A runtime MUST be granted the narrowest permission set its documented tasks require. A
-  runtime that only advises does not need write access, and
-  [advisory automation](advisory-agents.md) that holds it will eventually be asked to use it.
-- A permission a runtime lacks MUST surface as a visible failure, never as a quietly skipped
-  step. An agent that cannot open an issue and continues anyway reports success for work that
-  did not happen.
+- A runtime MUST have only the permissions its documented tasks require. A runtime that
+  only advises does not need write access. The
+  [advisory automation](advisory-agents.md) pattern separates advice from authority.
+- If a required permission is missing, the runtime MUST report a visible failure rather
+  than skip the step. An agent that cannot open an issue cannot report that the issue
+  was created.
 
 Permissions are not part of the shared tool layer, for the same reason
 [credentials are not](mcp-servers.md#credentials-are-not-part-of-the-layer): they are a
@@ -123,14 +114,12 @@ Adding a runtime is a documentation change plus four declarations, in this order
 4. Declare the **shared tool set** in the runtime's native configuration format.
 5. Record the **identity** it authenticates as and the permissions that identity holds.
 
-No step writes a procedure, and none of them may be satisfied by copying an existing runtime's
-instructions. A copy is the failure mode this whole model exists to prevent: two runtimes with
-their own copies of a procedure disagree the moment either is edited, and neither one is
-obviously wrong.
+These steps add runtime declarations, not process. Do not copy another runtime's
+instructions to complete them. Copies can diverge when either runtime changes its version
+of the procedure.
 
-If integrating a runtime appears to require new process rules, the rules belong in
-documentation and the requirement is a signal that the documentation was incomplete — not
-that this runtime is special.
+If integration requires a process rule, define that rule in the canonical documentation.
+The runtime configuration does not own process.
 
 ## Where this connects
 
@@ -138,5 +127,5 @@ that this runtime is special.
 - [Design](design.md#client-behavior) — why entry files differ in filename and are identical in content.
 - [MCP Servers](mcp-servers.md) — the shared tool layer every runtime declares.
 - [Plugin Distribution](plugin-distribution.md) — named intents, which are per-runtime packaging over the same documented procedures.
-- [Session Interactions](../../Ways-of-Working/Session-Interactions.md) — the phrase vocabulary a runtime recognises without defining.
+- [Session Interactions](../../Ways-of-Working/Session-Interactions.md) — the phrase vocabulary a runtime recognizes without defining.
 - [Conformance](conformance.md#checking) — how a repository's runtime declarations are verified.

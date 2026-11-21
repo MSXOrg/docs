@@ -18,7 +18,7 @@ The MSX issue hierarchy separates strategic aggregation from delivery. Altitude 
 
 Bug is a native delivery type at Task altitude, not a label or an additional hierarchy level.
 
-Feature remains temporary live metadata while [migration task #90](https://github.com/MSXOrg/docs/issues/90) retires existing usage. It describes a kind of work, not planning altitude, and must not be used as a hierarchy node.
+Feature describes a kind of work, not a planning altitude. It must not be used as a hierarchy node.
 
 ## Routing
 

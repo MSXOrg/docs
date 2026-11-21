@@ -1,28 +1,31 @@
 # MSX Docs
 
-The top-of-tree documentation for everything **MSX** builds on GitHub — the vision, principles, ways of working, and coding standards that every organization, repository, and agent in the ecosystem inherits.
+This repository contains the shared **MSX** documentation for GitHub projects. The vision, principles, ways of working, and coding standards apply to each MSX organization, repository, and agent.
 
 Contributors, maintainers, integrators, and their agents use the published docs and plugin entry points to build and adopt MSX projects.
 
-Published with [Zensical](https://zensical.org) to GitHub Pages: **[msxorg.github.io/docs](https://msxorg.github.io/docs/)**.
+[Zensical](https://zensical.org) builds the documentation.
+GitHub Actions publishes the site to GitHub Pages: **[msxorg.github.io/docs](https://msxorg.github.io/docs/)**.
 
 ## What's inside
 
-- **Vision** — the *why*: the mission and the philosophy of easy, fast, and safe.
-- **Initiatives** — the *what*: the products that make the vision real, from PSModule to reusable Actions and VS Code extensions.
-- **Ways of Working** — the *how*: workflow, principles, issue/PR/commit conventions, review etiquette, and more.
-- **Coding Standards** — language-agnostic standards for naming, layout, documentation, testing, and security.
-- **Capabilities** — the reusable specs and designs for what the ecosystem builds.
-- **Dictionary** — the shared vocabulary every reader and agent uses.
-- **Agent Plugins** — installable entry points that route Copilot to the current canonical documentation.
+- **Vision** — the mission and the principles of easy, fast, and safe.
+- **Initiatives** — the products that apply the vision, such as PSModule, reusable Actions, and VS Code extensions.
+- **Ways of Working** — shared workflow, principles, issue/PR/commit conventions, and review etiquette.
+- **Coding Standards** — shared rules for naming, code layout, documentation, testing, and security.
+- **Capabilities** — reusable specs and designs for what the ecosystem builds.
+- **Dictionary** — shared vocabulary for readers and agents.
+- **Agent Plugins** — installable entry points that route Copilot to the canonical documentation.
 
-The vision is written once, here, and referenced everywhere. Products change; the principles they express stay put.
+The vision and principles have one canonical source in this repository. Products reference these sources, and the documentation changes as the supported contract changes.
 
 ## How to read it
 
-The docs are built for recursive navigation. Every page declares a `title` and a one-line `description`, and every section has an `index.md` listing what sits below it. Start at [`src/docs/index.md`](src/docs/index.md) — or the [published root](https://msxorg.github.io/docs/) — read the descriptions, follow the link into a section, then into a page, until you reach the document that fits the task.
+The documentation uses a hierarchy of section indexes and pages. Each page declares a `title` and a one-line `description`. Each section has an `index.md` that lists its contents.
 
-That structure is what lets a reader and an agent find the same page by the same route.
+Start at [`src/docs/index.md`](src/docs/index.md) or the [published root](https://msxorg.github.io/docs/). Read section descriptions, then follow links to the page for your task.
+
+Readers and agents use the same structure to find the relevant document.
 
 ## Repository layout
 

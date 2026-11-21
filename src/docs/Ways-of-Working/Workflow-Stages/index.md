@@ -5,7 +5,7 @@ description: Procedures for each stage of the canonical Workflow, reached throug
 
 # Workflow Stages
 
-The canonical [Workflow](../Workflow.md) owns the process, stage routing, and transitions. This section contains only the procedure for each stage: its entry condition, boundary, actions, and handoff. Humans and agents follow the same pages.
+The canonical [Workflow](../Workflow.md) owns the process, stage routing, and transitions. Stage procedures define each stage's entry condition, boundary, actions, and handoff. Humans and agents follow the same procedures.
 
 The default discovery trail is [Home](../../index.md) → [Ways of Working](../index.md) → [Workflow](../Workflow.md) → this stage index → the resolved procedure. A task that clearly names its action may use the [Workflow routing table](../Workflow.md#find-the-current-stage) as a shortcut.
 

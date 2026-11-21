@@ -5,6 +5,6 @@ description: Reusable building blocks for automating Azure on GitHub.
 
 # AzActions
 
-**[AzActions](https://github.com/AzActions)** is where the principles meet the cloud: reusable GitHub Actions and workflows that make automating **Azure** consistent, observable, and safe.
+**[AzActions](https://github.com/AzActions)** is an initiative for reusable GitHub Actions and workflows that automate **Azure**. The automation targets consistency, observability, and safety.
 
-It applies the same [Coding Standards](../Coding-Standards/index.md) and [Ways of Working](../Ways-of-Working/index.md) as everything else in the ecosystem — the vision, applied to infrastructure automation.
+It follows the shared [Coding Standards](../Coding-Standards/index.md) and [Ways of Working](../Ways-of-Working/index.md) for infrastructure automation.

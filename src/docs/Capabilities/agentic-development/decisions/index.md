@@ -8,4 +8,4 @@ description: Immutable records of one-way-door choices in the agentic developmen
 These records explain choices that constrain the framework. A later decision
 supersedes an earlier one; it does not rewrite it.
 
-There are currently no decisions recorded for this capability.
+No decision records are listed for this capability.

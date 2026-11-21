@@ -5,7 +5,7 @@ description: Tone, scope, severity, and how to disagree well.
 
 # Review Etiquette
 
-How to disagree well, how to keep reviews focused, and how to keep the loop converging.
+Reviewers and authors use evidence, explicit severity, and scoped feedback to resolve concerns and keep reviews focused.
 
 ## For the Reviewer
 
@@ -27,7 +27,8 @@ The PR delivers one Task or Bug. Suggestions that go beyond that delivery leaf a
 
 ### One concern per comment
 
-Each thread is a scoped conversation. Bundling multiple unrelated nits into one comment makes it hard to resolve threads cleanly.
+Each thread addresses one concern.
+Keep unrelated findings in separate threads so each can be resolved independently.
 
 ### Be clear about severity
 
@@ -40,7 +41,9 @@ Use explicit prefixes so the author knows what is blocking:
 
 ### Reason from evidence
 
-Cite the docs, the linter rule, the security advisory, or a recorded decision in the closing delivery issue. "It feels off" is rarely actionable. "This contradicts the decision recorded in Owner/Repo#N" is.
+Cite the docs, the linter rule, the security advisory, or a recorded decision in the closing delivery issue.
+"It feels off" does not identify a problem or required change.
+"This contradicts the decision recorded in Owner/Repo#N" identifies evidence the author can inspect.
 
 ### Don't review your own PR publicly
 
@@ -48,17 +51,25 @@ Self-review is fine and encouraged — but it goes to the terminal as a pre-flig
 
 ### Approving is co-signing
 
-An approving review co-signs the change — the reviewer vouches for it, so approve only once the blocking concerns are resolved. Approvals come from a reviewer identity that is separate from the author and from the built-in Actions identity, as the repository's required-approval ruleset requires; an agent may submit the approval when it runs under that separate identity and did not author the change. See [Branching and Merging § Who approves](Branching-and-Merging.md#who-approves) for the mechanics.
+An approving review records the reviewer's acceptance of the change.
+Approve only after all blocking concerns are resolved.
+The required-approval ruleset requires a reviewer identity separate from the author and from the built-in Actions identity.
+An agent may approve when it uses that separate identity and did not author the change.
+See [Branching and Merging § Who approves](Branching-and-Merging.md#who-approves) for the mechanics.
 
 ### Distinguish bots from humans
 
-Bot comments (linters, security scanners) tend to be factual. Human comments may carry context the bot can't infer — read them carefully and don't bulk-dismiss.
+Bots report findings from linters and security scanners.
+Human comments can add context that automation does not have.
+Read both carefully; do not dismiss comments in bulk.
 
 ## For the Responder (the author)
 
 ### Reply before resolving
 
-Every resolved thread has a reply explaining the action — what was fixed, why dismissed, which issue picked it up. Bulk-resolving without replies looks like avoidance.
+Every resolved thread has a reply that explains the action.
+State what was fixed, why a finding was dismissed, or which issue owns the follow-up.
+Do not resolve threads in bulk without replies.
 
 ### Forward progress over discussion
 
@@ -66,27 +77,33 @@ A valid concern that needs deep design discussion becomes a follow-up issue and 
 
 ### Don't expand the PR
 
-The Reviewer suggested a thing that's out of scope. It's still out of scope. Reply, file the issue, link, resolve. Don't merge the suggestion in just to be polite.
+An out-of-scope suggestion remains out of scope.
+Reply, file the follow-up issue, link it, and resolve the thread.
+Do not include the suggestion only to satisfy the reviewer.
 
 ### Propagate fixes
 
-If a reviewer found a problem in one place and the same pattern exists elsewhere, fix it everywhere consistently. A partial fix that leaves identical problems in similar files is incomplete.
+If the same problem occurs in several places, fix every occurrence consistently.
+A partial fix that leaves identical problems in similar files is incomplete.
 
 ### Test coverage gaps
 
-When a reviewer finds a real bug existing tests didn't catch, the fix is incomplete without a new or corrected test that closes the gap. Fixing only the source means the next regression is just as silent as this one.
+When a reviewer finds a real bug that existing tests missed, add or correct a test that covers it.
+The fix is incomplete without that coverage.
+A source-only fix leaves the regression without test coverage.
 
 ### Don't bulk-dismiss bot feedback
 
-Linter and security findings have a reason. Address them or suppress them with explicit justification — don't just silence them.
+Address linter and security findings, or suppress them with explicit justification.
+Do not dismiss a finding without a reason.
 
 ## For both sides
 
 ### Tone
 
-- Impersonal where possible. "This change does X" beats "You did X".
-- No sarcasm in writing — it doesn't travel well across time zones, languages, or human-agent boundaries.
-- Assume good intent. Both reviewer and author are trying to ship the right thing.
+- Use impersonal language where possible. Prefer "This change does X" to "You did X".
+- Do not use sarcasm. Readers may not share the same language or local context.
+- Assume good intent. Both reviewer and author work toward a correct result.
 
 ### Disagreements
 
@@ -94,16 +111,22 @@ When the Reviewer and Responder genuinely disagree:
 
 1. Re-state the disagreement plainly in the thread.
 2. Reference the relevant doc, decision, or principle.
-3. If still stuck, escalate to a human maintainer or file a discussion issue. Don't loop on the same thread.
+3. If the disagreement remains, escalate to a human maintainer or file a discussion issue.
+   Do not repeat the same discussion in the thread.
 
 ### Converge, don't diverge
 
-Every change in a review round should move the PR closer to merge. Avoid introducing new code that itself needs another review round. If a fix introduces a new design choice, surface it in the response and let the Reviewer accept it before piling further changes on top.
+Every change in a review round should move the PR closer to merge.
+Avoid introducing new code that needs another review round.
+If a fix introduces a new design choice, explain it in the response.
+Let the Reviewer accept that choice before making further changes.
 
 ### Stale comments
 
-If the code referenced by a comment has been modified since, mention it in the reply. Don't silently let stale comments accumulate as open threads.
+If the code referenced by a comment has changed, state that in the reply.
+Do not leave stale comments as open threads without a response.
 
 ## What this is not
 
-This is not a process gate. It is **shared etiquette** so the loop is fast, professional, and respectful — across human reviewers, human authors, and the agents working alongside them.
+This is not a process gate.
+It defines **shared etiquette** for professional, respectful reviews by humans and agents.
