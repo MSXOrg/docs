@@ -344,8 +344,9 @@ before the first detailed section. If the route sends a release announcement,
 it uses the consumer summary above the marker. Write that summary so it is
 useful on its own.
 
-For internal-only work with no release, the summary is for
-reviewers, not an announcement. The marker does not trigger an announcement.
+If the full range has only internal results, keep the internal summary.
+Do not send it in an announcement, even if the route publishes a release.
+The marker does not trigger an announcement.
 
 <a id="describe-each-result"></a>
 <a id="explain-each-reader-facing-result"></a>

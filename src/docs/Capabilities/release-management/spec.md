@@ -342,11 +342,13 @@ identity and notes at each. The release MUST remain incomplete until every
 required artifact and release record is published successfully. Completed
 destination work MUST be recorded and reused idempotently.
 
-Completion announcements MUST be separate from artifact publication. Delivery
-progress MUST be retained per release and destination, and an unacknowledged
-delivery MAY be retried with at-least-once semantics. Announcement failure MUST
-NOT create another version, rebuild, republish the artifact, or revoke an
-otherwise complete release.
+Completion announcements MUST be separate from artifact publication. If the full
+publication-to-candidate range has no consumer results, the release MUST NOT
+send a completion announcement. This rule MUST NOT change publication eligibility.
+Delivery progress MUST be retained per release and destination, and an
+unacknowledged delivery MAY be retried with at-least-once semantics. Announcement
+failure MUST NOT create another version, rebuild, republish the artifact, or
+revoke an otherwise complete release.
 
 #### FR8 scenarios
 
@@ -357,6 +359,13 @@ Scenario: Announcement retry does not create another release
   When announcement delivery is retried
   Then the same release identity and message context are reused
   And no new version, build, or artifact publication occurs
+
+Scenario: A release with only internal results completes without an announcement
+  Given an eligible release has no consumer results in its full publication-to-candidate range
+  And the route enables completion announcements
+  When every required destination publishes the artifact and complete release note
+  Then the release completes
+  And no completion announcement is sent
 ```
 
 ### FR9 — Every destination satisfies the publishing-target contract {#fr9}

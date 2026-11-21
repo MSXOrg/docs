@@ -433,12 +433,16 @@ consume an owned alias follow [Accept moved release tags](accept-moved-release-t
 ## Completion announcements
 
 Announcements are a post-completion delivery channel, not part of artifact
-publication. Resolve freezes whether announcements are enabled and which
-configured destinations apply. Complete freezes the canonical message context:
-version, immutable release link, summary, and release-intent identity.
-Do not send a completion announcement for a no-release decision.
+publication. Resolve freezes announcement eligibility and the configured
+destinations. A release is eligible for an announcement only when the route
+enables announcements and the full
+[publication-to-candidate range](../../Ways-of-Working/PR-Format.md#resolve-release-coverage-first)
+has a consumer result. Do not announce a skip or a release with only internal
+results. This does not change [release scope](#release-scope).
 
-The summary contains only consumer results. It is the leading text before the single
+For an eligible announcement, Complete freezes the message context: version,
+immutable release link, consumer summary, and release-intent identity.
+The summary is the leading text before the single
 `<!-- ANNOUNCEMENT STOP -->` marker required by [PR Format](../../Ways-of-Working/PR-Format.md).
 Validate that boundary outside code fences before preparing the message;
 missing or duplicate markers are errors, not instructions to truncate elsewhere.
