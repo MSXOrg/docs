@@ -29,6 +29,7 @@ Use [git worktrees](../Git-Worktrees.md) for every repository-delivery Task or B
 
 1. Create a worktree from the default branch per [Branching and Merging](../Branching-and-Merging.md).
 2. Push an initial commit and immediately open a **draft** pull request so CI attaches from the first push.
+   Follow the [Contribution Workflow](../Contribution-Workflow.md#the-flow) when you draft the title and description.
 3. Close exactly that Task or Bug in the pull request. Reference a parent PBI or Epic only as non-closing context, then assign the pull request.
 
 ### 3. Build
