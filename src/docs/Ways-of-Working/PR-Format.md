@@ -5,22 +5,27 @@ description: Audience-first pull request titles and descriptions with evidence-b
 
 # PR Format
 
-Write the pull request title and description as a release note for the people
-and systems that use what the repository delivers. Keep maintainer-only changes
-and review evidence at the end. If the change affects only maintainers, lead
-with the internal outcome instead.
+Write the pull request title and description as a release note. Write for the
+people and systems that use the products of the repository.
 
-Author the release note in the release-bound PR. Publication uses the frozen
-snapshot of the complete reviewed title and description for the fixed source,
-including collapsed blocks. Published MSX notes are the only source consumers
-need for release-specific changes and upgrade actions. Diffs, links, issues,
-templates, and [resource documentation](Documentation-Model.md#current-product-guidance-and-release-history)
-can provide context, current usage, or evidence, but not missing steps.
+If the pull request has both consumer and internal changes, put the internal
+changes at the end. If the pull request has only internal changes, give the
+internal result first. Put review evidence at the end.
 
-Consumers read every applicable release note after their actual consumed
-baseline through the fixed target in release order and compose the necessary
-actions. Install or run an intermediate version only when a note explicitly
-requires it.
+For a release-bound pull request, write the release note in that pull request.
+Publication uses the frozen snapshot of the complete reviewed title and
+description for the fixed source. This snapshot includes collapsed blocks.
+
+Give consumers all release-specific changes and upgrade steps in the published
+MSX notes. Diffs, links, issues, templates, and
+[resource documentation](Documentation-Model.md#current-product-guidance-and-release-history)
+can give context, usage information, or evidence. Do not put a necessary step
+only in those sources.
+
+Consumers read the applicable notes in release order. They start after their
+actual baseline and include the note for the fixed target. They use these notes
+to make an upgrade plan. They install or run an intermediate version only if a
+note requires that operation.
 
 The title and description use a shared format. The
 [Contribution Workflow](Contribution-Workflow.md) owns draft, assignment,
@@ -35,22 +40,20 @@ the source.
 
 ### Identify the readers
 
-Start with the repository [README audience
-declaration](Readme-Driven-Context.md#target-audience). Check what the repository
-actually delivers and how consumers use it. Inspect linked product docs,
-capability specifications, and effective configuration.
+Start with the [audience in the README](Readme-Driven-Context.md#target-audience).
+Read the linked product documentation, capability specifications, and the
+configuration in effect. Identify what the repository supplies and how consumers
+use it.
 
-Treat every supported interface as consumer-facing when someone depends on it.
-Commands, APIs, configuration, reusable workflows, Actions, templates, and
-published guidance can all be the product. A repository-owned workflow used by
-other repositories is consumer-facing when its supported behavior changes.
-A change to the repository's own test setup with no effect on supported uses
-is internal. A change is not internal merely because its consumers write
-scripts or maintain another product.
+If consumers depend on a supported interface, treat it as consumer-facing.
+The product can be a command, API, configuration, reusable workflow, Action,
+template, or published guidance. If a workflow changes behavior that other
+repositories use, treat the change as consumer-facing. A change to the
+repository's own test setup is internal if it has no effect on supported uses.
+Consumers can write scripts or maintain other products.
 
-For documentation-only work, the delivered result is guidance. State what a
-reader can now understand or do; do not present documentation as product
-behavior that the change did not implement.
+If a change updates only documentation, tell the reader what they can now
+understand or do. Do not say that the change also updates the documented system.
 
 ### Resolve release coverage first
 
@@ -212,14 +215,15 @@ decision source, not an error recovery path.
 
 ### Select the news
 
-If any result affects consumers, write the title, shareable summary, and
-classified sections for them. Cover every applicable consumer change and
-required action. Put actual maintainer-only changes and review evidence
-[at the end](#put-maintainer-content-last), not between consumer results.
+If a change has an effect on consumers, use the title for the most important
+consumer result. Write the shareable summary for consumers. Use the classified
+sections only for consumer results. Include all applicable changes and upgrade
+steps. Put maintainer-only changes and review evidence
+[at the end](#put-maintainer-content-last).
 
-If the work is internal-only, name the internal outcome in the title and
-explain why it matters in the summary. Do not invent a consumer result or an
-upgrade action.
+If the work has only internal changes, give the internal result in the title.
+Give the reason for the change in the summary. Do not add a consumer result
+or an upgrade step.
 
 ### Group related changes
 
@@ -228,20 +232,34 @@ issue, or implementation step. One section may describe several files that
 jointly deliver one result. Give distinct consumer results their own sections
 and classify each once.
 
+## Write in Simplified Technical English
+
+Use **ASD-STE100 Issue 9** writing practices and American English (`en-US`).
+This rule applies to the pull request title and all prose in the description.
+It also applies to the published release note, including collapsed text.
+Follow [Natural Language](../Coding-Standards/Natural-Language.md). Use the
+[Technical Writing Guide](../Coding-Standards/Writing-Guide.md) to find the
+official rules and dictionary.
+
+Use short sentences in the active voice. Give instructions as direct commands.
+Give one action per instruction. If the reader must know a condition first,
+put it before the instruction. Use the same term for the same concept.
+Keep exact interface names, commands, and values.
+
 ## Write the title
 
-Use one short statement of the most important consumer result. For a
-release-bound record, choose it from the complete resolved delivered range,
-not only the scoped PR implementation:
+Use a short title for the most important consumer result. For a release-bound
+record, use the complete publication-to-candidate range to select that result.
+Do not use only the changes in the pull request diff.
 
 ```text
-LLM Gateway streaming requests report usage
+LLM Gateway reports usage for streaming requests
 ```
 
-For internal-only work, name the operational result:
+For internal-only work, give the internal result:
 
 ```text
-Release automation uses a shared configuration
+Docs builds use a cache for Python packages
 ```
 
 The title must not contain:
@@ -255,24 +273,25 @@ The title must not contain:
 
 ## Write the description
 
-The description stands on its own for a reader who has not inspected the diff.
-Use the following structure.
+Give the reader all necessary information in the description. Do not make the
+reader use the diff to find a required step.
 
 ### Summarize the result
 
-Start with one or two short paragraphs and no `Summary` heading. For a change
-that affects consumers, lead with required action and breaking impact when
-either exists. A short unordered list is acceptable only when several distinct
-results cannot be stated clearly in prose.
+Start with one or two short paragraphs. Do not add a `Summary` heading.
+If a change breaks a supported use or requires action, put this information
+first. If prose cannot show several different results clearly, use a short
+unordered list.
 
-For consumer results, use the vocabulary of the supported interface. Describe
-what changes and why, which uses are affected, and whether they remain
-compatible. State what readers need to do or why no action is needed. Include
-deadlines or prerequisites that affect whether or when to upgrade. Keep
-implementation narration out of the summary.
+For consumer results, use the terms of the supported interface. Tell the
+reader what changes and why. Identify which supported uses the change applies
+to. Tell the reader if those uses stay compatible. Give the required action.
+If no action is necessary, give the reason. If a deadline or prerequisite
+controls whether or when to upgrade, give it in the summary. Do not put
+implementation details in the summary.
 
-For internal-only work, summarize the real internal outcome and why it matters.
-Do not add a consumer compatibility or adoption statement.
+For internal-only work, give the internal result and the reason for the change.
+Do not add a statement about consumer compatibility or adoption.
 
 ### End the shareable summary
 
@@ -302,13 +321,14 @@ empty groups. An internal-only pull request has no classified sections.
 | `Changed` | Existing behavior, configuration, or guidance changes compatibly. |
 | `Fixed` | An incorrect behavior or guidance now works as intended. |
 
-Each section heading states one result, not a component name. Open the section
-with one or two visible paragraphs. Explain what changes and why. Name the
-affected supported uses and state their compatibility. State the required
-action or say why no action is needed beyond selecting the release reference.
-Keep prerequisites and deadlines that affect whether or when to upgrade
-visible, not only in a collapsed block. A documentation change uses the
-classifier that describes what its guidance now provides.
+Use one result as the section heading. Do not use only the component name.
+Start the section with one or two visible paragraphs. Tell the reader what
+changes and why. Identify which supported uses the change applies to. Tell the
+reader if those uses stay compatible. Give the required action. If the consumer
+only has to select the release reference, give the reason. If a prerequisite
+or deadline controls whether or when to upgrade, put it in the visible text.
+Do not put it only in a collapsed block. For a documentation change, use the
+classifier for the new result of the guidance.
 
 ### Show interfaces after the prose
 
@@ -322,35 +342,35 @@ release record. Never include secret values.
 
 ### Record migration details
 
-When a result has exact technical adoption steps, put them in one `<details>`
-block with the exact summary `Migration details`. This includes compatible
-changes that have steps to adopt a new or changed behavior. If adoption is
-optional, say so in the visible prose. Omit the block when no migration applies.
-Do not include an empty block or a no-action placeholder.
+If a result has technical steps for adoption, put them in one `<details>`
+block. Use `Migration details` as the exact summary. If a compatible change
+has adoption steps, use the block for those steps. If adoption is optional,
+tell the reader in the visible text. If no migration applies, do not add the
+block. Do not use an empty block or a placeholder for no action.
 
-- Identify the affected versions or source baselines, supported uses, and
-  prerequisites for the steps.
-- Give exact old and new names, values, commands, or examples. For initial
-  adoption, give the exact setup without inventing a previous state.
-- Put edits and operations in the order the consumer must perform them. If an
-  intermediate installation or run is necessary, state the version or source,
-  what to do, and why the consumer cannot skip it.
-- Give verification steps and the expected results, including any checks the
-  consumer must complete before proceeding.
+- Identify the versions or source baselines that apply. Identify the supported
+  uses and prerequisites.
+- Give exact old and new names, values, commands, or examples. For first-time
+  adoption, give the exact setup. Do not add a previous state that did not exist.
+- Put edits and operations in the order the consumer must do them. If an
+  intermediate installation or run is necessary, give the version or source.
+  Give the steps for that operation. Give the reason why it is necessary.
+- Give the checks and their expected results. If a check must pass before the
+  consumer continues, put the check before the next step.
 
-If this release supersedes an earlier action, explain what to omit or replace
-and which intermediate operations still apply. Put every required step in the
-release notes themselves, not only in a diff, link, issue, template, or
-evergreen document.
+If a release changes an earlier instruction, tell the reader which step to
+remove or replace. Tell the reader which intermediate steps still apply.
+Put all required steps in the notes. Do not put a required step only in a
+diff, link, issue, template, or evergreen document.
 
 ### Put maintainer content last
 
-After the last consumer result, add each applicable collapsed block once,
-in this order. These blocks apply to the whole pull request, not only the
-result immediately above them.
+After the last consumer result, add each applicable collapsed block one time.
+Use the order below. These blocks apply to the complete pull request.
 
-1. `Internal changes`: Briefly state what changed only for maintainers and
-   why it matters. Omit the block when there is no useful internal outcome.
+1. `Internal changes`: Give a short summary of each useful change for
+   maintainers only. Give the reason for each change. If there is no useful
+   internal result, do not add the block.
 2. `Technical details`: Record implementation and validation evidence. Name
    the result or changed interface that each item supports.
 3. `Related references`: Include closing and non-closing references. Name
@@ -442,6 +462,9 @@ release-note metadata.
 
 ### Complete description example
 
+Follow the [ASD-STE100 writing rule](#write-in-simplified-technical-english)
+when you use either example.
+
 #### Mixed change
 
 Use the most important consumer result as the title. Replace every placeholder
@@ -458,102 +481,112 @@ release-candidate routing in the mode evidence. Never turn invalid settings or
 conflicting owned labels into a no-action result.
 
 ````markdown
-{{ One or two short paragraphs for consumers only. State what changes and why,
-which supported uses are affected, and the required action or compatible
-no-action outcome. Include deadlines or prerequisites that affect whether
-or when to upgrade. }}
+{{ Write one or two short paragraphs for consumers. Tell the reader what
+changes and why. Identify which supported uses the change applies to. Give
+the required action. If no action is necessary, give the reason. Give any
+deadline or prerequisite that controls whether or when to upgrade. }}
 
 <!-- ANNOUNCEMENT STOP -->
 
-## Breaking: {{ Reader-facing result }}
+## Breaking: {{ Consumer result }}
 
-{{ Explain what changes and why, affected supported uses, compatibility, and
-the required action or why none is needed. Keep prerequisites and deadlines
-that affect whether or when to upgrade visible. }}
+{{ Tell the reader what changes and why. Identify which supported uses the
+change applies to. Tell the reader if those uses stay compatible. Give the
+required action. If no action is necessary, give the reason. Give any
+prerequisite or deadline that controls whether or when to upgrade. }}
 
 {{ Optional short interface example or table that clarifies the result. }}
 
 <details>
 <summary>Migration details</summary>
 
-{{ Affected baselines and uses, prerequisites, exact old and new values or
-examples, ordered steps including any required intermediate operations, and
-verification with expected results. Explain any superseded actions. }}
+{{ Identify the applicable baselines, uses, and prerequisites. Give exact old
+and new values or examples. Give the steps in order. Include any necessary
+intermediate operation. Give the checks and their expected results. Tell the
+reader which earlier steps to remove, replace, or keep. }}
 
 </details>
 
-## Removed: {{ Reader-facing result }}
+## Removed: {{ Consumer result }}
 
-{{ Explain what changes and why, affected supported uses, compatibility, and
-the required action or why none is needed. Keep prerequisites and deadlines
-that affect whether or when to upgrade visible. }}
+{{ Tell the reader what changes and why. Identify which supported uses the
+change applies to. Tell the reader if those uses stay compatible. Give the
+required action. If no action is necessary, give the reason. Give any
+prerequisite or deadline that controls whether or when to upgrade. }}
 
 {{ Optional short interface example or table that clarifies the result. }}
 
 <details>
 <summary>Migration details</summary>
 
-{{ Affected baselines and uses, prerequisites, exact old and new values or
-examples, ordered steps including any required intermediate operations, and
-verification with expected results. Explain any superseded actions. }}
+{{ Identify the applicable baselines, uses, and prerequisites. Give exact old
+and new values or examples. Give the steps in order. Include any necessary
+intermediate operation. Give the checks and their expected results. Tell the
+reader which earlier steps to remove, replace, or keep. }}
 
 </details>
 
-## New: {{ Reader-facing result }}
+## New: {{ Consumer result }}
 
-{{ Explain what changes and why, affected supported uses, compatibility, and
-the required action or why none is needed. Keep prerequisites and deadlines
-that affect whether or when to upgrade visible. }}
+{{ Tell the reader what changes and why. Identify which supported uses the
+change applies to. Tell the reader if those uses stay compatible. Give the
+required action. If no action is necessary, give the reason. Give any
+prerequisite or deadline that controls whether or when to upgrade. }}
 
 {{ Optional short interface example or table that clarifies the result. }}
 
 <details>
 <summary>Migration details</summary>
 
-{{ Affected baselines and uses, prerequisites, exact old and new values or
-examples, ordered steps including any required intermediate operations, and
-verification with expected results. Explain any superseded actions. }}
+{{ Identify the applicable baselines, uses, and prerequisites. Give exact old
+and new values or examples. Give the steps in order. Include any necessary
+intermediate operation. Give the checks and their expected results. Tell the
+reader which earlier steps to remove, replace, or keep. }}
 
 </details>
 
-## Changed: {{ Reader-facing result }}
+## Changed: {{ Consumer result }}
 
-{{ Explain what changes and why, affected supported uses, compatibility, and
-the required action or why none is needed. Keep prerequisites and deadlines
-that affect whether or when to upgrade visible. }}
+{{ Tell the reader what changes and why. Identify which supported uses the
+change applies to. Tell the reader if those uses stay compatible. Give the
+required action. If no action is necessary, give the reason. Give any
+prerequisite or deadline that controls whether or when to upgrade. }}
 
 {{ Optional short interface example or table that clarifies the result. }}
 
 <details>
 <summary>Migration details</summary>
 
-{{ Affected baselines and uses, prerequisites, exact old and new values or
-examples, ordered steps including any required intermediate operations, and
-verification with expected results. Explain any superseded actions. }}
+{{ Identify the applicable baselines, uses, and prerequisites. Give exact old
+and new values or examples. Give the steps in order. Include any necessary
+intermediate operation. Give the checks and their expected results. Tell the
+reader which earlier steps to remove, replace, or keep. }}
 
 </details>
 
-## Fixed: {{ Reader-facing result }}
+## Fixed: {{ Consumer result }}
 
-{{ Explain what changes and why, affected supported uses, compatibility, and
-the required action or why none is needed. Keep prerequisites and deadlines
-that affect whether or when to upgrade visible. }}
+{{ Tell the reader what changes and why. Identify which supported uses the
+change applies to. Tell the reader if those uses stay compatible. Give the
+required action. If no action is necessary, give the reason. Give any
+prerequisite or deadline that controls whether or when to upgrade. }}
 
 {{ Optional short interface example or table that clarifies the result. }}
 
 <details>
 <summary>Migration details</summary>
 
-{{ Affected baselines and uses, prerequisites, exact old and new values or
-examples, ordered steps including any required intermediate operations, and
-verification with expected results. Explain any superseded actions. }}
+{{ Identify the applicable baselines, uses, and prerequisites. Give exact old
+and new values or examples. Give the steps in order. Include any necessary
+intermediate operation. Give the checks and their expected results. Tell the
+reader which earlier steps to remove, replace, or keep. }}
 
 </details>
 
 <details>
 <summary>Internal changes</summary>
 
-{{ Summarize each useful maintainer-only outcome and why it matters. }}
+{{ Give each useful change for maintainers only. Give the reason for it. }}
 
 </details>
 
@@ -607,25 +640,28 @@ final version. Delete inapplicable evidence. }}
 
 #### Internal-only change
 
-Example title: `Docs CI caches build dependencies`
+Example title: `Docs builds use a cache for Python packages`
 
-This route deploys the docs site but does not publish a versioned artifact,
-so it has no `Release decisions` block. If the actual route invokes Release
-Management, apply the same release criteria and add the final decision block.
-An internal audience does not by itself establish a skip decision.
+This route deploys the docs site. It does not publish a versioned artifact.
+The example has no `Release decisions` block. If the actual route invokes
+Release Management, put the `Release decisions` block at the end. Use the
+same release criteria as for other changes. Do not select skip only because
+the change is internal.
 
 ```markdown
-The docs build job caches Python packages so repeat runs do not download the
-same dependencies.
+The docs build job keeps Python packages in a cache. Later runs use the cache
+and do not download the same packages again.
 
 <!-- ANNOUNCEMENT STOP -->
 
 <details>
 <summary>Technical details</summary>
 
-The docs build job uses the requirements file for its cache key. A cold run
-and a cache-hit run both pass and generate identical site output. The delivery
-plan is complete. No other open docs CI issue is fully resolved by this change.
+The docs build job uses the requirements file for its cache key. One test
+starts with an empty cache. The other test uses the packages from the cache.
+Both tests pass. Both give the same site output. The delivery plan is complete.
+The search covered open docs CI issues. This change does not resolve another
+issue in that set.
 
 | Changed surface | Standards checked | Framework docs checked | Result |
 | --- | --- | --- | --- |
@@ -647,6 +683,8 @@ Before marking the pull request ready, verify:
 
 - the title states one result and contains none of the prohibited prefixes,
   references, lists, or attribution;
+- the title and all prose in the description follow the
+  [ASD-STE100 writing rule](#write-in-simplified-technical-english);
 - the summary is accurate on its own and the marker appears exactly once in the
   required position;
 - release-bound claims match the complete published-artifact-to-candidate
