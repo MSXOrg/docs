@@ -425,7 +425,7 @@ Announcements MUST NOT truncate the full release record.
 
 Canonical format adherence MUST be verified from the actual title, complete
 body, source coverage, and supporting evidence under
-[PR Format](../../Ways-of-Working/PR-Format.md#check-readiness).
+[PR Format](../../Ways-of-Working/PR-Format.md#readiness-check).
 An inherited scaffold or similarity to a central copy MUST NOT substitute for
 that record evidence.
 

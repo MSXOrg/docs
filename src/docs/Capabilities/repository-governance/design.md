@@ -182,7 +182,7 @@ engine can implement it. Each implementation must satisfy the contract below.
 | Branch shape matches | Do the protected branches, merge methods, and required checks match what the type declares? |
 | Required local files present | Does the default branch carry the locally required baseline and type-specific files, or the explicit Unmanaged discoverability minimum, including a local contribution guide only when needed? |
 | Contribution guidance available | Does effective local or shared contribution guidance resolve, with required organization defaults validated in their source repository rather than copied into consumers? |
-| PR authoring and file policy | Are PR-template files absent under the [Repository Standard](../../Ways-of-Working/Repository-Standard.md#no-pr-template-files), and do actual records meet [PR Format](../../Ways-of-Working/PR-Format.md#check-readiness) with verified source coverage and supporting evidence? |
+| PR authoring and file policy | Are PR-template files absent under the [Repository Standard](../../Ways-of-Working/Repository-Standard.md#no-pr-template-files), and do actual records meet [PR Format](../../Ways-of-Working/PR-Format.md#readiness-check) with verified source coverage and supporting evidence? |
 
 ### Severity decides the response
 

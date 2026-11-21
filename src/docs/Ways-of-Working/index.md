@@ -36,7 +36,7 @@ Use them to plan work, open issues, write commit messages, and review pull reque
 | [Goal-Setting Framework](Goal-Setting.md) | Mission, OKRs, and Initiatives — the strategy above repository Epics. |
 | [Definition of Ready and Done](Definition-of-Ready-and-Done.md) | The three gates that bracket every piece of work. |
 | [Issues](Issues/index.md) | How issues are formatted and organized across the MSX ecosystem. |
-| [PR Format](PR-Format.md) | Audience-first pull request titles and descriptions with evidence-based, conditional release decisions. |
+| [PR Format](PR-Format.md) | Write pull requests for consumers and maintainers. Give upgrade steps and release decisions when they apply. |
 | [Commit Conventions](Commit-Conventions.md) | How commit messages are written. |
 | [Branching and Merging](Branching-and-Merging.md) | Delivery-leaf topic branches, pull-request-only integration, and merge models. |
 | [Review Etiquette](Review-Etiquette.md) | Tone, scope, severity, and how to disagree well. |
