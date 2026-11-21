@@ -64,7 +64,7 @@ Reconcile the [consumer-evidence readiness gate](../Definition-of-Ready-and-Done
 in this same pass. Consumer upgrades use [Consumer Upgrades](../Consumer-Upgrades.md);
 applicable producer changes demonstrate immutable template compatibility and
 track the [producer/template completion obligations](../Definition-of-Ready-and-Done.md#repository-delivery-leaf).
-Record the evidence in the existing PR sections and alignment rows, not a
+Record the evidence with the alignment rows in `Technical details`, not in a
 second checklist.
 
 Record the outcome as one row per changed surface:
@@ -74,7 +74,7 @@ Record the outcome as one row per changed surface:
 | `src/functions/**` (PowerShell) | Naming, Functions, Error Handling | Module source layout | Aligned |
 | `.github/workflows/**` | GitHub Actions | Reusable workflow contract | Exception — Owner/Repo#123 |
 
-A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link that justifies it. Where a changed surface has no framework or domain documentation of its own, write `None (no framework-specific docs)` rather than inventing a pseudo-link. Put each row in the `Technical details` block for the pull request section whose result it supports. For internal-only work without a classified section, put the table in the supporting block after the summary marker. This keeps the evidence scoped per [PR Format](../PR-Format.md) so [Review](Review.md) can verify the pass instead of guessing whether it happened.
+A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link that justifies it. Where a changed surface has no framework or domain documentation of its own, write `None (no framework-specific docs)` rather than inventing a pseudo-link. Put the table in the [`Technical details` block at the end](../PR-Format.md#put-maintainer-content-last). Identify the result or interface each row supports so [Review](Review.md) can verify the pass.
 
 **Stop rule.** Fix only work in scope for the closing Task or Bug, and keep the pull request small enough to review. For out-of-scope or systemic findings, file a follow-up issue through [Define](Define.md). Do the same when a finding would change the pull request's scope. Link the follow-up in the table as an exception and leave that work out of the change. The pass verifies alignment; it does not add another deliverable.
 
@@ -85,8 +85,8 @@ Run this once per implementation session, at the same timing as the standards/fr
 1. Search for already-open issues whose asks are already satisfied by the finished diff, not only the issue originally linked when the branch was opened.
 2. Scope the sweep deliberately so it scales: prioritize the delivery leaf's parent and siblings in the [Issue Hierarchy](../Issues/Types/Hierarchy.md), then narrow by affected component, labels, keywords, or code paths. Do not read every open issue serially in large repositories.
 3. Treat convergence as outcome-based:
-   - **Fully satisfied** — the diff already delivers the issue's ask. Add it to the applicable section's `Related references` block with `Resolves` so merge closes it.
-   - **Partially satisfied** — the diff helps but does not fully deliver the ask. Add it to the applicable `Related references` block as non-closing context and keep or create a follow-up delivery leaf for the remaining gap.
+   - **Fully satisfied** — the diff already delivers the issue's ask. Add it to `Related references` with `Resolves` so merge closes it.
+   - **Partially satisfied** — the diff helps but does not fully deliver the ask. Add it to `Related references` as non-closing context and keep or create a follow-up delivery leaf for the remaining gap.
 4. Keep this pass focused on convergence and linkage. It does **not** rewrite, reformat, or otherwise "fix up" issue bodies to match issue templates; issue quality edits are separate work routed through [Define](Define.md).
 
 ### 7. Finalize and hand off

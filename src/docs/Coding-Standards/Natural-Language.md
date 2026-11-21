@@ -178,8 +178,9 @@ PR titles and descriptions are written for the user of the change first, then th
 | `Agentic development guidance defines the framework` | `Update framework docs` |
 | `Agents segment project context before loading standards.` | `Refactor AGENTS.md instructions.` |
 
-Technical implementation details belong in the `Technical details` block for
-the reader-facing result they support.
+Put implementation evidence in the [`Technical details` block at the
+end](../Ways-of-Working/PR-Format.md#put-maintainer-content-last). Identify the
+result or interface the evidence supports.
 
 ## Prompts
 

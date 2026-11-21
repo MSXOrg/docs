@@ -479,19 +479,21 @@ a retry preserves that snapshot rather than re-resolving later metadata.
 This authoring range does not change aggregate approval of the accumulated
 range, version allocation, or overall destination completion.
 
-Each result's visible prose states the change, why it matters, affected uses
-and compatibility, and the required action or explicit no-action outcome.
+Each consumer result's visible prose states the change, why it matters,
+affected uses and compatibility, and the required action or explicit
+no-action outcome.
 Keep prerequisites and deadlines that affect whether or when to upgrade
 visible. Put exact adoption steps in the result's
 [Migration details block](../../Ways-of-Working/PR-Format.md#record-migration-details)
-when they apply. `Technical details` holds implementation and validation
-evidence, not migration steps. Internal-only work without a classifier uses
-supporting blocks after the summary marker.
+when they apply. Put maintainer-only outcomes and review evidence in the
+[end blocks](../../Ways-of-Working/PR-Format.md#put-maintainer-content-last),
+not between consumer results. For internal-only work, the summary states the
+operational outcome and review evidence follows the marker.
 
 Verify format adherence from the actual title, complete body, source coverage,
-and scoped supporting evidence. Similarity to an inherited scaffold or central
-copy is not evidence. An affected product integration template still requires
-its verified immutable identity and producer-compatibility evidence.
+and evidence for each affected result or interface. Similarity to an inherited
+scaffold or central copy is not evidence. An affected product integration template
+still requires its verified immutable identity and producer-compatibility evidence.
 
 Consumers read every applicable source-bound record after their actual consumed
 baseline through the fixed target and compose the actions in release order.

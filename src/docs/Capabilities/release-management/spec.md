@@ -412,16 +412,16 @@ source, not a later description of different code.
 #### Release evidence
 
 The complete description MUST contain exactly one announcement boundary after
-its leading summary. Each result MUST visibly explain what changed, why,
-affected supported uses, and compatibility. It MUST state the required action
-or an explicit no-action outcome with its compatibility basis. Deadlines and
+its leading summary. Each consumer result MUST visibly explain what changed
+and why, which supported uses it affects, and whether they remain compatible.
+It MUST state the required action or explain why no action is needed. Deadlines and
 prerequisites that determine whether or when to upgrade MUST be visible.
 When exact technical adoption steps apply, the result MUST carry them in its
 [Migration details block](../../Ways-of-Working/PR-Format.md#record-migration-details),
-with applicability, order, and verification. Supporting evidence MUST remain
-scoped to its result; internal-only work without a classifier uses the
-supporting block after the summary marker. Announcements MUST NOT truncate the
-full release record.
+with applicability, order, and verification. Review-only evidence MUST follow
+all consumer results and identify the result or interface it supports, under
+[PR Format](../../Ways-of-Working/PR-Format.md#put-maintainer-content-last).
+Announcements MUST NOT truncate the full release record.
 
 Canonical format adherence MUST be verified from the actual title, complete
 body, source coverage, and supporting evidence under

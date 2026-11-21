@@ -33,10 +33,10 @@ Check each dimension per [Review Etiquette](../Review-Etiquette.md):
 - **Taste** — readability, naming, structure, tests that exercise behavior.
 - **Security** — input validation, no secrets in logs, external action and reusable-workflow references pinned to full commit SHAs, owned major-tag references meeting the controlled-release exception, and least privilege. Escalate a deep pass to [Security Review](Security-Review.md).
 - **Documentation** — updated where user-facing behavior changed.
-- **Pull request artifact** — the title states one result, the description follows
-  [PR Format](../PR-Format.md), supporting evidence is section-scoped, and
-  release metadata appears only when the target route invokes Release
-  Management.
+- **Pull request artifact** — the title states one result, the description
+  follows [PR Format](../PR-Format.md), review evidence appears at the end and
+  identifies the result or interface it supports, and release metadata appears
+  only when the target route invokes Release Management.
 - **Standards and framework alignment** — the pull request records the author's [alignment pass](Implement.md#5-standards-and-framework-alignment-pass), the result covers every changed surface, and each exception links a real follow-up issue. Verify at least one row against the canonical standard or framework page. A missing or unsupported pass is a blocking finding.
 - **Issue convergence sweep** — the pull request records the author's [sweep](Implement.md#6-issue-convergence-sweep), including scoped search coverage and any convergent issues linked with closing keywords. Verify at least one linked closing issue against the delivered diff. Claimed convergence without visible delivery evidence is a blocking finding.
 - **Tests** — new behavior has tests; bugs get regression tests.

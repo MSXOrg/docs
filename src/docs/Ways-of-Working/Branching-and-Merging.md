@@ -47,7 +47,7 @@ Every layer follows the ordinary [Contribution Workflow](Contribution-Workflow.m
 
 1. **Plan the dependency.** Give each layer its own Task or Bug issue. Add a native blocked-by edge from every dependent leaf to its prerequisite as described in [Issue Relationships](Issues/Process/Relationships.md#execution-order); prose, sub-issue order, and stack position do not create the gate.
 2. **Open every layer as a draft.** After the initial commit, push the branch and open its pull request immediately. Use the standard user-facing title and description from [PR Format](PR-Format.md); do not add stack position or an internal branch name to the title.
-3. **Link the stack in Related references.** Add fully qualified pull request links for the immediate dependency and dependent to the applicable section's `Related references` block, using `Depends on Owner/Repo#N` and `Followed by Owner/Repo#N`. Each pull request closes only its own Task or Bug.
+3. **Link the stack in Related references.** Add fully qualified pull request links for the immediate dependency and dependent to the pull request's `Related references` block, using `Depends on Owner/Repo#N` and `Followed by Owner/Repo#N`. Each pull request closes only its own Task or Bug.
 4. **Keep each delta isolated.** The pull request diff against its current base contains only that layer's change. Run its tests, checks, and automated review even when an earlier layer already exercised the combined code.
 5. **Make one layer ready at a time.** Only the lowest unmerged layer is marked ready and given auto-merge. Every later layer stays draft, even when its current checks are green.
 6. **Advance after merge.** When the lowest layer merges, refresh the next branch against the merged target.
