@@ -82,7 +82,7 @@ Prefer specific, observable language over vague intent.
 | Prefer | Avoid |
 | --- | --- |
 | The workflow fails when the release decision is missing. | There may be some issues with labels. |
-| On a release-managed route, add `release:skip` when documentation does not affect the artifact. | Make sure docs PRs are handled correctly. |
+| On a release-managed route, add `release:skip` if the full range leaves the artifact and its supported consumer contracts unchanged. | Make sure docs PRs are handled correctly. |
 | The agent reads `AGENTS.md` before editing files. | The agent should probably look at the instructions. |
 
 Use **MUST**, **SHOULD**, and **MAY** only when a sentence is intentionally normative. If a rule is optional, say what trade-off decides it.

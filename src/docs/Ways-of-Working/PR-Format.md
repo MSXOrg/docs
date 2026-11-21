@@ -5,8 +5,9 @@ description: Audience-first pull request titles and descriptions with evidence-b
 
 # PR Format
 
-Write the pull request title and description as a release note. Write for the
-people and systems that use the products of the repository.
+Write the pull request title and description for the people and systems that
+use the products of the repository. For a release-bound change, write them as
+a release note.
 
 If the pull request has both consumer and internal changes, put the internal
 changes at the end. If the pull request has only internal changes, give the
@@ -195,17 +196,23 @@ If the route does invoke Release Management, resolve these decisions from the
 complete [delivered consumer range](#resolve-release-coverage-first) and the effective
 [configuration](../Capabilities/release-management/design.md#configuration-surface):
 
-1. **Release or skip.** Release when the change affects the versioned artifact
-   or a supported consumer contract. Otherwise select `release:skip`.
+1. **Release or skip.** Use the [release scope rules](../Capabilities/release-management/design.md#release-scope)
+   to evaluate the complete range. Release when the range affects the delivered
+   artifact or a supported consumer contract. If it affects neither, select
+   `release:skip`. An internal-only PR diff does not prove that the complete
+   range is internal. If earlier unpublished product changes are in the range,
+   include them in the decision and the consumer summary.
 2. **Version bump.** For a release, choose Patch, Minor, or Major from the
-   compatibility impact. An explicit bump label overrides a valid
-   effective `DefaultBump`; a matching default supplies the level without a
-   per-PR bump label. Resolve the documented shared default, repository settings,
-   and supported caller overrides under
+   compatibility impact of the delivered changes. Maintainer-only changes
+   that do not affect the artifact or a supported contract do not change the
+   bump. An explicit bump label overrides a valid effective `DefaultBump`.
+   A matching default supplies the level without a per-PR bump label. Resolve
+   the documented shared default, repository settings, and supported caller overrides under
    [settings and caller overrides](../Capabilities/release-management/design.md#settings-and-caller-overrides).
-3. **Mode.** Record Stable or Prerelease from the target route and any valid
-   `release:prerelease` override. Identify a configured release-candidate route
-   in the mode evidence; release candidates are prereleases, not another bump.
+3. **Mode.** For a release, record Stable or Prerelease from the target route
+   and any valid `release:prerelease` override. Identify a configured
+   release-candidate route in the mode evidence. Release candidates are
+   prereleases, not another bump.
 
 Use only the labels owned by the
 [`release:` namespace](Automation-Labels.md#every-set-is-namespaced). Missing,
@@ -297,9 +304,13 @@ Do not add a statement about consumer compatibility or adoption.
 End the summary with the exact HTML marker shown in the
 [complete description example](#complete-description-example).
 
-The marker appears exactly once, on its own line, outside a code fence, and
-before the first detailed section. Text before it must remain useful when shared
-without the rest of the description.
+Put the marker exactly once on its own line. Put it outside code fences and
+before the first detailed section. If the route sends a release announcement,
+it uses the consumer summary above the marker. Write that summary so it is
+useful on its own.
+
+For internal-only work with no release, the opening text is a summary for
+reviewers, not an announcement. The marker does not trigger an announcement.
 
 ### Describe each result
 
@@ -433,13 +444,14 @@ This block is not part of a result. Apply the exact labels the block reports:
 </details>
 ```
 
-For a no-release decision, include only the decision and its label:
+For a no-release decision, include only the decision and its label. Leave out
+the version bump and mode. Validation still runs:
 
 ```markdown
 <details>
 <summary>Release details</summary>
 
-- **Release:** No - the change does not affect the artifact or its supported consumer contracts.
+- **Release:** No - the complete range leaves the artifact and its supported consumer contracts unchanged.
 - **Labels:** `release:skip`
 
 </details>
@@ -460,7 +472,7 @@ has no `.github/release.settings.yml`.
 Use this order:
 
 1. Summary prose: consumer impact, or the operational outcome for internal-only work.
-2. The shareable-summary marker.
+2. The summary marker. It does not trigger an announcement.
 3. Consumer sections in qualifier order. Do not add these sections for
    internal-only work.
 4. `Internal:` sections after all consumer sections.
@@ -642,10 +654,10 @@ required action here. }}
 Example title: `Docs builds use a cache for Python packages`
 
 This route deploys the docs site. It does not publish a versioned artifact.
-The example has no `Release details` block. If the actual route invokes
-Release Management, put the `Release details` block at the end. Use the
-same release criteria as for other changes. Do not select skip only because
-the change is internal.
+This PR does not change the published site. The summary is for reviewers.
+The example has no `Release details` block. On a route that invokes Release
+Management, use the no-release block if the complete range leaves the
+artifact and its supported consumer contracts unchanged.
 
 ```markdown
 The docs build job keeps Python packages in a cache. Later runs use the cache
@@ -690,7 +702,8 @@ Before marking the pull request ready, verify:
 - the title and all prose in the description follow the
   [ASD-STE100 writing rule](#write-in-simplified-technical-english);
 - the summary is accurate on its own and the marker appears exactly once in the
-  required position;
+  required position. The text of a release announcement has only consumer
+  results;
 - release-bound claims match the complete published-artifact-to-candidate
   range; implementation claims match the separate scoped PR diff;
 - the product/target/channel, actual successful publication, immutable
@@ -729,7 +742,9 @@ Before marking the pull request ready, verify:
 - release metadata and `release:*` labels are absent when the route does not
   invoke Release Management;
 - when Release Management applies, `Release details` is the final block and
-  agrees with the labels, effective configuration, and complete-change evidence;
+  agrees with the labels, effective configuration, and complete-change evidence.
+  For a no-release decision, it records `Release: No` with its reason and
+  `release:skip`. It does not record a bump or mode;
 - the description contains no AI or agent attribution.
 
 The pull request still follows the complete [Definition of Ready for

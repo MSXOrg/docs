@@ -485,7 +485,9 @@ Scenario: Partial destination completion does not repeat published module change
 Only changes that affect the delivered artifact or a supported consumer contract
 MUST produce a release. Eligibility MUST evaluate the complete unreleased range,
 including direct and transitive build inputs, rather than only the latest change.
-Validation MUST still run when publication is skipped.
+If that range affects neither the artifact nor a supported contract, Release
+Management MUST NOT select a version bump, publish a release, or send a
+completion announcement. Validation MUST still run when publication is skipped.
 
 Without configured scope, every changed path MUST be treated conservatively as
 release-affecting. A repository MAY narrow the scope explicitly. File categories
@@ -497,10 +499,11 @@ because they can be the product or an artifact input.
 ```gherkin
 Scenario: An out-of-scope change validates without publishing
   Given the repository declares its artifact-affecting scope
-  And the full unreleased range contains no matching change
+  And no change in the full unreleased range affects the artifact or a supported consumer contract
   When release processing runs
   Then validation runs
-  And no version or release is published
+  And the request does not select a version bump
+  And the request does not publish a release or send a completion announcement
 ```
 
 ### FR12 — Release requests are serialized and accounted for in source order {#fr12}

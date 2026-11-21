@@ -436,8 +436,9 @@ Announcements are a post-completion delivery channel, not part of artifact
 publication. Resolve freezes whether announcements are enabled and which
 configured destinations apply. Complete freezes the canonical message context:
 version, immutable release link, summary, and release-intent identity.
+Do not send a completion announcement for a no-release decision.
 
-The summary is exactly the leading text before the single
+The summary contains only consumer results. It is the leading text before the single
 `<!-- ANNOUNCEMENT STOP -->` marker required by [PR Format](../../Ways-of-Working/PR-Format.md).
 Validate that boundary outside code fences before preparing the message;
 missing or duplicate markers are errors, not instructions to truncate elsewhere.
