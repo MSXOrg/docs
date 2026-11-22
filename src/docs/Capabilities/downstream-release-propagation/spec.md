@@ -1,19 +1,24 @@
 ---
 title: Spec
-description: Requirements for downstream release propagation — dependents automatically receive a reviewed pull request that applies each producer release.
+description: Requirements for downstream release propagation — each dependent receives an upgrade pull request or an evidenced no-upgrade outcome.
 ---
 
 # Downstream Release Propagation — Spec
 
 ## Premise
 
-The ecosystem is many small repositories that depend on each other by **version
-reference** — a pinned `uses:` SHA, an image digest, a deployed tag. A reference
-drifts the moment the producer cuts a release. Maintaining them by hand does not
-scale: missed bumps keep security fixes out of the workflows that run them, and
-missed *related* changes merge a bump that then breaks at runtime. When a
-producer releases, every dependent MUST automatically receive a pull request
-that applies the update — and the changes it implies — for a human to review.
+The ecosystem has many small repositories that depend on each other by **version
+reference**. Examples include a pinned `uses:` SHA, an image digest, or a deployed tag.
+
+A producer release can make a reference outdated.
+Manual updates do not scale across these dependencies.
+Missed version updates can exclude security fixes from the workflows that use them.
+An update that omits required related changes can break at runtime.
+
+When a producer releases, every dependent MUST be assessed for an upgrade. A needed
+upgrade produces a pull request applying the update and its related changes
+for human review; an already-current or superseded target produces an evidenced
+no-upgrade outcome instead.
 
 ### Principles
 
@@ -26,7 +31,7 @@ This capability rests on the [Principles](../../Ways-of-Working/Principles/index
 
 ## Applicability
 
-Two shapes occur; both are the same mechanism with a different artifact:
+Two dependency patterns use the same mechanism with different artifacts:
 
 | Shape | Producer | Dependent | What the PR changes |
 | --- | --- | --- | --- |
@@ -37,7 +42,23 @@ Two shapes occur; both are the same mechanism with a different artifact:
 
 - **Automatic on stable release.** A stable producer release MUST trigger propagation to every declared dependent. Prereleases MUST NOT propagate.
 - **Full context, not just a number.** Each dependent receives the new version, the immutable reference (commit SHA or image digest), the release notes, and any related-change context the update implies.
-- **A pull request per dependent, opened by an agent.** The mechanical work — the bump plus the fixes that make it work — is delegated to a cloud agent *in the dependent*, which opens the pull request. **How** the agent is engaged is a design choice, not a requirement: the spec requires the delegation and the pull request, not a particular delegation mechanism.
+- **Complete consumer-range adoption.** Each dependent MUST follow
+  [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) from its actual
+  consumed upstream baseline to the propagated target. The received note MUST
+  retain the complete source-bound release record, but it is only one input:
+  it MUST NOT replace inspection of every applicable release the consumer
+  crosses, its composed actions, or its target-template comparison.
+- **Evidence is data, not agent authority.** Delegated context MUST separate
+  producer-controlled records from governing task instructions. The complete
+  record MUST remain recoverable without allowing embedded instructions to
+  change the task's scope, permissions, secret handling, or review/validation
+  gates. An unsafe evidence boundary MUST block affected delegation.
+- **A pull request per needed upgrade, opened by an agent.** The automation
+  delegates the version update and required related fixes to a cloud agent *in
+  the dependent*. When qualification establishes an actual upgrade, the agent
+  opens the pull request. **How** the agent is engaged remains a design choice.
+  The spec requires delegation and a pull request for the repository change,
+  not a particular delegation mechanism.
 - **A delivery leaf before the pull request.** The dependent MUST create or reuse
   a Task or Bug for the producer version before the agent opens its pull request.
   The leaf carries the executable local plan and acceptance criteria required by
@@ -45,20 +66,61 @@ Two shapes occur; both are the same mechanism with a different artifact:
   and the pull request closes exactly that leaf.
 - **Idempotent by identity.** Propagation MUST be safe to run more than once for
   the same producer version. A repeated run reuses the existing delivery Task or
-  Bug and MUST NOT open a second pull request for it.
-- **Humans decide.** A human reviews and merges each PR; the agent applies what it can safely do now and calls out larger or riskier work as follow-up.
-- **Backfill on demand.** Propagation MUST be re-runnable for a specific release — for a missed event, or a dependent added after the release. Backfill uses the same idempotency, so re-running for an already-propagated dependent is a no-op rather than a duplicate.
+  Bug and MUST NOT open a second pull request for it. Issue existence alone MUST
+  NOT count as completed propagation: retries resume missing qualification or
+  delegation, reuse active execution, and report a no-op only when a matching
+  PR handoff or verified no-upgrade outcome exists. Required blockers still hold.
+- **Humans decide.** A human reviews and merges each PR. Missing provenance,
+  release/action evidence, applicable template compatibility, or required
+  validation MUST leave affected work blocked with an owning issue. Larger
+  or riskier required work MUST NOT be treated as an optional follow-up to an
+  otherwise ready reference bump.
+- **Backfill on demand.** Propagation MUST be re-runnable for a specific release.
+  This covers a missed event or a dependent added after the release.
+  Backfill uses the same idempotency.
+  Re-running for an already-propagated dependent is a no-op, not a duplicate.
+- **A fixed target, not an implicit downgrade.** A delayed notification or
+  backfill MUST retain its selected target rather than substitute the newest
+  release. If it is no longer an upgrade from the consumer's actual baseline,
+  record that outcome; propagation MUST NOT downgrade the consumer.
+- **No-upgrade is a terminal outcome, not an empty PR.** Qualification MUST
+  record the proven baseline, target, and comparison evidence in the delivery
+  issue before repository changes begin. When no upgrade or other local
+  acceptance work remains, close an unneeded open leaf as **not planned** with
+  that reason; do not claim a shipped implementation or create an empty PR.
+  Preserve existing closed records on repeat notifications. An existing PR or
+  unmet local criterion requires scope reconciliation, not automatic
+  cancellation from a version comparison alone.
 
 ## Success criteria
 
-- A stable release yields one pull request in each declared dependent, carrying the immutable reference and an impact summary without manual coordination.
+- A stable release yields one pull request in each dependent needing an upgrade,
+  carrying the immutable reference and an impact summary without manual
+  coordination; other dependents retain an evidenced no-upgrade outcome.
 - A prerelease yields none.
-- Running propagation twice for the same version yields the same one pull request per dependent, not two.
-- A dependent added after a release can be back-filled without cutting a new release.
+- Running propagation twice for the same version reuses the same delivery
+  record and, when an upgrade is needed, the same pull request rather than a duplicate.
+- A retry after issue creation but before successful delegation resumes the
+  missing handoff under that issue instead of reporting false completion.
+- An `idle` task retains its execution identity, and a `waiting_for_user` task
+  remains blocked until an authorized response reaches that same task; neither
+  state creates a replacement task.
+- A dependent added after a release can receive backfill without another release.
+- A dependent that skipped releases carries complete applicable range evidence,
+  reconciled actions, and immutable target-template evidence or a justified
+  no-template result; a missing required fact blocks readiness.
+- Successful notification or reuse of an issue does not claim consumer
+  completion; review, merge, and applicable publication/template obligations
+  remain distinct.
+- An equal or lower target creates no empty PR, and any unneeded open delivery
+  issue has an explicit no-upgrade disposition rather than remaining in progress.
+- A release record containing instruction-like text or quotation delimiters
+  remains complete evidence; it cannot override the delegated task's controls.
 
 ## Where this connects
 
 - [Design](design.md) — how these requirements are delivered.
+- [Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md) — the per-dependent adoption procedure, including historical targets and stop conditions.
 - [Release Management](../release-management/spec.md) — the release this propagates.
 - [Dependency Updates](../dependency-updates/spec.md) — the inbound counterpart, for external dependencies.
 - [Issue Hierarchy](../../Ways-of-Working/Issues/Types/Hierarchy.md) and [PR Format](../../Ways-of-Working/PR-Format.md) — the delivery leaf and closure rules this automation follows.

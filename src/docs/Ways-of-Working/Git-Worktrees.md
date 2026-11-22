@@ -1,23 +1,37 @@
 ---
 title: Git Worktrees
-description: How repository-delivery work is implemented locally — a bare-clone and worktree layout for working on several things at once.
+description: Local repository-delivery workspaces use bare clones and an independent worktree for each Task or Bug.
 ---
 
 # Git Worktrees
 
-Git worktrees are how [agentic development](../Capabilities/agentic-development/index.md) is implemented on a local machine. They are purely a **local development** convenience: a way for one person — or a person and an agent, or several agents — to work on multiple repository-delivery leaves at the same time, without stashing, committing half-finished work, or switching branches. They change nothing about how a repository is built, reviewed, or shipped — that still happens through branches and pull requests, exactly as it would with an ordinary clone.
+Git worktrees support [agentic development](../Capabilities/agentic-development/index.md) on a local machine.
+They provide separate working directories for **local development**, whether the participants are people, agents, or both.
+Participants can work on multiple repository-delivery leaves without stashing, committing unfinished work, or switching branches in a shared checkout.
+Worktrees do not change how a repository is built, reviewed, or delivered.
+Delivery still uses branches and pull requests, as with an ordinary clone.
 
-Repository-delivery workspaces are set up as **bare clones with worktrees**. Each repository-delivery Task or Bug gets its own worktree — an independent working directory for one branch — so parallel work never collides. Epic and PBI aggregates, operational Tasks without repository artifacts, and canonical documentation context clones do not get worktrees.
+Repository-delivery workspaces use **bare clones with worktrees**.
+Each repository-delivery Task or Bug has its own worktree: an independent working directory for one branch.
+This keeps participants' uncommitted changes in separate directories.
+Epic and PBI aggregates, operational Tasks without repository artifacts, and canonical documentation context clones do not get worktrees.
 
 ## Why this matters: working agentically in parallel
 
-The reason this layout is the default — not the occasional convenience it is in most projects — is **parallelism**. [Agentic development](../Capabilities/agentic-development/index.md) does not proceed one delivery leaf at a time. A single developer can have several agents working at once, each on a different Task or Bug, alongside their own hands-on changes. Worktrees are what make running many streams at once safe instead of chaotic:
+The layout supports **parallelism** in [agentic development](../Capabilities/agentic-development/index.md).
+A developer can run several agents on separate Tasks or Bugs while also making their own changes.
+Worktrees isolate each participant's working directory:
 
 - **One worktree per repository-delivery Task or Bug, one agent per worktree.** Each agent gets its own working directory, its own branch, and its own uncommitted state. Two agents never write to the same checkout, so their edits cannot corrupt one another.
-- **No stashing, no branch-switching, no waiting.** Because the worktrees are independent, the agent finishing Task #42 never disturbs the one still working on Bug #99 — and neither touches the clean canonical `<repo>/` worktree you read from. Nobody has to reach a clean tree before anyone else can move.
-- **Fan out, then integrate.** A batch of independent delivery leaves can be started together — one worktree each — worked concurrently, and merged back one at a time through the normal [branch-and-PR flow](Branching-and-Merging.md) as each finishes.
+- **No stashing, no branch-switching, no waiting.** The agent finishing Task #42 does not alter the working directory for Bug #99.
+  Neither participant edits the clean canonical `<repo>/` worktree used for reference.
+  One participant's uncommitted changes do not prevent another from continuing.
+- **Fan out, then integrate.** Start independent delivery leaves in parallel, with one worktree each.
+  Integrate each completed leaf through the normal [branch-and-PR flow](Branching-and-Merging.md).
 
-In a single ordinary clone the opposite is forced: one branch checked out at a time, every human and agent contending for the same files, constant stashing and switching. Worktrees turn "several issues at once" from a hazard into the default working mode — which is what makes local agentic development practical at all.
+A single ordinary checkout has one branch checked out at a time.
+Participants who share it also share files and uncommitted changes.
+Worktrees avoid that contention by providing separate checkouts for concurrent delivery work.
 
 ## Why worktrees
 
@@ -39,8 +53,12 @@ In a single ordinary clone the opposite is forced: one branch checked out at a t
 ```
 
 - **`<repo>.git/`** — the shared bare object store. All worktrees use this backing repository.
-- **`<repo>/`** — the canonical default-branch worktree. Kept clean and exactly synchronized for reading, diffing, and comparisons. Never directly committed to.
-- **`<N>-<slug>/`** — one worktree folder per repository-delivery Task or Bug in flight, named by issue number and a short slug. The folder is a concise local path; its branch uses the required `<type>/<issue>-<slug>` name, so the two names do not need to match.
+- **`<repo>/`** — the canonical default-branch worktree.
+  Keep it clean and exactly synchronized for reading, diffing, and comparisons.
+  Never commit directly to it.
+- **`<N>-<slug>/`** — one worktree folder per active repository-delivery Task or Bug, named by issue number and a short slug.
+  The folder is a concise local path.
+  Its branch uses the required `<type>/<issue>-<slug>` name, so the two names do not need to match.
 
 Canonical documentation context uses a normal Git clone at a location chosen by
 the runtime or development setup and is not part of this worktree topology. The

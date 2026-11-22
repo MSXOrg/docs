@@ -1,18 +1,18 @@
 ---
 title: README-Driven Context
-description: Why the README is the front door and the source of truth.
+description: The README defines repository context for humans and agents.
 ---
 
 # README-Driven Context
 
-The README is the **evergreen context document** for every repository in the MSX ecosystem. It is the single source of truth for what a repository is, what it does, and how it works. Both humans and agents read the README before starting work — and update it whenever functionality changes.
+The README is the **evergreen context document** for every repository in the MSX ecosystem. It is the single source of truth for what a repository is, what it does, and how it works. Both humans and agents read the README before starting work and keep it current when the delivered result affects its content.
 
 ## Core principles
 
-- **The README is the front door.** Anyone — human or agent — encountering the repository for the first time should understand the purpose, scope, and current capabilities from the README without reading source code.
-- **The README is evergreen.** It is a living document that always reflects the current state of the repository. When functionality is added, changed, or removed, the README is updated in the same unit of work.
-- **Documentation is not optional.** A feature that is not documented in the README is effectively invisible. Updating the README is part of completing the work, not a follow-up task.
-- **The README is authoritative, but not automatically right.** It is the intended source of truth, yet a README can be wrong just as code can. When the README and the code disagree, [diagnose which is wrong](Principles/Engineering-Practices.md#intent-is-the-source-of-truth) — correct the README if the intent drifted, or fix the code if it diverged — so the two converge.
+- **The README introduces the repository.** A first-time reader, human or agent, should understand its purpose, scope, and current capabilities without reading source code.
+- **The README is evergreen.** It describes the repository's current state. Update affected content in the same unit of work.
+- **Documentation is not optional.** Relevant README content makes features discoverable. Verification and any needed update are part of completing the work, not a follow-up task.
+- **The README is authoritative, but not automatically right.** A README can be wrong, just as code can. When they disagree, [diagnose which is wrong](Principles/Engineering-Practices.md#intent-is-the-source-of-truth). Correct the README if the intent changed, or fix code that differs from the intended behavior.
 
 ## What belongs in the README
 
@@ -26,11 +26,11 @@ Include what is relevant. Not every repository needs every section.
 | **Getting started**  | How to install, configure, or use the project for the first time.                |
 | **Usage**            | Examples and explanations of key functionality. Code samples where applicable.   |
 | **Configuration**    | Settings, environment variables, or options the user can control.                |
-| **Architecture**     | High-level overview — folders, components, data flow — for complex repos.        |
-| **Contributing**     | How to contribute, or a link to the organization-level contributing guide.       |
+| **Architecture**     | High-level overview — folders, components, data flow — for complex repositories. |
+| **Contributing**     | Applicable contribution guidance: the organization default, or a [local guide when needed](Repository-Standard.md#contribution-guidance). |
 | **License**          | License type or a link to the LICENSE file.                                      |
 
-For simple repositories (e.g., a single GitHub Action), a subset is fine — at minimum the title, description, and usage sections.
+For a simple repository, such as a single GitHub Action, use at least the title, description, and usage sections.
 
 ## Target audience
 
@@ -38,13 +38,15 @@ Every repository README MUST identify its target audience, the jobs the product 
 
 **User and integrator are roles, not necessarily different people.** An integration interface is user-facing when the audience depends on it; it does not become internal because its users write scripts, compose APIs, or maintain another product. The audience is not inferred from who authors or reviews a pull request.
 
-Detailed users and jobs belong in the [capability specification](Spec-Driven-Development.md#what-a-specification-is), linked from the README rather than copied. This declared audience anchors [change classification](PR-Format.md#detecting-the-change-type) and the consumer evidence in release notes.
+Detailed users and jobs belong in the [capability specification](Spec-Driven-Development.md#what-a-specification-is), linked from the README rather than copied. This declared audience anchors [reader identification](PR-Format.md#identify-the-readers) and the evidence in pull request descriptions.
 
 ## When to update the README
 
-The README is updated **in the same pull request** that introduces the change. Documentation is part of the work — not a separate follow-up.
+Verify the README **in the same pull request** that introduces the change and update affected content that would be missing or incorrect. The shared [documentation and design evidence](Definition-of-Ready-and-Done.md#documentation-and-design-evidence) gate owns verification, including evidence when the README already matches the delivered result.
 
 ### Update when
+
+Review the relevant README content for these changes and update it where needed:
 
 - A new feature, command, function, or capability is added.
 - An existing feature changes in behavior, parameters, or output.
@@ -67,7 +69,7 @@ When a human or agent works on a repository, the README sequence is:
 
 1. **Read the README first** — before reading source code, understand the project context.
 2. **Use the README as a guide** — let documented scope and architecture inform where and how to make changes.
-3. **Update the README as part of implementation** — same PR, not a follow-up.
+3. **Verify the README as part of implementation** — update affected content and record completion evidence in the same PR, not a follow-up.
 4. **Match the existing tone and structure** — heading levels, conventions, and style already present.
 5. **Don't delete without reason** — if something is outdated, update it rather than removing it, unless the feature no longer exists.
 
@@ -75,7 +77,7 @@ When a human or agent works on a repository, the README sequence is:
 
 - Write for a reader who has **no prior context**.
 - Use clear, direct language. Avoid jargon unless the audience is technical and the term is standard.
-- Use examples liberally — a code sample is worth a paragraph.
+- Use examples when they make an explanation shorter or clearer.
 - Focus on **what** and **how**, not implementation details. Internal design lives in code comments or architecture docs.
 - Follow the organization-wide Markdown style.
 
@@ -83,4 +85,4 @@ When a human or agent works on a repository, the README sequence is:
 
 This docs site (msxorg.github.io/docs) is the **organization-level** evergreen context — principles, workflow, standards. The README is the **repository-level** evergreen context — what this specific repo is and does.
 
-Both are required. The docs site explains how MSX works. The README explains what this repository is. An agent reading the docs site knows the system; an agent reading a README knows the project.
+Both are required. The docs site explains how MSX works. The README explains what this repository is. Humans and agents use the docs site for shared context and the README for repository-specific context.

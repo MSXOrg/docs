@@ -5,10 +5,13 @@ description: How repository governance is built — a multi-select type property
 
 # Repository Governance — Design
 
-Three moving parts deliver the [spec](spec.md): a **property** that carries the
-declaration, **organization rulesets** whose conditions read it, and
-**reconciliation** that compares the live world against what the declaration
-implies.
+Three components deliver the [spec](spec.md): a **property**, **organization
+rulesets**, and **reconciliation**. The property carries the declaration.
+Organization rulesets read it, and reconciliation compares live configuration
+with the declared requirements.
+
+Delivery records provide evidence that an implementation and its enforcement
+satisfy the reconciliation contract.
 
 ```mermaid
 flowchart LR
@@ -21,23 +24,22 @@ flowchart LR
     rec --> findings["Graded findings"]
 ```
 
-The declaration is the only per-repository input. Everything downstream of it is
-organization-level configuration, which is what makes the number of things that
-can drift equal to the number of types rather than the number of repositories
+The declaration is the only per-repository input that selects controls. The
+organization maintains shared control definitions rather than duplicating them
+per repository
 ([NFR1](spec.md#non-functional)).
 
 ## The declaration
 
 The type is a **multi-select** organization custom property, required on every
-repository, defaulting to the Standard value. Multi-select rather than
-single-select because branch model and layering are separate concerns
+repository, defaulting to the Standard value. A multi-select property separates
+branch-model and layering obligations
 ([FR2](spec.md#classification), [repository types](design-types.md)).
 
 The property mechanism — how conditions target it, why conditions are written as
 exclusions, and how an existing condition is migrated onto it without dropping
 coverage — is owned by [Repository Type
-Property](../../Ways-of-Working/Repository-Type-Property.md). This design does not
-restate it.
+Property](../../Ways-of-Working/Repository-Type-Property.md).
 
 Moving an organization from a single-select property to a multi-select `Type`
 property is a schema change the platform does not perform in place. The migration
@@ -50,9 +52,8 @@ rather than by reasoning about condition JSON.
 
 ## Rulesets by type
 
-One ruleset per governed concern, each selecting repositories by type. Rulesets
-are organization-level: a repository-level branch protection would be a second
-definition of the same control, and two definitions are two truths
+Each governed concern has one organization-level ruleset selected by type.
+A repository-level copy would duplicate the control
 ([NFR1](spec.md#non-functional)).
 
 | Ruleset | Selects | Branches | Enforces |
@@ -81,34 +82,51 @@ exception ([FR16](spec.md#bypass)).
 
 ## Organization defaults repository
 
-Each organization carries one public repository named `.github`. It has three
-distinct surfaces: community files that GitHub inherits into repositories,
-content published on the organization's profile, and local context that governs
-the defaults repository itself. Treating those surfaces as one distributable
-file set would copy repository-specific configuration into places where it does
-not belong.
+Each organization has one public repository named `.github`. It is the
+initiative's community repository and the normal source for shared contribution
+guidance. It has three distinct purposes: inherited community files, published
+organization-profile content, and local context for the defaults repository.
+These are not one distributable file set. Repository-specific configuration
+stays local to the defaults repository.
 
-The [MSXOrg defaults repository](https://github.com/MSXOrg/.github) and the
-[PSModule defaults repository](https://github.com/PSModule/.github) implement
-the same structure:
+The defaults-repository contract for the
+[MSXOrg defaults repository](https://github.com/MSXOrg/.github) and the
+[PSModule defaults repository](https://github.com/PSModule/.github) uses this
+structure:
 
 | Surface | Status | Behavior |
 | --- | --- | --- |
 | `.github/CODE_OF_CONDUCT.md` | Required | Inherited by a repository that has no local code of conduct. |
 | `.github/SECURITY.md` | Required | Inherited by a repository that has no local security policy. |
 | `.github/SUPPORT.md` | Required | Inherited by a repository that has no local support policy. |
-| `.github/pull_request_template.md` | Required | Used when a repository has no local pull request template. |
-| `.github/CONTRIBUTING.md` | Optional | Provides an organization-wide fallback where local contribution guidance is absent. |
+| `.github/CONTRIBUTING.md` | Required | Owns the initiative's shared contribution guidance. The source file must exist but may be blank; consumer-local guides remain conditional. |
 | `.github/ISSUE_TEMPLATE/` | Optional | Provides the organization's issue forms and template configuration where a repository defines no local issue-template set. |
 | `profile/README.md` | Optional | Publishes the public organization profile; it is not inherited by repositories. |
 | `media/` | Optional | Holds assets used by the profile or community files; it is not inherited by repositories. |
 | `README.md`, `AGENTS.md`, client routes, `.gitattributes`, and `.gitignore` | Required locally | Explain and govern the defaults repository; they are not organization defaults. |
 
 All inherited community files live under `.github/` in the defaults repository
-so their scope is visible from their path. A local file in a target repository
-takes precedence and therefore records a deliberate repository exception. If a
-target defines any local issue-template set, it owns that complete set rather
-than combining local and central forms.
+so their scope is visible from their path. Validate required defaults in that
+source repository, not by requiring consumer copies. A target retains a local
+community file only for genuine repository-specific content or a documented
+exception under [Organization Standard](../../Ways-of-Working/Organization-Standard.md#community-files-are-organization-defaults).
+For the required contribution source, verify file presence, not a nonempty body.
+If a target defines any local issue-template set, it owns that complete set
+rather than combining local and central forms.
+
+[GitHub's fallback](https://docs.github.com/en/communities/setting-up-your-project-for-healthy-contributions/creating-a-default-community-health-file)
+exposes supported defaults without placing them in consumer clones, packages,
+or downloads. Consumer checks resolve the effective contribution guidance from
+the local guide when needed or the shared source; absence of an unnecessary
+local copy is not drift.
+
+The contract provides no PR-template-file surface to inherit or distribute. Ordinary and
+defaults repositories follow the [Repository Standard's file
+policy](../../Ways-of-Working/Repository-Standard.md#no-pr-template-files).
+PR authoring evidence verifies the actual title, complete body, and source
+coverage against that contract, not a source scaffold's presence. Product
+integration templates and the other community defaults retain their own
+ownership.
 
 The defaults repository does not centralize repository ownership, dependency
 updates, release configuration, license terms, or other repository-specific
@@ -133,24 +151,24 @@ names.
 ## Required files by type
 
 The [Repository Standard](../../Ways-of-Working/Repository-Standard.md#required-files)
-owns the file list and which type adds to it. This design owns only the
-enforcement: presence is checked by reconciliation on the default branch, at
+owns the file list, its conditional contribution rule, and which type adds to
+it. Reconciliation checks required local files on the default branch and
+resolves effective contribution guidance under
+the [contribution rule](../../Ways-of-Working/Repository-Standard.md#contribution-guidance), at
 **Block** severity for the files that make a repository contributable and
 **Report** severity for the rest.
 
 ## Drift detection and reconciliation
 
-Rulesets prevent unwanted changes to branches. They do not prevent a repository
-from being *configured* into a state its declaration does not describe — a
-required check renamed, a merge method re-enabled, a required file deleted, a type
-value that no longer validates. Reconciliation is the loop that closes that gap:
-**compare the declared intent against the live world, continuously, and grade
-every difference.**
+Rulesets constrain branch changes. They do not prevent all configuration drift.
+Configuration changes can rename a required check, re-enable a merge method,
+remove a required file, or invalidate a type combination.
+**Reconciliation continuously compares declared requirements with live
+configuration and grades every difference.**
 
-The loop is generic. It is a scheduled comparison plus a graded response, and it
-is implementable as a workflow in an administrative repository, as an application
-holding the organization's configuration, or as a policy engine. What matters is
-the contract below, not the implementation that satisfies it.
+The loop combines scheduled comparison with a graded response. An administrative
+workflow, an application that holds the organization's configuration, or a policy
+engine can implement it. Each implementation must satisfy the contract below.
 
 ### What is compared
 
@@ -162,7 +180,9 @@ the contract below, not the implementation that satisfies it.
 | Exemption is justified | Does an exempted repository carry a recorded reason? |
 | Rulesets apply | Do the rulesets the type implies actually evaluate against this repository? |
 | Branch shape matches | Do the protected branches, merge methods, and required checks match what the type declares? |
-| Required files present | Does the default branch carry the governed baseline and the files its type adds, or the explicit Unmanaged discoverability minimum? |
+| Required local files present | Does the default branch carry the locally required baseline and type-specific files, or the explicit Unmanaged discoverability minimum, including a local contribution guide only when needed? |
+| Contribution guidance available | Does effective local or shared contribution guidance resolve, with required organization defaults validated in their source repository rather than copied into consumers? |
+| PR authoring and file policy | Are PR-template files absent under the [Repository Standard](../../Ways-of-Working/Repository-Standard.md#no-pr-template-files), and do actual records meet [PR Format](../../Ways-of-Working/PR-Format.md#readiness-check) with verified source coverage and supporting evidence? |
 
 ### Severity decides the response
 
@@ -172,38 +192,34 @@ the contract below, not the implementation that satisfies it.
 | **Warn** | Live configuration diverges from the declaration but the repository still functions | A comment on the affected pull request |
 | **Report** | A standing condition that needs review rather than an immediate fix | A tracking issue, opened once and updated thereafter |
 
-Grading is what keeps the loop usable. A single severity forces a choice between
-blocking on things that do not warrant it and merely reporting things that do; the
-result of either is that findings stop being read.
+Separate responses distinguish blocking conditions from findings that need only
+review. A single severity would either block those review-only conditions or
+merely report conditions that require a block.
 
 ### When it runs
 
-On repository creation, on a change to the type property, on a push to a default
-branch (for the file comparisons), and on a schedule that catches configuration
-changed out of band. The schedule is the one that matters most, because
-out-of-band configuration change is the drift the event triggers cannot see.
+Reconciliation runs on repository creation, type-property changes, default-branch
+pushes, and a schedule. Default-branch pushes trigger file comparisons. The
+schedule detects configuration changes outside these event paths.
 
 ### Idempotence
 
 Reconciliation reports the same finding at most once. A finding is identified by
-the repository, the comparison, and the specific difference; a run that
-re-discovers an existing finding **updates** it rather than creating a second one,
-and a finding whose condition has been resolved is closed
-([FR20](spec.md#reconciliation)). Without this, the loop's output degrades into a
-stream nobody can distinguish new findings in.
+its repository, comparison, and specific difference. A later run **updates** an
+existing finding rather than creating a second one. Reconciliation closes the
+finding when its condition is resolved ([FR20](spec.md#reconciliation)).
+This keeps recurring findings distinct from new ones.
 
 ### A finding names its remedy
 
 Every finding states what is wrong, what the declared type requires instead, and
-where the rule is written down. A finding that reports only a mismatch transfers
-the work of interpretation to the reader; a finding that names the remedy is
-actionable by whoever receives it, human or agent
-([FR21](spec.md#reconciliation)).
+where the rule is documented. Human and agent recipients can use that information
+to act on the finding ([FR21](spec.md#reconciliation)).
 
-Reconciliation **reports** by default. Whether it also *applies* a remedy is a
-separate decision per comparison, and one that MUST be made deliberately: an
-automated fix to a protection is itself a change to a control, and it belongs
-under the same review as any other ([decision before
+Reconciliation **reports** by default. Applying a remedy is a separate
+per-comparison decision and MUST be deliberate. An automated protection change
+changes a control and requires the same review as any other control change
+([decision before
 change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before-change)).
 
 ## Configuration surface
@@ -222,8 +238,8 @@ change](../../Ways-of-Working/Principles/AI-First-Development.md#decision-before
 
 ## Where this connects
 
-- [Spec](spec.md) — the requirements this design delivers.
-- [Repository Types](design-types.md) — the catalogue the rulesets select on.
+- [Spec](spec.md) — repository governance requirements.
+- [Repository Types](design-types.md) — the catalog the rulesets select on.
 - [Repository Type Property](../../Ways-of-Working/Repository-Type-Property.md) — the property mechanism and condition migration.
 - [Repository Standard](../../Ways-of-Working/Repository-Standard.md) — the required-file sets reconciliation checks.
 - [Branching and Merging](../../Ways-of-Working/Branching-and-Merging.md) — the merge gate and who may approve.

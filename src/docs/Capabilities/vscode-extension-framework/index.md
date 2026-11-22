@@ -5,14 +5,15 @@ description: How a VS Code extension is built, tested, versioned, packaged, and 
 
 # VS Code Extension Framework
 
-The end-to-end pipeline for a VS Code extension: compile and bundle the source,
-test it on a real editor host, lint and type-check it, version it by
-pull-request label, package a VSIX, and publish that VSIX to a GitHub Release
-(and, optionally, a marketplace). One behaviour, defined once and consumed by
-every extension repository — the VS Code counterpart to
+The framework provides a shared lifecycle for VS Code extensions. It compiles
+and bundles the source, tests it on a real editor host, and runs lint and type
+checks. It resolves the version, packages a VSIX, and publishes that VSIX to a
+GitHub Release. Marketplace publication is optional.
+
+The release resolver uses an explicit owned bump label or the valid effective
+default. The framework is the VS Code counterpart to
 [Process-PSModule](https://github.com/PSModule/Process-PSModule). A repository
-opts in from a template and a single settings file; it never copies the
-pipeline.
+opts in from a template and a single settings file. It never copies the pipeline.
 
 <!-- INDEX:START -->
 

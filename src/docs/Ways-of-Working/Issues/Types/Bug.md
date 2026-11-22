@@ -15,6 +15,7 @@ Follow the universal [Issue Format](../Process/Format.md), with these Bug-specif
 
 ### Context and request
 
+- **Consumer context:** who is affected and why the correction matters.
 - **Observed behavior:** what happens, including exact errors, outputs, or impact.
 - **Expected behavior:** the observable result that should occur instead.
 - **Reproduction:** the smallest repeatable steps, inputs, and commands.
@@ -34,11 +35,13 @@ Follow the universal [Issue Format](../Process/Format.md), with these Bug-specif
 
 Start by reproducing the failure in an automated regression test. Then implement the smallest root-cause correction, run the affected and broader test surfaces, and update relevant documentation. If automation is genuinely impossible, record the reason and an equivalent repeatable verification before implementation.
 
+Include verification of the relevant current design, documentation, and working instructions through the shared [completion evidence gate](../../Definition-of-Ready-and-Done.md#documentation-and-design-evidence). Root-cause decisions and executable regression plans remain in this delivery leaf, not its parent aggregate.
+
 ## Ready
 
 A Bug is implementation-ready when:
 
-- observed and expected behavior, reproduction, environment, regression status, workaround, and acceptance criteria are explicit;
+- consumer context, observed and expected behavior, reproduction, environment, regression status, workaround, and acceptance criteria are explicit;
 - the correction is bounded to one pull request;
 - the root-cause boundary and unresolved hypotheses are clear enough to prevent scope drift;
 - dependencies and blockers are known; and

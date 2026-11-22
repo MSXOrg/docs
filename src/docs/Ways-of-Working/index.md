@@ -1,13 +1,13 @@
 ---
 title: Ways of Working
-description: How work happens across the ecosystem — for humans and agents alike.
+description: Shared principles, processes, and conventions for MSX contributors and agents.
 ---
 
 # Ways of Working
 
-Shared conventions for how work happens across the MSX ecosystem — for humans and agents alike.
+Shared principles, processes, and conventions apply across the MSX ecosystem.
 
-This section documents the principles, processes, and norms that every contributor follows. Whether you're opening an issue, writing a commit message, reviewing a pull request, or planning a feature — the answer is here.
+Use them to plan work, open issues, write commit messages, and review pull requests.
 
 ## Contents
 
@@ -18,6 +18,7 @@ This section documents the principles, processes, and norms that every contribut
 | [Workflow](Workflow.md) | The canonical process from idea to delivery, including how to resolve and enter each workflow stage. |
 | [Workflow Stages](Workflow-Stages/index.md) | Procedures for each stage of the canonical Workflow, reached through indexes or direct task-language shortcuts. |
 | [Contribution Workflow](Contribution-Workflow.md) | How a change travels from a branch to a review-ready pull request — draft first, the Copilot review loop, then people. |
+| [Consumer Upgrades](Consumer-Upgrades.md) | Upgrade a consumer from its actual upstream baseline through a fixed target using complete release evidence and a compatible immutable template. |
 | [Fleet Orchestration](Fleet-Orchestration.md) | How one change is rolled out across many repositories through Task or Bug delivery leaves tracked entirely on GitHub. |
 | [Comparative Review Orchestration](Comparative-Review-Orchestration.md) | A repeatable playbook for reviewing a target against reference sources — establishing the frame, building the evidence model before judging, and converting findings into small scoped issues. |
 | [Documentation Model](Documentation-Model.md) | How every capability is documented — a spec for the why and a design for the how, colocated, concise, and kept evergreen for humans and agents alike. |
@@ -35,7 +36,7 @@ This section documents the principles, processes, and norms that every contribut
 | [Goal-Setting Framework](Goal-Setting.md) | Mission, OKRs, and Initiatives — the strategy above repository Epics. |
 | [Definition of Ready and Done](Definition-of-Ready-and-Done.md) | The three gates that bracket every piece of work. |
 | [Issues](Issues/index.md) | How issues are formatted and organized across the MSX ecosystem. |
-| [PR Format](PR-Format.md) | Pull request title, description, change types, and labels. |
+| [PR Format](PR-Format.md) | Write pull requests for consumers and maintainers. Give upgrade steps and release decisions when they apply. |
 | [Commit Conventions](Commit-Conventions.md) | How commit messages are written. |
 | [Branching and Merging](Branching-and-Merging.md) | Delivery-leaf topic branches, pull-request-only integration, and merge models. |
 | [Review Etiquette](Review-Etiquette.md) | Tone, scope, severity, and how to disagree well. |
@@ -51,4 +52,5 @@ This section documents the principles, processes, and norms that every contribut
 
 ## Who this is for
 
-Everyone. If you contribute to an MSX project — by code, review, issue, or discussion — these are the norms you follow. Agents follow them too; they read these pages as context before acting.
+These conventions apply to everyone who contributes code, reviews, issues, or discussions to an MSX project.
+Agents read and follow the same guidance.

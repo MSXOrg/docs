@@ -1,13 +1,17 @@
 ---
 title: Natural Language
-description: Which language each artifact is written in, and the plain-language writing rules for docs, issues, pull requests, comments, prompts, and agent-facing text — with American English as the project dialect.
+description: Language choice and en-US writing for user and developer interactions, documentation, comments, issues, pull requests, help, messages, and agent-facing text.
 ---
 
 # Natural Language
 
-Natural language is source code for humans and agents. It drives issues, pull requests, documentation, prompts, comments, error messages, and release notes. Write it with the same care as code: clear, testable, consistent, and easy to change.
+Natural language gives humans and agents instructions and information. It serves user and developer interactions, issues, pull requests, documentation, prompts, comments, help, error messages, and release notes. Write it with the same care as code: clear, testable, consistent, and easy to change.
 
-This standard defines which language each artifact is written in, and how English prose is written in the MSX ecosystem. The project dialect is **American English (`en-US`)**.
+The project dialect is **American English (`en-US`)**.
+
+Reader-facing English MUST follow [ASD-STE100 Issue 9](https://doi.org/10.5281/zenodo.23666006) writing practices and use American English (`en-US`).
+
+The [Technical Writing Guide](Writing-Guide.md) links the official explanations and artifact format owners. MSX applies STE's clarity principles to technical text and collaboration text. Each artifact keeps its required format and interface contracts.
 
 ## Write artifacts in English
 
@@ -22,24 +26,26 @@ Repository artifacts are written in English. A repository artifact is anything r
 - log and error output;
 - agent-facing instructions.
 
+Technical and collaboration interactions with users, developers, reviewers, and agents use the same English writing policy. This includes conversational replies and support explanations, not only text saved in a repository.
+
 Delivered content is written in the language of its audience. Content an organization publishes for readers outside the repository — member letters, meeting minutes, public notices — reaches people who are not maintaining the repository, so it is written in the language those people read.
 
 Material reproduced verbatim is never translated. A codified external source keeps the publisher's language and wording, because the copy exists to be compared against the original. The tooling that fetches, converts, and verifies that source is English.
 
-The split is per artifact, not per repository. A repository that serves a Norwegian audience still has English scripts, English workflows, and English pull requests next to its Norwegian source documents and published letters.
+The language policy applies to each artifact, not to the repository as a whole. A repository that serves a Norwegian audience still has English scripts, English workflows, and English pull requests next to its Norwegian source documents and published letters.
 
 | Prefer | Avoid |
 | --- | --- |
 | `scripts/Test-Link.mjs` | `scripts/Test-Lenker.mjs` |
 | `Update-Source.ps1 -Offline` | `Update-Source.ps1 -Frakoblet` |
 | `Source not found: <path>` | `Kilden finnes ikke: <path>` |
-| `🪲 [Fix]: Broken links no longer reach main` | `🪲 [Fix]: Brutte lenker stoppes` |
+| `Broken links no longer reach main` | `Brutte lenker stoppes` |
 
-Repository artifacts are read by contributors, reviewers, and agents who do not share one first language, and by tooling built for English. Mixed-language automation splinters the vocabulary — `-Frakoblet` and `-Offline` are the same switch — and makes shared standards, linters, and scripts unreusable across repositories.
+Contributors, reviewers, and agents do not necessarily share a first language. Repository artifacts also serve tools built for English. Mixed-language automation uses different terms for the same operation: `-Frakoblet` and `-Offline` are the same switch. This prevents consistent reuse of shared standards, linters, and scripts across repositories.
 
 ## Use American English
 
-Use American spelling and vocabulary in all new and changed prose.
+Use American spelling and vocabulary in all new and changed English prose, including direct user and developer interactions.
 
 | Use | Avoid |
 | --- | --- |
@@ -56,7 +62,7 @@ Use American spelling and vocabulary in all new and changed prose.
 | optimize | optimise |
 | artifact | artefact |
 
-Do not churn unrelated existing text just to change spelling. Update nearby text when you are already editing it, and keep new pages internally consistent.
+Do not edit unrelated text only to change spelling. Update nearby text when you are already editing it, and keep new pages internally consistent.
 
 ## Write for the next reader
 
@@ -76,32 +82,32 @@ Prefer specific, observable language over vague intent.
 | Prefer | Avoid |
 | --- | --- |
 | The workflow fails when the release decision is missing. | There may be some issues with labels. |
-| Add `release:skip` to documentation-only PRs. | Make sure docs PRs are handled correctly. |
+| On a release-managed route, add `release:skip` if the full range leaves the artifact and its supported consumer contracts unchanged. | Make sure docs PRs are handled correctly. |
 | The agent reads `AGENTS.md` before editing files. | The agent should probably look at the instructions. |
 
 Use **MUST**, **SHOULD**, and **MAY** only when a sentence is intentionally normative. If a rule is optional, say what trade-off decides it.
 
 ## Keep pages small
 
-Natural-language pages follow the same rule as functions: one responsibility. If a page grows into several concepts, split it and add links from the nearest index.
+Each natural-language page has one responsibility. If a page grows into several concepts, split it and add links from the nearest index.
 
 A good page:
 
 - has one primary concept;
 - starts with the current rule or model;
 - links outward instead of duplicating context;
-- can be read in one sitting;
+- can be read as a single, focused page;
 - gives agents enough context to act correctly.
 
 ## Write evergreen prose
 
-Write the current truth, not the history of how it became true.
+State the supported contract rather than the sequence of changes.
 
 - Use present tense.
 - Do not include changelog language in the body.
 - Do not write "currently", "new", or "recently" unless time is the subject.
-- Do not keep obsolete caveats as warnings after the caveat is gone.
-- Let git history and pull requests carry the timeline.
+- Remove warnings for conditions that no longer apply.
+- Keep the sequence of changes in Git history and pull requests.
 
 Good:
 
@@ -154,7 +160,7 @@ A good error message includes:
 Prefer:
 
 ```text
-Release decision is missing. Add a release:patch, release:minor, or release:major label, configure DefaultBump in the release settings, or select release:skip. Prerelease mode still requires a resolved bump. This required CI check must pass before merge.
+Release decision cannot be resolved for this managed route. Correct the invalid DefaultBump setting or conflicting release labels. A valid effective default supplies the bump without a per-PR bump label; one release:patch, release:minor, or release:major label overrides it, and release:skip selects no release. Prerelease mode uses release:prerelease and the resolved bump. This required CI check must pass before merge.
 ```
 
 Avoid:
@@ -169,14 +175,16 @@ PR titles and descriptions are written for the user of the change first, then th
 
 | Prefer | Avoid |
 | --- | --- |
-| `📖 [Docs]: Agentic development framework documented` | `Update framework docs` |
+| `Agentic development guidance defines the framework` | `Update framework docs` |
 | `Agents segment project context before loading standards.` | `Refactor AGENTS.md instructions.` |
 
-Technical implementation details belong in a clearly named technical section at the bottom of the PR body.
+Put implementation evidence in the result's
+[`Technical details` block](../Ways-of-Working/PR-Format.md#add-result-details-in-order).
+Identify the result or interface the evidence supports.
 
 ## Prompts
 
-Prompts are requests, not guesses. A good prompt names the desired outcome, the scope, and the constraints.
+A prompt is a scoped request. It names the desired outcome, scope, and constraints.
 
 Prefer:
 
@@ -195,4 +203,4 @@ Make something for agents.
 - [Documentation](Documentation.md) — where documentation lives and what it explains.
 - [Markdown](Markdown.md) — Markdown syntax and linted formatting rules.
 - [Agentic Development](../Capabilities/agentic-development/index.md) — how agents consume the same docs as humans.
-- [README-Driven Context](../Ways-of-Working/Readme-Driven-Context.md) — why the README is the repository front door.
+- [README-Driven Context](../Ways-of-Working/Readme-Driven-Context.md) — how the README defines repository context.

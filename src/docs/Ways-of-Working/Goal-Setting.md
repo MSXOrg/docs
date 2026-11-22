@@ -1,11 +1,11 @@
 ---
 title: Goal-Setting Framework
-description: Mission, OKRs, and Initiatives — the strategy above repository Epics.
+description: Mission, OKRs, and Initiatives define strategy above repository Epics.
 ---
 
 # Goal-Setting Framework
 
-MSX uses a lightweight OKR-based framework to connect strategic direction to day-to-day work. The hierarchy runs from the organization's reason to exist down to individual deliverables tracked in GitHub issues.
+MSX uses an OKR-based framework to connect strategy to delivery work. The hierarchy connects the organization's purpose to individual deliverables in GitHub issues.
 
 ## Layers
 
@@ -13,26 +13,26 @@ MSX uses a lightweight OKR-based framework to connect strategic direction to day
 | -------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | **Mission**    | Pinned issue in the org `.github` repository | The org's reason to exist — *make great software delivery the default: easy, fast, and safe* |
 | **OKR**        | Sub-issues of the Mission                    | Qualitative objectives + measurable key results                                             |
-| **Initiative** | Sub-issues of an OKR                         | A concrete organization-level bet to move a Key Result                                      |
+| **Initiative** | Sub-issues of an OKR                         | An organization-level effort to improve a Key Result                                        |
 
 ## Why OKRs and not KPIs
 
-- **Objectives** are qualitative, aspirational, and outside-in. They describe a desired state of the world.
-- **Key Results** are measurements that confirm the Objective is being met. They drive incentive in the right direction without prescribing the path.
+- **Objectives** describe an ambitious qualitative outcome from the consumer's perspective.
+- **Key Results** measure progress toward the Objective. They guide incentives without prescribing how contributors reach the outcome.
 
-A good OKR is one that anyone — contributor, user, or agent — can read and immediately have ideas about how to contribute. See [Principles](Principles/index.md) for the full rationale.
+An OKR tells contributors, users, and agents which outcome their work can support. See [Principles](Principles/index.md) for the rationale.
 
 ## Current OKRs
 
-OKRs are tracked as sub-issues of the Mission issue in the org `.github` repository. They evolve over time; the direction they encode stays constant:
+OKRs are sub-issues of the Mission issue in the organization's `.github` repository. They express the organization's continuing goals:
 
 - Every developer — and every agent — ships with confidence.
-- Automation handles the mechanical, so human attention is spent on judgment.
-- AI is a first-class, reliable contributor to the work.
+- Automation handles mechanical work so people can focus on judgment.
+- AI contributes reliably to the work.
 
 ## From strategy to delivery
 
-Mission, OKR, and Initiative are the strategy layers. The strategy boundary sits **above Epic**: an Initiative links to the repository Epics that deliver its outcome, and each participating repository owns its own Epic. The canonical [Issue Hierarchy](Issues/Types/Hierarchy.md) owns all decomposition and delivery semantics from Epic downward.
+Mission, OKR, and Initiative define strategy **above Epic**. An Initiative links to the repository Epics that deliver its outcome. Each participating repository owns its own Epic. The canonical [Issue Hierarchy](Issues/Types/Hierarchy.md) owns all decomposition and delivery semantics from Epic downward.
 
 ```text
 Mission (org-level, evergreen)

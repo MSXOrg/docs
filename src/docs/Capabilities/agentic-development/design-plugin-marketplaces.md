@@ -28,6 +28,42 @@ only provides organization defaults.
 Each skill points to one canonical document. Its body may include runtime
 mechanics, but it MUST NOT duplicate the procedure or define a second workflow.
 
+### Writing discovery
+
+The shared `msx` plugin exposes one `msx-writing` entry point for authored
+reader-facing technical and collaboration text. Its description covers user
+and developer interactions, comments, documentation, issues, pull requests,
+help, messages, release notes, and agent instructions.
+
+The skill points to the [Technical Writing Guide](../../Coding-Standards/Writing-Guide.md),
+which links the official ASD-STE100 sources and routes each artifact to its format.
+[Natural Language](../../Coding-Standards/Natural-Language.md) owns language and
+dialect policy, including adoption of the standard's writing practices.
+The standard's rules are not restated in the guide or skill.
+
+Specifications, designs, guides, standards, and the other documentation artifacts
+remain distinct formats selected through the documentation model and templates.
+An artifact type does not require a separate writing skill. Issue, pull request,
+coding, and workflow entry points remain separate where they govern a different
+contract or procedure.
+
+### Consumer upgrade discovery
+
+The shared `msx-ways-of-working-consumer-upgrades` skill points only to
+[Consumer Upgrades](../../Ways-of-Working/Consumer-Upgrades.md). The procedure
+works without an installed plugin; the skill is a discovery shortcut.
+
+| Owner | Owns |
+| --- | --- |
+| MSX shared documentation and plugin | The version-independent upgrade method and its common evidence/completion gates. |
+| Producer or initiative documentation and plugin | Authoritative source and registry locations, version and release-lineage discovery, target-era guidance, and the mapping to a compatible immutable template commit or explicit no-template result. |
+
+An initiative entry point routes to that producer-owned discovery, then uses the
+shared procedure. It does not move initiative-specific authority into the
+shared skill or package a version-specific migration cookbook. Target template
+identity comes from source-bound release evidence, not the installed plugin
+version or today's template branch.
+
 ## Layout and names
 
 Each owning repository uses this layout:
@@ -46,7 +82,7 @@ Each owning repository uses this layout:
 
 Plugin IDs are short and lowercase: `msx` for shared guidance and `psmodule`
 for PSModule guidance. Skill names use their plugin prefix, such as
-`msx-coding-*`, `msx-documentation-*`, `msx-ways-of-working-*`, and
+`msx-writing`, `msx-coding-*`, `msx-ways-of-working-*`, and
 `psmodule-*`.
 
 Every `marketplace.json` `source` is repository-root-relative and resolves to

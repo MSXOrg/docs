@@ -1,14 +1,15 @@
 ---
 title: Dependency Updates
-description: How a repository's pinned dependencies are kept current and secure through automated update pull requests.
+description: Automated update pull requests keep pinned dependencies current and address known vulnerabilities.
 ---
 
 # Dependency Updates
 
-Keeping the pinned dependencies a repository consumes — Action and workflow
-SHAs, container base images, language packages, Terraform providers and
-modules — current and free of known vulnerabilities, through automated update
-pull requests that are reviewed and released like any other change.
+Automated update pull requests keep a repository's pinned dependencies current
+and address known vulnerabilities. These dependencies include Action and workflow
+SHAs, container base images, language packages, and Terraform providers and modules.
+Update pull requests follow the repository's review policy and any applicable
+release path.
 
 <!-- INDEX:START -->
 

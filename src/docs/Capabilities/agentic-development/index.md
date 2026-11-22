@@ -1,13 +1,13 @@
 ---
 title: Agentic Development
-description: The framework for org-scoped documentation that gives agents project-specific standards and behavior.
+description: Organization-scoped documentation for project-specific agent standards and behavior.
 ---
 
 # Agentic Development
 
-The Agentic Development framework makes an organization the operating boundary for human and agent work. Each organization identifies a canonical documentation repository; every product repository carries a short router that points to that source and keeps its own nuance in the files a human already reads.
+The Agentic Development framework uses the GitHub organization as the boundary for human and agent work. Each organization identifies a canonical documentation repository. Each product repository routes agents to that source through a short router. Repository-specific guidance stays in the files that also serve human readers.
 
-A repository adopts the framework by carrying a short router and the client routes that reach it, and by letting agents read outward — the repository's own files first, then the organization documentation, then the current task. The organization selects *which* context applies; the reading order decides what is read first.
+A repository adopts the framework with a router and the client routes that reach it. Agents read repository context, then organization and inherited ecosystem documentation, then task context. The organization selects which standards apply. Reading order determines when each source is read.
 
 <!-- INDEX:START -->
 

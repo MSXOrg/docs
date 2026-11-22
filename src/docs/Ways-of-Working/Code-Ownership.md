@@ -1,17 +1,15 @@
 ---
 title: Code Ownership
-description: The three-layer model behind CODEOWNERS — permission, ownership, and enforcement — how the file is resolved and where it is read from, and why ownership without enforcement is decorative.
+description: Permission, review assignment, and merge enforcement for repository code owners.
 ---
 
 # Code Ownership
 
-`CODEOWNERS` is one of the most misread files in a repository. It looks like an access
-control list and behaves like a mailing list. Getting that wrong produces two failure
-modes that are hard to spot: a team believing it has locked a path it has not, and a
-"required" owner review that never appears because the mapped team was silently
-ineligible.
+`CODEOWNERS` assigns reviewers to repository paths. It does not grant access or require approval before merge.
+Confusing these roles can leave a path unprotected or prevent GitHub from
+requesting the intended owner's review.
 
-The model is three layers that MUST be kept separate.
+These three layers MUST remain separate.
 
 ## Three layers
 
@@ -21,16 +19,18 @@ The model is three layers that MUST be kept separate.
 | **Ownership** | `CODEOWNERS` | Who is *asked to review* a given path? |
 | **Enforcement** | Branch protection or a ruleset | Is an owner's approval *required* to merge? |
 
-`CODEOWNERS` is a **review-assignment** mechanism. It grants no access whatsoever. An
-owner MUST already hold write access — as a user, or as a team that is **visible and has
-write access on the repository**, even where every member of that team already holds
-write access by some other route. A user or team that does not meet that bar is silently
-not assigned, and that silence is the single most common reason a required owner review
-never materializes.
+`CODEOWNERS` is a **review-assignment** mechanism. It grants no access. An owner
+MUST already have write access.
 
-Ownership therefore narrows who is accountable for a path without widening who can write
-to it, which is [least privilege](Principles/Purpose-and-Direction.md#least-privilege)
-expressed as review routing.
+A team must be **visible and have write access to the repository**. This
+requirement applies even when every member already has
+write access through another route. GitHub silently omits users or teams that do
+not meet these conditions. This omission can prevent a required owner-review
+request.
+
+Ownership assigns accountability for a path without granting write permission.
+This separation applies [least privilege](Principles/Purpose-and-Direction.md#least-privilege)
+to review routing.
 
 ## One file per branch
 
@@ -38,9 +38,9 @@ A repository uses **one** `CODEOWNERS` file per branch. It may live in `.github/
 repository root, or in `docs/`. Where more than one exists, GitHub uses the **first found
 in that order** and ignores the rest — it does not merge them.
 
-There is no nested or per-directory `CODEOWNERS`. Ownership for the whole tree is
-expressed from that single file through path patterns, so different directories can have
-different owners without scattering files through the repository.
+There is no nested or per-directory `CODEOWNERS`. One file uses path patterns to
+assign owners throughout the repository. Different directories can have different
+owners without separate ownership files.
 
 The file is read from the **base branch of the pull request**, not from the head branch.
 Two consequences follow, and both matter:
@@ -67,10 +67,9 @@ followed by one or more owners.
 **/diagrams/          @MSXOrg/docs-maintainers
 ```
 
-The rules worth committing to memory:
+Pattern rules:
 
-- **Last match wins.** Ordering is significant; the most specific rule goes last. This is
-  the opposite of most precedence intuitions and the most frequent authoring mistake.
+- **Last match wins.** Ordering is significant; the most specific rule goes last.
 - **Multiple owners on one line means any one of them satisfies** a required owner review
   — not all of them.
 - **An owner-less pattern removes ownership** for that path, exempting it from a broader
@@ -89,21 +88,22 @@ requirement.
 
 ## Making it enforce
 
-`CODEOWNERS` changes nothing at merge time until a rule requires it. Ownership without
-enforcement is decorative: the file requests reviewers and a maintainer can merge past
-them.
+`CODEOWNERS` does not enforce approval unless a merge rule requires code-owner
+review. Without that rule, the file requests reviewers but a maintainer can merge
+without their approval.
 
-To make it bind, require review from code owners — in a branch protection rule, or, for
-preference, in a **ruleset**. Rulesets are version-controlled, discoverable without admin
-access, layerable, and can be defined **once at the organization level and applied across
-many repositories**, which is what makes them the fleet-scale mechanism.
+Require review from code owners in a branch protection rule or, preferably, a
+**ruleset**. Define rulesets in version-controlled configuration. They are
+discoverable without admin access, and multiple rulesets can apply together.
+Define them **once at the organization level and apply them across many
+repositories**.
 
-Two hazards MUST be closed:
+Two controls MUST be verified:
 
 1. **Own the owners file.** Give `/.github/` — or at minimum `/.github/CODEOWNERS` — an
    owner, so a change cannot weaken ownership without the current owners being asked.
    The base-branch rule above prevents a pull request removing its *own* reviewers, but
-   not a merged change removing them for everyone afterwards.
+   not a merged change removing them for everyone afterward.
 2. **Check that the requirement is actually on.** A repository whose ruleset requires zero
    approving reviews and does not require owner review has a `CODEOWNERS` file that only
    suggests.
@@ -119,25 +119,23 @@ MUST be present:
 
 1. A real, **visible team with write access** on every repository it owns.
 2. A **per-repository `CODEOWNERS`** file, seeded from the repository template so a new
-   repository starts owned rather than being retrofitted.
+   repository starts with declared owners.
 3. An **organization ruleset** requiring a pull request and code-owner review, so the file
-   binds.
+   requires owner approval before merge.
 
-Define once, apply everywhere, keep it in source — the same pattern
-[repository governance](../Capabilities/repository-governance/design.md) applies to branch
-policy. Codifying the baseline file and the ruleset is what turns code ownership from a
-per-repository chore into something that holds by default.
+The baseline file and ruleset define ownership once in source and apply it across
+repositories. [Repository governance](../Capabilities/repository-governance/design.md)
+applies the same pattern to branch policy.
 
 ## Validate it
 
-Because invalid lines are skipped silently, a `CODEOWNERS` file SHOULD be validated in
-CI: that every named owner exists, holds access, and that every path intended to be owned
-actually resolves to an owner. GitHub exposes the errors it found through the
+CI SHOULD validate a `CODEOWNERS` file because GitHub silently skips invalid lines.
+Validation verifies that every named owner exists and has access, and that every
+path intended to have an owner resolves to one. GitHub exposes errors through the
 [list CODEOWNERS errors](https://docs.github.com/en/rest/repos/repos#list-codeowners-errors)
 endpoint, and community validators check ownership coverage as well as syntax.
 
-A silently-skipped line is indistinguishable from a line that works until the day
-somebody needed the review.
+A silently skipped line can leave a path without its intended owner.
 
 ## References
 

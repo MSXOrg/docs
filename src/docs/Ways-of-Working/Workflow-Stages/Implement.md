@@ -5,7 +5,7 @@ description: Procedure for the Workflow stage that delivers one ready Task or Bu
 
 # Implement
 
-Implement is the delivery stage of the canonical [Workflow](../Workflow.md). It takes one ready, unblocked Task or Bug and produces working software in a review-ready pull request. The stage owns branching, coding, committing, opening the pull request, tracking progress, running the automated review loop, responding to feedback, and finalizing the release note. Implement builds delivery leaves; it does not implement an Epic or PBI aggregate, plan from scratch, or supply the independent review.
+Implement is the delivery stage of the canonical [Workflow](../Workflow.md). It delivers one ready, unblocked Task or Bug as a verified repository change in a review-ready pull request. The stage owns branches, code, commits, pull request creation, progress records, automated review, feedback responses, and final metadata. Metadata includes the pull request description and applicable release decisions. Implement does not build an Epic or PBI, start without a delivery plan, or supply independent review.
 
 ## Enter this stage when
 
@@ -29,18 +29,21 @@ Use [git worktrees](../Git-Worktrees.md) for every repository-delivery Task or B
 
 1. Create a worktree from the default branch per [Branching and Merging](../Branching-and-Merging.md).
 2. Push an initial commit and immediately open a **draft** pull request so CI attaches from the first push.
+   Follow the [Contribution Workflow](../Contribution-Workflow.md#the-flow) when you draft the title and description.
 3. Close exactly that Task or Bug in the pull request. Reference a parent PBI or Epic only as non-closing context, then assign the pull request.
 
 ### 3. Build
 
 For each step in the delivery plan:
 
-1. Implement the change and self-review the staged diff.
+1. Define the failing test or repeatable verification before you implement the behavior. Follow the leaf's technical plan, then self-review the staged diff.
 2. Commit per [Commit Conventions](../Commit-Conventions.md) — one logical change per commit.
 3. Update the issue as each plan step completes — do not batch.
 4. Push regularly so CI runs against current work.
 
 When the plan is wrong, stop and document the conflict in a comment, then update the plan before resuming. Out-of-scope problems go to [Define](Define.md).
+
+Verify the leaf's relevant design and documentation against the delivered consumer behavior through the shared [completion evidence gate](../Definition-of-Ready-and-Done.md#documentation-and-design-evidence). Record the updated artifacts or justified already-correct links in the PR's supporting evidence; do not turn the parent Epic or PBI into a technical plan.
 
 ### 4. Self-review and respond
 
@@ -49,13 +52,20 @@ When the plan is wrong, stop and document the conflict in a comment, then update
 
 ### 5. Standards and framework alignment pass
 
-Run this once per implementation session, when the change is otherwise complete and before the pull request is marked ready — not on every commit. Re-read the applicable guidance in precedence order and reconcile the whole diff against it:
+Run this pass once per implementation session, when the change is otherwise complete and before the pull request is marked ready. Do not run it on every commit. Read the applicable guidance in precedence order and reconcile the whole diff against it:
 
 1. **Process** — the [Ways of Working](../index.md) pages that govern this stage, including [Commit Conventions](../Commit-Conventions.md), [PR Format](../PR-Format.md), and [Branching and Merging](../Branching-and-Merging.md).
 2. **Standards** — the [Coding Standards](../../Coding-Standards/index.md) chapters that apply to the languages and file types actually changed.
 3. **Framework and domain documentation** — the documentation the repository's framework or product owns, published under [Capabilities](../../Capabilities/index.md) or in the repository itself; for example the module-pipeline documentation for a module repository, or the action contract for an action repository.
 
-Process defines the method; standards and framework documentation define correctness details. Where the layers overlap, the narrower layer supplies the detail and the broader layer supplies the method — a framework page never overrides a process rule it does not own. Read the canonical pages instead of recalling them; that is what keeps guidance written once and referenced everywhere.
+Process defines the method. Standards and framework documentation define correctness details. Where the layers overlap, the narrower layer supplies the detail and the broader layer supplies the method. A framework page never overrides a process rule it does not own. Read the canonical pages instead of relying on memory.
+
+Reconcile the [consumer-evidence readiness gate](../Definition-of-Ready-and-Done.md#definition-of-ready-for-review)
+in this same pass. Consumer upgrades use [Consumer Upgrades](../Consumer-Upgrades.md);
+applicable producer changes demonstrate immutable template compatibility and
+track the [producer/template completion obligations](../Definition-of-Ready-and-Done.md#repository-delivery-leaf).
+Record the evidence with the alignment rows in `Technical details`, not in a
+second checklist.
 
 Record the outcome as one row per changed surface:
 
@@ -64,9 +74,9 @@ Record the outcome as one row per changed surface:
 | `src/functions/**` (PowerShell) | Naming, Functions, Error Handling | Module source layout | Aligned |
 | `.github/workflows/**` | GitHub Actions | Reusable workflow contract | Exception — Owner/Repo#123 |
 
-A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link that justifies it. Where a changed surface has no framework or domain documentation of its own, write `None (no framework-specific docs)` rather than inventing a pseudo-link. Carry the table into the pull request's Technical details block per [PR Format](../PR-Format.md), so [Review](Review.md) can verify the pass instead of guessing whether it happened.
+A result is `Aligned`, `Fixed in this PR`, or `Exception` with a link that justifies it. Where a changed surface has no framework or domain documentation of its own, write `None (no framework-specific docs)` rather than inventing a pseudo-link. Put each row in the [`Technical details` block](../PR-Format.md#add-result-details-in-order) for the result it supports. If a row supports several results or interfaces, record it once and name them so [Review](Review.md) can verify the pass.
 
-**Stop rule.** Fix what is in scope for the closing Task or Bug and small enough to keep the pull request reviewable. When a finding is out of scope, systemic across the repository, or would change the shape of the pull request, file a follow-up issue through [Define](Define.md), link it in the table as an exception, and leave the change as it is. The pass improves alignment; it does not turn into a second delivery.
+**Stop rule.** Fix only work in scope for the closing Task or Bug, and keep the pull request small enough to review. For out-of-scope or systemic findings, file a follow-up issue through [Define](Define.md). Do the same when a finding would change the pull request's scope. Link the follow-up in the table as an exception and leave that work out of the change. The pass verifies alignment; it does not add another deliverable.
 
 ### 6. Issue convergence sweep
 
@@ -75,15 +85,15 @@ Run this once per implementation session, at the same timing as the standards/fr
 1. Search for already-open issues whose asks are already satisfied by the finished diff, not only the issue originally linked when the branch was opened.
 2. Scope the sweep deliberately so it scales: prioritize the delivery leaf's parent and siblings in the [Issue Hierarchy](../Issues/Types/Hierarchy.md), then narrow by affected component, labels, keywords, or code paths. Do not read every open issue serially in large repositories.
 3. Treat convergence as outcome-based:
-   - **Fully satisfied** — the diff already delivers the issue's ask. Add it to the pull request's Relevant issues block with `Resolves` so merge closes it.
-   - **Partially satisfied** — the diff helps but does not fully deliver the ask. Link it as non-closing context and keep or create a follow-up delivery leaf for the remaining gap.
+   - **Fully satisfied** — the diff already delivers the issue's ask. Add it to the result's `Related links` with `Resolves` so merge closes it.
+   - **Partially satisfied** — the diff helps but does not fully deliver the ask. Add it to the result's `Related links` as non-closing context. Keep or create a follow-up delivery leaf for the remaining gap.
 4. Keep this pass focused on convergence and linkage. It does **not** rewrite, reformat, or otherwise "fix up" issue bodies to match issue templates; issue quality edits are separate work routed through [Define](Define.md).
 
 ### 7. Finalize and hand off
 
 When the change meets the [Definition of Ready for Review](../Definition-of-Ready-and-Done.md):
 
-1. Finalize the title, release-note description, and effective release decision and its source per [PR Format](../PR-Format.md).
+1. Finalize the title and release-note-ready description per [PR Format](../PR-Format.md). When the target route invokes Release Management, also reconcile the `Release details` block and applied `release:*` labels with the effective configuration; otherwise omit them.
 2. Mark the pull request ready and enable auto-merge per [Branching and Merging](../Branching-and-Merging.md).
 
 ## Operating rules

@@ -1,10 +1,10 @@
 ---
 title: VS Code Extensions
-description: Editor tooling that brings the MSX way of working into VS Code.
+description: Editor tools that apply the MSX ways of working in VS Code.
 ---
 
 # VS Code Extensions
 
-Editor tooling that brings the MSX way of working directly into **VS Code** — meeting developers where they already are, so the *easy* path and the *right* path are the same one.
+The editor extensions apply the MSX ways of working directly in **VS Code**. Their design makes the recommended workflow the easy choice for developers.
 
 These extensions are authored in [TypeScript](../Coding-Standards/TypeScript.md) and inherit the [Coding Standards](../Coding-Standards/index.md) and [Ways of Working](../Ways-of-Working/index.md) from this site.
