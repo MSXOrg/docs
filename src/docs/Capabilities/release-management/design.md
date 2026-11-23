@@ -264,10 +264,10 @@ A visible or built coordinate always identifies one source and one artifact.
 ### Resolve prereleases and release candidates
 
 Configured prerelease and release-candidate branches publish their assigned
-series on pushes. An open pull request carrying `release:prerelease` can publish
-an ordinary prerelease using one explicit owned bump label, or the valid
-effective `DefaultBump` when that label is absent. Neither route publishes a
-stable version or advances stable discovery or aliases.
+series on pushes. An open same-repository pull request with `release:prerelease`
+can publish an ordinary prerelease using one explicit owned bump label, or the
+valid effective `DefaultBump` when that bump label is absent. Neither route
+publishes a stable version or advances stable discovery or aliases.
 
 A prerelease applies its aggregate increment to the stable baseline and permanent
 stable reservations, then appends a native identifier that sorts before the
@@ -298,6 +298,26 @@ neither prerelease nor release-candidate counters carry over.
 Each publishing target validates its native prerelease flag against the
 canonical version. A stable canonical version cannot be sent through a native
 prerelease channel, and a canonical prerelease cannot be represented as stable.
+
+#### Prerelease a fork contribution {#prerelease-a-fork-contribution}
+
+Use the external fork pull request for read-only validation. It does not
+authorize publication, even with `release:prerelease`. Follow the
+[GitHub Actions rule for untrusted code](../../Coding-Standards/GitHub-Actions.md#never-expand-untrusted-input-inline).
+
+An authorized maintainer follows these steps:
+
+1. Review and approve the exact changes from the fork pull request. If the
+   revision changes, review and approve the new revision before merge.
+2. Merge only the approved changes into a separate branch in the base
+   repository. A copy of unreviewed code on a repository-owned branch is
+   still untrusted.
+3. Use trusted publisher code to publish the reviewed revision from that branch.
+   If the producer supports pull-request-driven prereleases, open a
+   same-repository pull request from that branch and apply `release:prerelease`.
+
+Use only the publication triggers that the producer supports. A separate branch
+does not by itself enable publication on push.
 
 ## Build, Verify, and Publish
 
